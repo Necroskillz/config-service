@@ -1,0 +1,53 @@
+package services
+
+import (
+	"fmt"
+	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/views"
+	"github.com/necroskillz/config-service/views/components"
+	"github.com/necroskillz/config-service/views/layouts"
+)
+
+type CreateFeatureData struct {
+	views.ViewData
+
+	Name             string `form:"name" validate:"required,feature_name_free"`
+	Description      string `form:"description" validate:"required"`
+
+	ServiceVersion *model.ServiceVersion
+}
+
+templ CreateFeaturePage(data CreateFeatureData) {
+	@layouts.Container() {
+		<div class="flex flex-col">
+			<h1>Create New Feature</h1>
+			<p class="text-secondary">Created feature will be linked to version { fmt.Sprintf("%d", data.ServiceVersion.Version) } of { data.ServiceVersion.Service.Name }</p>
+			@CreateFeatureForm(data)
+		</div>
+	}
+}
+
+templ CreateFeatureForm(data CreateFeatureData) {
+	<div id="create-feature-form" class="flex flex-col gap-4 mt-4">
+		@components.ErrorMessageContainer()
+		<form hx-post={ fmt.Sprintf("/services/%d/features", data.ServiceVersion.ID) } hx-target="#create-feature-form" hx-swap="outerHTML">
+			<div class="flex flex-col gap-4">
+				@components.FormElement("name", "Name") {
+					@components.Input("name", data.Name, components.ElementOptions{
+						Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Name"])),
+					})
+					@components.ValidationMessage(data.ValidationErrors["Name"])
+				}
+				@components.FormElement("description", "Description") {
+					@components.Textarea("description", data.Description, components.ElementOptions{
+						Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Description"])),
+					})
+					@components.ValidationMessage(data.ValidationErrors["Description"])
+				}
+			</div>
+			<div class="ml-34 mt-8">
+				@components.SubmitButton("Create", components.ElementOptions{})
+			</div>
+		</form>
+	</div>
+}

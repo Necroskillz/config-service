@@ -1,0 +1,38 @@
+package components
+
+import "fmt"
+
+templ Input(name string, value string, options ElementOptions) {
+	<input
+		type="text"
+		@input="onInputToggleValidation($event, $refs.validationMessage, submittedValue)"
+		x-init={ fmt.Sprintf(`submittedValue = "%s"`, value) }
+		name={ name }
+		{ options.Attributes... }
+		class={ "w-full border-1 border-gray-300 rounded-md px-2 py-1", options.Classes }
+		value={ value }
+	/>
+}
+
+templ Textarea(name string, value string, options ElementOptions) {
+	<textarea
+		name={ name }
+		@input="onInputToggleValidation($event, $refs.validationMessage, submittedValue)"
+		x-init={ fmt.Sprintf(`submittedValue = "%s"`, value) }
+		{ options.Attributes... }
+		class={ "w-full border-1 border-gray-300 rounded-md px-2 py-1", options.Classes }
+	>{ value }</textarea>
+}
+
+type SelectOption struct {
+	Value string
+	Text  string
+}
+
+templ Select(name string, value string, options []SelectOption, elementOptions ElementOptions) {
+	<select name={ name } { elementOptions.Attributes... } class={ "border-1 border-gray-300 rounded-md px-2 py-1", elementOptions.Classes } value={ value }>
+		for _, option := range options {
+			<option class="text-black" value={ option.Value }>{ option.Text }</option>
+		}
+	</select>
+}

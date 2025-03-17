@@ -1,0 +1,18 @@
+package components
+
+templ FormElement(name, label string) {
+	<div class="flex flex-row gap-2" x-data="{ submittedValue: null }">
+		if label != "" {
+			<label for={ name } class="w-32 text-right">{ label }</label>
+		}
+		<div class="flex-1">
+			{ children... }
+		</div>
+	</div>
+}
+
+templ ValidationMessage(message string) {
+	if message != "" {
+		<div x-ref="validationMessage" class="text-red-500">{ message }</div>
+	}
+}

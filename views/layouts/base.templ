@@ -1,0 +1,68 @@
+package layouts
+
+import "github.com/necroskillz/config-service/views/components"
+
+templ Base(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<title>{ title }</title>
+			<link rel="icon" type="image/x-icon" href="/assets/favicon.ico" hx-preserve="true"/>
+			<meta charset="UTF-8" hx-preserve="true"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" hx-preserve="true"/>
+			<meta
+				name="htmx-config"
+				content='{
+					"responseHandling":[
+						{"code":"204", "swap": false},
+						{"code":"[23]..", "swap": true},
+						{"code":"422", "swap": true},
+						{"code":"[45]..", "swap": true, "error":true},
+						{"code":"...", "swap": true}
+					]
+				}'
+			/>
+			<script src="/assets/js/htmx.min.js" hx-preserve="true"></script>
+			<script src="/assets/js/alpine.min.js" hx-preserve="true" defer></script>
+			<link href="/assets/css/output.css" rel="stylesheet" hx-preserve="true"/>
+		</head>
+		<body class="antialiased min-h-screen">
+			@components.Header()
+			<div id="content">
+				{ children... }
+			</div>
+			<script type="text/javascript">
+				function onInputToggleValidation(event, validationMessage, submittedValue) {
+					if (validationMessage) {
+						if(event.target.value !== submittedValue) {
+							event.target.classList.remove('validation-error');
+							validationMessage.style.display = 'none';
+						} else {
+							event.target.classList.add('validation-error');
+							validationMessage.style.display = 'block';
+						}
+					}
+				}
+			</script>
+		</body>
+	</html>
+}
+
+templ WithBase(component templ.Component, title string, fullPage bool) {
+	if fullPage {
+		@Base(title) {
+			@component
+		}
+	} else {
+		<head hx-head="merge">
+			<title>{ title }</title>
+		</head>
+		@component
+	}
+}
+
+templ Container() {
+	<div class="w-[1080px] mx-auto">
+		{ children... }
+	</div>
+}

@@ -1,0 +1,36 @@
+package components
+
+import (
+	"fmt"
+	"github.com/necroskillz/config-service/views"
+)
+
+templ Header() {
+	<header class="h-16 bg-gray-950 flex items-center">
+		<div class="basis-32 shrink-0"><a href="/">Config Service</a></div>
+		<nav class="ml-8 flex gap-4 w-full">
+			<a href="/services">Services</a>
+			{{ changesetID := views.CurrentChangesetID(ctx) }}
+			if changesetID > 0 {
+				<a href={ templ.SafeURL(fmt.Sprintf("/changesets/%d", changesetID)) }>Changeset</a>
+			} else {
+				<a href="/changesets/empty">Changeset</a>
+			}
+			<div class="ml-auto">
+				{{ user := views.User(ctx) }}
+				if user.IsAuthenticated {
+					@Dropdown(ElementOptions{}) {
+						@DropdownButton(user.Username, ElementOptions{})
+						@DropdownMenu("right", ElementOptions{}) {
+							@DropdownMenuLink("Logout", "/logout", ElementOptions{
+								Attributes: templ.Attributes{"hx-post": "/logout"},
+							})
+						}
+					}
+				} else {
+					<a href="/login">Login</a>
+				}
+			</div>
+		</nav>
+	</header>
+}

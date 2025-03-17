@@ -1,0 +1,134 @@
+package changesets
+
+import (
+	"fmt"
+	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/views/layouts"
+)
+
+type ChangesetDetailData struct {
+	Changeset *model.Changeset
+}
+
+templ ChangesetDetailPage(data ChangesetDetailData) {
+	@layouts.Container() {
+		<div>
+			<h1>{ fmt.Sprintf("Changeset #%d", data.Changeset.ID) }</h1>
+			if len(data.Changeset.ChangesetChanges) > 0 {
+				<div class="flex flex-col border border-gray-200 rounded-md">
+					for _, change := range data.Changeset.ChangesetChanges {
+						<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
+							@changesetChange(change)
+						</div>
+					}
+				</div>
+			} else {
+				<div class="text-secondary">You have not made any changes yet</div>
+			}
+		</div>
+	}
+}
+
+templ changesetChange(change model.ChangesetChange) {
+	if change.VariationValueID != nil {
+		@variationValueChange(change)
+	} else if change.KeyID != nil {
+		@keyChange(change)
+	} else if change.FeatureVersionServiceVersionID != nil {
+		@featureVersionServiceVersionChange(change)
+	} else if change.FeatureVersionID != nil {
+		@featureVersionChange(change)
+	} else if change.ServiceVersionID != nil {
+		@serviceVersionChange(change)
+	}
+}
+
+templ variationValueChange(change model.ChangesetChange) {
+	<div class="flex flex-col gap-2">
+		<div class="font-semibold">
+			{ getChangeTypeText(change.Type) } Value for { fmt.Sprintf("%s in %s v%d", change.Key.Name, change.FeatureVersion.Feature.Name, change.FeatureVersion.Version) }
+		</div>
+		if change.VariationValue != nil && change.VariationValue.VariationPropertyValues != nil {
+			<div class="flex flex-wrap gap-2 mb-2">
+				for _, propValue := range change.VariationValue.VariationPropertyValues {
+					<span class="px-2 py-1 bg-gray-100 rounded-md text-sm">
+						{ propValue.Value }
+					</span>
+				}
+			</div>
+		}
+		<div class="flex gap-4">
+			if change.OldValue != nil {
+				<div class="bg-red-100 line-through text-red-800">
+					{ *change.OldValue }
+				</div>
+			}
+			if change.NewValue != nil {
+				<div class="bg-green-100 text-green-800">
+					{ *change.NewValue }
+				</div>
+			}
+		</div>
+	</div>
+}
+
+templ keyChange(change model.ChangesetChange) {
+	<div>
+		<span class="font-semibold">{ getChangeTypeText(change.Type) } Key</span>
+		<span class={ getChangeTypeClass(change.Type) }>{ change.Key.Name }</span>
+		<span class="font-semibold">for { change.FeatureVersion.Feature.Name } v{ fmt.Sprint(change.FeatureVersion.Version) }</span>
+	</div>
+}
+
+templ featureVersionServiceVersionChange(change model.ChangesetChange) {
+	<div>
+		<span class="font-semibold">{ getChangeTypeText(change.Type) } Service-Feature Link</span>
+		<span class={ getChangeTypeClass(change.Type) }>
+			{ change.ServiceVersion.Service.Name } v{ fmt.Sprint(change.ServiceVersion.Version) }
+			<span class="mx-2">↔</span>
+			{ change.FeatureVersion.Feature.Name } v{ fmt.Sprint(change.FeatureVersion.Version) }
+		</span>
+	</div>
+}
+
+templ featureVersionChange(change model.ChangesetChange) {
+	<div>
+		<span class="font-semibold">{ getChangeTypeText(change.Type) } Feature Version</span>
+		<span class={ getChangeTypeClass(change.Type) }>
+			{ change.FeatureVersion.Feature.Name } v{ fmt.Sprint(change.FeatureVersion.Version) }
+		</span>
+	</div>
+}
+
+templ serviceVersionChange(change model.ChangesetChange) {
+	<div>
+		<span class="font-semibold">{ getChangeTypeText(change.Type) } Service Version</span>
+		<span class={ getChangeTypeClass(change.Type) }>
+			{ change.ServiceVersion.Service.Name } v{ fmt.Sprint(change.ServiceVersion.Version) }
+		</span>
+	</div>
+}
+
+func getChangeTypeText(changeType model.ChangesetChangeType) string {
+	switch changeType {
+	case model.ChangesetChangeTypeCreate:
+		return "Created"
+	case model.ChangesetChangeTypeUpdate:
+		return "Updated"
+	case model.ChangesetChangeTypeDelete:
+		return "Deleted"
+	default:
+		return "Unknown"
+	}
+}
+
+func getChangeTypeClass(changeType model.ChangesetChangeType) string {
+	switch changeType {
+	case model.ChangesetChangeTypeCreate:
+		return "bg-green-100 text-green-800 py-1 px-1"
+	case model.ChangesetChangeTypeDelete:
+		return "bg-red-100 text-red-800 py-1 px-1"
+	default:
+		return ""
+	}
+}

@@ -1,0 +1,34 @@
+package auth
+
+import "github.com/necroskillz/config-service/views"
+import "github.com/necroskillz/config-service/views/components"
+
+type LoginData struct {
+	views.ViewData
+
+	Username string `form:"username" validate:"required"`
+	Password string `form:"password" validate:"required"`
+}
+
+templ Login(data LoginData) {
+	<div id="login-form" class="flex flex-col items-center justify-center gap-4">
+		@components.ErrorMessageContainer()
+		<form class="flex flex-col items-center justify-center gap-4" hx-post="/login" hx-target="#login-form" hx-swap="outerHTML">
+			@components.FormElement("username", "") {
+				@components.Input("username", data.Username, components.ElementOptions{
+					Attributes: templ.Attributes{"placeholder": "Username"},
+					Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Username"])),
+				})
+				@components.ValidationMessage(data.ValidationErrors["Username"])
+			}
+			@components.FormElement("password", "") {
+				@components.Input("password", data.Password, components.ElementOptions{
+					Attributes: templ.Attributes{"placeholder": "Password", "type": "password"},
+					Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Password"])),
+				})
+				@components.ValidationMessage(data.ValidationErrors["Password"])
+			}
+			@components.SubmitButton("Login", components.ElementOptions{})
+		</form>
+	</div>
+}

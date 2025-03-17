@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+
+@theme {
+    --color-secondary: var(--color-gray-400);
+}
+
+@layer utilities {
+    .text-secondary {
+        color: var(--color-secondary);
+    }
+}
+
+@layer base {
+	body {
+		@apply bg-gray-900;
+		@apply text-gray-100;
+	}
+
+    #content {
+        @apply p-4;
+    }
+
+    header {
+        @apply px-4;
+    }
+
+    h1 {
+        @apply text-2xl font-bold mb-4;
+    }
+
+    .validation-error {
+        border-color: var(--color-red-500) !important;
+    }
+
+    .htmx-request button[type="submit"] {
+        @apply opacity-50;
+    }
+}

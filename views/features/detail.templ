@@ -1,0 +1,64 @@
+package services
+
+import (
+	"fmt"
+
+	"github.com/necroskillz/config-service/constants"
+	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/views"
+	"github.com/necroskillz/config-service/views/components"
+	"github.com/necroskillz/config-service/views/layouts"
+)
+
+type FeatureDetailData struct {
+	ServiceVersion       *model.ServiceVersion
+	FeatureVersion       *model.FeatureVersion
+	Keys                 []model.Key
+	OtherFeatureVersions []model.FeatureVersion
+}
+
+templ FeatureDetailPage(data FeatureDetailData) {
+	@layouts.Container() {
+		{{ permission := views.User(ctx).GetPermissionForFeature(data.ServiceVersion.Service.ID, data.FeatureVersion.Feature.ID) }}
+		<div class="flex flex-col">
+			<h1>
+				{ data.FeatureVersion.Feature.Name }
+				@components.Pill(fmt.Sprintf("v%d", data.FeatureVersion.Version))
+			</h1>
+			<div class="text-secondary">{ data.FeatureVersion.Feature.Description }</div>
+			<div class="flex flex-row gap-2 mt-4">
+				@components.Dropdown(components.ElementOptions{}) {
+					@components.DropdownButton("Versions", components.ElementOptions{
+						Classes: templ.Classes("bg-gray-300 text-gray-900 px-4 py-1 rounded-md"),
+					})
+					@components.DropdownMenu("left", components.ElementOptions{Classes: templ.Classes("w-32")}) {
+						for _, otherFeatureVersion := range data.OtherFeatureVersions {
+							if otherFeatureVersion.ID == data.FeatureVersion.ID {
+								@components.DropdownMenuText(fmt.Sprintf("v%d", otherFeatureVersion.Version), components.ElementOptions{
+									Classes: templ.Classes("font-bold"),
+								})
+							} else {
+								@components.DropdownMenuLink(fmt.Sprintf("v%d", otherFeatureVersion.Version), fmt.Sprintf("/services/%d/features/%d", data.ServiceVersion.ID, otherFeatureVersion.ID), components.ElementOptions{})
+							}
+						}
+					}
+				}
+				if permission == constants.PermissionAdmin {
+					@components.LinkButton("Create New Key", fmt.Sprintf("/services/%d/features/%d/keys/create", data.ServiceVersion.ID, data.FeatureVersion.ID), components.ElementOptions{})
+				}
+			</div>
+			<div class="flex flex-col border border-gray-200 rounded-md mt-4">
+				for _, key := range data.Keys {
+					<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
+						<h2 class="text-lg font-bold">
+							<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d/keys/%d", data.ServiceVersion.ID, data.FeatureVersion.ID, key.ID)) }>{ key.Name }</a>
+						</h2>
+						if key.Description != nil {
+							<p class="text-sm text-secondary">{ *key.Description }</p>
+						}
+					</div>
+				}
+			</div>
+		</div>
+	}
+}

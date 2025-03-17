@@ -1,0 +1,36 @@
+package services
+
+import (
+	"fmt"
+
+	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/views"
+	"github.com/necroskillz/config-service/views/components"
+	"github.com/necroskillz/config-service/views/layouts"
+)
+
+type ServiceListData struct {
+	ServiceVersions []model.ServiceVersion
+}
+
+templ ServiceList(data ServiceListData) {
+	@layouts.Container() {
+		<h1>Services</h1>
+		<div class="flex flex-col border border-gray-200 rounded-md">
+			for _, serviceVersion := range data.ServiceVersions {
+				<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
+					<h2 class="text-lg font-bold">
+						<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", serviceVersion.ID)) }>{ serviceVersion.Service.Name }</a>
+						@components.Pill(fmt.Sprintf("v%d", serviceVersion.Version))
+					</h2>
+					<p class="text-sm text-secondary">{ serviceVersion.Service.Description }</p>
+				</div>
+			}
+		</div>
+		if views.User(ctx).IsGlobalAdmin {
+			<div class="mt-8">
+				@components.LinkButton("Create New Service", "/services/create", components.ElementOptions{})
+			</div>
+		}
+	}
+}
