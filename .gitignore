@@ -1,0 +1,4 @@
+bin/
+tmp/
+views/*.txt
+views/**/*.go

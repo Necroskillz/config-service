@@ -1,14 +1,55 @@
 package values
 
-import "github.com/necroskillz/config-service/model"
+import (
+	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/service"
+)
 
 type ValueMatrixData struct {
-	Key *model.Key
+	Key        *model.Key
+	Properties []service.VariationHierarchyProperty
+	Values     []service.EvaluatedVariationValue
 }
 
 templ ValueMatrix(data ValueMatrixData) {
 	<div class="flex flex-col gap-4">
-		<h1>data.Key.Name</h1>
-		<p class="text-secondary">data.Key.Description</p>
+		<h1>{ data.Key.Name }</h1>
+		if data.Key.Description != nil {
+			<p class="text-secondary">{ *data.Key.Description }</p>
+		}
+		<div class="overflow-x-auto">
+			<table class="border-collapse">
+				<thead>
+					<tr>
+						<th class="border px-4 py-2 text-left max-w-[400px] min-w-[200px]">Value</th>
+						for _, prop := range data.Properties {
+							<th class="border px-4 py-2 text-left min-w-[120px]">{ prop.Name }</th>
+						}
+					</tr>
+				</thead>
+				<tbody>
+					for _, value := range data.Values {
+						<tr>
+							<td class="border px-4 py-2 break-words max-w-[400px]">
+								if value.Value != nil {
+									{ *value.Value }
+								} else {
+									<span>NULL</span>
+								}
+							</td>
+							for _, prop := range data.Properties {
+								<td class="border px-4 py-2">
+									if propValue, exists := value.Variation[prop.Name]; exists {
+										{ propValue }
+									} else {
+										<span>any</span>
+									}
+								</td>
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
 	</div>
 }

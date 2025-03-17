@@ -11,6 +11,7 @@ type User struct {
 	IsAuthenticated      bool
 	IsGlobalAdmin        bool
 	permissionCollection *PermissionCollection
+	ChangesetID          uint
 }
 
 func AnonymousUser() *User {
@@ -22,13 +23,17 @@ func AnonymousUser() *User {
 	}
 }
 
-func NewUser(model *model.User, parentsProvider VariationPropertyValueParentsProvider) *User {
+func NewUser(model *model.User, changeset *model.Changeset, parentsProvider VariationPropertyValueParentsProvider) *User {
 	user := &User{
 		ID:                   model.ID,
 		Username:             model.Name,
 		IsAuthenticated:      true,
 		IsGlobalAdmin:        model.GlobalAdministrator,
 		permissionCollection: NewPermissionCollection(model.Permissions, parentsProvider),
+	}
+
+	if changeset != nil {
+		user.ChangesetID = changeset.ID
 	}
 
 	return user

@@ -19,6 +19,10 @@ func NewKeyService(unitOfWorkCreator repository.UnitOfWorkCreator, keyRepository
 	return &KeyService{unitOfWorkCreator: unitOfWorkCreator, keyRepository: keyRepository, valueTypeRepository: valueTypeRepository, changesetService: changesetService, variationValueRepository: variationValueRepository}
 }
 
+func (s *KeyService) GetKey(ctx context.Context, keyID uint) (*model.Key, error) {
+	return s.keyRepository.GetById(ctx, keyID)
+}
+
 func (s *KeyService) GetFeatureKeys(ctx context.Context, featureVersionID uint) ([]model.Key, error) {
 	return s.keyRepository.GetActive(ctx, featureVersionID)
 }

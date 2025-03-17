@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"slices"
 	"sort"
 
+	"github.com/necroskillz/config-service/model"
 	"github.com/necroskillz/config-service/repository"
 )
 
@@ -31,7 +33,7 @@ type VariationHierarchyValue struct {
 }
 
 type VariationHierarchy struct {
-	tree             map[uint]VariationHierarchyProperty
+	properties       map[uint]VariationHierarchyProperty
 	lookup           map[uint]map[string]*VariationHierarchyValue
 	serviceTypeOrder map[uint][]uint
 }
@@ -53,6 +55,73 @@ func (v *VariationHierarchy) GetParents(propertyId uint, value string) []string 
 	return values
 }
 
+func (v *VariationHierarchy) GetProperties(serviceTypeID uint) []VariationHierarchyProperty {
+	properties := []VariationHierarchyProperty{}
+
+	for _, propertyID := range v.serviceTypeOrder[serviceTypeID] {
+		properties = append(properties, v.properties[propertyID])
+	}
+
+	return properties
+}
+
+type EvaluatedVariationValue struct {
+	Value     *string
+	Rank      int
+	Variation map[string]string
+}
+
+type VariationValueFilter struct {
+	Filter          map[string]string
+	IncludeChildren bool
+}
+
+func (v *VariationHierarchy) SortAndFilterValues(serviceTypeID uint, values []model.VariationValue, filter VariationValueFilter) []EvaluatedVariationValue {
+	evaluatedValues := []EvaluatedVariationValue{}
+	rankMap := map[uint]int{}
+
+	accumulatedDepth := 0
+	for _, variationPropertyID := range v.serviceTypeOrder[serviceTypeID] {
+		rankMap[variationPropertyID] = accumulatedDepth
+		accumulatedDepth += v.properties[variationPropertyID].MaxDepth + 1
+	}
+
+	for _, value := range values {
+		rank := 0
+		variation := map[string]string{}
+
+		for _, variationPropertyValue := range value.VariationPropertyValues {
+			property := v.properties[variationPropertyValue.VariationPropertyID]
+			filterValue, ok := filter.Filter[property.Name]
+
+			if ok {
+				if filterValue != variationPropertyValue.Value && (filter.IncludeChildren && !slices.Contains(v.GetParents(variationPropertyValue.VariationPropertyID, variationPropertyValue.Value), filterValue)) {
+					rank = -1
+					break
+				}
+			}
+
+			variation[property.Name] = variationPropertyValue.Value
+
+			rank += 1<<rankMap[variationPropertyValue.VariationPropertyID] + v.lookup[variationPropertyValue.VariationPropertyID][variationPropertyValue.Value].Depth
+		}
+
+		if rank != -1 {
+			evaluatedValues = append(evaluatedValues, EvaluatedVariationValue{
+				Value:     value.Data,
+				Rank:      rank,
+				Variation: variation,
+			})
+		}
+	}
+
+	slices.SortFunc(evaluatedValues, func(a, b EvaluatedVariationValue) int {
+		return a.Rank - b.Rank
+	})
+
+	return evaluatedValues
+}
+
 type ServiceTypePropertyPriority struct {
 	PropertyID uint
 	Priority   int
@@ -66,7 +135,7 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 	}
 
 	variationHierarchy := VariationHierarchy{
-		tree:             make(map[uint]VariationHierarchyProperty),
+		properties:       make(map[uint]VariationHierarchyProperty),
 		lookup:           make(map[uint]map[string]*VariationHierarchyValue),
 		serviceTypeOrder: make(map[uint][]uint),
 	}
@@ -101,7 +170,7 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 			propertyValues = append(propertyValues, value)
 		}
 
-		variationHierarchy.tree[variationProperty.ID] = VariationHierarchyProperty{
+		variationHierarchy.properties[variationProperty.ID] = VariationHierarchyProperty{
 			ID:       variationProperty.ID,
 			Name:     variationProperty.Name,
 			Values:   propertyValues,

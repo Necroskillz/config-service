@@ -5,7 +5,6 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/necroskillz/config-service/auth"
-	"github.com/necroskillz/config-service/constants"
 )
 
 func User(ctx context.Context) *auth.User {
@@ -14,15 +13,6 @@ func User(ctx context.Context) *auth.User {
 
 func ValidationErrorClass(err string) templ.KeyValue[string, bool] {
 	return templ.KV("validation-error", err != "")
-}
-
-func CurrentChangesetID(ctx context.Context) uint {
-	changesetID, ok := ctx.Value(constants.ChangesetIdContextKey).(uint)
-	if !ok {
-		return 0
-	}
-
-	return changesetID
 }
 
 type ViewData struct {

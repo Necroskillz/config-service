@@ -51,7 +51,7 @@ templ FeatureDetailPage(data FeatureDetailData) {
 				for _, key := range data.Keys {
 					<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
 						<h2 class="text-lg font-bold">
-							<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d/keys/%d", data.ServiceVersion.ID, data.FeatureVersion.ID, key.ID)) }>{ key.Name }</a>
+							<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d/keys/%d/values", data.ServiceVersion.ID, data.FeatureVersion.ID, key.ID)) }>{ key.Name }</a>
 						</h2>
 						if key.Description != nil {
 							<p class="text-sm text-secondary">{ *key.Description }</p>

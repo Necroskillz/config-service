@@ -81,8 +81,7 @@ func (s *Server) Start() error {
 	valueService := service.NewValueService(unitOfWorkCreator, variationValueRepository)
 
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))))
-	e.Use(middleware.AuthMiddleware(userService, variationHierarchyService))
-	e.Use(middleware.ChangesetMiddleware(changesetService))
+	e.Use(middleware.AuthMiddleware(userService, variationHierarchyService, changesetService))
 	e.Use(echoMiddleware.Logger())
 
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
@@ -136,6 +135,7 @@ func (s *Server) Start() error {
 		changesetService,
 		validationService,
 		valueService,
+		variationHierarchyService,
 		trans,
 	)
 	handler.RegisterRoutes(e)

@@ -82,8 +82,8 @@ func ClearAuthFromSession(c echo.Context) error {
 	return nil
 }
 
-func StoreUserInContext(c echo.Context, user *model.User, parentsProvider VariationPropertyValueParentsProvider) {
-	authUser := NewUser(user, parentsProvider)
+func StoreUserInContext(c echo.Context, user *model.User, changeset *model.Changeset, parentsProvider VariationPropertyValueParentsProvider) {
+	authUser := NewUser(user, changeset, parentsProvider)
 
 	c.Set(constants.UserKey, authUser)
 }

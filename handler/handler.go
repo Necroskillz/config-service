@@ -19,14 +19,15 @@ import (
 )
 
 type Handler struct {
-	ServiceService    *service.ServiceService
-	UserService       *service.UserService
-	FeatureService    *service.FeatureService
-	KeyService        *service.KeyService
-	ChangesetService  *service.ChangesetService
-	ValidationService *service.ValidationService
-	ValueService      *service.ValueService
-	Translator        ut.Translator
+	ServiceService            *service.ServiceService
+	UserService               *service.UserService
+	FeatureService            *service.FeatureService
+	KeyService                *service.KeyService
+	ChangesetService          *service.ChangesetService
+	ValidationService         *service.ValidationService
+	ValueService              *service.ValueService
+	VariationHierarchyService *service.VariationHierarchyService
+	Translator                ut.Translator
 }
 
 func NewHandler(
@@ -37,17 +38,19 @@ func NewHandler(
 	changesetService *service.ChangesetService,
 	validationService *service.ValidationService,
 	valueService *service.ValueService,
+	variationHierarchyService *service.VariationHierarchyService,
 	translator ut.Translator,
 ) *Handler {
 	return &Handler{
-		ServiceService:    serviceService,
-		UserService:       userService,
-		FeatureService:    featureService,
-		KeyService:        keyService,
-		ChangesetService:  changesetService,
-		ValidationService: validationService,
-		ValueService:      valueService,
-		Translator:        translator,
+		ServiceService:            serviceService,
+		UserService:               userService,
+		FeatureService:            featureService,
+		KeyService:                keyService,
+		ChangesetService:          changesetService,
+		ValidationService:         validationService,
+		ValueService:              valueService,
+		Translator:                translator,
+		VariationHierarchyService: variationHierarchyService,
 	}
 }
 
@@ -55,17 +58,8 @@ func (h *Handler) User(c echo.Context) *auth.User {
 	return auth.GetUserFromEchoContext(c)
 }
 
-func (h *Handler) CurrentChangesetID(c echo.Context) uint {
-	changesetId, ok := c.Get(constants.ChangesetIdKey).(uint)
-	if !ok {
-		return 0
-	}
-
-	return changesetId
-}
-
 func (h *Handler) EnsureChangesetID(c echo.Context) (uint, error) {
-	changesetId := h.CurrentChangesetID(c)
+	changesetId := h.User(c).ChangesetID
 	if changesetId == 0 {
 		changeset, err := h.ChangesetService.CreateChangesetForUser(c.Request().Context(), h.User(c).ID)
 		if err != nil {
@@ -80,7 +74,6 @@ func (h *Handler) EnsureChangesetID(c echo.Context) (uint, error) {
 
 func (h *Handler) ViewContext(c echo.Context) context.Context {
 	ctx := context.WithValue(c.Request().Context(), constants.UserContextKey, h.User(c))
-	ctx = context.WithValue(ctx, constants.ChangesetIdContextKey, h.CurrentChangesetID(c))
 
 	return ctx
 }

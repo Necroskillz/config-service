@@ -6,7 +6,7 @@ import (
 	"github.com/necroskillz/config-service/service"
 )
 
-func AuthMiddleware(userService *service.UserService, variationHierarchyService *service.VariationHierarchyService) echo.MiddlewareFunc {
+func AuthMiddleware(userService *service.UserService, variationHierarchyService *service.VariationHierarchyService, changesetService *service.ChangesetService) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			authState, err := auth.GetAuthStateFromSession(c)
@@ -25,7 +25,12 @@ func AuthMiddleware(userService *service.UserService, variationHierarchyService 
 					return err
 				}
 
-				auth.StoreUserInContext(c, user, variationHierarchy)
+				changeset, err := changesetService.GetOpenChangesetForUser(c.Request().Context(), user.ID)
+				if err != nil {
+					return err
+				}
+
+				auth.StoreUserInContext(c, user, changeset, variationHierarchy)
 			}
 
 			return next(c)
