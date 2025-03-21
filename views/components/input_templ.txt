@@ -1,0 +1,21 @@
+<input type=\"text\" @input=\"onInputToggleValidation($event, $refs.validationMessage, submittedValue)\" x-init=\"
+\" name=\"
+\"
+ class=\"
+\" value=\"
+\">
+<textarea name=\"
+\" @input=\"onInputToggleValidation($event, $refs.validationMessage, submittedValue)\" x-init=\"
+\"
+ class=\"
+\">
+</textarea>
+<select name=\"
+\"
+ class=\"
+\">
+<option
+ class=\"text-black\" value=\"
+\">
+</option>
+</select>

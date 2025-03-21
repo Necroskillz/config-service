@@ -1,0 +1,9 @@
+<div class=\"flex flex-col\"><h1>Create New Key</h1><p class=\"text-secondary\">Create a new key for 
+</p>
+</div>
+<div id=\"create-key-form\" class=\"flex flex-col gap-4 mt-4\">
+<form hx-post=\"
+\" hx-target=\"#create-key-form\" hx-swap=\"outerHTML\"><div class=\"flex flex-col gap-4\">
+ 
+</div><div class=\"ml-34 mt-8\">
+</div></form></div>

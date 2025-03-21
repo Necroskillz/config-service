@@ -1,6 +1,10 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/necroskillz/config-service/service"
+	"strings"
+)
 
 templ Input(name string, value string, options ElementOptions) {
 	<input
@@ -30,9 +34,67 @@ type SelectOption struct {
 }
 
 templ Select(name string, value string, options []SelectOption, elementOptions ElementOptions) {
-	<select name={ name } { elementOptions.Attributes... } class={ "border-1 border-gray-300 rounded-md px-2 py-1", elementOptions.Classes } value={ value }>
+	<select name={ name } { elementOptions.Attributes... } class={ "border-1 border-gray-300 rounded-md px-2 py-1", elementOptions.Classes }>
 		for _, option := range options {
-			<option class="text-black" value={ option.Value }>{ option.Text }</option>
+			<option { templ.Attributes{"selected": option.Value == value} ... } class="text-black" value={ option.Value }>{ option.Text }</option>
 		}
 	</select>
+}
+
+func makeIndentedText(text string, indent int, isLast bool) string {
+	if indent == 0 {
+		return text
+	}
+
+	sb := strings.Builder{}
+
+	for i := 0; i < indent; i++ {
+		sb.WriteString(" ")
+	}
+
+	if isLast {
+		sb.WriteString("╚")
+	} else {
+		sb.WriteString("╠")
+	}
+
+	sb.WriteString(" ")
+	sb.WriteString(text)
+
+	return sb.String()
+}
+
+func makeIndentedSelectOptions(indent int, values []*service.VariationHierarchyValue) []SelectOption {
+	options := []SelectOption{}
+	last := len(values) - 1
+
+	for i, value := range values {
+		options = append(options, SelectOption{
+			Value: value.Value,
+			Text:  makeIndentedText(value.Value, indent, i == last),
+		})
+
+		if len(value.Children) > 0 {
+			options = append(options, makeIndentedSelectOptions(indent+1, value.Children)...)
+		}
+	}
+
+	return options
+}
+
+func variationSelectOptions(property *service.VariationHierarchyProperty) []SelectOption {
+	options := []SelectOption{
+		{
+			Value: "any",
+			Text:  "any",
+		},
+	}
+
+	options = append(options, makeIndentedSelectOptions(0, property.Values)...)
+
+	return options
+}
+
+templ VariationSelect(property *service.VariationHierarchyProperty, value string, options ElementOptions) {
+	@Select(property.Name, value, variationSelectOptions(property), options)
 }

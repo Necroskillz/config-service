@@ -73,14 +73,14 @@ type CreateFeatureParams struct {
 	ServiceID        uint
 }
 
-func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeatureParams) error {
-	return s.unitOfWorkCreator.Run(ctx, func(ctx context.Context) error {
-		feature := model.Feature{
-			Name:        params.Name,
-			Description: params.Description,
-			ServiceID:   params.ServiceID,
-		}
+func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeatureParams) (*model.Feature, error) {
+	feature := model.Feature{
+		Name:        params.Name,
+		Description: params.Description,
+		ServiceID:   params.ServiceID,
+	}
 
+	return &feature, s.unitOfWorkCreator.Run(ctx, func(ctx context.Context) error {
 		if err := s.featureRepository.Create(ctx, &feature); err != nil {
 			return err
 		}

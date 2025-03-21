@@ -71,34 +71,25 @@ func (h *Handler) CreateServiceSubmit(c echo.Context) error {
 		return h.RenderPartial(c, http.StatusUnprocessableEntity, views.CreateServiceForm(data))
 	}
 
-	err = h.ServiceService.CreateService(c.Request().Context(), data.Name, data.Description, data.ServiceTypeID)
+	service, err := h.ServiceService.CreateService(c.Request().Context(), data.Name, data.Description, data.ServiceTypeID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create service").WithInternal(err)
 	}
 
-	return Redirect(c, "/services")
+	return Redirect(c, fmt.Sprintf("/services/%d", service.ID))
 }
 
 func (h *Handler) ServiceDetail(c echo.Context) error {
-	var serviceVersionID uint
+	var serviceVersion model.ServiceVersion
 
-	err := echo.PathParamsBinder(c).Uint("service_version_id", &serviceVersionID).BindError()
+	err := h.LoadBasicData(c, &serviceVersion)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid service version ID")
-	}
-
-	serviceVersion, err := h.ServiceService.GetServiceVersion(c.Request().Context(), serviceVersionID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get service version %d", serviceVersionID).WithInternal(err)
-	}
-
-	if serviceVersion == nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Service version not found")
+		return err
 	}
 
 	serviceFeatures, err := h.FeatureService.GetServiceFeatures(c.Request().Context(), serviceVersion.ID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get features for service version %d", serviceVersionID).WithInternal(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get features for service version %d", serviceVersion.ID).WithInternal(err)
 	}
 
 	allServiceVersions, err := h.ServiceService.GetServiceVersions(c.Request().Context(), serviceVersion.ServiceID)
@@ -107,7 +98,7 @@ func (h *Handler) ServiceDetail(c echo.Context) error {
 	}
 
 	data := views.ServiceDetailData{
-		ServiceVersion:       serviceVersion,
+		ServiceVersion:       &serviceVersion,
 		ServiceFeatures:      serviceFeatures,
 		OtherServiceVersions: allServiceVersions,
 	}

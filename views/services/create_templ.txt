@@ -1,0 +1,8 @@
+<div class=\"flex flex-col gap-4\"><h1>Create New Service</h1>
+</div>
+<div id=\"create-service-form\" class=\"flex flex-col gap-4\">
+<form hx-post=\"/services\" hx-target=\"#create-service-form\" hx-swap=\"outerHTML\"><div class=\"flex flex-col gap-4\">
+ 
+ 
+</div><div class=\"ml-34 mt-8\">
+</div></form></div>

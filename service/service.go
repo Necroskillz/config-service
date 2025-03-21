@@ -60,14 +60,14 @@ func (s *ServiceService) GetPermissionForService(ctx context.Context, user *auth
 	return user.GetPermissionForService(serviceVersion.Service.ID), nil
 }
 
-func (s *ServiceService) CreateService(ctx context.Context, name string, description string, serviceTypeID uint) error {
-	return s.unitOfWorkCreator.Run(ctx, func(ctx context.Context) error {
-		service := model.Service{
-			Name:          name,
-			Description:   description,
-			ServiceTypeID: serviceTypeID,
-		}
+func (s *ServiceService) CreateService(ctx context.Context, name string, description string, serviceTypeID uint) (*model.Service, error) {
+	service := model.Service{
+		Name:          name,
+		Description:   description,
+		ServiceTypeID: serviceTypeID,
+	}
 
+	return &service, s.unitOfWorkCreator.Run(ctx, func(ctx context.Context) error {
 		err := s.serviceRepository.Create(ctx, &service)
 		if err != nil {
 			return err

@@ -77,8 +77,8 @@ func (s *Server) Start() error {
 	variationHierarchyService := service.NewVariationHierarchyService(variationPropertyRepository)
 	featureService := service.NewFeatureService(unitOfWorkCreator, featureRepository, featureVersionRepository, serviceVersionFeatureVersionRepository, changesetService)
 	keyService := service.NewKeyService(unitOfWorkCreator, keyRepository, valueTypeRepository, changesetService, variationValueRepository)
-	validationService := service.NewValidationService(keyRepository)
-	valueService := service.NewValueService(unitOfWorkCreator, variationValueRepository)
+	validationService := service.NewValidationService(keyRepository, variationValueRepository)
+	valueService := service.NewValueService(unitOfWorkCreator, variationValueRepository, changesetService)
 
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))))
 	e.Use(middleware.AuthMiddleware(userService, variationHierarchyService, changesetService))

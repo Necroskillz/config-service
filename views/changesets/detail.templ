@@ -51,7 +51,7 @@ templ variationValueChange(change model.ChangesetChange) {
 		if change.VariationValue != nil && change.VariationValue.VariationPropertyValues != nil {
 			<div class="flex flex-wrap gap-2 mb-2">
 				for _, propValue := range change.VariationValue.VariationPropertyValues {
-					<span class="px-2 py-1 bg-gray-100 rounded-md text-sm">
+					<span class="px-2 py-1 bg-gray-600 rounded-md text-sm">
 						{ propValue.Value }
 					</span>
 				}

@@ -44,7 +44,7 @@ func Base(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/assets/favicon.ico\" hx-preserve=\"true\"><meta charset=\"UTF-8\" hx-preserve=\"true\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" hx-preserve=\"true\"><meta name=\"htmx-config\" content=\"{\r\n\t\t\t\t\t&#34;responseHandling&#34;:[\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;204&#34;, &#34;swap&#34;: false},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;[23]..&#34;, &#34;swap&#34;: true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;422&#34;, &#34;swap&#34;: true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;[45]..&#34;, &#34;swap&#34;: true, &#34;error&#34;:true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;...&#34;, &#34;swap&#34;: true}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\"><script src=\"/assets/js/htmx.min.js\" hx-preserve=\"true\"></script><script src=\"/assets/js/alpine.min.js\" hx-preserve=\"true\" defer></script><link href=\"/assets/css/output.css\" rel=\"stylesheet\" hx-preserve=\"true\"></head><body class=\"antialiased min-h-screen\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/assets/favicon.ico\" hx-preserve=\"true\"><meta charset=\"UTF-8\" hx-preserve=\"true\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" hx-preserve=\"true\"><meta name=\"htmx-config\" content=\"{\r\n\t\t\t\t\t&#34;responseHandling&#34;:[\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;204&#34;, &#34;swap&#34;: false},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;[23]..&#34;, &#34;swap&#34;: true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;422&#34;, &#34;swap&#34;: true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;[45]..&#34;, &#34;swap&#34;: true, &#34;error&#34;:true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;...&#34;, &#34;swap&#34;: true}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\"><script src=\"/assets/js/htmx.min.js\" hx-preserve=\"true\"></script><script src=\"/assets/js/htmx-ext-response-targets.min.js\" hx-preserve=\"true\"></script><script src=\"/assets/js/alpine.min.js\" hx-preserve=\"true\" defer></script><link href=\"/assets/css/output.css\" rel=\"stylesheet\" hx-preserve=\"true\"></head><body class=\"antialiased min-h-screen\" hx-ext=\"response-targets\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -120,7 +120,7 @@ func WithBase(component templ.Component, title string, fullPage bool) templ.Comp
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layouts/base.templ`, Line: 58, Col: 17}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layouts/base.templ`, Line: 59, Col: 17}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {

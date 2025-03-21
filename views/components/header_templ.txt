@@ -1,0 +1,8 @@
+<header class=\"h-16 bg-gray-950 flex items-center\"><div class=\"basis-32 shrink-0\"><a href=\"/\">Config Service</a></div><nav class=\"ml-8 flex gap-4 w-full\"><a href=\"/services\">Services</a>
+<a href=\"
+\">Changeset</a>
+<a href=\"/changesets/empty\">Changeset</a>
+<div class=\"ml-auto\">
+ 
+<a href=\"/login\">Login</a>
+</div></nav></header>

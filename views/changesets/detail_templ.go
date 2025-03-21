@@ -219,7 +219,7 @@ func variationValueChange(change model.ChangesetChange) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			for _, propValue := range change.VariationValue.VariationPropertyValues {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"px-2 py-1 bg-gray-100 rounded-md text-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"px-2 py-1 bg-gray-600 rounded-md text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

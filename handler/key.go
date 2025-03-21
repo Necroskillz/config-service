@@ -28,30 +28,12 @@ func (h *Handler) populateCreateKeyViewData(c echo.Context, data *key_views.Crea
 }
 
 func (h *Handler) CreateKey(c echo.Context) error {
-	var serviceVersionID uint
-	var featureVersionID uint
+	var serviceVersion model.ServiceVersion
+	var featureVersion model.FeatureVersion
 
-	err := echo.PathParamsBinder(c).Uint("service_version_id", &serviceVersionID).Uint("feature_version_id", &featureVersionID).BindError()
+	err := h.LoadBasicData(c, &serviceVersion, &featureVersion)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid service version ID or feature version ID")
-	}
-
-	serviceVersion, err := h.ServiceService.GetServiceVersion(c.Request().Context(), serviceVersionID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get service version").WithInternal(err)
-	}
-
-	if serviceVersion == nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Service version not found")
-	}
-
-	featureVersion, err := h.FeatureService.GetFeatureVersion(c.Request().Context(), featureVersionID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get feature version").WithInternal(err)
-	}
-
-	if featureVersion == nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Feature version not found")
+		return err
 	}
 
 	if h.User(c).GetPermissionForFeature(serviceVersion.Service.ID, featureVersion.Feature.ID) != constants.PermissionAdmin {
@@ -60,7 +42,7 @@ func (h *Handler) CreateKey(c echo.Context) error {
 
 	data := key_views.CreateKeyData{}
 
-	err = h.populateCreateKeyViewData(c, &data, serviceVersion, featureVersion)
+	err = h.populateCreateKeyViewData(c, &data, &serviceVersion, &featureVersion)
 	if err != nil {
 		return err
 	}
@@ -69,30 +51,12 @@ func (h *Handler) CreateKey(c echo.Context) error {
 }
 
 func (h *Handler) CreateKeySubmit(c echo.Context) error {
-	var serviceVersionID uint
-	var featureVersionID uint
+	var serviceVersion model.ServiceVersion
+	var featureVersion model.FeatureVersion
 
-	err := echo.PathParamsBinder(c).Uint("service_version_id", &serviceVersionID).Uint("feature_version_id", &featureVersionID).BindError()
+	err := h.LoadBasicData(c, &serviceVersion, &featureVersion)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid service version ID or feature version ID")
-	}
-
-	serviceVersion, err := h.ServiceService.GetServiceVersion(c.Request().Context(), serviceVersionID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get service version").WithInternal(err)
-	}
-
-	if serviceVersion == nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Service version not found")
-	}
-
-	featureVersion, err := h.FeatureService.GetFeatureVersion(c.Request().Context(), featureVersionID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get feature version").WithInternal(err)
-	}
-
-	if featureVersion == nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Feature version not found")
+		return err
 	}
 
 	if h.User(c).GetPermissionForFeature(serviceVersion.Service.ID, featureVersion.Feature.ID) != constants.PermissionAdmin {
@@ -103,7 +67,7 @@ func (h *Handler) CreateKeySubmit(c echo.Context) error {
 
 	valid, err := h.BindAndValidate(c, &data,
 		h.CollectServiceErrors(func(sec *ServiceErrorCollector) {
-			sec.Collect(h.ValidationService.ValidateKeyNameUniqueness(c.Request().Context(), featureVersionID, data.Name))
+			sec.Collect(h.ValidationService.ValidateKeyNameUniqueness(c.Request().Context(), featureVersion.ID, data.Name))
 		}),
 	)
 	if err != nil {
@@ -111,7 +75,7 @@ func (h *Handler) CreateKeySubmit(c echo.Context) error {
 	}
 
 	if !valid {
-		err = h.populateCreateKeyViewData(c, &data, serviceVersion, featureVersion)
+		err = h.populateCreateKeyViewData(c, &data, &serviceVersion, &featureVersion)
 		if err != nil {
 			return err
 		}
@@ -126,8 +90,8 @@ func (h *Handler) CreateKeySubmit(c echo.Context) error {
 
 	err = h.KeyService.CreateKey(c.Request().Context(), service.CreateKeyParams{
 		ChangesetID:      changesetID,
-		ServiceVersionID: serviceVersionID,
-		FeatureVersionID: featureVersionID,
+		ServiceVersionID: serviceVersion.ID,
+		FeatureVersionID: featureVersion.ID,
 		Name:             data.Name,
 		Description:      data.Description,
 		DefaultValue:     data.DefaultValue,
@@ -138,5 +102,5 @@ func (h *Handler) CreateKeySubmit(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create feature").WithInternal(err)
 	}
 
-	return Redirect(c, fmt.Sprintf("/services/%d/features/%d", serviceVersionID, featureVersionID))
+	return Redirect(c, fmt.Sprintf("/services/%d/features/%d", serviceVersion.ID, featureVersion.ID))
 }

@@ -1,0 +1,12 @@
+<div class=\"flex flex-col\"><h1>
+</h1><div class=\"text-secondary\">
+</div><div class=\"flex flex-row gap-2 mt-4\">
+ 
+</div><div class=\"flex flex-col border border-gray-200 rounded-md mt-4\">
+<div class=\"flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0\"><h2 class=\"text-lg font-bold\"><a href=\"
+\">
+</a></h2>
+<p class=\"text-sm text-secondary\">
+</p>
+</div>
+</div></div>

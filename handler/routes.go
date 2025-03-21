@@ -27,4 +27,5 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	valueGroup := keyGroup.Group("/:key_id/values")
 	valueGroup.GET("", h.ValueMatrix)
+	valueGroup.POST("", h.CreateValueSubmit)
 }

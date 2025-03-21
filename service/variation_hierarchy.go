@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"slices"
 	"sort"
 
@@ -18,22 +19,23 @@ func NewVariationHierarchyService(variationPropertyRepository *repository.Variat
 }
 
 type VariationHierarchyProperty struct {
-	ID       uint
-	Name     string
-	MaxDepth int
-	Values   []VariationHierarchyValue
+	ID          uint
+	Name        string
+	DisplayName string
+	MaxDepth    int
+	Values      []*VariationHierarchyValue
 }
 
 type VariationHierarchyValue struct {
 	ID       uint
 	Value    string
 	Parent   *VariationHierarchyValue
-	Children []VariationHierarchyValue
+	Children []*VariationHierarchyValue
 	Depth    int
 }
 
 type VariationHierarchy struct {
-	properties       map[uint]VariationHierarchyProperty
+	properties       map[uint]*VariationHierarchyProperty
 	lookup           map[uint]map[string]*VariationHierarchyValue
 	serviceTypeOrder map[uint][]uint
 }
@@ -55,14 +57,37 @@ func (v *VariationHierarchy) GetParents(propertyId uint, value string) []string 
 	return values
 }
 
-func (v *VariationHierarchy) GetProperties(serviceTypeID uint) []VariationHierarchyProperty {
-	properties := []VariationHierarchyProperty{}
+func (v *VariationHierarchy) GetProperties(serviceTypeID uint) []*VariationHierarchyProperty {
+	properties := []*VariationHierarchyProperty{}
 
 	for _, propertyID := range v.serviceTypeOrder[serviceTypeID] {
 		properties = append(properties, v.properties[propertyID])
 	}
 
 	return properties
+}
+
+func (v *VariationHierarchy) VariationMapToIds(serviceTypeID uint, variation map[string]string) ([]uint, error) {
+	ids := []uint{}
+
+	properties := v.GetProperties(serviceTypeID)
+
+	for _, property := range properties {
+		value, ok := variation[property.Name]
+
+		if !ok || value == "any" {
+			continue
+		}
+
+		hierarchyValue, ok := v.lookup[property.ID][value]
+		if !ok {
+			return nil, fmt.Errorf("value %s not found for property %s", variation[property.Name], property.Name)
+		}
+
+		ids = append(ids, hierarchyValue.ID)
+	}
+
+	return ids, nil
 }
 
 type EvaluatedVariationValue struct {
@@ -135,7 +160,7 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 	}
 
 	variationHierarchy := VariationHierarchy{
-		properties:       make(map[uint]VariationHierarchyProperty),
+		properties:       make(map[uint]*VariationHierarchyProperty),
 		lookup:           make(map[uint]map[string]*VariationHierarchyValue),
 		serviceTypeOrder: make(map[uint][]uint),
 	}
@@ -145,7 +170,7 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 	serviceTypePropertyPriority := map[uint][]ServiceTypePropertyPriority{}
 
 	for _, variationProperty := range variationProperties {
-		propertyValues := []VariationHierarchyValue{}
+		propertyValues := []*VariationHierarchyValue{}
 		variationHierarchy.lookup[variationProperty.ID] = make(map[string]*VariationHierarchyValue)
 		maxDepth := 0
 
@@ -153,7 +178,7 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 			value := VariationHierarchyValue{
 				ID:       vartiationPropertyValue.ID,
 				Value:    vartiationPropertyValue.Value,
-				Children: []VariationHierarchyValue{},
+				Children: []*VariationHierarchyValue{},
 			}
 
 			if vartiationPropertyValue.ParentID != nil {
@@ -161,20 +186,21 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 				value.Parent = parentValue
 				value.Depth = parentValue.Depth + 1
 				maxDepth = max(maxDepth, value.Depth)
-				parentValue.Children = append(parentValue.Children, value)
+				parentValue.Children = append(parentValue.Children, &value)
+			} else {
+				propertyValues = append(propertyValues, &value)
 			}
 
 			values[vartiationPropertyValue.ID] = &value
 			variationHierarchy.lookup[variationProperty.ID][value.Value] = &value
-
-			propertyValues = append(propertyValues, value)
 		}
 
-		variationHierarchy.properties[variationProperty.ID] = VariationHierarchyProperty{
-			ID:       variationProperty.ID,
-			Name:     variationProperty.Name,
-			Values:   propertyValues,
-			MaxDepth: maxDepth,
+		variationHierarchy.properties[variationProperty.ID] = &VariationHierarchyProperty{
+			ID:          variationProperty.ID,
+			Name:        variationProperty.Name,
+			DisplayName: variationProperty.DisplayName,
+			Values:      propertyValues,
+			MaxDepth:    maxDepth,
 		}
 
 		for _, serviceType := range variationProperty.ServiceTypes {

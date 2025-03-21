@@ -23,10 +23,11 @@ templ Base(title string) {
 				}'
 			/>
 			<script src="/assets/js/htmx.min.js" hx-preserve="true"></script>
+			<script src="/assets/js/htmx-ext-response-targets.min.js" hx-preserve="true"></script>
 			<script src="/assets/js/alpine.min.js" hx-preserve="true" defer></script>
 			<link href="/assets/css/output.css" rel="stylesheet" hx-preserve="true"/>
 		</head>
-		<body class="antialiased min-h-screen">
+		<body class="antialiased min-h-screen" hx-ext="response-targets">
 			@components.Header()
 			<div id="content">
 				{ children... }

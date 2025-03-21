@@ -1,0 +1,48 @@
+<div><h1>
+</h1>
+<div class=\"flex flex-col border border-gray-200 rounded-md\">
+<div class=\"flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0\">
+</div>
+</div>
+<div class=\"text-secondary\">You have not made any changes yet</div>
+</div>
+<div class=\"flex flex-col gap-2\"><div class=\"font-semibold\">
+ Value for 
+</div>
+<div class=\"flex flex-wrap gap-2 mb-2\">
+<span class=\"px-2 py-1 bg-gray-600 rounded-md text-sm\">
+</span>
+</div>
+<div class=\"flex gap-4\">
+<div class=\"bg-red-100 line-through text-red-800\">
+</div>
+<div class=\"bg-green-100 text-green-800\">
+</div>
+</div></div>
+<div><span class=\"font-semibold\">
+ Key</span> 
+<span class=\"
+\">
+</span> <span class=\"font-semibold\">for 
+ v
+</span></div>
+<div><span class=\"font-semibold\">
+ Service-Feature Link</span> 
+<span class=\"
+\">
+ v
+ <span class=\"mx-2\">↔</span> 
+ v
+</span></div>
+<div><span class=\"font-semibold\">
+ Feature Version</span> 
+<span class=\"
+\">
+ v
+</span></div>
+<div><span class=\"font-semibold\">
+ Service Version</span> 
+<span class=\"
+\">
+ v
+</span></div>

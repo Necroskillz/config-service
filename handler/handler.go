@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -13,6 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
+	"github.com/necroskillz/config-service/model"
 	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/layouts"
@@ -194,4 +196,69 @@ func (h *Handler) ApplyServiceValidationErrors(c echo.Context, data views.ViewDa
 	}
 
 	return valid, nil
+}
+
+func (h *Handler) LoadBasicData(c echo.Context, chain ...any) error {
+	if len(chain) == 0 {
+		panic("no data to load")
+	}
+
+	serviceVersion, ok := chain[0].(*model.ServiceVersion)
+	if !ok {
+		panic("first argument must be a pointer to a model.ServiceVersion")
+	}
+
+	err := LoadEntity(c, serviceVersion, "service_version_id", h.ServiceService.GetServiceVersion)
+	if err != nil {
+		return err
+	}
+
+	if len(chain) > 1 {
+		featureVersion, ok := chain[1].(*model.FeatureVersion)
+		if !ok {
+			panic("second argument must be a pointer to a model.FeatureVersion")
+		}
+
+		err = LoadEntity(c, featureVersion, "feature_version_id", h.FeatureService.GetFeatureVersion)
+		if err != nil {
+			return err
+		}
+
+		// TODO: check if feature version is linked to service version
+	}
+
+	if len(chain) > 2 {
+		key, ok := chain[2].(*model.Key)
+		if !ok {
+			panic("third argument must be a pointer to a model.Key")
+		}
+
+		err = LoadEntity(c, key, "key_id", h.KeyService.GetKey)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func LoadEntity[T any](c echo.Context, entity *T, paramName string, loader func(ctx context.Context, id uint) (*T, error)) error {
+	var id uint
+	err := echo.PathParamsBinder(c).MustUint(paramName, &id).BindError()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid path parameters (%s)", paramName)
+	}
+
+	loadedEntity, err := loader(c.Request().Context(), id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get %s with ID %d", reflect.TypeOf(entity).String(), id).WithInternal(err)
+	}
+
+	if loadedEntity == nil {
+		return echo.NewHTTPError(http.StatusNotFound, "%s with ID %d not found", reflect.TypeOf(entity).String(), id)
+	}
+
+	*entity = *loadedEntity
+
+	return nil
 }

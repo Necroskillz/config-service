@@ -1,7 +1,7 @@
 package components
 
 templ Button(text string, buttonType string, options ElementOptions) {
-	<button { options.Attributes... } class={ "bg-blue-500 text-white px-4 py-2 rounded-md flex items-center", options.Classes }>
+	<button type={ buttonType } { options.Attributes... } class={ "bg-blue-500 text-white px-4 py-2 rounded-md flex items-center", options.Classes }>
 		{ text }
 	</button>
 }

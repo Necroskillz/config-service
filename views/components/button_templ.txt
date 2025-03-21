@@ -1,0 +1,31 @@
+<button type=\"
+\"
+ class=\"
+\">
+</button>
+<a href=\"
+\"
+ class=\"
+\">
+</a>
+<div
+ class=\"
+\" x-data=\"{ showDropdown: false }\">
+</div>
+<div
+ class=\"
+\" x-on:click=\"showDropdown = !showDropdown\">
+</div>
+<div
+ class=\"
+\" x-show=\"showDropdown\" @click.away=\"showDropdown = false\">
+</div>
+<a
+ class=\"
+\" href=\"
+\">
+</a>
+<span
+ class=\"
+\">
+</span>
