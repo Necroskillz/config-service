@@ -11,5 +11,5 @@ type VariationValue struct {
 	Key                     Key
 	KeyID                   uint
 	Data                    *string
-	VariationPropertyValues []VariationPropertyValue `gorm:"many2many:variation_value_variation_property_values;"`
+	VariationPropertyValues []VariationPropertyValue `gorm:"many2many:variation_value_variation_property_values;constraint:OnDelete:CASCADE;"`
 }

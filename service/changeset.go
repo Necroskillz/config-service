@@ -41,13 +41,17 @@ func (s *ChangesetService) GetChangeset(ctx context.Context, changesetID uint) (
 		changesetID,
 		"ChangesetChanges",
 		"ChangesetChanges.ServiceVersion",
+		"ChangesetChanges.PreviousServiceVersion",
 		"ChangesetChanges.FeatureVersion",
+		"ChangesetChanges.PreviousFeatureVersion",
 		"ChangesetChanges.Key",
 		"ChangesetChanges.ServiceVersion.Service",
 		"ChangesetChanges.FeatureVersion.Feature",
 		"ChangesetChanges.FeatureVersionServiceVersion",
-		"ChangesetChanges.VariationValue",
-		"ChangesetChanges.VariationValue.VariationPropertyValues",
+		"ChangesetChanges.NewVariationValue",
+		"ChangesetChanges.NewVariationValue.VariationPropertyValues",
+		"ChangesetChanges.OldVariationValue",
+		"ChangesetChanges.OldVariationValue.VariationPropertyValues",
 	)
 }
 
@@ -86,14 +90,33 @@ func (s *ChangesetService) AddKeyChange(ctx context.Context, changesetID uint, f
 	})
 }
 
-func (s *ChangesetService) AddVariationValueChange(ctx context.Context, changesetID uint, featureVersionID uint, keyID uint, variationValueID uint, changeType model.ChangesetChangeType, newValue *string, oldValue *string) error {
+func (s *ChangesetService) AddCreateVariationValueChange(ctx context.Context, changesetID uint, featureVersionID uint, keyID uint, variationValueID uint) error {
 	return s.changesetChangeRepository.Create(ctx, &model.ChangesetChange{
-		ChangesetID:      changesetID,
-		FeatureVersionID: &featureVersionID,
-		KeyID:            &keyID,
-		VariationValueID: &variationValueID,
-		Type:             changeType,
-		NewValue:         newValue,
-		OldValue:         oldValue,
+		ChangesetID:         changesetID,
+		FeatureVersionID:    &featureVersionID,
+		KeyID:               &keyID,
+		NewVariationValueID: &variationValueID,
+		Type:                model.ChangesetChangeTypeCreate,
+	})
+}
+
+func (s *ChangesetService) AddDeleteVariationValueChange(ctx context.Context, changesetID uint, featureVersionID uint, keyID uint, variationValueID uint) error {
+	return s.changesetChangeRepository.Create(ctx, &model.ChangesetChange{
+		ChangesetID:         changesetID,
+		FeatureVersionID:    &featureVersionID,
+		KeyID:               &keyID,
+		OldVariationValueID: &variationValueID,
+		Type:                model.ChangesetChangeTypeDelete,
+	})
+}
+
+func (s *ChangesetService) AddUpdateVariationValueChange(ctx context.Context, changesetID uint, featureVersionID uint, keyID uint, newVariationValueID uint, oldVariationValueID uint) error {
+	return s.changesetChangeRepository.Create(ctx, &model.ChangesetChange{
+		ChangesetID:         changesetID,
+		FeatureVersionID:    &featureVersionID,
+		KeyID:               &keyID,
+		NewVariationValueID: &newVariationValueID,
+		OldVariationValueID: &oldVariationValueID,
+		Type:                model.ChangesetChangeTypeUpdate,
 	})
 }

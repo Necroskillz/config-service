@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/necroskillz/config-service/constants"
+	"github.com/necroskillz/config-service/model"
 	"gorm.io/gorm"
 )
 
@@ -74,4 +75,11 @@ func (r *GormRepository[T]) getDb(ctx context.Context) *gorm.DB {
 		return r.db.WithContext(ctx)
 	}
 	return unitOfWork.(*GormUnitOfWork).tx
+}
+
+func (r *VariationValueRepository) whereActiveOrInChangeset(db *gorm.DB, changesetID uint, changesetChangeIdName string, changesetChangeIdOldName string) *gorm.DB {
+	isDeletedInChangeset := db.Table("changeset_changes csc").Where(fmt.Sprintf("csc.changeset_id = ? AND csc.type = ? AND csc.%s = o.id", changesetChangeIdOldName), changesetID, model.ChangesetChangeTypeDelete).Limit(1)
+	isCreatedInChangeset := db.Table("changeset_changes csc").Where(fmt.Sprintf("csc.changeset_id = ? AND csc.type = ? AND csc.%s = o.id", changesetChangeIdName), changesetID, model.ChangesetChangeTypeCreate).Limit(1)
+
+	return db.Where("(o.valid_from IS NOT NULL AND o.valid_to IS NULL AND NOT EXISTS (?)) OR (o.valid_from IS NULL AND o.valid_to IS NULL AND EXISTS (?))", isDeletedInChangeset, isCreatedInChangeset)
 }

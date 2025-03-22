@@ -30,7 +30,7 @@ templ ChangesetDetailPage(data ChangesetDetailData) {
 }
 
 templ changesetChange(change model.ChangesetChange) {
-	if change.VariationValueID != nil {
+	if change.NewVariationValueID != nil || change.OldVariationValueID != nil {
 		@variationValueChange(change)
 	} else if change.KeyID != nil {
 		@keyChange(change)
@@ -48,9 +48,17 @@ templ variationValueChange(change model.ChangesetChange) {
 		<div class="font-semibold">
 			{ getChangeTypeText(change.Type) } Value for { fmt.Sprintf("%s in %s v%d", change.Key.Name, change.FeatureVersion.Feature.Name, change.FeatureVersion.Version) }
 		</div>
-		if change.VariationValue != nil && change.VariationValue.VariationPropertyValues != nil {
+		{{ 
+			var variationPropertyValues []model.VariationPropertyValue
+			if change.NewVariationValue != nil {
+				variationPropertyValues = change.NewVariationValue.VariationPropertyValues
+			} else if change.OldVariationValue != nil {
+				variationPropertyValues = change.OldVariationValue.VariationPropertyValues
+			}
+		}}
+		if len(variationPropertyValues) > 0 {
 			<div class="flex flex-wrap gap-2 mb-2">
-				for _, propValue := range change.VariationValue.VariationPropertyValues {
+				for _, propValue := range variationPropertyValues {
 					<span class="px-2 py-1 bg-gray-600 rounded-md text-sm">
 						{ propValue.Value }
 					</span>
@@ -58,14 +66,14 @@ templ variationValueChange(change model.ChangesetChange) {
 			</div>
 		}
 		<div class="flex gap-4">
-			if change.OldValue != nil {
+			if change.OldVariationValue != nil {
 				<div class="bg-red-100 line-through text-red-800">
-					{ *change.OldValue }
+					{ *change.OldVariationValue.Data }
 				</div>
 			}
-			if change.NewValue != nil {
+			if change.NewVariationValue != nil {
 				<div class="bg-green-100 text-green-800">
-					{ *change.NewValue }
+					{ *change.NewVariationValue.Data }
 				</div>
 			}
 		</div>

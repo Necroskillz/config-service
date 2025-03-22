@@ -21,7 +21,12 @@ func (h *Handler) populateValueMatrixViewData(c echo.Context, data *value_views.
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get variation hierarchy").WithInternal(err)
 	}
 
-	values, err := h.ValueService.GetKeyValues(c.Request().Context(), key.ID)
+	changesetID, err := h.EnsureChangesetID(c)
+	if err != nil {
+		return err
+	}
+
+	values, err := h.ValueService.GetKeyValues(c.Request().Context(), key.ID, changesetID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get values for key %d", key.ID)).WithInternal(err)
 	}
@@ -29,6 +34,7 @@ func (h *Handler) populateValueMatrixViewData(c echo.Context, data *value_views.
 	filter := service.VariationValueFilter{
 		Filter:          map[string]string{},
 		IncludeChildren: false,
+		ValueSortOrder:  service.ValueSortOrderTree,
 	}
 
 	properties := variationHierarchy.GetProperties(serviceVersion.Service.ServiceTypeID)
@@ -90,9 +96,14 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Failed to convert variation to ids").WithInternal(err)
 	}
 
+	changesetID, err := h.EnsureChangesetID(c)
+	if err != nil {
+		return err
+	}
+
 	valid, err := h.BindAndValidate(c, &data,
 		h.CollectServiceErrors(func(sec *ServiceErrorCollector) {
-			sec.Collect(h.ValidationService.ValidateVariationUniqueness(c.Request().Context(), key.ID, variationIds))
+			sec.Collect(h.ValidationService.ValidateVariationUniqueness(c.Request().Context(), key.ID, variationIds, changesetID))
 		}),
 	)
 	if err != nil {
@@ -106,11 +117,6 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 		data.KeyID = key.ID
 
 		return h.RenderPartial(c, http.StatusUnprocessableEntity, value_views.ValueForm(data))
-	}
-
-	changesetID, err := h.EnsureChangesetID(c)
-	if err != nil {
-		return err
 	}
 
 	err = h.ValueService.CreateValue(c.Request().Context(), service.CreateValueParams{
@@ -132,4 +138,49 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 	}
 
 	return h.RenderPartial(c, http.StatusOK, value_views.ValueMatrix(matrixData))
+}
+
+func (h *Handler) DeleteValueSubmit(c echo.Context) error {
+	var serviceVersion model.ServiceVersion
+	var featureVersion model.FeatureVersion
+	var key model.Key
+	var valueID uint
+
+	err := h.LoadBasicData(c, &serviceVersion, &featureVersion, &key)
+	if err != nil {
+		return err
+	}
+
+	err = echo.PathParamsBinder(c).Uint("value_id", &valueID).BindError()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid value id").WithInternal(err)
+	}
+
+	if h.User(c).GetPermissionForKey(serviceVersion.Service.ServiceTypeID, featureVersion.Feature.ID, key.ID) != constants.PermissionAdmin {
+		return echo.NewHTTPError(http.StatusUnauthorized, "You do not have permission to delete values for this key")
+	}
+
+	changesetID, err := h.EnsureChangesetID(c)
+	if err != nil {
+		return err
+	}
+
+	err = h.ValueService.DeleteValue(c.Request().Context(), service.DeleteValueParams{
+		ChangesetID:      changesetID,
+		FeatureVersionID: featureVersion.ID,
+		KeyID:            key.ID,
+		ValueID:          valueID,
+	})
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete value").WithInternal(err)
+	}
+
+	var matrixData value_views.ValueMatrixData
+	err = h.populateValueMatrixViewData(c, &matrixData, &serviceVersion, &featureVersion, &key)
+	if err != nil {
+		return err
+	}
+
+	return c.HTML(http.StatusOK, "")
 }

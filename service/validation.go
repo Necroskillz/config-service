@@ -41,8 +41,8 @@ func (s *ValidationService) ValidateKeyNameUniqueness(ctx context.Context, featu
 	return nil
 }
 
-func (s *ValidationService) ValidateVariationUniqueness(ctx context.Context, keyID uint, variationIDs []uint) error {
-	id, err := s.variationValueRepository.GetIDByVariation(ctx, keyID, variationIDs)
+func (s *ValidationService) ValidateVariationUniqueness(ctx context.Context, keyID uint, variationIDs []uint, changesetID uint) error {
+	id, err := s.variationValueRepository.GetIDByVariation(ctx, keyID, variationIDs, changesetID)
 	if err != nil {
 		return err
 	}

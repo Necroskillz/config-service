@@ -48,7 +48,7 @@ func ValueForm(data ValueFormData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<td class=\"border px-4 py-2 break-words max-w-[400px]\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<td class=\"border px-4 py-2 break-words max-w-[400px]\"><form id=\"value-form\"></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -105,7 +105,12 @@ func ValueForm(data ValueFormData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.SubmitButton("Add", components.ElementOptions{
-				Attributes: templ.Attributes{"form": "value-form", "hx-post": fmt.Sprintf("/services/%d/features/%d/keys/%d/values", data.ServiceVersionID, data.FeatureVersionID, data.KeyID), "hx-target": "#value-matrix", "hx-target-422": "#add-row"},
+				Attributes: templ.Attributes{
+					"hx-include":    "#value-form",
+					"hx-post":       fmt.Sprintf("/services/%d/features/%d/keys/%d/values", data.ServiceVersionID, data.FeatureVersionID, data.KeyID),
+					"hx-target":     "#value-matrix",
+					"hx-target-422": "#add-row",
+				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

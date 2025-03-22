@@ -4,12 +4,12 @@
 </p>
 <div id=\"value-matrix\" class=\"overflow-x-auto\" x-data=\"{ addValue: false }\">
 </div></div>
-<form id=\"value-form\">
 <table class=\"border-collapse\"><thead><tr><th class=\"border px-4 py-2 text-left max-w-[400px] min-w-[200px]\">Value</th>
 <th class=\"border px-4 py-2 text-left min-w-[120px]\">
 </th>
 <th class=\"border px-4 py-2 text-left min-w-[120px]\"></th></tr></thead> <tbody>
-<tr><td class=\"border px-4 py-2 break-words max-w-[400px]\">
+<tr id=\"
+\"><td class=\"border px-4 py-2 break-words max-w-[400px]\">
 <span>NULL</span>
 </td>
 <td class=\"border px-4 py-2\">
@@ -17,8 +17,7 @@
 </td><td class=\"border px-4 py-2\">
 </td>
 </tr>
-<tr id=\"add-row\" x-show=\"addValue\" x-init=\"addValue = false\">
+<tr id=\"add-row\" x-show=\"addValue\">
 </tr></tbody></table>
 <div x-show=\"!addValue\" class=\"mt-4\">
 </div>
-</form>

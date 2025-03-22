@@ -78,7 +78,7 @@ func (s *Server) Start() error {
 	featureService := service.NewFeatureService(unitOfWorkCreator, featureRepository, featureVersionRepository, serviceVersionFeatureVersionRepository, changesetService)
 	keyService := service.NewKeyService(unitOfWorkCreator, keyRepository, valueTypeRepository, changesetService, variationValueRepository)
 	validationService := service.NewValidationService(keyRepository, variationValueRepository)
-	valueService := service.NewValueService(unitOfWorkCreator, variationValueRepository, changesetService)
+	valueService := service.NewValueService(unitOfWorkCreator, variationValueRepository, changesetService, changesetChangeRepository)
 
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))))
 	e.Use(middleware.AuthMiddleware(userService, variationHierarchyService, changesetService))

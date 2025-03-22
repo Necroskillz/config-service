@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"time"
 
 	"github.com/necroskillz/config-service/model"
 	"gorm.io/gorm"
@@ -16,35 +15,40 @@ func NewVariationValueRepository(db *gorm.DB) *VariationValueRepository {
 	return &VariationValueRepository{GormRepository[model.VariationValue]{db: db}}
 }
 
-func (r *VariationValueRepository) GetActive(ctx context.Context, keyID uint) ([]model.VariationValue, error) {
+func (r *VariationValueRepository) GetActive(ctx context.Context, keyID uint, changesetID uint) ([]model.VariationValue, error) {
 	var variationValues []model.VariationValue
 
-	err := r.getDb(ctx).Preload("VariationPropertyValues").
-		Where("key_id = ? AND valid_from <= ? AND (valid_to >= ? OR valid_to IS NULL)", keyID, time.Now(), time.Now()).
+	db := r.getDb(ctx)
+	where := r.whereActiveOrInChangeset(db, changesetID, "new_variation_value_id", "old_variation_value_id")
+
+	err := db.Table("variation_values o").
+		Preload("VariationPropertyValues").
+		Where("o.key_id = ?", keyID).
+		Where(where).
 		Find(&variationValues).Error
 
 	return variationValues, err
 }
 
-func (r *VariationValueRepository) GetIDByVariation(ctx context.Context, keyID uint, variationIDs []uint) (uint, error) {
+func (r *VariationValueRepository) GetIDByVariation(ctx context.Context, keyID uint, variationIDs []uint, changesetID uint) (uint, error) {
 	var id uint
 
 	db := r.getDb(ctx)
+	where := r.whereActiveOrInChangeset(db, changesetID, "new_variation_value_id", "old_variation_value_id")
 
-	where := db.Where("vv.variation_property_value_id IN (?) AND v.key_id = ?", variationIDs, keyID)
-
-	if len(variationIDs) == 0 {
-		where = db.Where("v.key_id = ?", keyID)
+	if len(variationIDs) > 0 {
+		where = where.Where("vv.variation_property_value_id IN (?)", variationIDs)
 	}
 
-	err := r.getDb(ctx).
-		Table("variation_values v").
-		Select("v.id").
-		Joins("LEFT JOIN variation_value_variation_property_values vv ON vv.variation_value_id = v.id").
+	err := db.
+		Table("variation_values o").
+		Select("o.id").
+		Joins("LEFT JOIN variation_value_variation_property_values vv ON vv.variation_value_id = o.id").
 		Where(where).
-		Group("v.id").
+		Where("o.key_id = ?", keyID).
+		Group("o.id").
 		Having("COUNT(vv.variation_property_value_id) = ?", len(variationIDs)).
-		Order("v.id DESC").
+		Order("o.id DESC").
 		Limit(1).
 		Scan(&id).Error
 

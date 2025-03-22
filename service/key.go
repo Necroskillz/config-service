@@ -70,7 +70,7 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) erro
 			return err
 		}
 
-		err = s.changesetService.AddVariationValueChange(ctx, params.ChangesetID, params.FeatureVersionID, key.ID, value.ID, model.ChangesetChangeTypeCreate, &params.DefaultValue, nil)
+		err = s.changesetService.AddCreateVariationValueChange(ctx, params.ChangesetID, params.FeatureVersionID, key.ID, value.ID)
 		if err != nil {
 			return err
 		}

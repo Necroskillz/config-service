@@ -283,11 +283,11 @@ func main() {
 
 	db.Create(&variationValue)
 	db.Create(&model.ChangesetChange{
-		ChangesetID:      changeset.ID,
-		FeatureVersionID: &featureVersion.ID,
-		KeyID:            &key.ID,
-		VariationValueID: &variationValue.ID,
-		Type:             model.ChangesetChangeTypeCreate,
+		ChangesetID:         changeset.ID,
+		FeatureVersionID:    &featureVersion.ID,
+		KeyID:               &key.ID,
+		NewVariationValueID: &variationValue.ID,
+		Type:                model.ChangesetChangeTypeCreate,
 	})
 
 	prodValue := "Prod"
@@ -303,10 +303,10 @@ func main() {
 
 	db.Create(&prodVariationValue)
 	db.Create(&model.ChangesetChange{
-		ChangesetID:      changeset.ID,
-		FeatureVersionID: &featureVersion.ID,
-		KeyID:            &key.ID,
-		VariationValueID: &prodVariationValue.ID,
-		Type:             model.ChangesetChangeTypeCreate,
+		ChangesetID:         changeset.ID,
+		FeatureVersionID:    &featureVersion.ID,
+		KeyID:               &key.ID,
+		NewVariationValueID: &prodVariationValue.ID,
+		Type:                model.ChangesetChangeTypeCreate,
 	})
 }

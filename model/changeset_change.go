@@ -20,14 +20,18 @@ type ChangesetChange struct {
 	Type                           ChangesetChangeType
 	FeatureVersion                 *FeatureVersion
 	FeatureVersionID               *uint
+	PreviousFeatureVersion         *FeatureVersion
+	PreviousFeatureVersionID       *uint
 	ServiceVersion                 *ServiceVersion
 	ServiceVersionID               *uint
+	PreviousServiceVersion         *ServiceVersion
+	PreviousServiceVersionID       *uint
 	FeatureVersionServiceVersion   *FeatureVersionServiceVersion
 	FeatureVersionServiceVersionID *uint
 	Key                            *Key
 	KeyID                          *uint
-	VariationValue                 *VariationValue
-	VariationValueID               *uint
-	OldValue                       *string
-	NewValue                       *string
+	NewVariationValue              *VariationValue
+	NewVariationValueID            *uint
+	OldVariationValue              *VariationValue
+	OldVariationValueID            *uint
 }

@@ -29,6 +29,7 @@ type VariationHierarchyProperty struct {
 type VariationHierarchyValue struct {
 	ID       uint
 	Value    string
+	Order    int
 	Parent   *VariationHierarchyValue
 	Children []*VariationHierarchyValue
 	Depth    int
@@ -91,28 +92,42 @@ func (v *VariationHierarchy) VariationMapToIds(serviceTypeID uint, variation map
 }
 
 type EvaluatedVariationValue struct {
+	ID        uint
 	Value     *string
 	Rank      int
+	Order     []int
 	Variation map[string]string
 }
+
+type ValueSortOrder int
+
+const (
+	ValueSortOrderTree ValueSortOrder = iota
+	ValueSortOrderSpecificity
+)
 
 type VariationValueFilter struct {
 	Filter          map[string]string
 	IncludeChildren bool
+	ValueSortOrder  ValueSortOrder
 }
 
 func (v *VariationHierarchy) SortAndFilterValues(serviceTypeID uint, values []model.VariationValue, filter VariationValueFilter) []EvaluatedVariationValue {
 	evaluatedValues := []EvaluatedVariationValue{}
 	rankMap := map[uint]int{}
+	orderMap := map[uint]int{}
 
 	accumulatedDepth := 0
-	for _, variationPropertyID := range v.serviceTypeOrder[serviceTypeID] {
+	for i, variationPropertyID := range v.serviceTypeOrder[serviceTypeID] {
 		rankMap[variationPropertyID] = accumulatedDepth
 		accumulatedDepth += v.properties[variationPropertyID].MaxDepth + 1
+
+		orderMap[variationPropertyID] = i
 	}
 
 	for _, value := range values {
 		rank := 0
+		order := make([]int, len(v.serviceTypeOrder[serviceTypeID]))
 		variation := map[string]string{}
 
 		for _, variationPropertyValue := range value.VariationPropertyValues {
@@ -127,21 +142,37 @@ func (v *VariationHierarchy) SortAndFilterValues(serviceTypeID uint, values []mo
 			}
 
 			variation[property.Name] = variationPropertyValue.Value
+			variationHierarchyValue := v.lookup[variationPropertyValue.VariationPropertyID][variationPropertyValue.Value]
+			order[orderMap[property.ID]] = variationHierarchyValue.Order
 
-			rank += 1<<rankMap[variationPropertyValue.VariationPropertyID] + v.lookup[variationPropertyValue.VariationPropertyID][variationPropertyValue.Value].Depth
+			rank += 1<<rankMap[variationPropertyValue.VariationPropertyID] + variationHierarchyValue.Depth
 		}
 
 		if rank != -1 {
 			evaluatedValues = append(evaluatedValues, EvaluatedVariationValue{
+				ID:        value.ID,
 				Value:     value.Data,
 				Rank:      rank,
 				Variation: variation,
+				Order:     order,
 			})
 		}
 	}
 
 	slices.SortFunc(evaluatedValues, func(a, b EvaluatedVariationValue) int {
-		return a.Rank - b.Rank
+		if filter.ValueSortOrder == ValueSortOrderTree {
+			for i := range a.Order {
+				if a.Order[i] != b.Order[i] {
+					return a.Order[i] - b.Order[i]
+				}
+			}
+		} else if filter.ValueSortOrder == ValueSortOrderSpecificity {
+			return a.Rank - b.Rank
+		} else {
+			panic("invalid value sort order")
+		}
+
+		return 0
 	})
 
 	return evaluatedValues
@@ -195,6 +226,9 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 			variationHierarchy.lookup[variationProperty.ID][value.Value] = &value
 		}
 
+		order := 1
+		assignOrderToPropertyValues(propertyValues, &order)
+
 		variationHierarchy.properties[variationProperty.ID] = &VariationHierarchyProperty{
 			ID:          variationProperty.ID,
 			Name:        variationProperty.Name,
@@ -222,4 +256,15 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 	}
 
 	return &variationHierarchy, nil
+}
+
+func assignOrderToPropertyValues(propertyValues []*VariationHierarchyValue, order *int) {
+	for _, propertyValue := range propertyValues {
+		propertyValue.Order = *order
+		*order++
+
+		if len(propertyValue.Children) > 0 {
+			assignOrderToPropertyValues(propertyValue.Children, order)
+		}
+	}
 }
