@@ -7,6 +7,7 @@ import (
 
 type VariationPropertyValueParentsProvider interface {
 	GetParents(propertyId uint, value string) []string
+	GetPropertyId(property string) (uint, error)
 }
 
 type PermissionCollection struct {
@@ -63,13 +64,19 @@ func CreatePermission(userPermission model.UserPermission) Permission {
 	}
 }
 
-func (p *PermissionCollection) GetPermissionLevelFor(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint]string) constants.PermissionLevel {
+func (p *PermissionCollection) GetPermissionLevelFor(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[string]string) constants.PermissionLevel {
 	var variationPropertyValuesWithParents map[uint][]string
 
 	if variationPropertyValues != nil {
 		variationPropertyValuesWithParents = make(map[uint][]string, len(variationPropertyValues))
 
-		for propertyId, propertyValue := range variationPropertyValues {
+		for property, propertyValue := range variationPropertyValues {
+			propertyId, err := p.parentsProvider.GetPropertyId(property)
+
+			if err != nil {
+				panic(err)
+			}
+
 			parents := p.parentsProvider.GetParents(propertyId, propertyValue)
 			variationPropertyValuesWithParents[propertyId] = append(parents, propertyValue)
 		}
@@ -84,4 +91,14 @@ func (p *PermissionCollection) GetPermissionLevelFor(serviceId uint, featureId *
 	}
 
 	return maxPermissionLevel
+}
+
+func (p *PermissionCollection) HasPermissionForNestedEntity(serviceId uint, featureId *uint, keyId *uint) bool {
+	for _, permission := range p.permissions {
+		if permission.MatchAny(serviceId, featureId, keyId, nil) {
+			return true
+		}
+	}
+
+	return false
 }

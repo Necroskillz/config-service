@@ -38,6 +38,7 @@ type VariationHierarchyValue struct {
 type VariationHierarchy struct {
 	properties       map[uint]*VariationHierarchyProperty
 	lookup           map[uint]map[string]*VariationHierarchyValue
+	propertyLookup   map[string]uint
 	serviceTypeOrder map[uint][]uint
 }
 
@@ -66,6 +67,16 @@ func (v *VariationHierarchy) GetProperties(serviceTypeID uint) []*VariationHiera
 	}
 
 	return properties
+}
+
+func (v *VariationHierarchy) GetPropertyId(property string) (uint, error) {
+	propertyID, ok := v.propertyLookup[property]
+
+	if !ok {
+		return 0, fmt.Errorf("property %s not found", property)
+	}
+
+	return propertyID, nil
 }
 
 func (v *VariationHierarchy) VariationMapToIds(serviceTypeID uint, variation map[string]string) ([]uint, error) {
@@ -194,6 +205,7 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 		properties:       make(map[uint]*VariationHierarchyProperty),
 		lookup:           make(map[uint]map[string]*VariationHierarchyValue),
 		serviceTypeOrder: make(map[uint][]uint),
+		propertyLookup:   make(map[string]uint),
 	}
 
 	values := make(map[uint]*VariationHierarchyValue)
@@ -236,6 +248,8 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 			Values:      propertyValues,
 			MaxDepth:    maxDepth,
 		}
+
+		variationHierarchy.propertyLookup[variationProperty.Name] = variationProperty.ID
 
 		for _, serviceType := range variationProperty.ServiceTypes {
 			serviceTypePropertyPriority[serviceType.ServiceTypeID] = append(serviceTypePropertyPriority[serviceType.ServiceTypeID], ServiceTypePropertyPriority{

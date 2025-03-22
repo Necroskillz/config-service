@@ -8,6 +8,7 @@ import (
 
 type Permission interface {
 	Match(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) constants.PermissionLevel
+	MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool
 }
 
 type ServicePermission struct {
@@ -21,6 +22,10 @@ func (p *ServicePermission) Match(serviceId uint, featureId *uint, keyId *uint, 
 	}
 
 	return constants.PermissionViewer
+}
+
+func (p *ServicePermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
+	return p.ServiceID == serviceId
 }
 
 type FeaturePermission struct {
@@ -37,6 +42,10 @@ func (p *FeaturePermission) Match(serviceId uint, featureId *uint, keyId *uint, 
 	return constants.PermissionViewer
 }
 
+func (p *FeaturePermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
+	return p.ServiceID == serviceId
+}
+
 type KeyPermission struct {
 	ServiceID uint
 	FeatureID uint
@@ -50,6 +59,10 @@ func (p *KeyPermission) Match(serviceId uint, featureId *uint, keyId *uint, vari
 	}
 
 	return constants.PermissionViewer
+}
+
+func (p *KeyPermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
+	return p.ServiceID == serviceId || p.FeatureID == *featureId
 }
 
 type VariationPermission struct {
@@ -74,4 +87,8 @@ func (p *VariationPermission) Match(serviceId uint, featureId *uint, keyId *uint
 	}
 
 	return constants.PermissionViewer
+}
+
+func (p *VariationPermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
+	return p.ServiceID == serviceId || p.FeatureID == *featureId || p.KeyID == *keyId
 }

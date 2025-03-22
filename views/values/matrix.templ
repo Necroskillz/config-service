@@ -31,10 +31,7 @@ templ ValueMatrixPage(data ValueMatrixData) {
 }
 
 templ ValueMatrix(data ValueMatrixData) {
-	{{
-		user := views.User(ctx)
-		isKeyAdmin := user.GetPermissionForKey(data.ServiceVersionID, data.FeatureVersionID, data.Key.ID) == constants.PermissionAdmin
-	}}
+	{{ user := views.User(ctx) }}
 	<table class="border-collapse">
 		<thead>
 			<tr>
@@ -64,14 +61,22 @@ templ ValueMatrix(data ValueMatrixData) {
 							}
 						</td>
 						<td class="border px-4 py-2">
-							if isKeyAdmin {
-								@components.Button("Delete", "button", components.ElementOptions{
-									Attributes: templ.Attributes{
-										"hx-delete": fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
-										"hx-target": fmt.Sprintf("#value-%d", i),
-										"hx-swap":   "outerHTML",
-									},
-								})
+							if user.GetPermissionForValue(data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.Variation) >= constants.PermissionEditor {
+								<div class="flex gap-2">
+									@components.Button("Edit", "button", components.ElementOptions{
+										Attributes: templ.Attributes{
+											"hx-get":    fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d/edit", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
+											"hx-target": fmt.Sprintf("#value-%d", i),
+										},
+									})
+									@components.Button("Delete", "button", components.ElementOptions{
+										Attributes: templ.Attributes{
+											"hx-delete": fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
+											"hx-target": fmt.Sprintf("#value-%d", i),
+											"hx-swap":   "outerHTML",
+										},
+									})
+								</div>
 							}
 						</td>
 					}
@@ -89,7 +94,7 @@ templ ValueMatrix(data ValueMatrixData) {
 			</tr>
 		</tbody>
 	</table>
-	if isKeyAdmin {
+	if user.HasPermissionForNestedEntity(data.ServiceVersionID, data.FeatureVersionID, data.Key.ID) {
 		<div x-show="!addValue" class="mt-4">
 			@components.Button("Add Value", "button", components.ElementOptions{
 				Attributes: templ.Attributes{"@click": "addValue = true"},

@@ -13,6 +13,7 @@ type ValueFormData struct {
 	ServiceVersionID uint
 	FeatureVersionID uint
 	KeyID            uint
+	VariationValueID uint
 	Variation        map[string]string
 	Properties       []*service.VariationHierarchyProperty
 
@@ -21,14 +22,14 @@ type ValueFormData struct {
 
 templ ValueForm(data ValueFormData) {
 	<td class="border px-4 py-2 break-words max-w-[400px]">
-		<form id="value-form"></form>
-		@components.FormElement("value", "") {
-			@components.Input("value", data.Value, components.ElementOptions{
-				Classes:    templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Value"])),
-				Attributes: templ.Attributes{"form": "value-form"},
-			})
-			@components.ValidationMessage(data.ValidationErrors["Value"])
-		}
+		<form id="value-form">
+			@components.FormElement("value", "") {
+				@components.Input("value", data.Value, components.ElementOptions{
+					Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Value"])),
+				})
+				@components.ValidationMessage(data.ValidationErrors["Value"])
+			}
+		</form>
 	</td>
 	for _, prop := range data.Properties {
 		<td class="border px-4 py-2">
@@ -38,17 +39,30 @@ templ ValueForm(data ValueFormData) {
 		</td>
 		<td class="border px-4 py-2">
 			<div class="flex gap-2">
-				@components.SubmitButton("Add", components.ElementOptions{
-					Attributes: templ.Attributes{
-						"hx-include":    "#value-form",
-						"hx-post":       fmt.Sprintf("/services/%d/features/%d/keys/%d/values", data.ServiceVersionID, data.FeatureVersionID, data.KeyID),
-						"hx-target":     "#value-matrix",
-						"hx-target-422": "#add-row",
-					},
-				})
-				@components.Button("Cancel", "button", components.ElementOptions{
-					Attributes: templ.Attributes{"@click": "addValue = false"},
-				})
+				if data.VariationValueID == 0 {
+					@components.SubmitButton("Add", components.ElementOptions{
+						Attributes: templ.Attributes{
+							"hx-include":    "#value-form",
+							"hx-post":       fmt.Sprintf("/services/%d/features/%d/keys/%d/values", data.ServiceVersionID, data.FeatureVersionID, data.KeyID),
+							"hx-target":     "#value-matrix",
+							"hx-target-422": "#add-row",
+						},
+					})
+					@components.Button("Cancel", "button", components.ElementOptions{
+						Attributes: templ.Attributes{"@click": "addValue = false"},
+					})
+				} else {
+					@components.SubmitButton("Save", components.ElementOptions{
+						Attributes: templ.Attributes{
+							"hx-include":    "#value-form",
+							"hx-put":       fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.KeyID, data.VariationValueID),
+							"hx-target":     "#value-matrix",
+							"hx-target-422": "#add-row",
+						},
+					})
+					@components.Button("Cancel", "button", components.ElementOptions{
+					})
+				}
 			</div>
 		</td>
 	}
