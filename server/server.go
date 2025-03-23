@@ -3,10 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/a-h/templ"
 	"github.com/go-playground/locales/en"
@@ -14,24 +12,24 @@ import (
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/gorilla/sessions"
+	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/handler"
 	"github.com/necroskillz/config-service/middleware"
-	"github.com/necroskillz/config-service/model"
-	"github.com/necroskillz/config-service/repository"
 	"github.com/necroskillz/config-service/service"
 	error_views "github.com/necroskillz/config-service/views/error"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+
+	"github.com/dgraph-io/ristretto/v2"
 )
 
 type Server struct {
-	db   *gorm.DB
-	echo *echo.Echo
+	echo  *echo.Echo
+	conn  *pgx.Conn
+	cache *ristretto.Cache[string, any]
 }
 
 func NewServer() *Server {
@@ -40,45 +38,45 @@ func NewServer() *Server {
 
 func (s *Server) Start() error {
 	e := echo.New()
+	ctx := context.Background()
 
 	if err := godotenv.Load(); err != nil {
 		return fmt.Errorf("failed to load .env file: %w", err)
 	}
 
-	db, err := initDB()
+	cache, err := ristretto.NewCache(&ristretto.Config[string, any]{
+		NumCounters: 1e7,     // number of keys to track frequency of (10M).
+		MaxCost:     1 << 30, // maximum cost of cache (1GB).
+		BufferItems: 64,      // number of keys per Get buffer.
+	})
+
 	if err != nil {
-		return fmt.Errorf("failed to initialize database: %w", err)
+		return fmt.Errorf("failed to initialize cache: %w", err)
 	}
 
-	s.db = db
+	conn, err := pgx.Connect(ctx, os.Getenv("DATABASE_URL"))
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	s.conn = conn
 	s.echo = e
+	s.cache = cache
+
+	queries := db.New(conn)
 
 	e.Static("/assets", "views/assets")
 
-	serviceRepository := repository.NewServiceRepository(db)
-	serviceVersionRepository := repository.NewServiceVersionRepository(db)
-	variationPropertyRepository := repository.NewVariationPropertyRepository(db)
-	serviceTypeRepository := repository.NewServiceTypeRepository(db)
-	serviceVersionFeatureVersionRepository := repository.NewServiceVersionFeatureVersionRepository(db)
-	changesetRepository := repository.NewChangesetRepository(db)
-	changesetChangeRepository := repository.NewChangesetChangeRepository(db)
-	featureRepository := repository.NewFeatureRepository(db)
-	featureVersionRepository := repository.NewFeatureVersionRepository(db)
-	userRepository := repository.NewUserRepository(db)
-	keyRepository := repository.NewKeyRepository(db)
-	valueTypeRepository := repository.NewValueTypeRepository(db)
-	variationValueRepository := repository.NewVariationValueRepository(db)
-
-	unitOfWorkCreator := repository.NewGormUnitOfWorkCreator(db)
-
-	serviceService := service.NewServiceService(unitOfWorkCreator, serviceRepository, serviceVersionRepository, serviceTypeRepository)
-	userService := service.NewUserService(userRepository)
-	changesetService := service.NewChangesetService(changesetRepository, changesetChangeRepository)
-	variationHierarchyService := service.NewVariationHierarchyService(variationPropertyRepository)
-	featureService := service.NewFeatureService(unitOfWorkCreator, featureRepository, featureVersionRepository, serviceVersionFeatureVersionRepository, changesetService)
-	keyService := service.NewKeyService(unitOfWorkCreator, keyRepository, valueTypeRepository, changesetService, variationValueRepository)
-	validationService := service.NewValidationService(keyRepository, variationValueRepository)
-	valueService := service.NewValueService(unitOfWorkCreator, variationValueRepository, changesetService, changesetChangeRepository)
+	unitOfWorkRunner := db.NewPgxUnitOfWorkRunner(conn, queries)
+	variationContextService := service.NewVariationContextService(queries, unitOfWorkRunner, cache)
+	serviceService := service.NewServiceService(queries, unitOfWorkRunner)
+	userService := service.NewUserService(queries, variationContextService)
+	changesetService := service.NewChangesetService(queries, variationContextService)
+	variationHierarchyService := service.NewVariationHierarchyService(queries, cache)
+	featureService := service.NewFeatureService(unitOfWorkRunner, queries)
+	keyService := service.NewKeyService(unitOfWorkRunner, variationContextService, queries)
+	validationService := service.NewValidationService(queries, variationContextService)
+	valueService := service.NewValueService(unitOfWorkRunner, variationContextService, queries)
 
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))))
 	e.Use(middleware.AuthMiddleware(userService, variationHierarchyService, changesetService))
@@ -118,7 +116,7 @@ func (s *Server) Start() error {
 
 	validator := validator.New()
 	en_translations.RegisterDefaultTranslations(validator, trans)
-	customValidator := NewCustomValidator(validator, serviceService, featureService)
+	customValidator := NewCustomValidator(validator, validationService)
 
 	err = customValidator.RegisterCustomValidation(trans)
 	if err != nil {
@@ -144,59 +142,19 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	if s.db != nil {
-		dbInstance, err := s.db.DB()
-		if err != nil {
-			return fmt.Errorf("failed to get database instance: %w", err)
-		}
-
-		err = dbInstance.Close()
-		if err != nil {
+	if s.conn != nil {
+		if err := s.conn.Close(ctx); err != nil {
 			return fmt.Errorf("failed to close database: %w", err)
 		}
 	}
 
-	return s.echo.Shutdown(ctx)
-}
-
-func initDB() (*gorm.DB, error) {
-	dsn := os.Getenv("DATABASE_URL")
-
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
-			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Info,
-			IgnoreRecordNotFoundError: true,
-			Colorful:                  true,
-		}),
-	})
-
-	if err != nil {
-		return nil, err
+	if s.cache != nil {
+		s.cache.Close()
 	}
 
-	err = db.AutoMigrate(
-		&model.Service{},
-		&model.ServiceVersion{},
-		&model.Changeset{},
-		&model.Feature{},
-		&model.FeatureVersion{},
-		&model.ValueType{},
-		&model.Key{},
-		&model.VariationValue{},
-		&model.VariationProperty{},
-		&model.VariationPropertyValue{},
-		&model.User{},
-		&model.ChangesetChange{},
-		&model.FeatureVersionServiceVersion{},
-		&model.UserPermission{},
-		&model.ServiceType{},
-		&model.ServiceTypeVariationProperty{},
-	)
-
-	if err != nil {
-		return nil, err
+	if err := s.echo.Shutdown(ctx); err != nil {
+		return fmt.Errorf("failed to shutdown server: %w", err)
 	}
 
-	return db, nil
+	return nil
 }

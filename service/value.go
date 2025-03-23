@@ -2,24 +2,60 @@ package service
 
 import (
 	"context"
+	"errors"
 
-	"github.com/necroskillz/config-service/model"
-	"github.com/necroskillz/config-service/repository"
+	"github.com/jackc/pgx/v5"
+	"github.com/necroskillz/config-service/db"
 )
 
 type ValueService struct {
-	unitOfWorkCreator         repository.UnitOfWorkCreator
-	variationValueRepository  *repository.VariationValueRepository
-	changesetService          *ChangesetService
-	changesetChangeRepository *repository.ChangesetChangeRepository
+	unitOfWorkRunner        db.UnitOfWorkRunner
+	variationContextService *VariationContextService
+	queries                 *db.Queries
 }
 
-func NewValueService(unitOfWorkCreator repository.UnitOfWorkCreator, variationValueRepository *repository.VariationValueRepository, changesetService *ChangesetService, changesetChangeRepository *repository.ChangesetChangeRepository) *ValueService {
-	return &ValueService{unitOfWorkCreator: unitOfWorkCreator, variationValueRepository: variationValueRepository, changesetService: changesetService, changesetChangeRepository: changesetChangeRepository}
+func NewValueService(
+	unitOfWorkRunner db.UnitOfWorkRunner,
+	variationContextService *VariationContextService,
+	queries *db.Queries,
+) *ValueService {
+	return &ValueService{
+		unitOfWorkRunner:        unitOfWorkRunner,
+		variationContextService: variationContextService,
+		queries:                 queries,
+	}
 }
 
-func (s *ValueService) GetKeyValues(ctx context.Context, keyID uint, changesetID uint) ([]model.VariationValue, error) {
-	return s.variationValueRepository.GetActive(ctx, keyID, changesetID)
+type VariationValue struct {
+	ID        uint
+	Data      *string
+	Variation map[uint]string
+}
+
+func (s *ValueService) GetKeyValues(ctx context.Context, keyID uint, changesetID uint) ([]VariationValue, error) {
+	values, err := s.queries.GetActiveVariationValuesForKey(ctx, db.GetActiveVariationValuesForKeyParams{
+		KeyID:       keyID,
+		ChangesetID: changesetID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	variationValues := make([]VariationValue, len(values))
+	for i, value := range values {
+		variation, err := s.variationContextService.GetVariationContextValues(ctx, value.VariationContextID)
+		if err != nil {
+			return nil, err
+		}
+
+		variationValues[i] = VariationValue{
+			ID:        value.ID,
+			Data:      value.Data,
+			Variation: variation,
+		}
+	}
+
+	return variationValues, nil
 }
 
 type CreateValueParams struct {
@@ -28,28 +64,32 @@ type CreateValueParams struct {
 	ChangesetID      uint
 	Value            string
 	Variation        []uint
+	ServiceVersionID uint
 }
 
 func (s *ValueService) CreateValue(ctx context.Context, params CreateValueParams) error {
-	variationValue := &model.VariationValue{
-		KeyID: params.KeyID,
-		Data:  &params.Value,
+	variationContextID, err := s.variationContextService.GetVariationContextID(ctx, params.Variation)
+	if err != nil {
+		return err
 	}
 
-	return s.unitOfWorkCreator.Run(ctx, func(ctx context.Context) error {
-		err := s.variationValueRepository.Create(ctx, variationValue)
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		variationValueID, err := tx.CreateVariationValue(ctx, db.CreateVariationValueParams{
+			KeyID:              params.KeyID,
+			VariationContextID: variationContextID,
+			Data:               &params.Value,
+		})
 		if err != nil {
 			return err
 		}
 
-		for _, variationPropertyValueID := range params.Variation {
-			err = s.variationValueRepository.AddVariationPropertyValue(ctx, variationValue.ID, variationPropertyValueID)
-			if err != nil {
-				return err
-			}
-		}
-
-		err = s.changesetService.AddCreateVariationValueChange(ctx, params.ChangesetID, params.FeatureVersionID, params.KeyID, variationValue.ID)
+		err = tx.AddCreateVariationValueChange(ctx, db.AddCreateVariationValueChangeParams{
+			ChangesetID:         params.ChangesetID,
+			NewVariationValueID: variationValueID,
+			FeatureVersionID:    params.FeatureVersionID,
+			KeyID:               params.KeyID,
+			ServiceVersionID:    params.ServiceVersionID,
+		})
 		if err != nil {
 			return err
 		}
@@ -63,29 +103,58 @@ type DeleteValueParams struct {
 	FeatureVersionID uint
 	KeyID            uint
 	ValueID          uint
+	ServiceVersionID uint
 }
 
 func (s *ValueService) DeleteValue(ctx context.Context, params DeleteValueParams) error {
-	return s.unitOfWorkCreator.Run(ctx, func(ctx context.Context) error {
-		variationValue, err := s.variationValueRepository.GetById(ctx, params.ValueID)
-		if err != nil {
+	variationValueChange, err := s.queries.GetChangeForVariationValue(ctx, db.GetChangeForVariationValueParams{
+		ChangesetID:      params.ChangesetID,
+		VariationValueID: params.ValueID,
+	})
+	if err != nil {
+		if !errors.Is(err, pgx.ErrNoRows) {
 			return err
 		}
+	}
 
-		if variationValue.ValidFrom != nil {
-			err = s.changesetService.AddDeleteVariationValueChange(ctx, params.ChangesetID, params.FeatureVersionID, params.KeyID, variationValue.ID)
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		if variationValueChange.ID == 0 {
+			err = tx.AddDeleteVariationValueChange(ctx, db.AddDeleteVariationValueChangeParams{
+				ChangesetID:         params.ChangesetID,
+				FeatureVersionID:    params.FeatureVersionID,
+				KeyID:               params.KeyID,
+				ServiceVersionID:    params.ServiceVersionID,
+				OldVariationValueID: params.ValueID,
+			})
 			if err != nil {
 				return err
 			}
 		} else {
-			err = s.changesetChangeRepository.DeleteByVariationValueID(ctx, variationValue.ID)
+			if variationValueChange.Type == "delete" {
+				panic("attempt to delete a already deleted value")
+			}
+
+			err = tx.DeleteChange(ctx, variationValueChange.ID)
 			if err != nil {
 				return err
 			}
 
-			err = s.variationValueRepository.Delete(ctx, variationValue.ID)
-			if err != nil {
-				return err
+			if variationValueChange.Type == "create" {
+				err = tx.DeleteVariationValue(ctx, *variationValueChange.NewVariationValueID)
+				if err != nil {
+					return err
+				}
+			} else if variationValueChange.Type == "update" {
+				err = tx.AddDeleteVariationValueChange(ctx, db.AddDeleteVariationValueChangeParams{
+					ChangesetID:         params.ChangesetID,
+					FeatureVersionID:    params.FeatureVersionID,
+					KeyID:               params.KeyID,
+					ServiceVersionID:    params.ServiceVersionID,
+					OldVariationValueID: *variationValueChange.OldVariationValueID,
+				})
+				if err != nil {
+					return err
+				}
 			}
 		}
 

@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/auth"
+	"github.com/necroskillz/config-service/service"
 	views "github.com/necroskillz/config-service/views/auth"
 )
 
@@ -28,16 +30,16 @@ func (h *Handler) Login(c echo.Context) error {
 		return h.RenderPartial(c, http.StatusUnprocessableEntity, views.Login(data))
 	}
 
-	user, err := h.UserService.Authenticate(c.Request().Context(), data.Username, data.Password)
+	userId, err := h.UserService.Authenticate(c.Request().Context(), data.Username, data.Password)
 	if err != nil {
+		if errors.Is(err, service.ErrInvalidPassword) || errors.Is(err, service.ErrRecordNotFound) {
+			return echo.NewHTTPError(http.StatusUnprocessableEntity, "Invalid username or password")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to authenticate user").WithInternal(err)
 	}
 
-	if user == nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Invalid username or password")
-	}
-
-	err = auth.SaveAuthToSession(c, user.ID)
+	err = auth.SaveAuthToSession(c, userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to start an authenticated session").WithInternal(err)
 	}

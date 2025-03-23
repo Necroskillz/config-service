@@ -10,7 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/necroskillz/config-service/model"
+
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
@@ -24,8 +25,8 @@ type CreateKeyData struct {
 	DefaultValue string `form:"defaultValue"`
 	ValueTypeID  uint   `form:"valueTypeId" validate:"required"`
 
-	ServiceVersion   *model.ServiceVersion
-	FeatureVersion   *model.FeatureVersion
+	ServiceVersion   db.GetServiceVersionRow
+	FeatureVersion   db.GetFeatureVersionRow
 	ValueTypeOptions []components.SelectOption
 }
 
@@ -67,9 +68,9 @@ func CreateKeyPage(data CreateKeyData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s v%d", data.FeatureVersion.Feature.Name, data.FeatureVersion.Version))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s v%d", data.FeatureVersion.FeatureName, data.FeatureVersion.Version))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/keys/create.templ`, Line: 28, Col: 136}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/keys/create.templ`, Line: 29, Col: 135}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -133,7 +134,7 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/services/%d/features/%d/keys", data.ServiceVersion.ID, data.FeatureVersion.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/keys/create.templ`, Line: 37, Col: 110}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/keys/create.templ`, Line: 38, Col: 110}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {

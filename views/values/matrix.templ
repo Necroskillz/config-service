@@ -3,7 +3,7 @@ package values
 import (
 	"fmt"
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
@@ -12,7 +12,7 @@ import (
 type ValueMatrixData struct {
 	ServiceVersionID uint
 	FeatureVersionID uint
-	Key              *model.Key
+	Key              db.Key
 	Properties       []*service.VariationHierarchyProperty
 	Values           []service.EvaluatedVariationValue
 }
@@ -54,7 +54,7 @@ templ ValueMatrix(data ValueMatrixData) {
 					</td>
 					for _, prop := range data.Properties {
 						<td class="border px-4 py-2">
-							if propValue, exists := value.Variation[prop.Name]; exists {
+							if propValue, exists := value.Variation[prop.ID]; exists {
 								{ propValue }
 							} else {
 								<span>any</span>

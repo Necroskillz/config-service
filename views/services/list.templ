@@ -3,14 +3,14 @@ package services
 import (
 	"fmt"
 
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
 type ServiceListData struct {
-	ServiceVersions []model.ServiceVersion
+	ServiceVersions []db.GetActiveServiceVersionsRow
 }
 
 templ ServiceList(data ServiceListData) {
@@ -20,10 +20,10 @@ templ ServiceList(data ServiceListData) {
 			for _, serviceVersion := range data.ServiceVersions {
 				<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
 					<h2 class="text-lg font-bold">
-						<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", serviceVersion.ID)) }>{ serviceVersion.Service.Name }</a>
+						<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", serviceVersion.ID)) }>{ serviceVersion.ServiceName }</a>
 						@components.Pill(fmt.Sprintf("v%d", serviceVersion.Version))
 					</h2>
-					<p class="text-sm text-secondary">{ serviceVersion.Service.Description }</p>
+					<p class="text-sm text-secondary">{ serviceVersion.ServiceDescription }</p>
 				</div>
 			}
 		</div>

@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/service"
 )
 
 type User struct {
@@ -16,30 +16,27 @@ type User struct {
 
 func AnonymousUser() *User {
 	return &User{
-		ID:              uint(0),
+		ID:              0,
 		Username:        "Anonymous",
 		IsAuthenticated: false,
 		IsGlobalAdmin:   false,
 	}
 }
 
-func NewUser(model *model.User, changeset *model.Changeset, parentsProvider VariationPropertyValueParentsProvider) *User {
+func NewUser(userDto service.User, changesetID uint, parentsProvider VariationPropertyValueParentsProvider) *User {
 	user := &User{
-		ID:                   model.ID,
-		Username:             model.Name,
+		ID:                   userDto.ID,
+		Username:             userDto.Username,
+		ChangesetID:          changesetID,
 		IsAuthenticated:      true,
-		IsGlobalAdmin:        model.GlobalAdministrator,
-		permissionCollection: NewPermissionCollection(model.Permissions, parentsProvider),
-	}
-
-	if changeset != nil {
-		user.ChangesetID = changeset.ID
+		IsGlobalAdmin:        userDto.GlobalAdministrator,
+		permissionCollection: NewPermissionCollection(userDto.Permissions, parentsProvider),
 	}
 
 	return user
 }
 
-func (u *User) getPermission(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[string]string) constants.PermissionLevel {
+func (u *User) getPermission(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint]string) constants.PermissionLevel {
 	if !u.IsAuthenticated {
 		return constants.PermissionViewer
 	}
@@ -63,7 +60,7 @@ func (u *User) GetPermissionForKey(serviceId uint, featureId uint, keyId uint) c
 	return u.getPermission(serviceId, &featureId, &keyId, nil)
 }
 
-func (u *User) GetPermissionForValue(serviceId uint, featureId uint, keyId uint, variationPropertyValues map[string]string) constants.PermissionLevel {
+func (u *User) GetPermissionForValue(serviceId uint, featureId uint, keyId uint, variationPropertyValues map[uint]string) constants.PermissionLevel {
 	return u.getPermission(serviceId, &featureId, &keyId, variationPropertyValues)
 }
 

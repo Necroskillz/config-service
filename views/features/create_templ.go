@@ -10,7 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/necroskillz/config-service/model"
+
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
@@ -22,7 +23,7 @@ type CreateFeatureData struct {
 	Name        string `form:"name" validate:"required,feature_name_free"`
 	Description string `form:"description" validate:"required"`
 
-	ServiceVersion *model.ServiceVersion
+	ServiceVersion db.GetServiceVersionRow
 }
 
 func CreateFeaturePage(data CreateFeatureData) templ.Component {
@@ -65,7 +66,7 @@ func CreateFeaturePage(data CreateFeatureData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ServiceVersion.Version))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/create.templ`, Line: 24, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/create.templ`, Line: 25, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -76,9 +77,9 @@ func CreateFeaturePage(data CreateFeatureData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.ServiceVersion.Service.Name)
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.ServiceVersion.ServiceName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/create.templ`, Line: 24, Col: 159}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/create.templ`, Line: 25, Col: 158}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -142,7 +143,7 @@ func CreateFeatureForm(data CreateFeatureData) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/services/%d/features", data.ServiceVersion.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/create.templ`, Line: 33, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/create.templ`, Line: 34, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {

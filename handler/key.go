@@ -6,12 +6,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 	key_views "github.com/necroskillz/config-service/views/keys"
 )
 
-func (h *Handler) populateCreateKeyViewData(c echo.Context, data *key_views.CreateKeyData, serviceVersion *model.ServiceVersion, featureVersion *model.FeatureVersion) error {
+func (h *Handler) populateCreateKeyViewData(c echo.Context, data *key_views.CreateKeyData, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow) error {
 	data.ServiceVersion = serviceVersion
 	data.FeatureVersion = featureVersion
 
@@ -20,7 +20,7 @@ func (h *Handler) populateCreateKeyViewData(c echo.Context, data *key_views.Crea
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get value types").WithInternal(err)
 	}
 
-	data.ValueTypeOptions = MakeSelectOptions(valueTypes, func(item model.ValueType) (uint, string) {
+	data.ValueTypeOptions = MakeSelectOptions(valueTypes, func(item db.ValueType) (uint, string) {
 		return item.ID, item.Name
 	})
 
@@ -28,39 +28,39 @@ func (h *Handler) populateCreateKeyViewData(c echo.Context, data *key_views.Crea
 }
 
 func (h *Handler) CreateKey(c echo.Context) error {
-	var serviceVersion model.ServiceVersion
-	var featureVersion model.FeatureVersion
+	var serviceVersion db.GetServiceVersionRow
+	var featureVersion db.GetFeatureVersionRow
 
 	err := h.LoadBasicData(c, &serviceVersion, &featureVersion)
 	if err != nil {
 		return err
 	}
 
-	if h.User(c).GetPermissionForFeature(serviceVersion.Service.ID, featureVersion.Feature.ID) != constants.PermissionAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create keys for feature %s", featureVersion.Feature.Name)
+	if h.User(c).GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) != constants.PermissionAdmin {
+		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create keys for feature %s", featureVersion.FeatureName)
 	}
 
 	data := key_views.CreateKeyData{}
 
-	err = h.populateCreateKeyViewData(c, &data, &serviceVersion, &featureVersion)
+	err = h.populateCreateKeyViewData(c, &data, serviceVersion, featureVersion)
 	if err != nil {
 		return err
 	}
 
-	return h.RenderPage(c, http.StatusOK, key_views.CreateKeyPage(data), fmt.Sprintf("Service %s - Feature %s - Create New Key", serviceVersion.Service.Name, featureVersion.Feature.Name))
+	return h.RenderPage(c, http.StatusOK, key_views.CreateKeyPage(data), fmt.Sprintf("Service %s - Feature %s - Create New Key", serviceVersion.ServiceName, featureVersion.FeatureName))
 }
 
 func (h *Handler) CreateKeySubmit(c echo.Context) error {
-	var serviceVersion model.ServiceVersion
-	var featureVersion model.FeatureVersion
+	var serviceVersion db.GetServiceVersionRow
+	var featureVersion db.GetFeatureVersionRow
 
 	err := h.LoadBasicData(c, &serviceVersion, &featureVersion)
 	if err != nil {
 		return err
 	}
 
-	if h.User(c).GetPermissionForFeature(serviceVersion.Service.ID, featureVersion.Feature.ID) != constants.PermissionAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create keys for feature %s", featureVersion.Feature.Name)
+	if h.User(c).GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) != constants.PermissionAdmin {
+		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create keys for feature %s", featureVersion.FeatureName)
 	}
 
 	var data key_views.CreateKeyData
@@ -75,7 +75,7 @@ func (h *Handler) CreateKeySubmit(c echo.Context) error {
 	}
 
 	if !valid {
-		err = h.populateCreateKeyViewData(c, &data, &serviceVersion, &featureVersion)
+		err = h.populateCreateKeyViewData(c, &data, serviceVersion, featureVersion)
 		if err != nil {
 			return err
 		}
@@ -88,19 +88,19 @@ func (h *Handler) CreateKeySubmit(c echo.Context) error {
 		return err
 	}
 
-	err = h.KeyService.CreateKey(c.Request().Context(), service.CreateKeyParams{
+	keyID, err := h.KeyService.CreateKey(c.Request().Context(), service.CreateKeyParams{
 		ChangesetID:      changesetID,
-		ServiceVersionID: serviceVersion.ID,
 		FeatureVersionID: featureVersion.ID,
 		Name:             data.Name,
 		Description:      data.Description,
 		DefaultValue:     data.DefaultValue,
 		ValueTypeID:      data.ValueTypeID,
+		ServiceVersionID: serviceVersion.ID,
 	})
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create feature").WithInternal(err)
 	}
 
-	return Redirect(c, fmt.Sprintf("/services/%d/features/%d", serviceVersion.ID, featureVersion.ID))
+	return Redirect(c, fmt.Sprintf("/services/%d/features/%d/keys/%d/values", serviceVersion.ID, featureVersion.ID, keyID))
 }

@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Config Service Project
+
+## Overview
+
+The Config Service is a microservice that provides a RESTful API for managing configuration data. It is responsible for storing and retrieving configuration data from a database. Also has an admin frontend to manage the configuration.
+
+## Configuration Structure
+
+A configuration is a tree, which starts with a `Service`. Each `Service` has a `ServiceVersion`. When we request a configuration from the service, we request it for a one or more `ServiceName:Version` identifiers and optionally a `VariationContext`.
+
+Each `ServiceVersion` is linked to multiple `Features`. This link is done between `ServiceVersion` and `FeatureVersion`. Only one version of a `Feature` can be linked to a specific version of a `Service`.
+
+Each `FeatureVersion` has a collection of `Keys`. Every key has a default value, and can specify an overriden value for a combination of variation properties. Which properties can be specified is defined by `ServiceType` of the parent `Service`. Each property has a set of `VariationPropertyValues`, which is hierarchical structure (so values can have parent values). A set of `VariationPropertyValues` is referred to as `VariationContext`.
+
+## Tech Stack
+
+ - Go
+   - Echo - http framework
+ - Postgres DB
+   - sqlc - DB queries
+ - Frontend
+   - Server side rendered
+   - templ - HTML templates with go
+   - htmx - call http and swap html
+   - Alpine.js - client interactivity
+   - tailwindcss

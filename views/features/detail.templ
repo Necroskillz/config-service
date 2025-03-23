@@ -4,28 +4,28 @@ import (
 	"fmt"
 
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
 type FeatureDetailData struct {
-	ServiceVersion       *model.ServiceVersion
-	FeatureVersion       *model.FeatureVersion
-	Keys                 []model.Key
-	OtherFeatureVersions []model.FeatureVersion
+	ServiceVersion       db.GetServiceVersionRow
+	FeatureVersion       db.GetFeatureVersionRow
+	Keys                 []db.Key
+	OtherFeatureVersions []db.GetFeatureVersionsLinkedToServiceVersionRow
 }
 
 templ FeatureDetailPage(data FeatureDetailData) {
 	@layouts.Container() {
-		{{ permission := views.User(ctx).GetPermissionForFeature(data.ServiceVersion.Service.ID, data.FeatureVersion.Feature.ID) }}
+		{{ permission := views.User(ctx).GetPermissionForFeature(data.ServiceVersion.ServiceID, data.FeatureVersion.FeatureID) }}
 		<div class="flex flex-col">
 			<h1>
-				{ data.FeatureVersion.Feature.Name }
+				{ data.FeatureVersion.FeatureName }
 				@components.Pill(fmt.Sprintf("v%d", data.FeatureVersion.Version))
 			</h1>
-			<div class="text-secondary">{ data.FeatureVersion.Feature.Description }</div>
+			<div class="text-secondary">{ data.FeatureVersion.FeatureDescription }</div>
 			<div class="flex flex-row gap-2 mt-4">
 				@components.Dropdown(components.ElementOptions{}) {
 					@components.DropdownButton("Versions", components.ElementOptions{

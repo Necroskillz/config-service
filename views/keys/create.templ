@@ -2,7 +2,8 @@ package keys
 
 import (
 	"fmt"
-	"github.com/necroskillz/config-service/model"
+
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
@@ -16,8 +17,8 @@ type CreateKeyData struct {
 	DefaultValue string `form:"defaultValue"`
 	ValueTypeID  uint   `form:"valueTypeId" validate:"required"`
 
-	ServiceVersion   *model.ServiceVersion
-	FeatureVersion   *model.FeatureVersion
+	ServiceVersion   db.GetServiceVersionRow
+	FeatureVersion   db.GetFeatureVersionRow
 	ValueTypeOptions []components.SelectOption
 }
 
@@ -25,7 +26,7 @@ templ CreateKeyPage(data CreateKeyData) {
 	@layouts.Container() {
 		<div class="flex flex-col">
 			<h1>Create New Key</h1>
-			<p class="text-secondary">Create a new key for { fmt.Sprintf("%s v%d", data.FeatureVersion.Feature.Name, data.FeatureVersion.Version) }</p>
+			<p class="text-secondary">Create a new key for { fmt.Sprintf("%s v%d", data.FeatureVersion.FeatureName, data.FeatureVersion.Version) }</p>
 			@CreateKeyForm(data)
 		</div>
 	}

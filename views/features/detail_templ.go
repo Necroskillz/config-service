@@ -12,17 +12,17 @@ import (
 	"fmt"
 
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
 type FeatureDetailData struct {
-	ServiceVersion       *model.ServiceVersion
-	FeatureVersion       *model.FeatureVersion
-	Keys                 []model.Key
-	OtherFeatureVersions []model.FeatureVersion
+	ServiceVersion       db.GetServiceVersionRow
+	FeatureVersion       db.GetFeatureVersionRow
+	Keys                 []db.Key
+	OtherFeatureVersions []db.GetFeatureVersionsLinkedToServiceVersionRow
 }
 
 func FeatureDetailPage(data FeatureDetailData) templ.Component {
@@ -58,15 +58,15 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			permission := views.User(ctx).GetPermissionForFeature(data.ServiceVersion.Service.ID, data.FeatureVersion.Feature.ID)
+			permission := views.User(ctx).GetPermissionForFeature(data.ServiceVersion.ServiceID, data.FeatureVersion.FeatureID)
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col\"><h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.FeatureVersion.Feature.Name)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.FeatureVersion.FeatureName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/detail.templ`, Line: 25, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/detail.templ`, Line: 25, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -81,9 +81,9 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.FeatureVersion.Feature.Description)
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.FeatureVersion.FeatureDescription)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/detail.templ`, Line: 28, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/detail.templ`, Line: 28, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {

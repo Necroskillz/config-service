@@ -2,12 +2,14 @@ package changesets
 
 import (
 	"fmt"
-	"github.com/necroskillz/config-service/model"
+
+	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views/layouts"
+	"github.com/necroskillz/config-service/db"
 )
 
 type ChangesetDetailData struct {
-	Changeset *model.Changeset
+	Changeset service.Changeset
 }
 
 templ ChangesetDetailPage(data ChangesetDetailData) {
@@ -29,7 +31,7 @@ templ ChangesetDetailPage(data ChangesetDetailData) {
 	}
 }
 
-templ changesetChange(change model.ChangesetChange) {
+templ changesetChange(change service.ChangesetChange) {
 	if change.NewVariationValueID != nil || change.OldVariationValueID != nil {
 		@variationValueChange(change)
 	} else if change.KeyID != nil {
@@ -43,98 +45,90 @@ templ changesetChange(change model.ChangesetChange) {
 	}
 }
 
-templ variationValueChange(change model.ChangesetChange) {
+templ variationValueChange(change service.ChangesetChange) {
 	<div class="flex flex-col gap-2">
 		<div class="font-semibold">
-			{ getChangeTypeText(change.Type) } Value for { fmt.Sprintf("%s in %s v%d", change.Key.Name, change.FeatureVersion.Feature.Name, change.FeatureVersion.Version) }
+			{ getChangeTypeText(change.Type) } Value for { fmt.Sprintf("%s in %s v%d", *change.KeyName, *change.FeatureName, *change.FeatureVersionID) }
 		</div>
-		{{ 
-			var variationPropertyValues []model.VariationPropertyValue
-			if change.NewVariationValue != nil {
-				variationPropertyValues = change.NewVariationValue.VariationPropertyValues
-			} else if change.OldVariationValue != nil {
-				variationPropertyValues = change.OldVariationValue.VariationPropertyValues
-			}
-		}}
-		if len(variationPropertyValues) > 0 {
+		if len(change.Variation) > 0 {
 			<div class="flex flex-wrap gap-2 mb-2">
-				for _, propValue := range variationPropertyValues {
+				for _, propValue := range change.Variation {
 					<span class="px-2 py-1 bg-gray-600 rounded-md text-sm">
-						{ propValue.Value }
+						{ propValue }
 					</span>
 				}
 			</div>
 		}
 		<div class="flex gap-4">
-			if change.OldVariationValue != nil {
+			if change.OldVariationValueID != nil {
 				<div class="bg-red-100 line-through text-red-800">
-					{ *change.OldVariationValue.Data }
+					{ *change.OldVariationValueData }
 				</div>
 			}
-			if change.NewVariationValue != nil {
+			if change.NewVariationValueID != nil {
 				<div class="bg-green-100 text-green-800">
-					{ *change.NewVariationValue.Data }
+					{ *change.NewVariationValueData }
 				</div>
 			}
 		</div>
 	</div>
 }
 
-templ keyChange(change model.ChangesetChange) {
+templ keyChange(change service.ChangesetChange) {
 	<div>
 		<span class="font-semibold">{ getChangeTypeText(change.Type) } Key</span>
-		<span class={ getChangeTypeClass(change.Type) }>{ change.Key.Name }</span>
-		<span class="font-semibold">for { change.FeatureVersion.Feature.Name } v{ fmt.Sprint(change.FeatureVersion.Version) }</span>
+		<span class={ getChangeTypeClass(change.Type) }>{ *change.KeyName }</span>
+		<span class="font-semibold">for { *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }</span>
 	</div>
 }
 
-templ featureVersionServiceVersionChange(change model.ChangesetChange) {
+templ featureVersionServiceVersionChange(change service.ChangesetChange) {
 	<div>
 		<span class="font-semibold">{ getChangeTypeText(change.Type) } Service-Feature Link</span>
 		<span class={ getChangeTypeClass(change.Type) }>
-			{ change.ServiceVersion.Service.Name } v{ fmt.Sprint(change.ServiceVersion.Version) }
+			{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersionID) }
 			<span class="mx-2">↔</span>
-			{ change.FeatureVersion.Feature.Name } v{ fmt.Sprint(change.FeatureVersion.Version) }
+			{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
 		</span>
 	</div>
 }
 
-templ featureVersionChange(change model.ChangesetChange) {
+templ featureVersionChange(change service.ChangesetChange) {
 	<div>
 		<span class="font-semibold">{ getChangeTypeText(change.Type) } Feature Version</span>
 		<span class={ getChangeTypeClass(change.Type) }>
-			{ change.FeatureVersion.Feature.Name } v{ fmt.Sprint(change.FeatureVersion.Version) }
+			{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
 		</span>
 	</div>
 }
 
-templ serviceVersionChange(change model.ChangesetChange) {
+templ serviceVersionChange(change service.ChangesetChange) {
 	<div>
 		<span class="font-semibold">{ getChangeTypeText(change.Type) } Service Version</span>
 		<span class={ getChangeTypeClass(change.Type) }>
-			{ change.ServiceVersion.Service.Name } v{ fmt.Sprint(change.ServiceVersion.Version) }
+			{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersionID) }
 		</span>
 	</div>
 }
 
-func getChangeTypeText(changeType model.ChangesetChangeType) string {
+func getChangeTypeText(changeType db.ChangesetChangeType) string {
 	switch changeType {
-	case model.ChangesetChangeTypeCreate:
+	case db.ChangesetChangeTypeCreate:
 		return "Created"
-	case model.ChangesetChangeTypeUpdate:
+	case db.ChangesetChangeTypeUpdate:
 		return "Updated"
-	case model.ChangesetChangeTypeDelete:
+	case db.ChangesetChangeTypeDelete:
 		return "Deleted"
 	default:
 		return "Unknown"
 	}
 }
 
-func getChangeTypeClass(changeType model.ChangesetChangeType) string {
+func getChangeTypeClass(changeType db.ChangesetChangeType) string {
 	switch changeType {
-	case model.ChangesetChangeTypeCreate:
+	case db.ChangesetChangeTypeCreate:
 		return "bg-green-100 text-green-800 py-1 px-1"
-	case model.ChangesetChangeTypeDelete:
+	case db.ChangesetChangeTypeDelete:
 		return "bg-red-100 text-red-800 py-1 px-1"
 	default:
 		return ""

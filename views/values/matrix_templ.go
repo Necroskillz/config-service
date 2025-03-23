@@ -11,7 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
@@ -20,7 +20,7 @@ import (
 type ValueMatrixData struct {
 	ServiceVersionID uint
 	FeatureVersionID uint
-	Key              *model.Key
+	Key              db.Key
 	Properties       []*service.VariationHierarchyProperty
 	Values           []service.EvaluatedVariationValue
 }
@@ -194,7 +194,7 @@ func ValueMatrix(data ValueMatrixData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if propValue, exists := value.Variation[prop.Name]; exists {
+				if propValue, exists := value.Variation[prop.ID]; exists {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(propValue)
 					if templ_7745c5c3_Err != nil {

@@ -60,7 +60,7 @@ func Base(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><script type=\"text/javascript\">\r\n\t\t\t\tfunction onInputToggleValidation(event, validationMessage, submittedValue) {\r\n\t\t\t\t\tif (validationMessage) {\r\n\t\t\t\t\t\tif(event.target.value !== submittedValue) {\r\n\t\t\t\t\t\t\tevent.target.classList.remove('validation-error');\r\n\t\t\t\t\t\t\tvalidationMessage.style.display = 'none';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\tevent.target.classList.add('validation-error');\r\n\t\t\t\t\t\t\tvalidationMessage.style.display = 'block';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><script type=\"text/javascript\">\r\n\t\t\t\tdocument.body.addEventListener('htmx:beforeSwap', function(event) {\r\n\t\t\t\t\tif (event.detail.xhr.status === 200) {\r\n\t\t\t\t\t\tdocument.querySelector('#error-message').innerHTML = '';\r\n\t\t\t\t\t}\r\n\t\t\t\t});\r\n\r\n\t\t\t\tfunction onInputToggleValidation(event, validationMessage, submittedValue) {\r\n\t\t\t\t\tif (validationMessage) {\r\n\t\t\t\t\t\tif(event.target.value !== submittedValue) {\r\n\t\t\t\t\t\t\tevent.target.classList.remove('validation-error');\r\n\t\t\t\t\t\t\tvalidationMessage.style.display = 'none';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\tevent.target.classList.add('validation-error');\r\n\t\t\t\t\t\t\tvalidationMessage.style.display = 'block';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -120,7 +120,7 @@ func WithBase(component templ.Component, title string, fullPage bool) templ.Comp
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layouts/base.templ`, Line: 59, Col: 17}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layouts/base.templ`, Line: 65, Col: 17}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {

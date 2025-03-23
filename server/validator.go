@@ -9,16 +9,14 @@ import (
 )
 
 type CustomValidator struct {
-	validator      *validator.Validate
-	serviceService *service.ServiceService
-	featureService *service.FeatureService
+	validator         *validator.Validate
+	validationService *service.ValidationService
 }
 
-func NewCustomValidator(validator *validator.Validate, serviceService *service.ServiceService, featureService *service.FeatureService) *CustomValidator {
+func NewCustomValidator(validator *validator.Validate, validationService *service.ValidationService) *CustomValidator {
 	cv := &CustomValidator{
-		validator:      validator,
-		serviceService: serviceService,
-		featureService: featureService,
+		validator:         validator,
+		validationService: validationService,
 	}
 
 	return cv
@@ -31,24 +29,16 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 func (cv *CustomValidator) RegisterCustomValidation(trans ut.Translator) error {
 	if err := cv.validator.RegisterValidationCtx("service_name_free", func(ctx context.Context, fl validator.FieldLevel) bool {
 		value := fl.Field().String()
-		service, err := cv.serviceService.GetServiceByName(ctx, value)
-		if err != nil {
-			return false
-		}
-
-		return service == nil
+		err := cv.validationService.ValidateServiceNameUniqueness(ctx, value)
+		return err == nil
 	}); err != nil {
 		return err
 	}
 
 	if err := cv.validator.RegisterValidationCtx("feature_name_free", func(ctx context.Context, fl validator.FieldLevel) bool {
 		value := fl.Field().String()
-		feature, err := cv.featureService.GetFeatureByName(ctx, value)
-		if err != nil {
-			return false
-		}
-
-		return feature == nil
+		err := cv.validationService.ValidateFeatureNameUniqueness(ctx, value)
+		return err == nil
 	}); err != nil {
 		return err
 	}

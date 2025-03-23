@@ -1,4 +1,4 @@
-.PHONY: dev build test clean install-deps seed
+.PHONY: dev build test clean install-deps seed sqlc
 
 # Default target
 all: build
@@ -7,6 +7,9 @@ all: build
 install-deps:
 	go mod tidy
 	go install github.com/cosmtrek/air@latest
+
+sqlc:
+	sqlc generate
 
 # Run the server with hot reload using Air
 dev-server:

@@ -11,10 +11,11 @@ import (
 	"github.com/a-h/templ"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/layouts"
@@ -61,17 +62,17 @@ func (h *Handler) User(c echo.Context) *auth.User {
 }
 
 func (h *Handler) EnsureChangesetID(c echo.Context) (uint, error) {
-	changesetId := h.User(c).ChangesetID
-	if changesetId == 0 {
-		changeset, err := h.ChangesetService.CreateChangesetForUser(c.Request().Context(), h.User(c).ID)
+	user := h.User(c)
+	if user.ChangesetID == 0 {
+		id, err := h.ChangesetService.CreateChangesetForUser(c.Request().Context(), user.ID)
 		if err != nil {
 			return 0, echo.NewHTTPError(http.StatusInternalServerError, "Failed to create changeset").WithInternal(err)
 		}
 
-		changesetId = changeset.ID
+		user.ChangesetID = id
 	}
 
-	return changesetId, nil
+	return user.ChangesetID, nil
 }
 
 func (h *Handler) ViewContext(c echo.Context) context.Context {
@@ -120,7 +121,6 @@ func (h *Handler) GetValidationErrors(err validator.ValidationErrors) map[string
 func (h *Handler) BindAndValidate(c echo.Context, data views.ViewDataSetter, errorCollectors ...func() []error) (bool, error) {
 	err := c.Bind(data)
 	if err != nil {
-		data.SetError("Failed to process form data")
 		return false, echo.NewHTTPError(http.StatusBadRequest, "Failed to process form data").WithInternal(err)
 	}
 
@@ -128,7 +128,6 @@ func (h *Handler) BindAndValidate(c echo.Context, data views.ViewDataSetter, err
 	if err != nil {
 		validationErrors, ok := err.(validator.ValidationErrors)
 		if !ok {
-			data.SetError("Failed to validate form data")
 			return false, echo.NewHTTPError(http.StatusInternalServerError, "Failed to validate form data").WithInternal(err)
 		}
 
@@ -186,8 +185,7 @@ func (h *Handler) ApplyServiceValidationErrors(c echo.Context, data views.ViewDa
 	}
 
 	if len(errorMessages) > 0 {
-		data.SetError(strings.Join(errorMessages, "\n"))
-		valid = false
+		return false, echo.NewHTTPError(http.StatusUnprocessableEntity, strings.Join(errorMessages, "\n"))
 	}
 
 	if len(validationErrors) > 0 {
@@ -203,9 +201,9 @@ func (h *Handler) LoadBasicData(c echo.Context, chain ...any) error {
 		panic("no data to load")
 	}
 
-	serviceVersion, ok := chain[0].(*model.ServiceVersion)
+	serviceVersion, ok := chain[0].(*db.GetServiceVersionRow)
 	if !ok {
-		panic("first argument must be a pointer to a model.ServiceVersion")
+		panic("first argument must be a pointer to a db.GetServiceVersionRow")
 	}
 
 	err := LoadEntity(c, serviceVersion, "service_version_id", h.ServiceService.GetServiceVersion)
@@ -214,9 +212,9 @@ func (h *Handler) LoadBasicData(c echo.Context, chain ...any) error {
 	}
 
 	if len(chain) > 1 {
-		featureVersion, ok := chain[1].(*model.FeatureVersion)
+		featureVersion, ok := chain[1].(*db.GetFeatureVersionRow)
 		if !ok {
-			panic("second argument must be a pointer to a model.FeatureVersion")
+			panic("second argument must be a pointer to a db.GetFeatureVersionRow")
 		}
 
 		err = LoadEntity(c, featureVersion, "feature_version_id", h.FeatureService.GetFeatureVersion)
@@ -228,7 +226,7 @@ func (h *Handler) LoadBasicData(c echo.Context, chain ...any) error {
 	}
 
 	if len(chain) > 2 {
-		key, ok := chain[2].(*model.Key)
+		key, ok := chain[2].(*db.Key)
 		if !ok {
 			panic("third argument must be a pointer to a model.Key")
 		}
@@ -242,7 +240,7 @@ func (h *Handler) LoadBasicData(c echo.Context, chain ...any) error {
 	return nil
 }
 
-func LoadEntity[T any](c echo.Context, entity *T, paramName string, loader func(ctx context.Context, id uint) (*T, error)) error {
+func LoadEntity[T any](c echo.Context, entity *T, paramName string, loader func(ctx context.Context, id uint) (T, error)) error {
 	var id uint
 	err := echo.PathParamsBinder(c).MustUint(paramName, &id).BindError()
 	if err != nil {
@@ -251,14 +249,14 @@ func LoadEntity[T any](c echo.Context, entity *T, paramName string, loader func(
 
 	loadedEntity, err := loader(c.Request().Context(), id)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusNotFound, "%s with ID %d not found", reflect.TypeOf(entity).String(), id)
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get %s with ID %d", reflect.TypeOf(entity).String(), id).WithInternal(err)
 	}
 
-	if loadedEntity == nil {
-		return echo.NewHTTPError(http.StatusNotFound, "%s with ID %d not found", reflect.TypeOf(entity).String(), id)
-	}
-
-	*entity = *loadedEntity
+	*entity = loadedEntity
 
 	return nil
 }

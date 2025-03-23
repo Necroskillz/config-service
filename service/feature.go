@@ -3,66 +3,41 @@ package service
 import (
 	"context"
 
-	"github.com/necroskillz/config-service/model"
-	"github.com/necroskillz/config-service/repository"
+	"github.com/necroskillz/config-service/db"
 )
 
 type FeatureService struct {
-	unitOfWorkCreator                      repository.UnitOfWorkCreator
-	featureRepository                      *repository.FeatureRepository
-	featureVersionRepository               *repository.FeatureVersionRepository
-	serviceVersionFeatureVersionRepository *repository.ServiceVersionFeatureVersionRepository
-	changesetService                       *ChangesetService
+	unitOfWorkRunner db.UnitOfWorkRunner
+	queries          *db.Queries
 }
 
 func NewFeatureService(
-	unitOfWorkCreator repository.UnitOfWorkCreator,
-	featureRepository *repository.FeatureRepository,
-	featureVersionRepository *repository.FeatureVersionRepository,
-	serviceVersionFeatureVersionRepository *repository.ServiceVersionFeatureVersionRepository,
-	changesetService *ChangesetService,
+	unitOfWorkRunner db.UnitOfWorkRunner,
+	queries *db.Queries,
 ) *FeatureService {
 	return &FeatureService{
-		unitOfWorkCreator:                      unitOfWorkCreator,
-		featureRepository:                      featureRepository,
-		featureVersionRepository:               featureVersionRepository,
-		serviceVersionFeatureVersionRepository: serviceVersionFeatureVersionRepository,
-		changesetService:                       changesetService,
+		unitOfWorkRunner: unitOfWorkRunner,
+		queries:          queries,
 	}
 }
 
-func (s *FeatureService) GetFeatureByName(ctx context.Context, name string) (*model.Feature, error) {
-	return s.featureRepository.GetByProperty(ctx, "name", name)
+func (s *FeatureService) GetFeatureVersion(ctx context.Context, featureVersionID uint) (db.GetFeatureVersionRow, error) {
+	return s.queries.GetFeatureVersion(ctx, featureVersionID)
 }
 
-func (s *FeatureService) GetFeatureVersion(ctx context.Context, featureVersionID uint) (*model.FeatureVersion, error) {
-	return s.featureVersionRepository.GetById(ctx, featureVersionID, "Feature")
+func (s *FeatureService) GetServiceFeatures(ctx context.Context, serviceVersionID uint, changesetID uint) ([]db.GetActiveFeatureVersionsForServiceVersionRow, error) {
+	return s.queries.GetActiveFeatureVersionsForServiceVersion(ctx, db.GetActiveFeatureVersionsForServiceVersionParams{
+		ServiceVersionID: serviceVersionID,
+		ChangesetID:      changesetID,
+	})
 }
 
-func (s *FeatureService) GetFeatureVersionsLinkedToServiceVersion(ctx context.Context, featureID uint, serviceVersionID uint) ([]model.FeatureVersion, error) {
-	featureVersions, err := s.featureVersionRepository.GetByFeatureIDForServiceVersion(ctx, featureID, serviceVersionID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return featureVersions, nil
-}
-
-func (s *FeatureService) GetServiceFeatures(ctx context.Context, serviceVersionID uint) ([]model.FeatureVersion, error) {
-	links, err := s.serviceVersionFeatureVersionRepository.GetActive(ctx, serviceVersionID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	featureVersions := make([]model.FeatureVersion, len(links))
-
-	for i, link := range links {
-		featureVersions[i] = link.FeatureVersion
-	}
-
-	return featureVersions, nil
+func (s *FeatureService) GetFeatureVersionsLinkedToServiceVersion(ctx context.Context, featureID uint, serviceVersionID uint, changesetID uint) ([]db.GetFeatureVersionsLinkedToServiceVersionRow, error) {
+	return s.queries.GetFeatureVersionsLinkedToServiceVersion(ctx, db.GetFeatureVersionsLinkedToServiceVersionParams{
+		FeatureID:        featureID,
+		ServiceVersionID: serviceVersionID,
+		ChangesetID:      changesetID,
+	})
 }
 
 type CreateFeatureParams struct {
@@ -73,44 +48,54 @@ type CreateFeatureParams struct {
 	ServiceID        uint
 }
 
-func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeatureParams) (*model.Feature, error) {
-	feature := model.Feature{
-		Name:        params.Name,
-		Description: params.Description,
-		ServiceID:   params.ServiceID,
-	}
+func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeatureParams) (uint, error) {
+	var featureVersionID uint
 
-	return &feature, s.unitOfWorkCreator.Run(ctx, func(ctx context.Context) error {
-		if err := s.featureRepository.Create(ctx, &feature); err != nil {
+	err := s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		featureID, err := tx.CreateFeature(ctx, db.CreateFeatureParams{
+			Name:        params.Name,
+			Description: params.Description,
+			ServiceID:   params.ServiceID,
+		})
+		if err != nil {
 			return err
 		}
 
-		featureVersion := model.FeatureVersion{
-			FeatureID: feature.ID,
+		featureVersionID, err = tx.CreateFeatureVersion(ctx, db.CreateFeatureVersionParams{
+			FeatureID: featureID,
 			Version:   1,
-		}
-
-		if err := s.featureVersionRepository.Create(ctx, &featureVersion); err != nil {
+		})
+		if err != nil {
 			return err
 		}
 
-		if err := s.changesetService.AddFeatureVersionChange(ctx, params.ChangesetID, featureVersion.ID, model.ChangesetChangeTypeCreate); err != nil {
-			return err
-		}
-
-		link := model.FeatureVersionServiceVersion{
+		if err = s.queries.AddCreateFeatureVersionChange(ctx, db.AddCreateFeatureVersionChangeParams{
+			ChangesetID:      params.ChangesetID,
+			FeatureVersionID: featureVersionID,
 			ServiceVersionID: params.ServiceVersionID,
-			FeatureVersionID: featureVersion.ID,
-		}
-
-		if err := s.serviceVersionFeatureVersionRepository.Create(ctx, &link); err != nil {
+		}); err != nil {
 			return err
 		}
 
-		if err := s.changesetService.AddFeatureVersionServiceVersionLinkChange(ctx, params.ChangesetID, link.ID, params.ServiceVersionID, featureVersion.ID, model.ChangesetChangeTypeCreate); err != nil {
+		linkID, err := tx.CreateFeatureVersionServiceVersion(ctx, db.CreateFeatureVersionServiceVersionParams{
+			ServiceVersionID: params.ServiceVersionID,
+			FeatureVersionID: featureVersionID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if err = s.queries.AddCreateFeatureVersionServiceVersionChange(ctx, db.AddCreateFeatureVersionServiceVersionChangeParams{
+			ChangesetID:                    params.ChangesetID,
+			FeatureVersionServiceVersionID: linkID,
+			ServiceVersionID:               params.ServiceVersionID,
+			FeatureVersionID:               featureVersionID,
+		}); err != nil {
 			return err
 		}
 
 		return nil
 	})
+
+	return featureVersionID, err
 }

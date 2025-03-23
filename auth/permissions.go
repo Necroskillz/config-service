@@ -43,7 +43,7 @@ func (p *FeaturePermission) Match(serviceId uint, featureId *uint, keyId *uint, 
 }
 
 func (p *FeaturePermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
-	return p.ServiceID == serviceId
+	return p.ServiceID == serviceId && p.FeatureID == *featureId
 }
 
 type KeyPermission struct {
@@ -62,7 +62,7 @@ func (p *KeyPermission) Match(serviceId uint, featureId *uint, keyId *uint, vari
 }
 
 func (p *KeyPermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
-	return p.ServiceID == serviceId || p.FeatureID == *featureId
+	return p.ServiceID == serviceId && p.FeatureID == *featureId && p.KeyID == *keyId
 }
 
 type VariationPermission struct {
@@ -90,5 +90,5 @@ func (p *VariationPermission) Match(serviceId uint, featureId *uint, keyId *uint
 }
 
 func (p *VariationPermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
-	return p.ServiceID == serviceId || p.FeatureID == *featureId || p.KeyID == *keyId
+	return p.ServiceID == serviceId && p.FeatureID == *featureId && p.KeyID == *keyId
 }

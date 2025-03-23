@@ -33,6 +33,12 @@ templ Base(title string) {
 				{ children... }
 			</div>
 			<script type="text/javascript">
+				document.body.addEventListener('htmx:beforeSwap', function(event) {
+					if (event.detail.xhr.status === 200) {
+						document.querySelector('#error-message').innerHTML = '';
+					}
+				});
+
 				function onInputToggleValidation(event, validationMessage, submittedValue) {
 					if (validationMessage) {
 						if(event.target.value !== submittedValue) {

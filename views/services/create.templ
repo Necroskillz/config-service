@@ -12,7 +12,7 @@ type CreateServiceData struct {
 	views.ViewData
 	Name          string `form:"name" validate:"required,service_name_free"`
 	Description   string `form:"description" validate:"required"`
-	ServiceTypeID uint   `form:"serviceType" validate:"required"`
+	ServiceTypeID uint  `form:"serviceType" validate:"required"`
 
 	ServiceTypeOptions []components.SelectOption
 }
@@ -28,7 +28,7 @@ templ CreateServicePage(data CreateServiceData) {
 
 templ CreateServiceForm(data CreateServiceData) {
 	<div id="create-service-form" class="flex flex-col gap-4">
-		@components.ErrorMessage(data.Error)
+		@components.ErrorMessageContainer()
 		<form hx-post="/services" hx-target="#create-service-form" hx-swap="outerHTML">
 			<div class="flex flex-col gap-4">
 				@components.FormElement("name", "Name") {

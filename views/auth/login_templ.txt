@@ -1,5 +1,0 @@
-<div id=\"login-form\" class=\"flex flex-col items-center justify-center gap-4\">
-<form class=\"flex flex-col items-center justify-center gap-4\" hx-post=\"/login\" hx-target=\"#login-form\" hx-swap=\"outerHTML\">
- 
- 
-</form></div>

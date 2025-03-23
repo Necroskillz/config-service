@@ -2,7 +2,8 @@ package services
 
 import (
 	"fmt"
-	"github.com/necroskillz/config-service/model"
+
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
@@ -14,14 +15,14 @@ type CreateFeatureData struct {
 	Name             string `form:"name" validate:"required,feature_name_free"`
 	Description      string `form:"description" validate:"required"`
 
-	ServiceVersion *model.ServiceVersion
+	ServiceVersion db.GetServiceVersionRow
 }
 
 templ CreateFeaturePage(data CreateFeatureData) {
 	@layouts.Container() {
 		<div class="flex flex-col">
 			<h1>Create New Feature</h1>
-			<p class="text-secondary">Created feature will be linked to version { fmt.Sprintf("%d", data.ServiceVersion.Version) } of { data.ServiceVersion.Service.Name }</p>
+			<p class="text-secondary">Created feature will be linked to version { fmt.Sprintf("%d", data.ServiceVersion.Version) } of { data.ServiceVersion.ServiceName }</p>
 			@CreateFeatureForm(data)
 		</div>
 	}

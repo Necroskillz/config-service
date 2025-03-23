@@ -6,12 +6,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 	value_views "github.com/necroskillz/config-service/views/values"
 )
 
-func (h *Handler) populateValueMatrixViewData(c echo.Context, data *value_views.ValueMatrixData, serviceVersion *model.ServiceVersion, featureVersion *model.FeatureVersion, key *model.Key) error {
+func (h *Handler) populateValueMatrixViewData(c echo.Context, data *value_views.ValueMatrixData, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow, key db.Key) error {
 	data.ServiceVersionID = serviceVersion.ID
 	data.FeatureVersionID = featureVersion.ID
 	data.Key = key
@@ -21,28 +21,23 @@ func (h *Handler) populateValueMatrixViewData(c echo.Context, data *value_views.
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get variation hierarchy").WithInternal(err)
 	}
 
-	changesetID, err := h.EnsureChangesetID(c)
-	if err != nil {
-		return err
-	}
-
-	values, err := h.ValueService.GetKeyValues(c.Request().Context(), key.ID, changesetID)
+	values, err := h.ValueService.GetKeyValues(c.Request().Context(), key.ID, h.User(c).ChangesetID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get values for key %d", key.ID)).WithInternal(err)
 	}
 
 	filter := service.VariationValueFilter{
-		Filter:          map[string]string{},
+		Filter:          map[uint]string{},
 		IncludeChildren: false,
 		ValueSortOrder:  service.ValueSortOrderTree,
 	}
 
-	properties := variationHierarchy.GetProperties(serviceVersion.Service.ServiceTypeID)
+	properties := variationHierarchy.GetProperties(serviceVersion.ServiceTypeID)
 	for _, property := range properties {
-		filter.Filter[property.Name] = c.QueryParam(property.Name)
+		filter.Filter[property.ID] = c.QueryParam(property.Name)
 	}
 
-	evaluatedValues := variationHierarchy.SortAndFilterValues(serviceVersion.Service.ServiceTypeID, values, filter)
+	evaluatedValues := variationHierarchy.SortAndFilterValues(serviceVersion.ServiceTypeID, values, filter)
 
 	data.Values = evaluatedValues
 	data.Properties = properties
@@ -51,9 +46,9 @@ func (h *Handler) populateValueMatrixViewData(c echo.Context, data *value_views.
 }
 
 func (h *Handler) ValueMatrix(c echo.Context) error {
-	var serviceVersion model.ServiceVersion
-	var featureVersion model.FeatureVersion
-	var key model.Key
+	var serviceVersion db.GetServiceVersionRow
+	var featureVersion db.GetFeatureVersionRow
+	var key db.Key
 
 	err := h.LoadBasicData(c, &serviceVersion, &featureVersion, &key)
 	if err != nil {
@@ -61,25 +56,25 @@ func (h *Handler) ValueMatrix(c echo.Context) error {
 	}
 
 	var data value_views.ValueMatrixData
-	err = h.populateValueMatrixViewData(c, &data, &serviceVersion, &featureVersion, &key)
+	err = h.populateValueMatrixViewData(c, &data, serviceVersion, featureVersion, key)
 	if err != nil {
 		return err
 	}
 
-	return h.RenderPage(c, http.StatusOK, value_views.ValueMatrixPage(data), fmt.Sprintf("Service %s - Feature %s - Key %s", serviceVersion.Service.Name, featureVersion.Feature.Name, key.Name))
+	return h.RenderPage(c, http.StatusOK, value_views.ValueMatrixPage(data), fmt.Sprintf("Service %s - Feature %s - Key %s", serviceVersion.ServiceName, featureVersion.FeatureName, key.Name))
 }
 
 func (h *Handler) CreateValueSubmit(c echo.Context) error {
-	var serviceVersion model.ServiceVersion
-	var featureVersion model.FeatureVersion
-	var key model.Key
+	var serviceVersion db.GetServiceVersionRow
+	var featureVersion db.GetFeatureVersionRow
+	var key db.Key
 
 	err := h.LoadBasicData(c, &serviceVersion, &featureVersion, &key)
 	if err != nil {
 		return err
 	}
 
-	if h.User(c).GetPermissionForKey(serviceVersion.Service.ServiceTypeID, featureVersion.Feature.ID, key.ID) != constants.PermissionAdmin {
+	if h.User(c).GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) != constants.PermissionAdmin {
 		return echo.NewHTTPError(http.StatusUnauthorized, "You do not have permission to create values for this key")
 	}
 
@@ -89,9 +84,9 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 	}
 
 	var data value_views.ValueFormData
-	data.Variation = GetVariationFromForm(c, serviceVersion.Service.ServiceTypeID, variationHierarchy)
+	data.Variation = GetVariationFromForm(c, serviceVersion.ServiceTypeID, variationHierarchy)
 
-	variationIds, err := variationHierarchy.VariationMapToIds(serviceVersion.Service.ServiceTypeID, data.Variation)
+	variationIds, err := variationHierarchy.VariationMapToIds(serviceVersion.ServiceTypeID, data.Variation)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Failed to convert variation to ids").WithInternal(err)
 	}
@@ -111,7 +106,7 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 	}
 
 	if !valid {
-		data.Properties = variationHierarchy.GetProperties(serviceVersion.Service.ServiceTypeID)
+		data.Properties = variationHierarchy.GetProperties(serviceVersion.ServiceTypeID)
 		data.ServiceVersionID = serviceVersion.ID
 		data.FeatureVersionID = featureVersion.ID
 		data.KeyID = key.ID
@@ -125,6 +120,7 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 		FeatureVersionID: featureVersion.ID,
 		Value:            data.Value,
 		Variation:        variationIds,
+		ServiceVersionID: serviceVersion.ID,
 	})
 
 	if err != nil {
@@ -132,7 +128,7 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 	}
 
 	var matrixData value_views.ValueMatrixData
-	err = h.populateValueMatrixViewData(c, &matrixData, &serviceVersion, &featureVersion, &key)
+	err = h.populateValueMatrixViewData(c, &matrixData, serviceVersion, featureVersion, key)
 	if err != nil {
 		return err
 	}
@@ -141,9 +137,9 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 }
 
 func (h *Handler) DeleteValueSubmit(c echo.Context) error {
-	var serviceVersion model.ServiceVersion
-	var featureVersion model.FeatureVersion
-	var key model.Key
+	var serviceVersion db.GetServiceVersionRow
+	var featureVersion db.GetFeatureVersionRow
+	var key db.Key
 	var valueID uint
 
 	err := h.LoadBasicData(c, &serviceVersion, &featureVersion, &key)
@@ -151,12 +147,12 @@ func (h *Handler) DeleteValueSubmit(c echo.Context) error {
 		return err
 	}
 
-	err = echo.PathParamsBinder(c).Uint("value_id", &valueID).BindError()
+	err = echo.PathParamsBinder(c).MustUint("value_id", &valueID).BindError()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid value id").WithInternal(err)
 	}
 
-	if h.User(c).GetPermissionForKey(serviceVersion.Service.ServiceTypeID, featureVersion.Feature.ID, key.ID) != constants.PermissionAdmin {
+	if h.User(c).GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) != constants.PermissionAdmin {
 		return echo.NewHTTPError(http.StatusUnauthorized, "You do not have permission to delete values for this key")
 	}
 
@@ -177,7 +173,7 @@ func (h *Handler) DeleteValueSubmit(c echo.Context) error {
 	}
 
 	var matrixData value_views.ValueMatrixData
-	err = h.populateValueMatrixViewData(c, &matrixData, &serviceVersion, &featureVersion, &key)
+	err = h.populateValueMatrixViewData(c, &matrixData, serviceVersion, featureVersion, key)
 	if err != nil {
 		return err
 	}

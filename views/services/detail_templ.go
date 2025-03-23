@@ -12,16 +12,16 @@ import (
 	"fmt"
 
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
 	"github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
 type ServiceDetailData struct {
-	ServiceVersion       *model.ServiceVersion
-	ServiceFeatures      []model.FeatureVersion
-	OtherServiceVersions []model.ServiceVersion
+	ServiceVersion       db.GetServiceVersionRow
+	ServiceFeatures      []db.GetActiveFeatureVersionsForServiceVersionRow
+	OtherServiceVersions []db.GetServiceVersionsForServiceRow
 }
 
 func ServiceDetailPage(data ServiceDetailData) templ.Component {
@@ -57,15 +57,15 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			permission := views.User(ctx).GetPermissionForService(data.ServiceVersion.Service.ID)
+			permission := views.User(ctx).GetPermissionForService(data.ServiceVersion.ServiceID)
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col\"><h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.ServiceVersion.Service.Name)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.ServiceVersion.ServiceName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 24, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 24, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -80,9 +80,9 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.ServiceVersion.Service.Description)
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.ServiceVersion.ServiceDescription)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 27, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 27, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -178,9 +178,9 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(featureVersion.Feature.Name)
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(featureVersion.FeatureName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 53, Col: 146}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 53, Col: 145}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -199,9 +199,9 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(featureVersion.Feature.Description)
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(featureVersion.FeatureDescription)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 56, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 56, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {

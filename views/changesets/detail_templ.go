@@ -10,12 +10,14 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/necroskillz/config-service/model"
+
+	"github.com/necroskillz/config-service/db"
+	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
 type ChangesetDetailData struct {
-	Changeset *model.Changeset
+	Changeset service.Changeset
 }
 
 func ChangesetDetailPage(data ChangesetDetailData) templ.Component {
@@ -58,7 +60,7 @@ func ChangesetDetailPage(data ChangesetDetailData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Changeset #%d", data.Changeset.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 16, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 18, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -111,7 +113,7 @@ func ChangesetDetailPage(data ChangesetDetailData) templ.Component {
 	})
 }
 
-func changesetChange(change model.ChangesetChange) templ.Component {
+func changesetChange(change service.ChangesetChange) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -162,7 +164,7 @@ func changesetChange(change model.ChangesetChange) templ.Component {
 	})
 }
 
-func variationValueChange(change model.ChangesetChange) templ.Component {
+func variationValueChange(change service.ChangesetChange) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -190,7 +192,7 @@ func variationValueChange(change model.ChangesetChange) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(getChangeTypeText(change.Type))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 49, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 51, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -201,9 +203,9 @@ func variationValueChange(change model.ChangesetChange) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s in %s v%d", change.Key.Name, change.FeatureVersion.Feature.Name, change.FeatureVersion.Version))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s in %s v%d", *change.KeyName, *change.FeatureName, *change.FeatureVersionID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 49, Col: 161}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 51, Col: 141}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -213,27 +215,20 @@ func variationValueChange(change model.ChangesetChange) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-
-		var variationPropertyValues []model.VariationPropertyValue
-		if change.NewVariationValue != nil {
-			variationPropertyValues = change.NewVariationValue.VariationPropertyValues
-		} else if change.OldVariationValue != nil {
-			variationPropertyValues = change.OldVariationValue.VariationPropertyValues
-		}
-		if len(variationPropertyValues) > 0 {
+		if len(change.Variation) > 0 {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"flex flex-wrap gap-2 mb-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, propValue := range variationPropertyValues {
+			for _, propValue := range change.Variation {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"px-2 py-1 bg-gray-600 rounded-md text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(propValue.Value)
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(propValue)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 63, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 57, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -253,15 +248,15 @@ func variationValueChange(change model.ChangesetChange) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if change.OldVariationValue != nil {
+		if change.OldVariationValueID != nil {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"bg-red-100 line-through text-red-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(*change.OldVariationValue.Data)
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(*change.OldVariationValueData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 71, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 65, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -272,15 +267,15 @@ func variationValueChange(change model.ChangesetChange) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if change.NewVariationValue != nil {
+		if change.NewVariationValueID != nil {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"bg-green-100 text-green-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(*change.NewVariationValue.Data)
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(*change.NewVariationValueData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 76, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 70, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -299,7 +294,7 @@ func variationValueChange(change model.ChangesetChange) templ.Component {
 	})
 }
 
-func keyChange(change model.ChangesetChange) templ.Component {
+func keyChange(change service.ChangesetChange) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -327,7 +322,7 @@ func keyChange(change model.ChangesetChange) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(getChangeTypeText(change.Type))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 85, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 79, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -360,9 +355,9 @@ func keyChange(change model.ChangesetChange) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(change.Key.Name)
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(*change.KeyName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 86, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 80, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -373,9 +368,9 @@ func keyChange(change model.ChangesetChange) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
-		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(change.FeatureVersion.Feature.Name)
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(*change.FeatureName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 87, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 81, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -386,9 +381,9 @@ func keyChange(change model.ChangesetChange) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
-		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(change.FeatureVersion.Version))
+		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(*change.FeatureVersionID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 87, Col: 117}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 81, Col: 97}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -402,7 +397,7 @@ func keyChange(change model.ChangesetChange) templ.Component {
 	})
 }
 
-func featureVersionServiceVersionChange(change model.ChangesetChange) templ.Component {
+func featureVersionServiceVersionChange(change service.ChangesetChange) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -430,7 +425,7 @@ func featureVersionServiceVersionChange(change model.ChangesetChange) templ.Comp
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(getChangeTypeText(change.Type))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 93, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 87, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -463,9 +458,9 @@ func featureVersionServiceVersionChange(change model.ChangesetChange) templ.Comp
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(change.ServiceVersion.Service.Name)
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(*change.ServiceName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 95, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 89, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -476,9 +471,9 @@ func featureVersionServiceVersionChange(change model.ChangesetChange) templ.Comp
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var23 string
-		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(change.ServiceVersion.Version))
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(*change.ServiceVersionID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 95, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 89, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -489,9 +484,9 @@ func featureVersionServiceVersionChange(change model.ChangesetChange) templ.Comp
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
-		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(change.FeatureVersion.Feature.Name)
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(*change.FeatureName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 97, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 91, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -502,9 +497,9 @@ func featureVersionServiceVersionChange(change model.ChangesetChange) templ.Comp
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var25 string
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(change.FeatureVersion.Version))
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(*change.FeatureVersionID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 97, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 91, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
@@ -518,7 +513,7 @@ func featureVersionServiceVersionChange(change model.ChangesetChange) templ.Comp
 	})
 }
 
-func featureVersionChange(change model.ChangesetChange) templ.Component {
+func featureVersionChange(change service.ChangesetChange) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -546,7 +541,7 @@ func featureVersionChange(change model.ChangesetChange) templ.Component {
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(getChangeTypeText(change.Type))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 104, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 98, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -579,9 +574,9 @@ func featureVersionChange(change model.ChangesetChange) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var30 string
-		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(change.FeatureVersion.Feature.Name)
+		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(*change.FeatureName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 106, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 100, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
@@ -592,9 +587,9 @@ func featureVersionChange(change model.ChangesetChange) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var31 string
-		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(change.FeatureVersion.Version))
+		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(*change.FeatureVersionID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 106, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 100, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 		if templ_7745c5c3_Err != nil {
@@ -608,7 +603,7 @@ func featureVersionChange(change model.ChangesetChange) templ.Component {
 	})
 }
 
-func serviceVersionChange(change model.ChangesetChange) templ.Component {
+func serviceVersionChange(change service.ChangesetChange) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -636,7 +631,7 @@ func serviceVersionChange(change model.ChangesetChange) templ.Component {
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(getChangeTypeText(change.Type))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 113, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 107, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
@@ -669,9 +664,9 @@ func serviceVersionChange(change model.ChangesetChange) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var36 string
-		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(change.ServiceVersion.Service.Name)
+		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(*change.ServiceName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 115, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 109, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
@@ -682,9 +677,9 @@ func serviceVersionChange(change model.ChangesetChange) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var37 string
-		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(change.ServiceVersion.Version))
+		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(*change.ServiceVersionID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 115, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/changesets/detail.templ`, Line: 109, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 		if templ_7745c5c3_Err != nil {
@@ -698,24 +693,24 @@ func serviceVersionChange(change model.ChangesetChange) templ.Component {
 	})
 }
 
-func getChangeTypeText(changeType model.ChangesetChangeType) string {
+func getChangeTypeText(changeType db.ChangesetChangeType) string {
 	switch changeType {
-	case model.ChangesetChangeTypeCreate:
+	case db.ChangesetChangeTypeCreate:
 		return "Created"
-	case model.ChangesetChangeTypeUpdate:
+	case db.ChangesetChangeTypeUpdate:
 		return "Updated"
-	case model.ChangesetChangeTypeDelete:
+	case db.ChangesetChangeTypeDelete:
 		return "Deleted"
 	default:
 		return "Unknown"
 	}
 }
 
-func getChangeTypeClass(changeType model.ChangesetChangeType) string {
+func getChangeTypeClass(changeType db.ChangesetChangeType) string {
 	switch changeType {
-	case model.ChangesetChangeTypeCreate:
+	case db.ChangesetChangeTypeCreate:
 		return "bg-green-100 text-green-800 py-1 px-1"
-	case model.ChangesetChangeTypeDelete:
+	case db.ChangesetChangeTypeDelete:
 		return "bg-red-100 text-red-800 py-1 px-1"
 	default:
 		return ""

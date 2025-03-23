@@ -21,12 +21,7 @@ type ViewData struct {
 }
 
 type ViewDataSetter interface {
-	SetError(err string)
 	SetValidationErrors(errors map[string]string)
-}
-
-func (v *ViewData) SetError(err string) {
-	v.Error = err
 }
 
 func (v *ViewData) SetValidationErrors(errors map[string]string) {

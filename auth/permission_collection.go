@@ -2,12 +2,11 @@ package auth
 
 import (
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/model"
+	"github.com/necroskillz/config-service/service"
 )
 
 type VariationPropertyValueParentsProvider interface {
 	GetParents(propertyId uint, value string) []string
-	GetPropertyId(property string) (uint, error)
 }
 
 type PermissionCollection struct {
@@ -15,7 +14,7 @@ type PermissionCollection struct {
 	parentsProvider VariationPropertyValueParentsProvider
 }
 
-func NewPermissionCollection(userPermissions []model.UserPermission, parentsProvider VariationPropertyValueParentsProvider) *PermissionCollection {
+func NewPermissionCollection(userPermissions []service.UserPermission, parentsProvider VariationPropertyValueParentsProvider) *PermissionCollection {
 	permissions := make([]Permission, len(userPermissions))
 
 	for i, permission := range userPermissions {
@@ -28,19 +27,13 @@ func NewPermissionCollection(userPermissions []model.UserPermission, parentsProv
 	}
 }
 
-func CreatePermission(userPermission model.UserPermission) Permission {
-	if len(userPermission.VariationPropertyValues) > 0 {
-		propertyValues := make(map[uint]string)
-
-		for _, propertyValue := range userPermission.VariationPropertyValues {
-			propertyValues[propertyValue.VariationPropertyID] = propertyValue.Value
-		}
-
+func CreatePermission(userPermission service.UserPermission) Permission {
+	if len(userPermission.Variation) > 0 {
 		return &VariationPermission{
 			ServiceID:      userPermission.ServiceID,
 			FeatureID:      *userPermission.FeatureID,
 			KeyID:          *userPermission.KeyID,
-			PropertyValues: propertyValues,
+			PropertyValues: userPermission.Variation,
 			Level:          userPermission.Permission,
 		}
 	} else if userPermission.KeyID != nil {
@@ -64,19 +57,13 @@ func CreatePermission(userPermission model.UserPermission) Permission {
 	}
 }
 
-func (p *PermissionCollection) GetPermissionLevelFor(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[string]string) constants.PermissionLevel {
+func (p *PermissionCollection) GetPermissionLevelFor(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint]string) constants.PermissionLevel {
 	var variationPropertyValuesWithParents map[uint][]string
 
 	if variationPropertyValues != nil {
 		variationPropertyValuesWithParents = make(map[uint][]string, len(variationPropertyValues))
 
-		for property, propertyValue := range variationPropertyValues {
-			propertyId, err := p.parentsProvider.GetPropertyId(property)
-
-			if err != nil {
-				panic(err)
-			}
-
+		for propertyId, propertyValue := range variationPropertyValues {
 			parents := p.parentsProvider.GetParents(propertyId, propertyValue)
 			variationPropertyValuesWithParents[propertyId] = append(parents, propertyValue)
 		}
