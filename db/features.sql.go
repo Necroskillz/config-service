@@ -66,6 +66,38 @@ func (q *Queries) CreateFeatureVersionServiceVersion(ctx context.Context, arg Cr
 	return id, err
 }
 
+const endFeatureVersionServiceVersionValidity = `-- name: EndFeatureVersionServiceVersionValidity :exec
+UPDATE feature_version_service_versions
+SET valid_to = $1
+WHERE id = $2
+`
+
+type EndFeatureVersionServiceVersionValidityParams struct {
+	ValidTo                        *time.Time
+	FeatureVersionServiceVersionID uint
+}
+
+func (q *Queries) EndFeatureVersionServiceVersionValidity(ctx context.Context, arg EndFeatureVersionServiceVersionValidityParams) error {
+	_, err := q.db.Exec(ctx, endFeatureVersionServiceVersionValidity, arg.ValidTo, arg.FeatureVersionServiceVersionID)
+	return err
+}
+
+const endFeatureVersionValidity = `-- name: EndFeatureVersionValidity :exec
+UPDATE feature_versions
+SET valid_to = $1
+WHERE id = $2
+`
+
+type EndFeatureVersionValidityParams struct {
+	ValidTo          *time.Time
+	FeatureVersionID uint
+}
+
+func (q *Queries) EndFeatureVersionValidity(ctx context.Context, arg EndFeatureVersionValidityParams) error {
+	_, err := q.db.Exec(ctx, endFeatureVersionValidity, arg.ValidTo, arg.FeatureVersionID)
+	return err
+}
+
 const getActiveFeatureVersionsForServiceVersion = `-- name: GetActiveFeatureVersionsForServiceVersion :many
 SELECT fv.id,
     fv.feature_id,
@@ -77,26 +109,28 @@ FROM feature_version_service_versions fvsv
     JOIN features f ON f.id = fv.feature_id
 WHERE fvsv.service_version_id = $1
     AND (
-        fvsv.valid_from IS NOT NULL
-        AND fvsv.valid_to IS NULL
-        AND NOT EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $2
-                AND csc.type = 'create'
-                AND csc.feature_version_service_version_id = fvsv.id
-            LIMIT 1
+        (
+            fvsv.valid_from IS NOT NULL
+            AND fvsv.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.type = 'create'
+                    AND csc.feature_version_service_version_id = fvsv.id
+                LIMIT 1
+            )
         )
-    )
-    OR (
-        fvsv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $2
-                AND csc.type = 'create'
-                AND csc.feature_version_service_version_id = fvsv.id
-            LIMIT 1
+        OR (
+            fvsv.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.type = 'create'
+                    AND csc.feature_version_service_version_id = fvsv.id
+                LIMIT 1
+            )
         )
     )
 ORDER BY f.name
@@ -247,4 +281,36 @@ func (q *Queries) GetFeatureVersionsLinkedToServiceVersion(ctx context.Context, 
 		return nil, err
 	}
 	return items, nil
+}
+
+const startFeatureVersionServiceVersionValidity = `-- name: StartFeatureVersionServiceVersionValidity :exec
+UPDATE feature_version_service_versions
+SET valid_from = $1
+WHERE id = $2
+`
+
+type StartFeatureVersionServiceVersionValidityParams struct {
+	ValidFrom                      *time.Time
+	FeatureVersionServiceVersionID uint
+}
+
+func (q *Queries) StartFeatureVersionServiceVersionValidity(ctx context.Context, arg StartFeatureVersionServiceVersionValidityParams) error {
+	_, err := q.db.Exec(ctx, startFeatureVersionServiceVersionValidity, arg.ValidFrom, arg.FeatureVersionServiceVersionID)
+	return err
+}
+
+const startFeatureVersionValidity = `-- name: StartFeatureVersionValidity :exec
+UPDATE feature_versions
+SET valid_from = $1
+WHERE id = $2
+`
+
+type StartFeatureVersionValidityParams struct {
+	ValidFrom        *time.Time
+	FeatureVersionID uint
+}
+
+func (q *Queries) StartFeatureVersionValidity(ctx context.Context, arg StartFeatureVersionValidityParams) error {
+	_, err := q.db.Exec(ctx, startFeatureVersionValidity, arg.ValidFrom, arg.FeatureVersionID)
+	return err
 }

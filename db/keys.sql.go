@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 )
 
 const createKey = `-- name: CreateKey :one
@@ -57,31 +58,49 @@ func (q *Queries) CreateValueType(ctx context.Context, name string) (uint, error
 	return id, err
 }
 
+const endKeyValidity = `-- name: EndKeyValidity :exec
+UPDATE keys
+SET valid_to = $1
+WHERE id = $2
+`
+
+type EndKeyValidityParams struct {
+	ValidTo *time.Time
+	KeyID   uint
+}
+
+func (q *Queries) EndKeyValidity(ctx context.Context, arg EndKeyValidityParams) error {
+	_, err := q.db.Exec(ctx, endKeyValidity, arg.ValidTo, arg.KeyID)
+	return err
+}
+
 const getActiveKeysForFeatureVersion = `-- name: GetActiveKeysForFeatureVersion :many
 SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id
 FROM keys k
 WHERE k.feature_version_id = $1
     AND (
-        k.valid_from IS NOT NULL
-        AND k.valid_to IS NULL
-        AND NOT EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $2
-                AND csc.type = 'delete'
-                AND csc.key_id = k.id
-            LIMIT 1
+        (
+            k.valid_from IS NOT NULL
+            AND k.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.type = 'delete'
+                    AND csc.key_id = k.id
+                LIMIT 1
+            )
         )
-    )
-    OR (
-        k.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $2
-                AND csc.type = 'create'
-                AND csc.key_id = k.id
-            LIMIT 1
+        OR (
+            k.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.type = 'create'
+                    AND csc.key_id = k.id
+                LIMIT 1
+            )
         )
     )
 ORDER BY k.name
@@ -189,4 +208,20 @@ func (q *Queries) GetValueTypes(ctx context.Context) ([]ValueType, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const startKeyValidity = `-- name: StartKeyValidity :exec
+UPDATE keys
+SET valid_from = $1
+WHERE id = $2
+`
+
+type StartKeyValidityParams struct {
+	ValidFrom *time.Time
+	KeyID     uint
+}
+
+func (q *Queries) StartKeyValidity(ctx context.Context, arg StartKeyValidityParams) error {
+	_, err := q.db.Exec(ctx, startKeyValidity, arg.ValidFrom, arg.KeyID)
+	return err
 }

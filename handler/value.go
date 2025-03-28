@@ -8,6 +8,7 @@ import (
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/views/layouts"
 	value_views "github.com/necroskillz/config-service/views/values"
 )
 
@@ -75,7 +76,7 @@ func (h *Handler) CreateValueSubmit(c echo.Context) error {
 	}
 
 	if h.User(c).GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) != constants.PermissionAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You do not have permission to create values for this key")
+		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to create values for this key")
 	}
 
 	variationHierarchy, err := h.VariationHierarchyService.GetVariationHierarchy(c.Request().Context())
@@ -153,7 +154,7 @@ func (h *Handler) DeleteValueSubmit(c echo.Context) error {
 	}
 
 	if h.User(c).GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) != constants.PermissionAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You do not have permission to delete values for this key")
+		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to delete values for this key")
 	}
 
 	changesetID, err := h.EnsureChangesetID(c)
@@ -163,6 +164,7 @@ func (h *Handler) DeleteValueSubmit(c echo.Context) error {
 
 	err = h.ValueService.DeleteValue(c.Request().Context(), service.DeleteValueParams{
 		ChangesetID:      changesetID,
+		ServiceVersionID: serviceVersion.ID,
 		FeatureVersionID: featureVersion.ID,
 		KeyID:            key.ID,
 		ValueID:          valueID,
@@ -178,5 +180,5 @@ func (h *Handler) DeleteValueSubmit(c echo.Context) error {
 		return err
 	}
 
-	return c.HTML(http.StatusOK, "")
+	return h.RenderPartial(c, http.StatusOK, layouts.Empty())
 }

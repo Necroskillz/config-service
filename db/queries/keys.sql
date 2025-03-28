@@ -8,26 +8,28 @@ SELECT k.*
 FROM keys k
 WHERE k.feature_version_id = @feature_version_id
     AND (
-        k.valid_from IS NOT NULL
-        AND k.valid_to IS NULL
-        AND NOT EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
-                AND csc.type = 'delete'
-                AND csc.key_id = k.id
-            LIMIT 1
+        (
+            k.valid_from IS NOT NULL
+            AND k.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.type = 'delete'
+                    AND csc.key_id = k.id
+                LIMIT 1
+            )
         )
-    )
-    OR (
-        k.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
-                AND csc.type = 'create'
-                AND csc.key_id = k.id
-            LIMIT 1
+        OR (
+            k.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.type = 'create'
+                    AND csc.key_id = k.id
+                LIMIT 1
+            )
         )
     )
 ORDER BY k.name;
@@ -58,3 +60,11 @@ LIMIT 1;
 INSERT INTO value_types (name)
 VALUES (@name)
 RETURNING id;
+-- name: EndKeyValidity :exec
+UPDATE keys
+SET valid_to = @valid_to
+WHERE id = @key_id;
+-- name: StartKeyValidity :exec
+UPDATE keys
+SET valid_from = @valid_from
+WHERE id = @key_id;

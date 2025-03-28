@@ -17,6 +17,10 @@ FROM changesets cs
     JOIN users u ON u.id = cs.user_id
 WHERE cs.id = @changeset_id
 LIMIT 1;
+-- name: SetChangesetState :exec
+UPDATE changesets
+SET state = @state
+WHERE id = @changeset_id;
 -- name: GetChangesetChanges :many
 SELECT csc.id,
     csc.type,
@@ -40,7 +44,7 @@ FROM changeset_changes csc
     LEFT JOIN keys k ON k.id = csc.key_id
     LEFT JOIN variation_values nv ON nv.id = csc.new_variation_value_id
     LEFT JOIN variation_values ov ON ov.id = csc.old_variation_value_id
-    LEFT JOIN variation_contexts vc ON vc.id = nv.variation_context_id
+    LEFT JOIN variation_contexts vc ON vc.id = COALESCE(nv.variation_context_id, ov.variation_context_id)
 WHERE changeset_id = @changeset_id
 ORDER BY csc.id;
 -- name: GetChangeForVariationValue :one

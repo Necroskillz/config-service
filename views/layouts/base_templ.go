@@ -44,7 +44,7 @@ func Base(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/assets/favicon.ico\" hx-preserve=\"true\"><meta charset=\"UTF-8\" hx-preserve=\"true\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" hx-preserve=\"true\"><meta name=\"htmx-config\" content=\"{\r\n\t\t\t\t\t&#34;responseHandling&#34;:[\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;204&#34;, &#34;swap&#34;: false},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;[23]..&#34;, &#34;swap&#34;: true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;422&#34;, &#34;swap&#34;: true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;[45]..&#34;, &#34;swap&#34;: true, &#34;error&#34;:true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;...&#34;, &#34;swap&#34;: true}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\"><script src=\"/assets/js/htmx.min.js\" hx-preserve=\"true\"></script><script src=\"/assets/js/htmx-ext-response-targets.min.js\" hx-preserve=\"true\"></script><script src=\"/assets/js/alpine.min.js\" hx-preserve=\"true\" defer></script><link href=\"/assets/css/output.css\" rel=\"stylesheet\" hx-preserve=\"true\"></head><body class=\"antialiased min-h-screen\" hx-ext=\"response-targets\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/assets/favicon.ico\" hx-preserve=\"true\"><meta charset=\"UTF-8\" hx-preserve=\"true\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" hx-preserve=\"true\"><meta name=\"htmx-config\" content=\"{\r\n\t\t\t\t\t&#34;responseHandling&#34;:[\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;204&#34;, &#34;swap&#34;: false},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;[23]..&#34;, &#34;swap&#34;: true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;422&#34;, &#34;swap&#34;: true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;[45]..&#34;, &#34;swap&#34;: true, &#34;error&#34;:true},\r\n\t\t\t\t\t\t{&#34;code&#34;:&#34;...&#34;, &#34;swap&#34;: true}\r\n\t\t\t\t\t],\r\n\t\t\t\t\t&#34;useTemplateFragments&#34;: true\r\n\t\t\t\t}\"><script src=\"/assets/js/htmx.min.js\" hx-preserve=\"true\"></script><script src=\"/assets/js/htmx-ext-response-targets.min.js\" hx-preserve=\"true\"></script><script src=\"/assets/js/alpine.min.js\" hx-preserve=\"true\" defer></script><link href=\"/assets/css/output.css\" rel=\"stylesheet\" hx-preserve=\"true\"></head><body class=\"antialiased min-h-screen\" hx-ext=\"response-targets\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -60,7 +60,7 @@ func Base(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><script type=\"text/javascript\">\r\n\t\t\t\tdocument.body.addEventListener('htmx:beforeSwap', function(event) {\r\n\t\t\t\t\tif (event.detail.xhr.status === 200) {\r\n\t\t\t\t\t\tdocument.querySelector('#error-message').innerHTML = '';\r\n\t\t\t\t\t}\r\n\t\t\t\t});\r\n\r\n\t\t\t\tfunction onInputToggleValidation(event, validationMessage, submittedValue) {\r\n\t\t\t\t\tif (validationMessage) {\r\n\t\t\t\t\t\tif(event.target.value !== submittedValue) {\r\n\t\t\t\t\t\t\tevent.target.classList.remove('validation-error');\r\n\t\t\t\t\t\t\tvalidationMessage.style.display = 'none';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\tevent.target.classList.add('validation-error');\r\n\t\t\t\t\t\t\tvalidationMessage.style.display = 'block';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><script type=\"text/javascript\">\r\n\t\t\t\tdocument.body.addEventListener('htmx:beforeSwap', function(event) {\r\n\t\t\t\t\tif (event.detail.xhr.status === 200) {\r\n\t\t\t\t\t\tdocument.querySelector('#error-message').innerHTML = '';\r\n\t\t\t\t\t}\r\n\t\t\t\t});\r\n\r\n\t\t\t\tdocument.body.addEventListener('updateChangeset', function(event) {\r\n\t\t\t\t\tvar changesetId = event.detail.value;\r\n\t\t\t\t\tvar changesetLink = document.querySelector('#changeset-link');\r\n\t\t\t\t\tif (changesetId > 0) {\r\n\t\t\t\t\t\tchangesetLink.href = '/changesets/' + changesetId;\r\n\t\t\t\t\t} else {\r\n\t\t\t\t\t\tchangesetLink.href = '/changesets/empty';\r\n\t\t\t\t\t}\r\n\t\t\t\t});\r\n\r\n\t\t\t\tfunction onInputToggleValidation(event, validationMessage, submittedValue) {\r\n\t\t\t\t\tif (validationMessage) {\r\n\t\t\t\t\t\tif(event.target.value !== submittedValue) {\r\n\t\t\t\t\t\t\tevent.target.classList.remove('validation-error');\r\n\t\t\t\t\t\t\tvalidationMessage.style.display = 'none';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\tevent.target.classList.add('validation-error');\r\n\t\t\t\t\t\t\tvalidationMessage.style.display = 'block';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -120,7 +120,7 @@ func WithBase(component templ.Component, title string, fullPage bool) templ.Comp
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layouts/base.templ`, Line: 65, Col: 17}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layouts/base.templ`, Line: 76, Col: 17}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -172,6 +172,31 @@ func Container() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		return nil
+	})
+}
+
+func Empty() templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		return nil
 	})
 }

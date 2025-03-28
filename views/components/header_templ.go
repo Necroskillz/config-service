@@ -34,13 +34,13 @@ func Header() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"h-16 bg-gray-950 flex items-center\"><div class=\"basis-32 shrink-0\"><a href=\"/\">Config Service</a></div><nav class=\"ml-8 flex gap-4 w-full\"><a href=\"/services\">Services</a>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header id=\"header\" hx-swap-oob=\"true\" class=\"h-16 bg-gray-950 flex items-center\"><div class=\"basis-32 shrink-0\"><a href=\"/\">Config Service</a></div><nav class=\"ml-8 flex gap-4 w-full\"><a href=\"/services\">Services</a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		user := views.User(ctx)
 		if user.ChangesetID > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a id=\"changeset-link\" href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -54,7 +54,7 @@ func Header() templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a href=\"/changesets/empty\">Changeset</a>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a id=\"changeset-link\" href=\"/changesets/empty\">Changeset</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

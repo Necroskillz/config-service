@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/necroskillz/config-service/db"
@@ -86,7 +87,11 @@ func (s *ValidationService) ValidateVariationUniqueness(ctx context.Context, key
 		return err
 	}
 
-	_, err = s.queries.GetVariationValueIDByVariationContextID(ctx, variationContextID)
+	id, err := s.queries.GetActiveVariationValueIDByVariationContextID(ctx, db.GetActiveVariationValueIDByVariationContextIDParams{
+		VariationContextID: variationContextID,
+		ChangesetID:        changesetID,
+	})
+
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil
@@ -94,6 +99,8 @@ func (s *ValidationService) ValidateVariationUniqueness(ctx context.Context, key
 
 		return err
 	}
+
+	log.Println(id)
 
 	return &ValidationError{
 		Field:   "Value",

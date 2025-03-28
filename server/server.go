@@ -12,7 +12,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/gorilla/sessions"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -27,9 +27,9 @@ import (
 )
 
 type Server struct {
-	echo  *echo.Echo
-	conn  *pgx.Conn
-	cache *ristretto.Cache[string, any]
+	echo   *echo.Echo
+	dbpool *pgxpool.Pool
+	cache  *ristretto.Cache[string, any]
 }
 
 func NewServer() *Server {
@@ -54,24 +54,24 @@ func (s *Server) Start() error {
 		return fmt.Errorf("failed to initialize cache: %w", err)
 	}
 
-	conn, err := pgx.Connect(ctx, os.Getenv("DATABASE_URL"))
+	dbpool, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	s.conn = conn
+	s.dbpool = dbpool
 	s.echo = e
 	s.cache = cache
 
-	queries := db.New(conn)
+	queries := db.New(dbpool)
 
 	e.Static("/assets", "views/assets")
 
-	unitOfWorkRunner := db.NewPgxUnitOfWorkRunner(conn, queries)
+	unitOfWorkRunner := db.NewPgxUnitOfWorkRunner(dbpool, queries)
 	variationContextService := service.NewVariationContextService(queries, unitOfWorkRunner, cache)
 	serviceService := service.NewServiceService(queries, unitOfWorkRunner)
 	userService := service.NewUserService(queries, variationContextService)
-	changesetService := service.NewChangesetService(queries, variationContextService)
+	changesetService := service.NewChangesetService(queries, variationContextService, unitOfWorkRunner)
 	variationHierarchyService := service.NewVariationHierarchyService(queries, cache)
 	featureService := service.NewFeatureService(unitOfWorkRunner, queries)
 	keyService := service.NewKeyService(unitOfWorkRunner, variationContextService, queries)
@@ -142,10 +142,8 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	if s.conn != nil {
-		if err := s.conn.Close(ctx); err != nil {
-			return fmt.Errorf("failed to close database: %w", err)
-		}
+	if s.dbpool != nil {
+		s.dbpool.Close()
 	}
 
 	if s.cache != nil {

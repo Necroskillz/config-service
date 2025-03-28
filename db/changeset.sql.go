@@ -403,7 +403,7 @@ FROM changeset_changes csc
     LEFT JOIN keys k ON k.id = csc.key_id
     LEFT JOIN variation_values nv ON nv.id = csc.new_variation_value_id
     LEFT JOIN variation_values ov ON ov.id = csc.old_variation_value_id
-    LEFT JOIN variation_contexts vc ON vc.id = nv.variation_context_id
+    LEFT JOIN variation_contexts vc ON vc.id = COALESCE(nv.variation_context_id, ov.variation_context_id)
 WHERE changeset_id = $1
 ORDER BY csc.id
 `
@@ -473,4 +473,20 @@ func (q *Queries) GetOpenChangesetIDForUser(ctx context.Context, userID uint) (u
 	var id uint
 	err := row.Scan(&id)
 	return id, err
+}
+
+const setChangesetState = `-- name: SetChangesetState :exec
+UPDATE changesets
+SET state = $1
+WHERE id = $2
+`
+
+type SetChangesetStateParams struct {
+	State       ChangesetState
+	ChangesetID uint
+}
+
+func (q *Queries) SetChangesetState(ctx context.Context, arg SetChangesetStateParams) error {
+	_, err := q.db.Exec(ctx, setChangesetState, arg.State, arg.ChangesetID)
+	return err
 }

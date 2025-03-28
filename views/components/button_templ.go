@@ -29,7 +29,7 @@ func Button(text string, buttonType string, options ElementOptions) templ.Compon
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var2 = []any{"bg-blue-500 text-white px-4 py-2 rounded-md flex items-center", options.Classes}
+		var templ_7745c5c3_Var2 = []any{"cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md flex items-center", options.Classes}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

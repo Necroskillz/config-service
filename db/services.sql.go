@@ -69,6 +69,22 @@ func (q *Queries) CreateServiceVersion(ctx context.Context, arg CreateServiceVer
 	return id, err
 }
 
+const endServiceVersionValidity = `-- name: EndServiceVersionValidity :exec
+UPDATE service_versions
+SET valid_to = $1
+WHERE id = $2
+`
+
+type EndServiceVersionValidityParams struct {
+	ValidTo          *time.Time
+	ServiceVersionID uint
+}
+
+func (q *Queries) EndServiceVersionValidity(ctx context.Context, arg EndServiceVersionValidityParams) error {
+	_, err := q.db.Exec(ctx, endServiceVersionValidity, arg.ValidTo, arg.ServiceVersionID)
+	return err
+}
+
 const getActiveServiceVersions = `-- name: GetActiveServiceVersions :many
 SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
     s.name as service_name,
@@ -280,4 +296,20 @@ func (q *Queries) GetServiceVersionsForService(ctx context.Context, arg GetServi
 		return nil, err
 	}
 	return items, nil
+}
+
+const startServiceVersionValidity = `-- name: StartServiceVersionValidity :exec
+UPDATE service_versions
+SET valid_from = $1
+WHERE id = $2
+`
+
+type StartServiceVersionValidityParams struct {
+	ValidFrom        *time.Time
+	ServiceVersionID uint
+}
+
+func (q *Queries) StartServiceVersionValidity(ctx context.Context, arg StartServiceVersionValidityParams) error {
+	_, err := q.db.Exec(ctx, startServiceVersionValidity, arg.ValidFrom, arg.ServiceVersionID)
+	return err
 }

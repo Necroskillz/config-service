@@ -21,26 +21,28 @@ FROM feature_version_service_versions fvsv
     JOIN features f ON f.id = fv.feature_id
 WHERE fvsv.service_version_id = @service_version_id
     AND (
-        fvsv.valid_from IS NOT NULL
-        AND fvsv.valid_to IS NULL
-        AND NOT EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
-                AND csc.type = 'create'
-                AND csc.feature_version_service_version_id = fvsv.id
-            LIMIT 1
+        (
+            fvsv.valid_from IS NOT NULL
+            AND fvsv.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.type = 'create'
+                    AND csc.feature_version_service_version_id = fvsv.id
+                LIMIT 1
+            )
         )
-    )
-    OR (
-        fvsv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
-                AND csc.type = 'create'
-                AND csc.feature_version_service_version_id = fvsv.id
-            LIMIT 1
+        OR (
+            fvsv.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.type = 'create'
+                    AND csc.feature_version_service_version_id = fvsv.id
+                LIMIT 1
+            )
         )
     )
 ORDER BY f.name;
@@ -79,3 +81,19 @@ RETURNING id;
 INSERT INTO feature_version_service_versions (service_version_id, feature_version_id)
 VALUES (@service_version_id, @feature_version_id)
 RETURNING id;
+-- name: EndFeatureVersionValidity :exec
+UPDATE feature_versions
+SET valid_to = @valid_to
+WHERE id = @feature_version_id;
+-- name: StartFeatureVersionValidity :exec
+UPDATE feature_versions
+SET valid_from = @valid_from
+WHERE id = @feature_version_id;
+-- name: EndFeatureVersionServiceVersionValidity :exec
+UPDATE feature_version_service_versions
+SET valid_to = @valid_to
+WHERE id = @feature_version_service_version_id;
+-- name: StartFeatureVersionServiceVersionValidity :exec
+UPDATE feature_version_service_versions
+SET valid_from = @valid_from
+WHERE id = @feature_version_service_version_id;

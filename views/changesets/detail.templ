@@ -3,9 +3,11 @@ package changesets
 import (
 	"fmt"
 
-	"github.com/necroskillz/config-service/service"
-	"github.com/necroskillz/config-service/views/layouts"
 	"github.com/necroskillz/config-service/db"
+	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/views"
+	"github.com/necroskillz/config-service/views/components"
+	"github.com/necroskillz/config-service/views/layouts"
 )
 
 type ChangesetDetailData struct {
@@ -14,21 +16,45 @@ type ChangesetDetailData struct {
 
 templ ChangesetDetailPage(data ChangesetDetailData) {
 	@layouts.Container() {
-		<div>
-			<h1>{ fmt.Sprintf("Changeset #%d", data.Changeset.ID) }</h1>
-			if len(data.Changeset.ChangesetChanges) > 0 {
-				<div class="flex flex-col border border-gray-200 rounded-md">
-					for _, change := range data.Changeset.ChangesetChanges {
-						<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
-							@changesetChange(change)
-						</div>
-					}
-				</div>
-			} else {
-				<div class="text-secondary">You have not made any changes yet</div>
-			}
-		</div>
+		@ChangesetDetail(data)
 	}
+}
+
+templ ChangesetDetail(data ChangesetDetailData) {
+	<div id="changeset-detail">
+		<h1>{ fmt.Sprintf("Changeset #%d", data.Changeset.ID) }</h1>
+		<div class="flex gap-2 mb-4">
+			<span class="font-semibold">State:</span>
+			@components.Pill(string(data.Changeset.State))
+		</div>
+		if len(data.Changeset.ChangesetChanges) > 0 {
+			<div class="flex flex-col border border-gray-200 rounded-md">
+				for _, change := range data.Changeset.ChangesetChanges {
+					<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
+						@changesetChange(change)
+					</div>
+				}
+			</div>
+		} else {
+			<div class="text-secondary">You have not made any changes yet</div>
+		}
+		<div class="flex flex-col gap-4 mt-4">
+			@components.ErrorMessageContainer()
+			<div class="flex gap-2">
+				if (data.Changeset.State == db.ChangesetStateOpen || data.Changeset.State == db.ChangesetStateCommitted) && 
+					len(data.Changeset.ChangesetChanges) > 0 &&
+					data.Changeset.CanBeAppliedBy(views.User(ctx)) {
+					@components.Button("Apply", "button", components.ElementOptions{
+						Attributes: templ.Attributes{
+							"hx-put":    fmt.Sprintf("/changesets/%d/apply", data.Changeset.ID),
+							"hx-target": "#changeset-detail",
+							"hx-swap":   "outerHTML",
+						},
+					})
+				}
+			</div>
+		</div>
+	</div>
 }
 
 templ changesetChange(change service.ChangesetChange) {
@@ -47,8 +73,15 @@ templ changesetChange(change service.ChangesetChange) {
 
 templ variationValueChange(change service.ChangesetChange) {
 	<div class="flex flex-col gap-2">
-		<div class="font-semibold">
-			{ getChangeTypeText(change.Type) } Value for { fmt.Sprintf("%s in %s v%d", *change.KeyName, *change.FeatureName, *change.FeatureVersionID) }
+		<div>
+			{ getChangeTypeText(change.Type) } <span class="font-semibold">Value</span> for
+			<a class="link" href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d/keys/%d/values", *change.ServiceVersionID, *change.FeatureVersionID, *change.KeyID)) }>
+				{ *change.KeyName }
+			</a>
+			in
+			<a class="link" href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", *change.ServiceVersionID, *change.FeatureVersionID)) }>
+				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+			</a>
 		</div>
 		if len(change.Variation) > 0 {
 			<div class="flex flex-wrap gap-2 mb-2">
@@ -76,37 +109,56 @@ templ variationValueChange(change service.ChangesetChange) {
 
 templ keyChange(change service.ChangesetChange) {
 	<div>
-		<span class="font-semibold">{ getChangeTypeText(change.Type) } Key</span>
-		<span class={ getChangeTypeClass(change.Type) }>{ *change.KeyName }</span>
-		<span class="font-semibold">for { *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }</span>
+		{ getChangeTypeText(change.Type) }
+		<span class="font-semibold">Key</span>
+		<span class={ getChangeTypeClass(change.Type) }>
+			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d/keys/%d/values", *change.ServiceVersionID, *change.FeatureVersionID, *change.KeyID)) }>
+				{ *change.KeyName }
+			</a>
+		</span>
+		for
+		<a class="link" href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", *change.ServiceVersionID, *change.FeatureVersionID)) }>
+			{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+		</a>
 	</div>
 }
 
 templ featureVersionServiceVersionChange(change service.ChangesetChange) {
 	<div>
-		<span class="font-semibold">{ getChangeTypeText(change.Type) } Service-Feature Link</span>
+		{ getChangeTypeText(change.Type) }
+		<span class="font-semibold">Service-Feature Link</span>
 		<span class={ getChangeTypeClass(change.Type) }>
-			{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersionID) }
+			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", *change.ServiceVersionID)) }>
+				{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersionID) }
+			</a>
 			<span class="mx-2">↔</span>
-			{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", *change.ServiceVersionID, *change.FeatureVersionID)) }>
+				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+			</a>
 		</span>
 	</div>
 }
 
 templ featureVersionChange(change service.ChangesetChange) {
 	<div>
-		<span class="font-semibold">{ getChangeTypeText(change.Type) } Feature Version</span>
+		{ getChangeTypeText(change.Type) }
+		<span class="font-semibold">Feature Version</span>
 		<span class={ getChangeTypeClass(change.Type) }>
-			{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", *change.ServiceVersionID, *change.FeatureVersionID)) }>
+				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+			</a>
 		</span>
 	</div>
 }
 
 templ serviceVersionChange(change service.ChangesetChange) {
 	<div>
-		<span class="font-semibold">{ getChangeTypeText(change.Type) } Service Version</span>
+		{ getChangeTypeText(change.Type) }
+		<span class="font-semibold">Service Version</span>
 		<span class={ getChangeTypeClass(change.Type) }>
-			{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersionID) }
+			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", *change.ServiceVersionID)) }>
+				{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersionID) }
+			</a>
 		</span>
 	</div>
 }

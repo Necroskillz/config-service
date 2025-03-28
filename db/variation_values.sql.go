@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 )
 
 const createVariationValue = `-- name: CreateVariationValue :one
@@ -38,29 +39,89 @@ func (q *Queries) DeleteVariationValue(ctx context.Context, variationValueID uin
 	return err
 }
 
+const endValueValidity = `-- name: EndValueValidity :exec
+UPDATE variation_values
+SET valid_to = $1
+WHERE id = $2
+`
+
+type EndValueValidityParams struct {
+	ValidTo          *time.Time
+	VariationValueID uint
+}
+
+func (q *Queries) EndValueValidity(ctx context.Context, arg EndValueValidityParams) error {
+	_, err := q.db.Exec(ctx, endValueValidity, arg.ValidTo, arg.VariationValueID)
+	return err
+}
+
+const getActiveVariationValueIDByVariationContextID = `-- name: GetActiveVariationValueIDByVariationContextID :one
+SELECT id
+FROM variation_values vv
+WHERE vv.variation_context_id = $1
+    AND (
+        (
+            vv.valid_from IS NOT NULL
+            AND vv.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.old_variation_value_id = vv.id
+                LIMIT 1
+            )
+        )
+        OR (
+            vv.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.new_variation_value_id = vv.id
+                LIMIT 1
+            )
+        )
+    )
+LIMIT 1
+`
+
+type GetActiveVariationValueIDByVariationContextIDParams struct {
+	VariationContextID uint
+	ChangesetID        uint
+}
+
+func (q *Queries) GetActiveVariationValueIDByVariationContextID(ctx context.Context, arg GetActiveVariationValueIDByVariationContextIDParams) (uint, error) {
+	row := q.db.QueryRow(ctx, getActiveVariationValueIDByVariationContextID, arg.VariationContextID, arg.ChangesetID)
+	var id uint
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getActiveVariationValuesForKey = `-- name: GetActiveVariationValuesForKey :many
 SELECT vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
 FROM variation_values vv
 WHERE vv.key_id = $1
     AND (
-        vv.valid_from IS NOT NULL
-        AND vv.valid_to IS NULL
-        AND NOT EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $2
-                AND csc.old_variation_value_id = vv.id
-            LIMIT 1
+        (
+            vv.valid_from IS NOT NULL
+            AND vv.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.old_variation_value_id = vv.id
+                LIMIT 1
+            )
         )
-    )
-    OR (
-        vv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $2
-                AND csc.new_variation_value_id = vv.id
-            LIMIT 1
+        OR (
+            vv.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.new_variation_value_id = vv.id
+                LIMIT 1
+            )
         )
     )
 `
@@ -97,16 +158,18 @@ func (q *Queries) GetActiveVariationValuesForKey(ctx context.Context, arg GetAct
 	return items, nil
 }
 
-const getVariationValueIDByVariationContextID = `-- name: GetVariationValueIDByVariationContextID :one
-SELECT id
-FROM variation_values
-WHERE variation_context_id = $1
-LIMIT 1
+const startValueValidity = `-- name: StartValueValidity :exec
+UPDATE variation_values
+SET valid_from = $1
+WHERE id = $2
 `
 
-func (q *Queries) GetVariationValueIDByVariationContextID(ctx context.Context, variationContextID uint) (uint, error) {
-	row := q.db.QueryRow(ctx, getVariationValueIDByVariationContextID, variationContextID)
-	var id uint
-	err := row.Scan(&id)
-	return id, err
+type StartValueValidityParams struct {
+	ValidFrom        *time.Time
+	VariationValueID uint
+}
+
+func (q *Queries) StartValueValidity(ctx context.Context, arg StartValueValidityParams) error {
+	_, err := q.db.Exec(ctx, startValueValidity, arg.ValidFrom, arg.VariationValueID)
+	return err
 }

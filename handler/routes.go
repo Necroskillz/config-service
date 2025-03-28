@@ -18,8 +18,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	featureGroup.GET("/create", h.CreateFeature)
 	featureGroup.POST("", h.CreateFeatureSubmit)
 	featureGroup.GET("/:feature_version_id", h.FeatureDetail)
-	changesetGroup := e.Group("/changesets")
-	changesetGroup.GET("/:changeset_id", h.ChangesetDetail)
 
 	keyGroup := featureGroup.Group("/:feature_version_id/keys")
 	keyGroup.GET("/create", h.CreateKey)
@@ -29,4 +27,10 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	valueGroup.GET("", h.ValueMatrix)
 	valueGroup.POST("", h.CreateValueSubmit)
 	valueGroup.DELETE("/:value_id", h.DeleteValueSubmit)
+
+	changesetsGroup := e.Group("/changesets")
+
+	changesetGroup := changesetsGroup.Group("/:changeset_id")
+	changesetGroup.GET("", h.ChangesetDetail)
+	changesetGroup.PUT("/apply", h.ApplyChangeset)
 }

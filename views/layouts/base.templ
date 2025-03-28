@@ -19,7 +19,8 @@ templ Base(title string) {
 						{"code":"422", "swap": true},
 						{"code":"[45]..", "swap": true, "error":true},
 						{"code":"...", "swap": true}
-					]
+					],
+					"useTemplateFragments": true
 				}'
 			/>
 			<script src="/assets/js/htmx.min.js" hx-preserve="true"></script>
@@ -36,6 +37,16 @@ templ Base(title string) {
 				document.body.addEventListener('htmx:beforeSwap', function(event) {
 					if (event.detail.xhr.status === 200) {
 						document.querySelector('#error-message').innerHTML = '';
+					}
+				});
+
+				document.body.addEventListener('updateChangeset', function(event) {
+					var changesetId = event.detail.value;
+					var changesetLink = document.querySelector('#changeset-link');
+					if (changesetId > 0) {
+						changesetLink.href = '/changesets/' + changesetId;
+					} else {
+						changesetLink.href = '/changesets/empty';
 					}
 				});
 
@@ -72,4 +83,7 @@ templ Container() {
 	<div class="w-[1080px] mx-auto">
 		{ children... }
 	</div>
+}
+
+templ Empty() {
 }

@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UnitOfWorkRunner interface {
@@ -11,11 +11,11 @@ type UnitOfWorkRunner interface {
 }
 
 type PgxUnitOfWorkRunner struct {
-	db      *pgx.Conn
+	db      *pgxpool.Pool
 	queries *Queries
 }
 
-func NewPgxUnitOfWorkRunner(db *pgx.Conn, queries *Queries) UnitOfWorkRunner {
+func NewPgxUnitOfWorkRunner(db *pgxpool.Pool, queries *Queries) UnitOfWorkRunner {
 	return &PgxUnitOfWorkRunner{db: db, queries: queries}
 }
 

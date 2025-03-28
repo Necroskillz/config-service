@@ -87,3 +87,11 @@ RETURNING id;
 INSERT INTO service_types (name)
 VALUES (@name)
 RETURNING id;
+-- name: EndServiceVersionValidity :exec
+UPDATE service_versions
+SET valid_to = @valid_to
+WHERE id = @service_version_id;
+-- name: StartServiceVersionValidity :exec
+UPDATE service_versions
+SET valid_from = @valid_from
+WHERE id = @service_version_id;

@@ -37,7 +37,7 @@ func (h *Handler) CreateKey(c echo.Context) error {
 	}
 
 	if h.User(c).GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) != constants.PermissionAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create keys for feature %s", featureVersion.FeatureName)
+		return echo.NewHTTPError(http.StatusForbidden, "You are not authorized to create keys for feature %s", featureVersion.FeatureName)
 	}
 
 	data := key_views.CreateKeyData{}
@@ -60,7 +60,7 @@ func (h *Handler) CreateKeySubmit(c echo.Context) error {
 	}
 
 	if h.User(c).GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) != constants.PermissionAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create keys for feature %s", featureVersion.FeatureName)
+		return echo.NewHTTPError(http.StatusForbidden, "You are not authorized to create keys for feature %s", featureVersion.FeatureName)
 	}
 
 	var data key_views.CreateKeyData

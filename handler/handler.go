@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"reflect"
@@ -70,6 +71,10 @@ func (h *Handler) EnsureChangesetID(c echo.Context) (uint, error) {
 		}
 
 		user.ChangesetID = id
+
+		c.Set(constants.ChangesetCreatedKey, true)
+
+		return id, nil
 	}
 
 	return user.ChangesetID, nil
@@ -103,6 +108,18 @@ func (h *Handler) RenderPage(c echo.Context, statusCode int, component templ.Com
 }
 
 func (h *Handler) RenderPartial(c echo.Context, statusCode int, component templ.Component) error {
+	changesetCreated, _ := c.Get(constants.ChangesetCreatedKey).(bool)
+	changesetRemoved, _ := c.Get(constants.ChangesetRemovedKey).(bool)
+	user := h.User(c)
+
+	if changesetRemoved {
+		user.ChangesetID = 0
+	}
+
+	if changesetCreated || changesetRemoved {
+		c.Response().Header().Set("HX-Trigger", fmt.Sprintf(`{"updateChangeset":%d}`, user.ChangesetID))
+	}
+
 	return h.Render(c, statusCode, func(ctx context.Context, w io.Writer) error {
 		return component.Render(ctx, w)
 	})

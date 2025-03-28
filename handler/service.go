@@ -37,7 +37,7 @@ func (h *Handler) createServiceViewData(c echo.Context, data *views.CreateServic
 
 func (h *Handler) CreateService(c echo.Context) error {
 	if !h.User(c).IsGlobalAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create services")
+		return echo.NewHTTPError(http.StatusForbidden, "You are not authorized to create services")
 	}
 
 	data := views.CreateServiceData{}
@@ -52,7 +52,7 @@ func (h *Handler) CreateService(c echo.Context) error {
 
 func (h *Handler) CreateServiceSubmit(c echo.Context) error {
 	if !h.User(c).IsGlobalAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create services")
+		return echo.NewHTTPError(http.StatusForbidden, "You are not authorized to create services")
 	}
 
 	data := views.CreateServiceData{}

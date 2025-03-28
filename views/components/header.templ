@@ -6,15 +6,15 @@ import (
 )
 
 templ Header() {
-	<header class="h-16 bg-gray-950 flex items-center">
+	<header id="header" hx-swap-oob="true" class="h-16 bg-gray-950 flex items-center">
 		<div class="basis-32 shrink-0"><a href="/">Config Service</a></div>
 		<nav class="ml-8 flex gap-4 w-full">
 			<a href="/services">Services</a>
 			{{ user := views.User(ctx) }}
 			if user.ChangesetID > 0 {
-				<a href={ templ.SafeURL(fmt.Sprintf("/changesets/%d", user.ChangesetID)) }>Changeset</a>
+				<a id="changeset-link" href={ templ.SafeURL(fmt.Sprintf("/changesets/%d", user.ChangesetID)) }>Changeset</a>
 			} else {
-				<a href="/changesets/empty">Changeset</a>
+				<a id="changeset-link" href="/changesets/empty">Changeset</a>
 			}
 			<div class="ml-auto">
 				if user.IsAuthenticated {

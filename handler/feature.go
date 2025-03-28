@@ -24,7 +24,7 @@ func (h *Handler) CreateFeature(c echo.Context) error {
 	}
 
 	if h.User(c).GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create features for service %s", serviceVersion.ServiceName)
+		return echo.NewHTTPError(http.StatusForbidden, "You are not authorized to create features for service %s", serviceVersion.ServiceName)
 	}
 
 	data := feature_views.CreateFeatureData{}
@@ -43,7 +43,7 @@ func (h *Handler) CreateFeatureSubmit(c echo.Context) error {
 	}
 
 	if h.User(c).GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized, "You are not authorized to create features for service %s", serviceVersion.ServiceName)
+		return echo.NewHTTPError(http.StatusForbidden, "You are not authorized to create features for service %s", serviceVersion.ServiceName)
 	}
 
 	var data feature_views.CreateFeatureData

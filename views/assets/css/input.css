@@ -1,12 +1,71 @@
 @import 'tailwindcss';
 
 @theme {
+    --color-primary: var(--color-blue-500);
     --color-secondary: var(--color-gray-400);
+    --color-link: var(--color-blue-400);
+    --color-danger: var(--color-red-600);
+    --color-success: var(--color-green-500);
+    --color-warning: var(--color-yellow-500);
+    --color-info: var(--color-cyan-500);
+    --color-ghost: var(--color-gray-300);
 }
 
 @layer utilities {
+    .text-primary {
+        color: var(--color-primary);
+    }
+
     .text-secondary {
         color: var(--color-secondary);
+    }
+
+    .text-danger {
+        color: var(--color-danger);
+    }
+
+    .text-success {
+        color: var(--color-success);
+    }   
+
+    .text-warning {
+        color: var(--color-warning);
+    }
+
+    .text-info {
+        color: var(--color-info);
+    }
+
+    .bg-primary {
+        background-color: var(--color-primary);
+    }
+
+    .bg-secondary {
+        background-color: var(--color-secondary);
+    }
+
+    .bg-danger {
+        background-color: var(--color-danger);
+    }
+
+    .bg-success {
+        background-color: var(--color-success);
+    }
+
+    .bg-warning {
+        background-color: var(--color-warning);
+    }
+
+    .bg-info {
+        background-color: var(--color-info);
+    }
+
+    .link {
+        color: var(--color-link);
+    }
+
+    .link:hover {
+        @apply underline;
     }
 }
 
