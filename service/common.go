@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	ErrRecordNotFound  = errors.New("record not found")
-	ErrInvalidPassword = errors.New("invalid password")
+	ErrRecordNotFound           = errors.New("record not found")
+	ErrInvalidPassword          = errors.New("invalid password")
+	ErrCannotDeleteDefaultValue = errors.New("cannot delete default value")
 )
 
 type PermissionChecker interface {

@@ -313,12 +313,14 @@ func (q *Queries) DeleteChange(ctx context.Context, changeID uint) error {
 }
 
 const getChangeForVariationValue = `-- name: GetChangeForVariationValue :one
-SELECT id,
-    type,
-    new_variation_value_id,
-    old_variation_value_id
-FROM changeset_changes
-WHERE changeset_id = $1
+SELECT csc.id,
+    csc.type,
+    csc.new_variation_value_id,
+    csc.old_variation_value_id,
+    vc.id as variation_context_id
+FROM changeset_changes csc
+    JOIN variation_contexts vc ON vc.id = COALESCE(csc.new_variation_value_id, csc.old_variation_value_id)
+WHERE csc.changeset_id = $1
     AND (
         old_variation_value_id = $2::bigint
         OR new_variation_value_id = $2::bigint
@@ -336,6 +338,7 @@ type GetChangeForVariationValueRow struct {
 	Type                ChangesetChangeType
 	NewVariationValueID *uint
 	OldVariationValueID *uint
+	VariationContextID  uint
 }
 
 func (q *Queries) GetChangeForVariationValue(ctx context.Context, arg GetChangeForVariationValueParams) (GetChangeForVariationValueRow, error) {
@@ -346,6 +349,7 @@ func (q *Queries) GetChangeForVariationValue(ctx context.Context, arg GetChangeF
 		&i.Type,
 		&i.NewVariationValueID,
 		&i.OldVariationValueID,
+		&i.VariationContextID,
 	)
 	return i, err
 }

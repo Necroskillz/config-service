@@ -48,12 +48,14 @@ FROM changeset_changes csc
 WHERE changeset_id = @changeset_id
 ORDER BY csc.id;
 -- name: GetChangeForVariationValue :one
-SELECT id,
-    type,
-    new_variation_value_id,
-    old_variation_value_id
-FROM changeset_changes
-WHERE changeset_id = @changeset_id
+SELECT csc.id,
+    csc.type,
+    csc.new_variation_value_id,
+    csc.old_variation_value_id,
+    vc.id as variation_context_id
+FROM changeset_changes csc
+    JOIN variation_contexts vc ON vc.id = COALESCE(csc.new_variation_value_id, csc.old_variation_value_id)
+WHERE csc.changeset_id = @changeset_id
     AND (
         old_variation_value_id = @variation_value_id::bigint
         OR new_variation_value_id = @variation_value_id::bigint

@@ -69,13 +69,15 @@ templ ValueMatrix(data ValueMatrixData) {
 											"hx-target": fmt.Sprintf("#value-%d", i),
 										},
 									})
-									@components.Button("Delete", "button", components.ElementOptions{
-										Attributes: templ.Attributes{
-											"hx-delete": fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
-											"hx-target": fmt.Sprintf("#value-%d", i),
-											"hx-swap":   "outerHTML",
-										},
-									})
+									if len(value.Variation) > 0 {
+										@components.Button("Delete", "button", components.ElementOptions{
+											Attributes: templ.Attributes{
+												"hx-delete": fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
+												"hx-target": fmt.Sprintf("#value-%d", i),
+												"hx-swap":   "outerHTML",
+											},
+										})
+									}
 								</div>
 							}
 						</td>

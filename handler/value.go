@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -171,6 +172,10 @@ func (h *Handler) DeleteValueSubmit(c echo.Context) error {
 	})
 
 	if err != nil {
+		if errors.Is(err, service.ErrCannotDeleteDefaultValue) {
+			return echo.NewHTTPError(http.StatusBadRequest, "Cannot delete default value")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete value").WithInternal(err)
 	}
 

@@ -228,15 +228,17 @@ func ValueMatrix(data ValueMatrixData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.Button("Delete", "button", components.ElementOptions{
-						Attributes: templ.Attributes{
-							"hx-delete": fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
-							"hx-target": fmt.Sprintf("#value-%d", i),
-							"hx-swap":   "outerHTML",
-						},
-					}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
+					if len(value.Variation) > 0 {
+						templ_7745c5c3_Err = components.Button("Delete", "button", components.ElementOptions{
+							Attributes: templ.Attributes{
+								"hx-delete": fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
+								"hx-target": fmt.Sprintf("#value-%d", i),
+								"hx-swap":   "outerHTML",
+							},
+						}).Render(ctx, templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div>")
 					if templ_7745c5c3_Err != nil {

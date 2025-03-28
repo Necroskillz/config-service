@@ -117,6 +117,15 @@ func (s *ValueService) DeleteValue(ctx context.Context, params DeleteValueParams
 		}
 	}
 
+	variation, err := s.variationContextService.GetVariationContextValues(ctx, variationValueChange.VariationContextID)
+	if err != nil {
+		return err
+	}
+
+	if len(variation) == 0 {
+		return ErrCannotDeleteDefaultValue
+	}
+
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
 		if variationValueChange.ID == 0 {
 			err = tx.AddDeleteVariationValueChange(ctx, db.AddDeleteVariationValueChangeParams{
