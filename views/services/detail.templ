@@ -27,7 +27,7 @@ templ ServiceDetailPage(data ServiceDetailData) {
 			<div class="text-secondary">{ data.ServiceVersion.ServiceDescription }</div>
 			<div class="flex flex-row gap-2 mt-4">
 				@c.Dropdown() {
-					@c.DropdownButton("Versions", c.WithClass("bg-gray-300 text-gray-900 px-4 py-1 rounded-md"))
+					@c.DropdownButton("Versions")
 					@c.DropdownMenu("left", c.WithClass("w-32")) {
 						for _, otherServiceVersion := range data.OtherServiceVersions {
 							if otherServiceVersion.ID == data.ServiceVersion.ID {
@@ -39,7 +39,7 @@ templ ServiceDetailPage(data ServiceDetailData) {
 					}
 				}
 				if permission == constants.PermissionAdmin {
-					@c.LinkButton("Create New Feature", fmt.Sprintf("/services/%d/features/create", data.ServiceVersion.ID))
+					@c.LinkButton("Create New Feature", fmt.Sprintf("/services/%d/features/create", data.ServiceVersion.ID), c.Secondary())
 				}
 			</div>
 			<div class="flex flex-col border border-gray-200 rounded-md mt-4">

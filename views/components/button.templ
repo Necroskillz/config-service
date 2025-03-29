@@ -2,7 +2,7 @@ package components
 
 templ Button(text string, buttonType string, options ...ElementOption) {
 	{{ opts := NewElementOptions(options) }}
-	<button type={ buttonType } { opts.Attributes... } class={ "cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md flex items-center", opts.Classes }>
+	<button type={ buttonType } { opts.Attributes... } class={ "cursor-pointer px-4 py-2 rounded-md flex items-center", opts.Classes }>
 		{ text }
 	</button>
 }
@@ -13,7 +13,7 @@ templ SubmitButton(text string, options ...ElementOption) {
 
 templ LinkButton(text string, url string, options ...ElementOption) {
 	{{ opts := NewElementOptions(options) }}
-	<a href={ templ.SafeURL(url) } { opts.Attributes... } class={ "bg-gray-300 text-gray-900 px-4 py-1 rounded-md", opts.Classes }>{ text }</a>
+	<a href={ templ.SafeURL(url) } { opts.Attributes... } class={ "px-4 py-1 rounded-md", opts.Classes }>{ text }</a>
 }
 
 templ Dropdown(options ...ElementOption) {
@@ -25,7 +25,7 @@ templ Dropdown(options ...ElementOption) {
 
 templ DropdownButton(text string, options ...ElementOption) {
 	{{ opts := NewElementOptions(options) }}
-	<div { opts.Attributes... } class={ "cursor-pointer", opts.Classes } x-on:click="showDropdown = !showDropdown">{ text }</div>
+	<div { opts.Attributes... } class={ "cursor-pointer px-4 py-1 rounded-md bg-secondary text-black", opts.Classes } x-on:click="showDropdown = !showDropdown">{ text }</div>
 }
 
 templ DropdownMenu(position string, options ...ElementOption) {

@@ -38,20 +38,22 @@ templ ValueForm(data ValueFormData) {
 		<div class="flex gap-2">
 			if data.VariationValueID == 0 {
 				@c.SubmitButton("Add",
+					c.Primary(),
 					c.WithAttribute("hx-include", "#value-form"),
 					c.WithAttribute("hx-post", fmt.Sprintf("/services/%d/features/%d/keys/%d/values", data.ServiceVersionID, data.FeatureVersionID, data.KeyID)),
 					c.WithAttribute("hx-target", "#value-matrix"),
 					c.WithAttribute("hx-target-422", "#add-row"),
 				)
-				@c.Button("Cancel", "button", c.WithAttribute("@click", "addValue = false"))
+				@c.Button("Cancel", "button", c.Ghost(), c.WithAttribute("@click", "addValue = false"))
 			} else {
 				@c.SubmitButton("Save",
+					c.Primary(),
 					c.WithAttribute("hx-include", "#value-form"),
 					c.WithAttribute("hx-put", fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.KeyID, data.VariationValueID)),
 					c.WithAttribute("hx-target", "#value-matrix"),
 					c.WithAttribute("hx-target-422", "#add-row"),
 				)
-				@c.Button("Cancel", "button", c.WithAttribute("@click", "addValue = false"))
+				@c.Button("Cancel", "button", c.Ghost(), c.WithAttribute("@click", "addValue = false"))
 			}
 		</div>
 	</td>

@@ -29,7 +29,7 @@ templ ServiceList(data ServiceListData) {
 		</div>
 		if views.User(ctx).IsGlobalAdmin {
 			<div class="mt-8">
-				@c.LinkButton("Create New Service", "/services/create")
+				@c.LinkButton("Create New Service", "/services/create", c.Secondary())
 			</div>
 		}
 	}

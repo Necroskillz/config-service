@@ -220,6 +220,7 @@ func ValueMatrix(data ValueMatrixData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					templ_7745c5c3_Err = c.Button("Edit", "button",
+						c.Ghost(),
 						c.WithAttribute("hx-get", fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d/edit", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID)),
 						c.WithAttribute("hx-target", fmt.Sprintf("#value-%d", i)),
 					).Render(ctx, templ_7745c5c3_Buffer)
@@ -228,6 +229,7 @@ func ValueMatrix(data ValueMatrixData) templ.Component {
 					}
 					if len(value.Variation) > 0 {
 						templ_7745c5c3_Err = c.Button("Delete", "button",
+							c.Danger(),
 							c.WithAttribute("hx-delete", fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID)),
 							c.WithAttribute("hx-target", fmt.Sprintf("#value-%d", i)),
 							c.WithAttribute("hx-swap", "outerHTML"),
@@ -275,7 +277,7 @@ func ValueMatrix(data ValueMatrixData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = c.Button("Add Value", "button", c.WithAttribute("@click", "addValue = true")).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Button("Add Value", "button", c.Primary(), c.WithAttribute("@click", "addValue = true")).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

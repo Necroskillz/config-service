@@ -105,7 +105,7 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = c.DropdownButton("Versions", c.WithClass("bg-gray-300 text-gray-900 px-4 py-1 rounded-md")).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.DropdownButton("Versions").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -151,7 +151,7 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if permission == constants.PermissionAdmin {
-				templ_7745c5c3_Err = c.LinkButton("Create New Key", fmt.Sprintf("/services/%d/features/%d/keys/create", data.ServiceVersion.ID, data.FeatureVersion.ID)).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.LinkButton("Create New Key", fmt.Sprintf("/services/%d/features/%d/keys/create", data.ServiceVersion.ID, data.FeatureVersion.ID), c.Secondary()).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

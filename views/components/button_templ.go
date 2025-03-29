@@ -30,7 +30,7 @@ func Button(text string, buttonType string, options ...ElementOption) templ.Comp
 		}
 		ctx = templ.ClearChildren(ctx)
 		opts := NewElementOptions(options)
-		var templ_7745c5c3_Var2 = []any{"cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md flex items-center", opts.Classes}
+		var templ_7745c5c3_Var2 = []any{"cursor-pointer px-4 py-2 rounded-md flex items-center", opts.Classes}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -141,7 +141,7 @@ func LinkButton(text string, url string, options ...ElementOption) templ.Compone
 		}
 		ctx = templ.ClearChildren(ctx)
 		opts := NewElementOptions(options)
-		var templ_7745c5c3_Var8 = []any{"bg-gray-300 text-gray-900 px-4 py-1 rounded-md", opts.Classes}
+		var templ_7745c5c3_Var8 = []any{"px-4 py-1 rounded-md", opts.Classes}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -183,7 +183,7 @@ func LinkButton(text string, url string, options ...ElementOption) templ.Compone
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/button.templ`, Line: 16, Col: 134}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/button.templ`, Line: 16, Col: 108}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -283,7 +283,7 @@ func DropdownButton(text string, options ...ElementOption) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		opts := NewElementOptions(options)
-		var templ_7745c5c3_Var16 = []any{"cursor-pointer", opts.Classes}
+		var templ_7745c5c3_Var16 = []any{"cursor-pointer px-4 py-1 rounded-md bg-secondary text-black", opts.Classes}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var16...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -316,7 +316,7 @@ func DropdownButton(text string, options ...ElementOption) templ.Component {
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/button.templ`, Line: 28, Col: 118}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/button.templ`, Line: 28, Col: 163}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {

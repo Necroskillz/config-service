@@ -244,7 +244,7 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = c.SubmitButton("Create").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.SubmitButton("Create", c.Primary()).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

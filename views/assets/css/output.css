@@ -24,7 +24,6 @@
     --color-gray-100: oklch(0.967 0.003 264.542);
     --color-gray-200: oklch(0.928 0.006 264.531);
     --color-gray-300: oklch(0.872 0.01 258.338);
-    --color-gray-400: oklch(0.707 0.022 261.325);
     --color-gray-600: oklch(0.446 0.03 256.802);
     --color-gray-900: oklch(0.21 0.034 264.665);
     --color-gray-950: oklch(0.13 0.028 261.692);
@@ -51,12 +50,13 @@
     --default-mono-font-feature-settings: var(--font-mono--font-feature-settings);
     --default-mono-font-variation-settings: var(--font-mono--font-variation-settings);
     --color-primary: var(--color-blue-500);
-    --color-secondary: var(--color-gray-400);
+    --color-secondary: var(--color-gray-300);
     --color-link: var(--color-blue-400);
     --color-danger: var(--color-red-600);
     --color-success: var(--color-green-500);
     --color-warning: var(--color-yellow-500);
     --color-info: var(--color-cyan-500);
+    --color-ghost: var(--color-gray-300);
   }
 }
 @layer base {
@@ -222,9 +222,6 @@
   .z-10 {
     z-index: 10;
   }
-  .m-7 {
-    margin: calc(var(--spacing) * 7);
-  }
   .mx-1 {
     margin-inline: calc(var(--spacing) * 1);
   }
@@ -269,9 +266,6 @@
   }
   .table {
     display: table;
-  }
-  .h-7 {
-    height: calc(var(--spacing) * 7);
   }
   .h-9 {
     height: calc(var(--spacing) * 9);
@@ -392,11 +386,11 @@
   .bg-blue-100 {
     background-color: var(--color-blue-100);
   }
-  .bg-blue-500 {
-    background-color: var(--color-blue-500);
-  }
   .bg-danger {
     background-color: var(--color-danger);
+  }
+  .bg-ghost {
+    background-color: var(--color-ghost);
   }
   .bg-gray-300 {
     background-color: var(--color-gray-300);
@@ -430,9 +424,6 @@
   }
   .bg-warning {
     background-color: var(--color-warning);
-  }
-  .p-1 {
-    padding: calc(var(--spacing) * 1);
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);
@@ -499,9 +490,6 @@
   .text-danger {
     color: var(--color-danger);
   }
-  .text-gray-900 {
-    color: var(--color-gray-900);
-  }
   .text-green-800 {
     color: var(--color-green-800);
   }
@@ -563,6 +551,13 @@
       border-bottom-width: 0px;
     }
   }
+  .hover\:bg-blue-400 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-blue-400);
+      }
+    }
+  }
   .hover\:bg-blue-600 {
     &:hover {
       @media (hover: hover) {
@@ -614,6 +609,11 @@
   }
   .bg-info {
     background-color: var(--color-info);
+  }
+  .bg-ghost {
+    border-color: var(--color-ghost);
+    border-width: 1px;
+    background-color: transparent;
   }
   .link {
     color: var(--color-link);
