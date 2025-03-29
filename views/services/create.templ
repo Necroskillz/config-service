@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -14,7 +14,7 @@ type CreateServiceData struct {
 	Description   string `form:"description" validate:"required"`
 	ServiceTypeID uint  `form:"serviceType" validate:"required"`
 
-	ServiceTypeOptions []components.SelectOption
+	ServiceTypeOptions []c.SelectOption
 }
 
 templ CreateServicePage(data CreateServiceData) {
@@ -28,27 +28,23 @@ templ CreateServicePage(data CreateServiceData) {
 
 templ CreateServiceForm(data CreateServiceData) {
 	<div id="create-service-form" class="flex flex-col gap-4">
-		@components.ErrorMessageContainer()
+		@c.ErrorMessageContainer()
 		<form hx-post="/services" hx-target="#create-service-form" hx-swap="outerHTML">
 			<div class="flex flex-col gap-4">
-				@components.FormElement("name", "Name") {
-					@components.Input("name", data.Name, components.ElementOptions{
-						Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Name"])),
-					})
-					@components.ValidationMessage(data.ValidationErrors["Name"])
+				@c.FormElement("name", "Name") {
+					@c.Input("name", data.Name, c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Name"])))
+					@c.ValidationMessage(data.ValidationErrors["Name"])
 				}
-				@components.FormElement("description", "Description") {
-					@components.Textarea("description", data.Description, components.ElementOptions{
-						Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Description"])),
-					})
-					@components.ValidationMessage(data.ValidationErrors["Description"])
+				@c.FormElement("description", "Description") {
+					@c.Textarea("description", data.Description, c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Description"])))
+					@c.ValidationMessage(data.ValidationErrors["Description"])
 				}
-				@components.FormElement("serviceType", "Service Type") {
-					@components.Select("serviceType", fmt.Sprintf("%d", data.ServiceTypeID), data.ServiceTypeOptions, components.ElementOptions{})
+				@c.FormElement("serviceType", "Service Type") {
+					@c.Select("serviceType", fmt.Sprintf("%d", data.ServiceTypeID), data.ServiceTypeOptions)
 				}
 			</div>
 			<div class="ml-34 mt-8">
-				@components.SubmitButton("Create", components.ElementOptions{})
+				@c.SubmitButton("Create")
 			</div>
 		</form>
 	</div>

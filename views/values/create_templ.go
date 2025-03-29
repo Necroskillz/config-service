@@ -13,7 +13,7 @@ import (
 
 	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 )
 
 type ValueFormData struct {
@@ -65,9 +65,7 @@ func ValueForm(data ValueFormData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Input("value", data.Value, components.ElementOptions{
-				Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Value"])),
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Input("value", data.Value, c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Value"]))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -75,13 +73,13 @@ func ValueForm(data ValueFormData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.ValidationMessage(data.ValidationErrors["Value"]).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.ValidationMessage(data.ValidationErrors["Value"]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("value", "").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("value", "").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -94,9 +92,7 @@ func ValueForm(data ValueFormData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.VariationSelect(prop, data.Variation[prop.Name], components.ElementOptions{
-				Attributes: templ.Attributes{"form": "value-form"},
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.VariationSelect(prop, data.Variation[prop.Name], c.WithAttribute("form", "value-form")).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -110,14 +106,12 @@ func ValueForm(data ValueFormData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if data.VariationValueID == 0 {
-			templ_7745c5c3_Err = components.SubmitButton("Add", components.ElementOptions{
-				Attributes: templ.Attributes{
-					"hx-include":    "#value-form",
-					"hx-post":       fmt.Sprintf("/services/%d/features/%d/keys/%d/values", data.ServiceVersionID, data.FeatureVersionID, data.KeyID),
-					"hx-target":     "#value-matrix",
-					"hx-target-422": "#add-row",
-				},
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.SubmitButton("Add",
+				c.WithAttribute("hx-include", "#value-form"),
+				c.WithAttribute("hx-post", fmt.Sprintf("/services/%d/features/%d/keys/%d/values", data.ServiceVersionID, data.FeatureVersionID, data.KeyID)),
+				c.WithAttribute("hx-target", "#value-matrix"),
+				c.WithAttribute("hx-target-422", "#add-row"),
+			).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -125,21 +119,17 @@ func ValueForm(data ValueFormData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Button("Cancel", "button", components.ElementOptions{
-				Attributes: templ.Attributes{"@click": "addValue = false"},
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Button("Cancel", "button", c.WithAttribute("@click", "addValue = false")).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = components.SubmitButton("Save", components.ElementOptions{
-				Attributes: templ.Attributes{
-					"hx-include":    "#value-form",
-					"hx-put":        fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.KeyID, data.VariationValueID),
-					"hx-target":     "#value-matrix",
-					"hx-target-422": "#add-row",
-				},
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.SubmitButton("Save",
+				c.WithAttribute("hx-include", "#value-form"),
+				c.WithAttribute("hx-put", fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.KeyID, data.VariationValueID)),
+				c.WithAttribute("hx-target", "#value-matrix"),
+				c.WithAttribute("hx-target-422", "#add-row"),
+			).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -147,7 +137,7 @@ func ValueForm(data ValueFormData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Button("Cancel", "button", components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Button("Cancel", "button", c.WithAttribute("@click", "addValue = false")).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

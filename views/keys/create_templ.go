@@ -13,7 +13,7 @@ import (
 
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -27,7 +27,7 @@ type CreateKeyData struct {
 
 	ServiceVersion   db.GetServiceVersionRow
 	FeatureVersion   db.GetFeatureVersionRow
-	ValueTypeOptions []components.SelectOption
+	ValueTypeOptions []c.SelectOption
 }
 
 func CreateKeyPage(data CreateKeyData) templ.Component {
@@ -123,7 +123,7 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.ErrorMessageContainer().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.ErrorMessageContainer().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -156,9 +156,7 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Input("name", data.Name, components.ElementOptions{
-				Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Name"])),
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Input("name", data.Name, c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Name"]))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -166,13 +164,13 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.ValidationMessage(data.ValidationErrors["Name"]).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.ValidationMessage(data.ValidationErrors["Name"]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("name", "Name").Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("name", "Name").Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -188,13 +186,13 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Textarea("description", data.Description, components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Textarea("description", data.Description).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("description", "Description").Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("description", "Description").Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -210,13 +208,13 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Select("valueTypeId", fmt.Sprintf("%d", data.ValueTypeID), data.ValueTypeOptions, components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Select("valueTypeId", fmt.Sprintf("%d", data.ValueTypeID), data.ValueTypeOptions).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("valueTypeId", "Value Type").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("valueTypeId", "Value Type").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -232,13 +230,13 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Input("defaultValue", data.DefaultValue, components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Input("defaultValue", data.DefaultValue).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("defaultValue", "Default Value").Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("defaultValue", "Default Value").Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -246,7 +244,7 @@ func CreateKeyForm(data CreateKeyData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.SubmitButton("Create", components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.SubmitButton("Create").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -13,7 +13,7 @@ import (
 
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -132,7 +132,7 @@ func CreateFeatureForm(data CreateFeatureData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.ErrorMessageContainer().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.ErrorMessageContainer().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -165,9 +165,7 @@ func CreateFeatureForm(data CreateFeatureData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Input("name", data.Name, components.ElementOptions{
-				Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Name"])),
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Input("name", data.Name, c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Name"]))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -175,13 +173,13 @@ func CreateFeatureForm(data CreateFeatureData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.ValidationMessage(data.ValidationErrors["Name"]).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.ValidationMessage(data.ValidationErrors["Name"]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("name", "Name").Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("name", "Name").Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -197,9 +195,7 @@ func CreateFeatureForm(data CreateFeatureData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Textarea("description", data.Description, components.ElementOptions{
-				Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Description"])),
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Textarea("description", data.Description, c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Description"]))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -207,13 +203,13 @@ func CreateFeatureForm(data CreateFeatureData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.ValidationMessage(data.ValidationErrors["Description"]).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.ValidationMessage(data.ValidationErrors["Description"]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("description", "Description").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("description", "Description").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -221,7 +217,7 @@ func CreateFeatureForm(data CreateFeatureData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.SubmitButton("Create", components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.SubmitButton("Create").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -69,6 +69,20 @@ type Changeset struct {
 }
 
 func (c *Changeset) CanBeAppliedBy(checker PermissionChecker) bool {
+	userID := checker.GetID()
+
+	if !c.IsOpen() && !c.IsCommitted() {
+		return false
+	}
+
+	if c.IsOpen() && !c.BelongsTo(userID) {
+		return false
+	}
+
+	if checker.IsGlobalAdministrator() {
+		return true
+	}
+
 	for _, change := range c.ChangesetChanges {
 		if change.ServiceVersionID == nil {
 			panic("service version id is nil")
@@ -80,6 +94,22 @@ func (c *Changeset) CanBeAppliedBy(checker PermissionChecker) bool {
 	}
 
 	return true
+}
+
+func (c *Changeset) BelongsTo(userID uint) bool {
+	return c.UserID == userID
+}
+
+func (c *Changeset) IsOpen() bool {
+	return c.State == db.ChangesetStateOpen
+}
+
+func (c *Changeset) IsCommitted() bool {
+	return c.State == db.ChangesetStateCommitted
+}
+
+func (c *Changeset) IsEmpty() bool {
+	return len(c.ChangesetChanges) == 0
 }
 
 func (s *ChangesetService) GetChangeset(ctx context.Context, changesetID uint) (Changeset, error) {
@@ -236,4 +266,34 @@ func (s *ChangesetService) ApplyChangeset(ctx context.Context, changeset *Change
 
 		return nil
 	})
+}
+
+func (s *ChangesetService) CommitChangeset(ctx context.Context, changeset *Changeset) error {
+	err := s.queries.SetChangesetState(ctx, db.SetChangesetStateParams{
+		ChangesetID: changeset.ID,
+		State:       db.ChangesetStateCommitted,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	changeset.State = db.ChangesetStateCommitted
+
+	return nil
+}
+
+func (s *ChangesetService) ReopenChangeset(ctx context.Context, changeset *Changeset) error {
+	err := s.queries.SetChangesetState(ctx, db.SetChangesetStateParams{
+		ChangesetID: changeset.ID,
+		State:       db.ChangesetStateOpen,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	changeset.State = db.ChangesetStateOpen
+
+	return nil
 }

@@ -48,6 +48,14 @@ func (u *User) getPermission(serviceId uint, featureId *uint, keyId *uint, varia
 	return u.permissionCollection.GetPermissionLevelFor(serviceId, featureId, keyId, variationPropertyValues)
 }
 
+func (u *User) IsGlobalAdministrator() bool {
+	return u.IsGlobalAdmin
+}
+
+func (u *User) GetID() uint {
+	return u.ID
+}
+
 func (u *User) GetPermissionForService(serviceId uint) constants.PermissionLevel {
 	return u.getPermission(serviceId, nil, nil, nil)
 }

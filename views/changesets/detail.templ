@@ -6,7 +6,7 @@ import (
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -25,7 +25,7 @@ templ ChangesetDetail(data ChangesetDetailData) {
 		<h1>{ fmt.Sprintf("Changeset #%d", data.Changeset.ID) }</h1>
 		<div class="flex gap-2 mb-4">
 			<span class="font-semibold">State:</span>
-			@components.Pill(string(data.Changeset.State))
+			@c.Pill(string(data.Changeset.State))
 		</div>
 		if len(data.Changeset.ChangesetChanges) > 0 {
 			<div class="flex flex-col border border-gray-200 rounded-md">
@@ -39,18 +39,32 @@ templ ChangesetDetail(data ChangesetDetailData) {
 			<div class="text-secondary">You have not made any changes yet</div>
 		}
 		<div class="flex flex-col gap-4 mt-4">
-			@components.ErrorMessageContainer()
+			@c.ErrorMessageContainer()
 			<div class="flex gap-2">
-				if (data.Changeset.State == db.ChangesetStateOpen || data.Changeset.State == db.ChangesetStateCommitted) && 
-					len(data.Changeset.ChangesetChanges) > 0 &&
-					data.Changeset.CanBeAppliedBy(views.User(ctx)) {
-					@components.Button("Apply", "button", components.ElementOptions{
-						Attributes: templ.Attributes{
-							"hx-put":    fmt.Sprintf("/changesets/%d/apply", data.Changeset.ID),
-							"hx-target": "#changeset-detail",
-							"hx-swap":   "outerHTML",
-						},
-					})
+				if len(data.Changeset.ChangesetChanges) > 0 {
+					if data.Changeset.CanBeAppliedBy(views.User(ctx)) {
+						@c.Button("Apply", "button",
+							c.WithAttribute("hx-put", fmt.Sprintf("/changesets/%d/apply", data.Changeset.ID)),
+							c.WithAttribute("hx-target", "#changeset-detail"),
+							c.WithAttribute("hx-swap", "outerHTML"),
+						)
+					}
+					if data.Changeset.BelongsTo(views.User(ctx).ID) {
+						if data.Changeset.State == db.ChangesetStateOpen {
+							@c.Button("Commit", "button",
+								c.WithAttribute("hx-put", fmt.Sprintf("/changesets/%d/commit", data.Changeset.ID)),
+								c.WithAttribute("hx-target", "#changeset-detail"),
+								c.WithAttribute("hx-swap", "outerHTML"),
+							)
+						}
+						if data.Changeset.State == db.ChangesetStateCommitted {
+							@c.Button("Reopen", "button",
+								c.WithAttribute("hx-put", fmt.Sprintf("/changesets/%d/reopen", data.Changeset.ID)),
+								c.WithAttribute("hx-target", "#changeset-detail"),
+								c.WithAttribute("hx-swap", "outerHTML"),
+							)
+						}
+					}
 				}
 			</div>
 		</div>

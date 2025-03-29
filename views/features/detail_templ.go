@@ -14,7 +14,7 @@ import (
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -72,7 +72,7 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Pill(fmt.Sprintf("v%d", data.FeatureVersion.Version)).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Pill(fmt.Sprintf("v%d", data.FeatureVersion.Version)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -105,9 +105,7 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = components.DropdownButton("Versions", components.ElementOptions{
-					Classes: templ.Classes("bg-gray-300 text-gray-900 px-4 py-1 rounded-md"),
-				}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.DropdownButton("Versions", c.WithClass("bg-gray-300 text-gray-900 px-4 py-1 rounded-md")).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -129,14 +127,12 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 					ctx = templ.InitializeContext(ctx)
 					for _, otherFeatureVersion := range data.OtherFeatureVersions {
 						if otherFeatureVersion.ID == data.FeatureVersion.ID {
-							templ_7745c5c3_Err = components.DropdownMenuText(fmt.Sprintf("v%d", otherFeatureVersion.Version), components.ElementOptions{
-								Classes: templ.Classes("font-bold"),
-							}).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = c.DropdownMenuText(fmt.Sprintf("v%d", otherFeatureVersion.Version), c.WithClass("font-bold")).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = components.DropdownMenuLink(fmt.Sprintf("v%d", otherFeatureVersion.Version), fmt.Sprintf("/services/%d/features/%d", data.ServiceVersion.ID, otherFeatureVersion.ID), components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = c.DropdownMenuLink(fmt.Sprintf("v%d", otherFeatureVersion.Version), fmt.Sprintf("/services/%d/features/%d", data.ServiceVersion.ID, otherFeatureVersion.ID)).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -144,18 +140,18 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = components.DropdownMenu("left", components.ElementOptions{Classes: templ.Classes("w-32")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.DropdownMenu("left", c.WithClass("w-32")).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = components.Dropdown(components.ElementOptions{}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Dropdown().Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if permission == constants.PermissionAdmin {
-				templ_7745c5c3_Err = components.LinkButton("Create New Key", fmt.Sprintf("/services/%d/features/%d/keys/create", data.ServiceVersion.ID, data.FeatureVersion.ID), components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.LinkButton("Create New Key", fmt.Sprintf("/services/%d/features/%d/keys/create", data.ServiceVersion.ID, data.FeatureVersion.ID)).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -181,7 +177,7 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(key.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/detail.templ`, Line: 54, Col: 155}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/detail.templ`, Line: 50, Col: 155}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -199,7 +195,7 @@ func FeatureDetailPage(data FeatureDetailData) templ.Component {
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(*key.Description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/detail.templ`, Line: 57, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/features/detail.templ`, Line: 53, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {

@@ -14,7 +14,7 @@ import (
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 )
 
 type ValueMatrixData struct {
@@ -82,7 +82,7 @@ func ValueMatrixPage(data ValueMatrixData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = components.ErrorMessageContainer().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.ErrorMessageContainer().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -219,23 +219,19 @@ func ValueMatrix(data ValueMatrixData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.Button("Edit", "button", components.ElementOptions{
-						Attributes: templ.Attributes{
-							"hx-get":    fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d/edit", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
-							"hx-target": fmt.Sprintf("#value-%d", i),
-						},
-					}).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = c.Button("Edit", "button",
+						c.WithAttribute("hx-get", fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d/edit", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID)),
+						c.WithAttribute("hx-target", fmt.Sprintf("#value-%d", i)),
+					).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if len(value.Variation) > 0 {
-						templ_7745c5c3_Err = components.Button("Delete", "button", components.ElementOptions{
-							Attributes: templ.Attributes{
-								"hx-delete": fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
-								"hx-target": fmt.Sprintf("#value-%d", i),
-								"hx-swap":   "outerHTML",
-							},
-						}).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = c.Button("Delete", "button",
+							c.WithAttribute("hx-delete", fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID)),
+							c.WithAttribute("hx-target", fmt.Sprintf("#value-%d", i)),
+							c.WithAttribute("hx-swap", "outerHTML"),
+						).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -279,9 +275,7 @@ func ValueMatrix(data ValueMatrixData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Button("Add Value", "button", components.ElementOptions{
-				Attributes: templ.Attributes{"@click": "addValue = true"},
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Button("Add Value", "button", c.WithAttribute("@click", "addValue = true")).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

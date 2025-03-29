@@ -1,7 +1,9 @@
 package auth
 
-import "github.com/necroskillz/config-service/views"
-import "github.com/necroskillz/config-service/views/components"
+import (
+	"github.com/necroskillz/config-service/views"
+	c "github.com/necroskillz/config-service/views/components"
+)
 
 type LoginData struct {
 	views.ViewData
@@ -12,23 +14,24 @@ type LoginData struct {
 
 templ Login(data LoginData) {
 	<div id="login-form" class="flex flex-col items-center justify-center gap-4">
-		@components.ErrorMessageContainer()
+		@c.ErrorMessageContainer()
 		<form class="flex flex-col items-center justify-center gap-4" hx-post="/login" hx-target="#login-form" hx-swap="outerHTML">
-			@components.FormElement("username", "") {
-				@components.Input("username", data.Username, components.ElementOptions{
-					Attributes: templ.Attributes{"placeholder": "Username"},
-					Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Username"])),
-				})
-				@components.ValidationMessage(data.ValidationErrors["Username"])
+			@c.FormElement("username", "") {
+				@c.Input("username", data.Username,
+					c.WithAttribute("placeholder", "Username"),
+					c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Username"])),
+				)
+				@c.ValidationMessage(data.ValidationErrors["Username"])
 			}
-			@components.FormElement("password", "") {
-				@components.Input("password", data.Password, components.ElementOptions{
-					Attributes: templ.Attributes{"placeholder": "Password", "type": "password"},
-					Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Password"])),
-				})
-				@components.ValidationMessage(data.ValidationErrors["Password"])
+			@c.FormElement("password", "") {
+				@c.Input("password", data.Password,
+					c.WithAttribute("placeholder", "Password"),
+					c.WithAttribute("type", "password"),
+					c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Password"])),
+				)
+				@c.ValidationMessage(data.ValidationErrors["Password"])
 			}
-			@components.SubmitButton("Login", components.ElementOptions{})
+			@c.SubmitButton("Login")
 		</form>
 	</div>
 }

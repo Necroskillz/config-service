@@ -317,13 +317,16 @@ SELECT csc.id,
     csc.type,
     csc.new_variation_value_id,
     csc.old_variation_value_id,
-    vc.id as variation_context_id
+    vv.variation_context_id
 FROM changeset_changes csc
-    JOIN variation_contexts vc ON vc.id = COALESCE(csc.new_variation_value_id, csc.old_variation_value_id)
+    JOIN variation_values vv ON vv.id = COALESCE(
+        csc.new_variation_value_id,
+        csc.old_variation_value_id
+    )
 WHERE csc.changeset_id = $1
     AND (
-        old_variation_value_id = $2::bigint
-        OR new_variation_value_id = $2::bigint
+        csc.old_variation_value_id = $2::bigint
+        OR csc.new_variation_value_id = $2::bigint
     )
 LIMIT 1
 `

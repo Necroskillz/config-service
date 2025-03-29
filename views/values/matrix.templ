@@ -6,7 +6,7 @@ import (
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 )
 
 type ValueMatrixData struct {
@@ -23,7 +23,7 @@ templ ValueMatrixPage(data ValueMatrixData) {
 		if data.Key.Description != nil {
 			<p class="text-secondary">{ *data.Key.Description }</p>
 		}
-		@components.ErrorMessageContainer()
+		@c.ErrorMessageContainer()
 		<div id="value-matrix" class="overflow-x-auto" x-data="{ addValue: false }">
 			@ValueMatrix(data)
 		</div>
@@ -63,20 +63,16 @@ templ ValueMatrix(data ValueMatrixData) {
 						<td class="border px-4 py-2">
 							if user.GetPermissionForValue(data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.Variation) >= constants.PermissionEditor {
 								<div class="flex gap-2">
-									@components.Button("Edit", "button", components.ElementOptions{
-										Attributes: templ.Attributes{
-											"hx-get":    fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d/edit", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
-											"hx-target": fmt.Sprintf("#value-%d", i),
-										},
-									})
+									@c.Button("Edit", "button",
+										c.WithAttribute("hx-get", fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d/edit", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID)),
+										c.WithAttribute("hx-target", fmt.Sprintf("#value-%d", i)),
+									)
 									if len(value.Variation) > 0 {
-										@components.Button("Delete", "button", components.ElementOptions{
-											Attributes: templ.Attributes{
-												"hx-delete": fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID),
-												"hx-target": fmt.Sprintf("#value-%d", i),
-												"hx-swap":   "outerHTML",
-											},
-										})
+										@c.Button("Delete", "button",
+											c.WithAttribute("hx-delete", fmt.Sprintf("/services/%d/features/%d/keys/%d/values/%d", data.ServiceVersionID, data.FeatureVersionID, data.Key.ID, value.ID)),
+											c.WithAttribute("hx-target", fmt.Sprintf("#value-%d", i)),
+											c.WithAttribute("hx-swap", "outerHTML"),
+										)
 									}
 								</div>
 							}
@@ -98,9 +94,7 @@ templ ValueMatrix(data ValueMatrixData) {
 	</table>
 	if user.HasPermissionForNestedEntity(data.ServiceVersionID, data.FeatureVersionID, data.Key.ID) {
 		<div x-show="!addValue" class="mt-4">
-			@components.Button("Add Value", "button", components.ElementOptions{
-				Attributes: templ.Attributes{"@click": "addValue = true"},
-			})
+			@c.Button("Add Value", "button", c.WithAttribute("@click", "addValue = true"))
 		</div>
 	}
 }

@@ -13,7 +13,7 @@ import (
 
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -85,7 +85,7 @@ func ServiceList(data ServiceListData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.Pill(fmt.Sprintf("v%d", serviceVersion.Version)).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.Pill(fmt.Sprintf("v%d", serviceVersion.Version)).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -116,7 +116,7 @@ func ServiceList(data ServiceListData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.LinkButton("Create New Service", "/services/create", components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.LinkButton("Create New Service", "/services/create").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

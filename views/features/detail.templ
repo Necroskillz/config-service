@@ -6,7 +6,7 @@ import (
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -23,28 +23,24 @@ templ FeatureDetailPage(data FeatureDetailData) {
 		<div class="flex flex-col">
 			<h1>
 				{ data.FeatureVersion.FeatureName }
-				@components.Pill(fmt.Sprintf("v%d", data.FeatureVersion.Version))
+				@c.Pill(fmt.Sprintf("v%d", data.FeatureVersion.Version))
 			</h1>
 			<div class="text-secondary">{ data.FeatureVersion.FeatureDescription }</div>
 			<div class="flex flex-row gap-2 mt-4">
-				@components.Dropdown(components.ElementOptions{}) {
-					@components.DropdownButton("Versions", components.ElementOptions{
-						Classes: templ.Classes("bg-gray-300 text-gray-900 px-4 py-1 rounded-md"),
-					})
-					@components.DropdownMenu("left", components.ElementOptions{Classes: templ.Classes("w-32")}) {
+				@c.Dropdown() {
+					@c.DropdownButton("Versions", c.WithClass("bg-gray-300 text-gray-900 px-4 py-1 rounded-md"))
+					@c.DropdownMenu("left", c.WithClass("w-32")) {
 						for _, otherFeatureVersion := range data.OtherFeatureVersions {
 							if otherFeatureVersion.ID == data.FeatureVersion.ID {
-								@components.DropdownMenuText(fmt.Sprintf("v%d", otherFeatureVersion.Version), components.ElementOptions{
-									Classes: templ.Classes("font-bold"),
-								})
+								@c.DropdownMenuText(fmt.Sprintf("v%d", otherFeatureVersion.Version), c.WithClass("font-bold"))
 							} else {
-								@components.DropdownMenuLink(fmt.Sprintf("v%d", otherFeatureVersion.Version), fmt.Sprintf("/services/%d/features/%d", data.ServiceVersion.ID, otherFeatureVersion.ID), components.ElementOptions{})
+								@c.DropdownMenuLink(fmt.Sprintf("v%d", otherFeatureVersion.Version), fmt.Sprintf("/services/%d/features/%d", data.ServiceVersion.ID, otherFeatureVersion.ID))
 							}
 						}
 					}
 				}
 				if permission == constants.PermissionAdmin {
-					@components.LinkButton("Create New Key", fmt.Sprintf("/services/%d/features/%d/keys/create", data.ServiceVersion.ID, data.FeatureVersion.ID), components.ElementOptions{})
+					@c.LinkButton("Create New Key", fmt.Sprintf("/services/%d/features/%d/keys/create", data.ServiceVersion.ID, data.FeatureVersion.ID))
 				}
 			</div>
 			<div class="flex flex-col border border-gray-200 rounded-md mt-4">

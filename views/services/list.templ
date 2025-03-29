@@ -5,7 +5,7 @@ import (
 
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -21,7 +21,7 @@ templ ServiceList(data ServiceListData) {
 				<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
 					<h2 class="text-lg font-bold">
 						<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", serviceVersion.ID)) }>{ serviceVersion.ServiceName }</a>
-						@components.Pill(fmt.Sprintf("v%d", serviceVersion.Version))
+						@c.Pill(fmt.Sprintf("v%d", serviceVersion.Version))
 					</h2>
 					<p class="text-sm text-secondary">{ serviceVersion.ServiceDescription }</p>
 				</div>
@@ -29,7 +29,7 @@ templ ServiceList(data ServiceListData) {
 		</div>
 		if views.User(ctx).IsGlobalAdmin {
 			<div class="mt-8">
-				@components.LinkButton("Create New Service", "/services/create", components.ElementOptions{})
+				@c.LinkButton("Create New Service", "/services/create")
 			</div>
 		}
 	}

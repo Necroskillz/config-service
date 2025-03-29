@@ -5,7 +5,7 @@ import (
 
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -19,7 +19,7 @@ type CreateKeyData struct {
 
 	ServiceVersion   db.GetServiceVersionRow
 	FeatureVersion   db.GetFeatureVersionRow
-	ValueTypeOptions []components.SelectOption
+	ValueTypeOptions []c.SelectOption
 }
 
 templ CreateKeyPage(data CreateKeyData) {
@@ -34,27 +34,25 @@ templ CreateKeyPage(data CreateKeyData) {
 
 templ CreateKeyForm(data CreateKeyData) {
 	<div id="create-key-form" class="flex flex-col gap-4 mt-4">
-		@components.ErrorMessageContainer()
+		@c.ErrorMessageContainer()
 		<form hx-post={ fmt.Sprintf("/services/%d/features/%d/keys", data.ServiceVersion.ID, data.FeatureVersion.ID) } hx-target="#create-key-form" hx-swap="outerHTML">
 			<div class="flex flex-col gap-4">
-				@components.FormElement("name", "Name") {
-					@components.Input("name", data.Name, components.ElementOptions{
-						Classes: templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Name"])),
-					})
-					@components.ValidationMessage(data.ValidationErrors["Name"])
+				@c.FormElement("name", "Name") {
+					@c.Input("name", data.Name, c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Name"])))
+					@c.ValidationMessage(data.ValidationErrors["Name"])
 				}
-				@components.FormElement("description", "Description") {
-					@components.Textarea("description", data.Description, components.ElementOptions{})
+				@c.FormElement("description", "Description") {
+					@c.Textarea("description", data.Description)
 				}
-				@components.FormElement("valueTypeId", "Value Type") {
-					@components.Select("valueTypeId", fmt.Sprintf("%d", data.ValueTypeID), data.ValueTypeOptions, components.ElementOptions{})
+				@c.FormElement("valueTypeId", "Value Type") {
+					@c.Select("valueTypeId", fmt.Sprintf("%d", data.ValueTypeID), data.ValueTypeOptions)
 				}
-				@components.FormElement("defaultValue", "Default Value") {
-					@components.Input("defaultValue", data.DefaultValue, components.ElementOptions{})
+				@c.FormElement("defaultValue", "Default Value") {
+					@c.Input("defaultValue", data.DefaultValue)
 				}
 			</div>
 			<div class="ml-34 mt-8">
-				@components.SubmitButton("Create", components.ElementOptions{})
+				@c.SubmitButton("Create")
 			</div>
 		</form>
 	</div>

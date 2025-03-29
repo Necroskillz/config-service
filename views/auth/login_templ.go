@@ -8,8 +8,10 @@ package auth
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/necroskillz/config-service/views"
-import "github.com/necroskillz/config-service/views/components"
+import (
+	"github.com/necroskillz/config-service/views"
+	c "github.com/necroskillz/config-service/views/components"
+)
 
 type LoginData struct {
 	views.ViewData
@@ -43,7 +45,7 @@ func Login(data LoginData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.ErrorMessageContainer().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.ErrorMessageContainer().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -63,10 +65,10 @@ func Login(data LoginData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Input("username", data.Username, components.ElementOptions{
-				Attributes: templ.Attributes{"placeholder": "Username"},
-				Classes:    templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Username"])),
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Input("username", data.Username,
+				c.WithAttribute("placeholder", "Username"),
+				c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Username"])),
+			).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -74,13 +76,13 @@ func Login(data LoginData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.ValidationMessage(data.ValidationErrors["Username"]).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.ValidationMessage(data.ValidationErrors["Username"]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("username", "").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("username", "").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -96,10 +98,11 @@ func Login(data LoginData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.Input("password", data.Password, components.ElementOptions{
-				Attributes: templ.Attributes{"placeholder": "Password", "type": "password"},
-				Classes:    templ.Classes(views.ValidationErrorClass(data.ValidationErrors["Password"])),
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Input("password", data.Password,
+				c.WithAttribute("placeholder", "Password"),
+				c.WithAttribute("type", "password"),
+				c.WithClass(views.ValidationErrorClass(data.ValidationErrors["Password"])),
+			).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -107,17 +110,17 @@ func Login(data LoginData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.ValidationMessage(data.ValidationErrors["Password"]).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.ValidationMessage(data.ValidationErrors["Password"]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = components.FormElement("password", "").Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.FormElement("password", "").Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.SubmitButton("Login", components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = c.SubmitButton("Login").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

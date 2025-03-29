@@ -33,4 +33,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	changesetGroup := changesetsGroup.Group("/:changeset_id")
 	changesetGroup.GET("", h.ChangesetDetail)
 	changesetGroup.PUT("/apply", h.ApplyChangeset)
+	changesetGroup.PUT("/commit", h.CommitChangeset)
+	changesetGroup.PUT("/reopen", h.ReopenChangeset)
 }

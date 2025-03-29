@@ -1,6 +1,11 @@
 package layouts
 
-import "github.com/necroskillz/config-service/views/components"
+import (
+	"fmt"
+
+	"github.com/necroskillz/config-service/views"
+	"github.com/necroskillz/config-service/views/components"
+)
 
 templ Base(title string) {
 	<!DOCTYPE html>
@@ -28,25 +33,38 @@ templ Base(title string) {
 			<script src="/assets/js/alpine.min.js" hx-preserve="true" defer></script>
 			<link href="/assets/css/output.css" rel="stylesheet" hx-preserve="true"/>
 		</head>
-		<body class="antialiased min-h-screen" hx-ext="response-targets">
+		<body class="antialiased min-h-screen" hx-ext="response-targets" x-data={ fmt.Sprintf("main(%d)", views.User(ctx).ChangesetID) }>
 			@components.Header()
 			<div id="content">
 				{ children... }
 			</div>
 			<script type="text/javascript">
+				document.addEventListener('alpine:init', () => {
+					Alpine.data('main', (changesetId) => ({
+						changesetId: changesetId,
+						init() {
+							this.updateChangeset = function(event) {
+								this.changesetId = event.detail.value;
+							}.bind(this);
+							document.body.addEventListener('updateChangeset', this.updateChangeset);
+						},
+						destroy() {
+							document.body.removeEventListener('updateChangeset', this.updateChangeset);
+						},
+						getChangesetLink() {
+							if (this.changesetId) {
+								return '/changesets/' + this.changesetId;
+							} else {
+								return '/changesets/empty';
+							}
+						}
+					}));
+				});
+			</script>
+			<script type="text/javascript">
 				document.body.addEventListener('htmx:beforeSwap', function(event) {
 					if (event.detail.xhr.status === 200) {
 						document.querySelector('#error-message').innerHTML = '';
-					}
-				});
-
-				document.body.addEventListener('updateChangeset', function(event) {
-					var changesetId = event.detail.value;
-					var changesetLink = document.querySelector('#changeset-link');
-					if (changesetId > 0) {
-						changesetLink.href = '/changesets/' + changesetId;
-					} else {
-						changesetLink.href = '/changesets/empty';
 					}
 				});
 

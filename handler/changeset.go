@@ -48,7 +48,9 @@ func (h *Handler) ApplyChangeset(c echo.Context) error {
 		return err
 	}
 
-	if !changeset.CanBeAppliedBy(h.User(c)) {
+	user := h.User(c)
+
+	if !changeset.CanBeAppliedBy(user) {
 		return echo.NewHTTPError(http.StatusForbidden, "You are not allowed to apply this changeset")
 	}
 
@@ -58,6 +60,54 @@ func (h *Handler) ApplyChangeset(c echo.Context) error {
 	}
 
 	c.Set(constants.ChangesetRemovedKey, true)
+
+	return h.RenderPartial(c, http.StatusOK, views.ChangesetDetailPage(views.ChangesetDetailData{
+		Changeset: changeset,
+	}))
+}
+
+func (h *Handler) CommitChangeset(c echo.Context) error {
+	changeset, err := h.getChangeset(c)
+	if err != nil {
+		return err
+	}
+
+	if !changeset.IsOpen() {
+		return echo.NewHTTPError(http.StatusBadRequest, "Cannot commit changeset that is not open")
+	}
+
+	if !changeset.BelongsTo(h.User(c).ID) {
+		return echo.NewHTTPError(http.StatusForbidden, "You are not allowed to commit this changeset")
+	}
+
+	err = h.ChangesetService.CommitChangeset(c.Request().Context(), &changeset)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to commit changeset").WithInternal(err)
+	}
+
+	return h.RenderPartial(c, http.StatusOK, views.ChangesetDetailPage(views.ChangesetDetailData{
+		Changeset: changeset,
+	}))
+}
+
+func (h *Handler) ReopenChangeset(c echo.Context) error {
+	changeset, err := h.getChangeset(c)
+	if err != nil {
+		return err
+	}
+
+	if !changeset.IsCommitted() {
+		return echo.NewHTTPError(http.StatusBadRequest, "Cannot reopen changeset that is not committed")
+	}
+
+	if !changeset.BelongsTo(h.User(c).ID) {
+		return echo.NewHTTPError(http.StatusForbidden, "You are not allowed to reopen this changeset")
+	}
+
+	err = h.ChangesetService.ReopenChangeset(c.Request().Context(), &changeset)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to reopen changeset").WithInternal(err)
+	}
 
 	return h.RenderPartial(c, http.StatusOK, views.ChangesetDetailPage(views.ChangesetDetailData{
 		Changeset: changeset,

@@ -6,7 +6,7 @@ import (
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -22,28 +22,24 @@ templ ServiceDetailPage(data ServiceDetailData) {
 		<div class="flex flex-col">
 			<h1>
 				{ data.ServiceVersion.ServiceName }
-				@components.Pill(fmt.Sprintf("v%d", data.ServiceVersion.Version))
+				@c.Pill(fmt.Sprintf("v%d", data.ServiceVersion.Version))
 			</h1>
 			<div class="text-secondary">{ data.ServiceVersion.ServiceDescription }</div>
 			<div class="flex flex-row gap-2 mt-4">
-				@components.Dropdown(components.ElementOptions{}) {
-					@components.DropdownButton("Versions", components.ElementOptions{
-						Classes: templ.Classes("bg-gray-300 text-gray-900 px-4 py-1 rounded-md"),
-					})
-					@components.DropdownMenu("left", components.ElementOptions{Classes: templ.Classes("w-32")}) {
+				@c.Dropdown() {
+					@c.DropdownButton("Versions", c.WithClass("bg-gray-300 text-gray-900 px-4 py-1 rounded-md"))
+					@c.DropdownMenu("left", c.WithClass("w-32")) {
 						for _, otherServiceVersion := range data.OtherServiceVersions {
 							if otherServiceVersion.ID == data.ServiceVersion.ID {
-								@components.DropdownMenuText(fmt.Sprintf("v%d", otherServiceVersion.Version), components.ElementOptions{
-									Classes: templ.Classes("font-bold"),
-								})
+								@c.DropdownMenuText(fmt.Sprintf("v%d", otherServiceVersion.Version), c.WithClass("font-bold"))
 							} else {
-								@components.DropdownMenuLink(fmt.Sprintf("v%d", otherServiceVersion.Version), fmt.Sprintf("/services/%d", otherServiceVersion.ID), components.ElementOptions{})
+								@c.DropdownMenuLink(fmt.Sprintf("v%d", otherServiceVersion.Version), fmt.Sprintf("/services/%d", otherServiceVersion.ID))
 							}
 						}
 					}
 				}
 				if permission == constants.PermissionAdmin {
-					@components.LinkButton("Create New Feature", fmt.Sprintf("/services/%d/features/create", data.ServiceVersion.ID), components.ElementOptions{})
+					@c.LinkButton("Create New Feature", fmt.Sprintf("/services/%d/features/create", data.ServiceVersion.ID))
 				}
 			</div>
 			<div class="flex flex-col border border-gray-200 rounded-md mt-4">
@@ -51,7 +47,7 @@ templ ServiceDetailPage(data ServiceDetailData) {
 					<div class="flex flex-col gap-2 border-b border-gray-200 p-4 last:border-b-0">
 						<h2 class="text-lg font-bold">
 							<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", data.ServiceVersion.ID, featureVersion.ID)) }>{ featureVersion.FeatureName }</a>
-							@components.Pill(fmt.Sprintf("v%d", featureVersion.Version))
+							@c.Pill(fmt.Sprintf("v%d", featureVersion.Version))
 						</h2>
 						<p class="text-sm text-secondary">{ featureVersion.FeatureDescription }</p>
 					</div>

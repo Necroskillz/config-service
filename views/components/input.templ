@@ -6,25 +6,27 @@ import (
 	"strings"
 )
 
-templ Input(name string, value string, options ElementOptions) {
+templ Input(name string, value string, options ...ElementOption) {
+	{{ opts := NewElementOptions(options) }}
 	<input
 		type="text"
 		@input="onInputToggleValidation($event, $refs.validationMessage, submittedValue)"
 		x-init={ fmt.Sprintf(`submittedValue = "%s"`, value) }
 		name={ name }
-		{ options.Attributes... }
-		class={ "w-full border-1 border-gray-300 rounded-md px-2 py-1", options.Classes }
+		{ opts.Attributes... }
+		class={ "w-full border-1 border-gray-300 rounded-md px-2 py-1", opts.Classes }
 		value={ value }
 	/>
 }
 
-templ Textarea(name string, value string, options ElementOptions) {
+templ Textarea(name string, value string, options ...ElementOption) {
+	{{ opts := NewElementOptions(options) }}
 	<textarea
 		name={ name }
 		@input="onInputToggleValidation($event, $refs.validationMessage, submittedValue)"
 		x-init={ fmt.Sprintf(`submittedValue = "%s"`, value) }
-		{ options.Attributes... }
-		class={ "w-full border-1 border-gray-300 rounded-md px-2 py-1", options.Classes }
+		{ opts.Attributes... }
+			class={ "w-full border-1 border-gray-300 rounded-md px-2 py-1", opts.Classes }
 	>{ value }</textarea>
 }
 
@@ -33,8 +35,9 @@ type SelectOption struct {
 	Text  string
 }
 
-templ Select(name string, value string, options []SelectOption, elementOptions ElementOptions) {
-	<select name={ name } { elementOptions.Attributes... } class={ "border-1 border-gray-300 rounded-md px-2 py-1", elementOptions.Classes }>
+templ Select(name string, value string, options []SelectOption, elementOptions ...ElementOption) {
+	{{ opts := NewElementOptions(elementOptions) }}
+	<select name={ name } { opts.Attributes... } class={ "border-1 border-gray-300 rounded-md px-2 py-1", opts.Classes }>
 		for _, option := range options {
 			<option { templ.Attributes{"selected": option.Value == value} ... } class="text-black" value={ option.Value }>{ option.Text }</option>
 		}
@@ -95,6 +98,6 @@ func variationSelectOptions(property *service.VariationHierarchyProperty) []Sele
 	return options
 }
 
-templ VariationSelect(property *service.VariationHierarchyProperty, value string, options ElementOptions) {
-	@Select(property.Name, value, variationSelectOptions(property), options)
+templ VariationSelect(property *service.VariationHierarchyProperty, value string, options ...ElementOption) {
+	@Select(property.Name, value, variationSelectOptions(property), options...)
 }

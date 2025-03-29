@@ -13,6 +13,8 @@ var (
 )
 
 type PermissionChecker interface {
+	GetID() uint
+	IsGlobalAdministrator() bool
 	GetPermissionForService(serviceId uint) constants.PermissionLevel
 	GetPermissionForFeature(serviceId uint, featureId uint) constants.PermissionLevel
 	GetPermissionForKey(serviceId uint, featureId uint, keyId uint) constants.PermissionLevel

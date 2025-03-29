@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func Input(name string, value string, options ElementOptions) templ.Component {
+func Input(name string, value string, options ...ElementOption) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -35,7 +35,8 @@ func Input(name string, value string, options ElementOptions) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var2 = []any{"w-full border-1 border-gray-300 rounded-md px-2 py-1", options.Classes}
+		opts := NewElementOptions(options)
+		var templ_7745c5c3_Var2 = []any{"w-full border-1 border-gray-300 rounded-md px-2 py-1", opts.Classes}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -47,7 +48,7 @@ func Input(name string, value string, options ElementOptions) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`submittedValue = "%s"`, value))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 13, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 14, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -60,7 +61,7 @@ func Input(name string, value string, options ElementOptions) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 14, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 15, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -70,7 +71,7 @@ func Input(name string, value string, options ElementOptions) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, options.Attributes)
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, opts.Attributes)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -94,7 +95,7 @@ func Input(name string, value string, options ElementOptions) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 17, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 18, Col: 15}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -108,7 +109,7 @@ func Input(name string, value string, options ElementOptions) templ.Component {
 	})
 }
 
-func Textarea(name string, value string, options ElementOptions) templ.Component {
+func Textarea(name string, value string, options ...ElementOption) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -129,7 +130,8 @@ func Textarea(name string, value string, options ElementOptions) templ.Component
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var8 = []any{"w-full border-1 border-gray-300 rounded-md px-2 py-1", options.Classes}
+		opts := NewElementOptions(options)
+		var templ_7745c5c3_Var8 = []any{"w-full border-1 border-gray-300 rounded-md px-2 py-1", opts.Classes}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -141,7 +143,7 @@ func Textarea(name string, value string, options ElementOptions) templ.Component
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 23, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 25, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -154,7 +156,7 @@ func Textarea(name string, value string, options ElementOptions) templ.Component
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`submittedValue = "%s"`, value))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 25, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 27, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -164,7 +166,7 @@ func Textarea(name string, value string, options ElementOptions) templ.Component
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, options.Attributes)
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, opts.Attributes)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -188,7 +190,7 @@ func Textarea(name string, value string, options ElementOptions) templ.Component
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 28, Col: 9}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 30, Col: 9}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -207,7 +209,7 @@ type SelectOption struct {
 	Text  string
 }
 
-func Select(name string, value string, options []SelectOption, elementOptions ElementOptions) templ.Component {
+func Select(name string, value string, options []SelectOption, elementOptions ...ElementOption) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -228,7 +230,8 @@ func Select(name string, value string, options []SelectOption, elementOptions El
 			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var14 = []any{"border-1 border-gray-300 rounded-md px-2 py-1", elementOptions.Classes}
+		opts := NewElementOptions(elementOptions)
+		var templ_7745c5c3_Var14 = []any{"border-1 border-gray-300 rounded-md px-2 py-1", opts.Classes}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var14...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -240,7 +243,7 @@ func Select(name string, value string, options []SelectOption, elementOptions El
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 37, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 40, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -250,7 +253,7 @@ func Select(name string, value string, options []SelectOption, elementOptions El
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, elementOptions.Attributes)
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, opts.Attributes)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -287,7 +290,7 @@ func Select(name string, value string, options []SelectOption, elementOptions El
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(option.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 39, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 42, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -300,7 +303,7 @@ func Select(name string, value string, options []SelectOption, elementOptions El
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(option.Text)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 39, Col: 126}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/input.templ`, Line: 42, Col: 126}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -373,7 +376,7 @@ func variationSelectOptions(property *service.VariationHierarchyProperty) []Sele
 	return options
 }
 
-func VariationSelect(property *service.VariationHierarchyProperty, value string, options ElementOptions) templ.Component {
+func VariationSelect(property *service.VariationHierarchyProperty, value string, options ...ElementOption) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -394,7 +397,7 @@ func VariationSelect(property *service.VariationHierarchyProperty, value string,
 			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = Select(property.Name, value, variationSelectOptions(property), options).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Select(property.Name, value, variationSelectOptions(property), options...).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

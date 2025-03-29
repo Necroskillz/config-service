@@ -14,7 +14,7 @@ import (
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/views"
-	"github.com/necroskillz/config-service/views/components"
+	c "github.com/necroskillz/config-service/views/components"
 	"github.com/necroskillz/config-service/views/layouts"
 )
 
@@ -71,7 +71,7 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Pill(fmt.Sprintf("v%d", data.ServiceVersion.Version)).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Pill(fmt.Sprintf("v%d", data.ServiceVersion.Version)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -104,9 +104,7 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = components.DropdownButton("Versions", components.ElementOptions{
-					Classes: templ.Classes("bg-gray-300 text-gray-900 px-4 py-1 rounded-md"),
-				}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.DropdownButton("Versions", c.WithClass("bg-gray-300 text-gray-900 px-4 py-1 rounded-md")).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -128,14 +126,12 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 					ctx = templ.InitializeContext(ctx)
 					for _, otherServiceVersion := range data.OtherServiceVersions {
 						if otherServiceVersion.ID == data.ServiceVersion.ID {
-							templ_7745c5c3_Err = components.DropdownMenuText(fmt.Sprintf("v%d", otherServiceVersion.Version), components.ElementOptions{
-								Classes: templ.Classes("font-bold"),
-							}).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = c.DropdownMenuText(fmt.Sprintf("v%d", otherServiceVersion.Version), c.WithClass("font-bold")).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = components.DropdownMenuLink(fmt.Sprintf("v%d", otherServiceVersion.Version), fmt.Sprintf("/services/%d", otherServiceVersion.ID), components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = c.DropdownMenuLink(fmt.Sprintf("v%d", otherServiceVersion.Version), fmt.Sprintf("/services/%d", otherServiceVersion.ID)).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -143,18 +139,18 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = components.DropdownMenu("left", components.ElementOptions{Classes: templ.Classes("w-32")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.DropdownMenu("left", c.WithClass("w-32")).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = components.Dropdown(components.ElementOptions{}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = c.Dropdown().Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if permission == constants.PermissionAdmin {
-				templ_7745c5c3_Err = components.LinkButton("Create New Feature", fmt.Sprintf("/services/%d/features/create", data.ServiceVersion.ID), components.ElementOptions{}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.LinkButton("Create New Feature", fmt.Sprintf("/services/%d/features/create", data.ServiceVersion.ID)).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -180,7 +176,7 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(featureVersion.FeatureName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 53, Col: 145}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 49, Col: 145}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -190,7 +186,7 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.Pill(fmt.Sprintf("v%d", featureVersion.Version)).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = c.Pill(fmt.Sprintf("v%d", featureVersion.Version)).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -201,7 +197,7 @@ func ServiceDetailPage(data ServiceDetailData) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(featureVersion.FeatureDescription)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 56, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/services/detail.templ`, Line: 52, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/auth"
@@ -11,6 +12,10 @@ import (
 func AuthMiddleware(userService *service.UserService, variationHierarchyService *service.VariationHierarchyService, changesetService *service.ChangesetService) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			if strings.HasPrefix(c.Request().URL.Path, "/assets/") {
+				return next(c)
+			}
+
 			authState, err := auth.GetAuthStateFromSession(c)
 			if err != nil {
 				return err
