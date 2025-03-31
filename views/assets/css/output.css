@@ -219,6 +219,9 @@
   .left-0 {
     left: calc(var(--spacing) * 0);
   }
+  .z-2 {
+    z-index: 2;
+  }
   .z-10 {
     z-index: 10;
   }
@@ -549,13 +552,6 @@
     &:last-child {
       border-bottom-style: var(--tw-border-style);
       border-bottom-width: 0px;
-    }
-  }
-  .hover\:bg-blue-400 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-400);
-      }
     }
   }
   .hover\:bg-blue-600 {

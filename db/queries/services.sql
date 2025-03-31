@@ -95,3 +95,9 @@ WHERE id = @service_version_id;
 UPDATE service_versions
 SET valid_from = @valid_from
 WHERE id = @service_version_id;
+-- name: DeleteServiceVersion :exec
+DELETE FROM service_versions
+WHERE id = @service_version_id;
+-- name: DeleteService :exec
+DELETE FROM services
+WHERE id = @service_id;

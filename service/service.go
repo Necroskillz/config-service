@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"time"
 
 	"github.com/necroskillz/config-service/db"
 )
@@ -38,7 +37,7 @@ func (s *ServiceService) GetServiceTypes(ctx context.Context) ([]db.ServiceType,
 	return s.queries.GetServiceTypes(ctx)
 }
 
-func (s *ServiceService) CreateService(ctx context.Context, name string, description string, serviceTypeID uint) (uint, error) {
+func (s *ServiceService) CreateService(ctx context.Context, name string, description string, serviceTypeID uint, changesetID uint) (uint, error) {
 	var serviceVersionId uint
 
 	err := s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
@@ -51,16 +50,18 @@ func (s *ServiceService) CreateService(ctx context.Context, name string, descrip
 			return err
 		}
 
-		validFrom := time.Now()
-
 		serviceVersionId, err = tx.CreateServiceVersion(ctx, db.CreateServiceVersionParams{
 			ServiceID: serviceId,
 			Version:   1,
-			ValidFrom: &validFrom,
 		})
 		if err != nil {
 			return err
 		}
+
+		tx.AddCreateServiceVersionChange(ctx, db.AddCreateServiceVersionChangeParams{
+			ChangesetID:      changesetID,
+			ServiceVersionID: serviceVersionId,
+		})
 
 		return nil
 	})

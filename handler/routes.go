@@ -35,4 +35,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	changesetGroup.PUT("/apply", h.ApplyChangeset)
 	changesetGroup.PUT("/commit", h.CommitChangeset)
 	changesetGroup.PUT("/reopen", h.ReopenChangeset)
+	changesetGroup.PUT("/stash", h.StashChangeset)
+	changesetGroup.DELETE("", h.DiscardChangeset)
 }

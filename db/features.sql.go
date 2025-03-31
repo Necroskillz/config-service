@@ -66,6 +66,36 @@ func (q *Queries) CreateFeatureVersionServiceVersion(ctx context.Context, arg Cr
 	return id, err
 }
 
+const deleteFeature = `-- name: DeleteFeature :exec
+DELETE FROM features
+WHERE id = $1
+`
+
+func (q *Queries) DeleteFeature(ctx context.Context, featureID uint) error {
+	_, err := q.db.Exec(ctx, deleteFeature, featureID)
+	return err
+}
+
+const deleteFeatureVersion = `-- name: DeleteFeatureVersion :exec
+DELETE FROM feature_versions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteFeatureVersion(ctx context.Context, featureVersionID uint) error {
+	_, err := q.db.Exec(ctx, deleteFeatureVersion, featureVersionID)
+	return err
+}
+
+const deleteFeatureVersionServiceVersion = `-- name: DeleteFeatureVersionServiceVersion :exec
+DELETE FROM feature_version_service_versions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteFeatureVersionServiceVersion(ctx context.Context, featureVersionServiceVersionID uint) error {
+	_, err := q.db.Exec(ctx, deleteFeatureVersionServiceVersion, featureVersionServiceVersionID)
+	return err
+}
+
 const endFeatureVersionServiceVersionValidity = `-- name: EndFeatureVersionServiceVersionValidity :exec
 UPDATE feature_version_service_versions
 SET valid_to = $1

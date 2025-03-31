@@ -30,7 +30,8 @@ CREATE TYPE public.changeset_state AS ENUM (
     'committed',
     'applied',
     'rejected',
-    'discarded'
+    'discarded',
+    'stashed'
 );
 
 

@@ -99,7 +99,7 @@ func (h *Handler) CreateKeySubmit(c echo.Context) error {
 	})
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create feature").WithInternal(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create key").WithInternal(err)
 	}
 
 	return Redirect(c, fmt.Sprintf("/services/%d/features/%d/keys/%d/values", serviceVersion.ID, featureVersion.ID, keyID))

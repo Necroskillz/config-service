@@ -61,6 +61,7 @@ const (
 	ChangesetStateApplied   ChangesetState = "applied"
 	ChangesetStateRejected  ChangesetState = "rejected"
 	ChangesetStateDiscarded ChangesetState = "discarded"
+	ChangesetStateStashed   ChangesetState = "stashed"
 )
 
 func (e *ChangesetState) Scan(src interface{}) error {

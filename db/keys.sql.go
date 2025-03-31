@@ -58,6 +58,16 @@ func (q *Queries) CreateValueType(ctx context.Context, name string) (uint, error
 	return id, err
 }
 
+const deleteKey = `-- name: DeleteKey :exec
+DELETE FROM keys
+WHERE id = $1
+`
+
+func (q *Queries) DeleteKey(ctx context.Context, keyID uint) error {
+	_, err := q.db.Exec(ctx, deleteKey, keyID)
+	return err
+}
+
 const endKeyValidity = `-- name: EndKeyValidity :exec
 UPDATE keys
 SET valid_to = $1

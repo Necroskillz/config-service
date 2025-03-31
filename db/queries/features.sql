@@ -97,3 +97,12 @@ WHERE id = @feature_version_service_version_id;
 UPDATE feature_version_service_versions
 SET valid_from = @valid_from
 WHERE id = @feature_version_service_version_id;
+-- name: DeleteFeatureVersionServiceVersion :exec
+DELETE FROM feature_version_service_versions
+WHERE id = @feature_version_service_version_id;
+-- name: DeleteFeatureVersion :exec
+DELETE FROM feature_versions
+WHERE id = @feature_version_id;
+-- name: DeleteFeature :exec
+DELETE FROM features
+WHERE id = @feature_id;

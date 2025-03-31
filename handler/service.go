@@ -71,7 +71,12 @@ func (h *Handler) CreateServiceSubmit(c echo.Context) error {
 		return h.RenderPartial(c, http.StatusUnprocessableEntity, views.CreateServiceForm(data))
 	}
 
-	serviceId, err := h.ServiceService.CreateService(c.Request().Context(), data.Name, data.Description, data.ServiceTypeID)
+	changesetId, err := h.EnsureChangesetID(c)
+	if err != nil {
+		return err
+	}
+
+	serviceId, err := h.ServiceService.CreateService(c.Request().Context(), data.Name, data.Description, data.ServiceTypeID, changesetId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create service").WithInternal(err)
 	}

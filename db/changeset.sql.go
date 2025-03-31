@@ -392,8 +392,10 @@ SELECT csc.id,
     csc.type,
     sv.id as service_version_id,
     s.name as service_name,
+    sv.version as service_version,
     fv.id as feature_version_id,
     f.name as feature_name,
+    fv.version as feature_version,
     k.id as key_id,
     k.name as key_name,
     nv.id as new_variation_value_id,
@@ -420,8 +422,10 @@ type GetChangesetChangesRow struct {
 	Type                           ChangesetChangeType
 	ServiceVersionID               *uint
 	ServiceName                    *string
+	ServiceVersion                 *int
 	FeatureVersionID               *uint
 	FeatureName                    *string
+	FeatureVersion                 *int
 	KeyID                          *uint
 	KeyName                        *string
 	NewVariationValueID            *uint
@@ -446,8 +450,10 @@ func (q *Queries) GetChangesetChanges(ctx context.Context, changesetID uint) ([]
 			&i.Type,
 			&i.ServiceVersionID,
 			&i.ServiceName,
+			&i.ServiceVersion,
 			&i.FeatureVersionID,
 			&i.FeatureName,
+			&i.FeatureVersion,
 			&i.KeyID,
 			&i.KeyName,
 			&i.NewVariationValueID,

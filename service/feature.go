@@ -69,7 +69,7 @@ func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeature
 			return err
 		}
 
-		if err = s.queries.AddCreateFeatureVersionChange(ctx, db.AddCreateFeatureVersionChangeParams{
+		if err = tx.AddCreateFeatureVersionChange(ctx, db.AddCreateFeatureVersionChangeParams{
 			ChangesetID:      params.ChangesetID,
 			FeatureVersionID: featureVersionID,
 			ServiceVersionID: params.ServiceVersionID,
@@ -85,7 +85,7 @@ func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeature
 			return err
 		}
 
-		if err = s.queries.AddCreateFeatureVersionServiceVersionChange(ctx, db.AddCreateFeatureVersionServiceVersionChangeParams{
+		if err = tx.AddCreateFeatureVersionServiceVersionChange(ctx, db.AddCreateFeatureVersionServiceVersionChangeParams{
 			ChangesetID:                    params.ChangesetID,
 			FeatureVersionServiceVersionID: linkID,
 			ServiceVersionID:               params.ServiceVersionID,

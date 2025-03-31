@@ -58,7 +58,7 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 			return err
 		}
 
-		err = s.queries.AddCreateKeyChange(ctx, db.AddCreateKeyChangeParams{
+		err = tx.AddCreateKeyChange(ctx, db.AddCreateKeyChangeParams{
 			ChangesetID:      params.ChangesetID,
 			KeyID:            keyID,
 			FeatureVersionID: params.FeatureVersionID,
@@ -73,7 +73,7 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 			return err
 		}
 
-		variationValueID, err := s.queries.CreateVariationValue(ctx, db.CreateVariationValueParams{
+		variationValueID, err := tx.CreateVariationValue(ctx, db.CreateVariationValueParams{
 			KeyID:              keyID,
 			Data:               &params.DefaultValue,
 			VariationContextID: defaultVariationContextID,
@@ -82,7 +82,7 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 			return err
 		}
 
-		err = s.queries.AddCreateVariationValueChange(ctx, db.AddCreateVariationValueChangeParams{
+		err = tx.AddCreateVariationValueChange(ctx, db.AddCreateVariationValueChangeParams{
 			ChangesetID:         params.ChangesetID,
 			NewVariationValueID: variationValueID,
 			FeatureVersionID:    params.FeatureVersionID,

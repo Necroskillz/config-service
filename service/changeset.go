@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"slices"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -48,8 +49,10 @@ type ChangesetChange struct {
 	Type                           db.ChangesetChangeType
 	ServiceVersionID               *uint
 	ServiceName                    *string
+	ServiceVersion                 *int
 	FeatureVersionID               *uint
 	FeatureName                    *string
+	FeatureVersion                 *int
 	FeatureVersionServiceVersionID *uint
 	KeyID                          *uint
 	KeyName                        *string
@@ -108,6 +111,14 @@ func (c *Changeset) IsCommitted() bool {
 	return c.State == db.ChangesetStateCommitted
 }
 
+func (c *Changeset) IsDiscarded() bool {
+	return c.State == db.ChangesetStateDiscarded
+}
+
+func (c *Changeset) IsStashed() bool {
+	return c.State == db.ChangesetStateStashed
+}
+
 func (c *Changeset) IsEmpty() bool {
 	return len(c.ChangesetChanges) == 0
 }
@@ -134,8 +145,10 @@ func (s *ChangesetService) GetChangeset(ctx context.Context, changesetID uint) (
 			Type:                           change.Type,
 			ServiceVersionID:               change.ServiceVersionID,
 			ServiceName:                    change.ServiceName,
+			ServiceVersion:                 change.ServiceVersion,
 			FeatureVersionID:               change.FeatureVersionID,
 			FeatureName:                    change.FeatureName,
+			FeatureVersion:                 change.FeatureVersion,
 			KeyID:                          change.KeyID,
 			KeyName:                        change.KeyName,
 			NewVariationValueID:            change.NewVariationValueID,
@@ -294,6 +307,85 @@ func (s *ChangesetService) ReopenChangeset(ctx context.Context, changeset *Chang
 	}
 
 	changeset.State = db.ChangesetStateOpen
+
+	return nil
+}
+
+func (s *ChangesetService) DiscardChangeset(ctx context.Context, changeset *Changeset) error {
+	err := s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		for _, change := range slices.Backward(changeset.ChangesetChanges) {
+			if err := tx.DeleteChange(ctx, change.ID); err != nil {
+				return err
+			}
+
+			if change.NewVariationValueID != nil || change.OldVariationValueID != nil {
+				if change.NewVariationValueID != nil {
+					if err := tx.DeleteVariationValue(ctx, *change.NewVariationValueID); err != nil {
+						return err
+					}
+				}
+			} else if change.KeyID != nil && change.Type == db.ChangesetChangeTypeCreate {
+				if err := tx.DeleteKey(ctx, *change.KeyID); err != nil {
+					return err
+				}
+			} else if change.FeatureVersionServiceVersionID != nil && change.Type == db.ChangesetChangeTypeCreate {
+				if err := tx.DeleteFeatureVersionServiceVersion(ctx, *change.FeatureVersionServiceVersionID); err != nil {
+					return err
+				}
+			} else if change.FeatureVersionID != nil && change.Type == db.ChangesetChangeTypeCreate {
+				if err := tx.DeleteFeatureVersion(ctx, *change.FeatureVersionID); err != nil {
+					return err
+				}
+
+				if *change.FeatureVersion == 1 {
+					if err := tx.DeleteFeature(ctx, *change.FeatureVersionID); err != nil {
+						return err
+					}
+				}
+			} else if change.ServiceVersionID != nil && change.Type == db.ChangesetChangeTypeCreate {
+				if err := tx.DeleteServiceVersion(ctx, *change.ServiceVersionID); err != nil {
+					return err
+				}
+
+				if *change.ServiceVersion == 1 {
+					if err := tx.DeleteService(ctx, *change.ServiceVersionID); err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		if err := tx.SetChangesetState(ctx, db.SetChangesetStateParams{
+			ChangesetID: changeset.ID,
+			State:       db.ChangesetStateDiscarded,
+		}); err != nil {
+			return err
+		}
+
+		changeset.State = db.ChangesetStateDiscarded
+		changeset.ChangesetChanges = nil
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *ChangesetService) StashChangeset(ctx context.Context, changeset *Changeset) error {
+	err := s.queries.SetChangesetState(ctx, db.SetChangesetStateParams{
+		ChangesetID: changeset.ID,
+		State:       db.ChangesetStateStashed,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	changeset.State = db.ChangesetStateStashed
 
 	return nil
 }

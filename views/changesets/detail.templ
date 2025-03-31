@@ -36,7 +36,13 @@ templ ChangesetDetail(data ChangesetDetailData) {
 				}
 			</div>
 		} else {
-			<div class="text-secondary">You have not made any changes yet</div>
+			<div class="text-secondary">
+				if data.Changeset.IsDiscarded() {
+					Changeset has been discarded
+				} else {
+					Changeset contains no changes
+				}
+			</div>
 		}
 		<div class="flex flex-col gap-4 mt-4">
 			@c.ErrorMessageContainer()
@@ -44,22 +50,41 @@ templ ChangesetDetail(data ChangesetDetailData) {
 				if len(data.Changeset.ChangesetChanges) > 0 {
 					if data.Changeset.CanBeAppliedBy(views.User(ctx)) {
 						@c.Button("Apply", "button",
+							c.Primary(),
 							c.WithAttribute("hx-put", fmt.Sprintf("/changesets/%d/apply", data.Changeset.ID)),
 							c.WithAttribute("hx-target", "#changeset-detail"),
 							c.WithAttribute("hx-swap", "outerHTML"),
 						)
 					}
 					if data.Changeset.BelongsTo(views.User(ctx).ID) {
-						if data.Changeset.State == db.ChangesetStateOpen {
+						if data.Changeset.IsOpen() {
 							@c.Button("Commit", "button",
+								c.Primary(),
 								c.WithAttribute("hx-put", fmt.Sprintf("/changesets/%d/commit", data.Changeset.ID)),
 								c.WithAttribute("hx-target", "#changeset-detail"),
 								c.WithAttribute("hx-swap", "outerHTML"),
 							)
 						}
-						if data.Changeset.State == db.ChangesetStateCommitted {
+						if data.Changeset.IsCommitted() || data.Changeset.IsStashed() {
 							@c.Button("Reopen", "button",
+								c.Primary(),
 								c.WithAttribute("hx-put", fmt.Sprintf("/changesets/%d/reopen", data.Changeset.ID)),
+								c.WithAttribute("hx-target", "#changeset-detail"),
+								c.WithAttribute("hx-swap", "outerHTML"),
+							)
+						}
+						if data.Changeset.IsOpen() || data.Changeset.IsCommitted() {
+							@c.Button("Discard", "button",
+								c.Danger(),
+								c.WithAttribute("hx-delete", fmt.Sprintf("/changesets/%d", data.Changeset.ID)),
+								c.WithAttribute("hx-target", "#changeset-detail"),
+								c.WithAttribute("hx-swap", "outerHTML"),
+							)
+						}
+						if data.Changeset.IsOpen() {
+							@c.Button("Stash", "button",
+								c.Ghost(),
+								c.WithAttribute("hx-put", fmt.Sprintf("/changesets/%d/stash", data.Changeset.ID)),
 								c.WithAttribute("hx-target", "#changeset-detail"),
 								c.WithAttribute("hx-swap", "outerHTML"),
 							)
@@ -94,7 +119,7 @@ templ variationValueChange(change service.ChangesetChange) {
 			</a>
 			in
 			<a class="link" href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", *change.ServiceVersionID, *change.FeatureVersionID)) }>
-				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersion) }
 			</a>
 		</div>
 		if len(change.Variation) > 0 {
@@ -132,7 +157,7 @@ templ keyChange(change service.ChangesetChange) {
 		</span>
 		for
 		<a class="link" href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", *change.ServiceVersionID, *change.FeatureVersionID)) }>
-			{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+			{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersion) }
 		</a>
 	</div>
 }
@@ -143,11 +168,11 @@ templ featureVersionServiceVersionChange(change service.ChangesetChange) {
 		<span class="font-semibold">Service-Feature Link</span>
 		<span class={ getChangeTypeClass(change.Type) }>
 			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", *change.ServiceVersionID)) }>
-				{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersionID) }
+				{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersion) }
 			</a>
 			<span class="mx-2">↔</span>
 			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", *change.ServiceVersionID, *change.FeatureVersionID)) }>
-				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersion) }
 			</a>
 		</span>
 	</div>
@@ -159,7 +184,7 @@ templ featureVersionChange(change service.ChangesetChange) {
 		<span class="font-semibold">Feature Version</span>
 		<span class={ getChangeTypeClass(change.Type) }>
 			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d/features/%d", *change.ServiceVersionID, *change.FeatureVersionID)) }>
-				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersionID) }
+				{ *change.FeatureName } v{ fmt.Sprint(*change.FeatureVersion) }
 			</a>
 		</span>
 	</div>
@@ -171,7 +196,7 @@ templ serviceVersionChange(change service.ChangesetChange) {
 		<span class="font-semibold">Service Version</span>
 		<span class={ getChangeTypeClass(change.Type) }>
 			<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", *change.ServiceVersionID)) }>
-				{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersionID) }
+				{ *change.ServiceName } v{ fmt.Sprint(*change.ServiceVersion) }
 			</a>
 		</span>
 	</div>

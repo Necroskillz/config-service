@@ -68,3 +68,6 @@ WHERE id = @key_id;
 UPDATE keys
 SET valid_from = @valid_from
 WHERE id = @key_id;
+-- name: DeleteKey :exec
+DELETE FROM keys
+WHERE id = @key_id;

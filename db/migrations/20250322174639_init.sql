@@ -4,7 +4,8 @@ CREATE TYPE changeset_state AS ENUM (
     'committed',
     'applied',
     'rejected',
-    'discarded'
+    'discarded',
+    'stashed'
 );
 CREATE TYPE changeset_change_type AS ENUM ('create', 'update', 'delete');
 CREATE TYPE permission_level AS ENUM ('editor', 'admin');

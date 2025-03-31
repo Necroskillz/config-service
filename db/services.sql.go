@@ -69,6 +69,26 @@ func (q *Queries) CreateServiceVersion(ctx context.Context, arg CreateServiceVer
 	return id, err
 }
 
+const deleteService = `-- name: DeleteService :exec
+DELETE FROM services
+WHERE id = $1
+`
+
+func (q *Queries) DeleteService(ctx context.Context, serviceID uint) error {
+	_, err := q.db.Exec(ctx, deleteService, serviceID)
+	return err
+}
+
+const deleteServiceVersion = `-- name: DeleteServiceVersion :exec
+DELETE FROM service_versions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteServiceVersion(ctx context.Context, serviceVersionID uint) error {
+	_, err := q.db.Exec(ctx, deleteServiceVersion, serviceVersionID)
+	return err
+}
+
 const endServiceVersionValidity = `-- name: EndServiceVersionValidity :exec
 UPDATE service_versions
 SET valid_to = $1
