@@ -111,10 +111,13 @@ func (s *ValueService) DeleteValue(ctx context.Context, params DeleteValueParams
 		ChangesetID:      params.ChangesetID,
 		VariationValueID: params.ValueID,
 	})
+
 	if err != nil {
 		if !errors.Is(err, pgx.ErrNoRows) {
 			return err
 		}
+
+		return NewServiceError(ErrorCodeRecordNotFound, "Value not found", nil)
 	}
 
 	variation, err := s.variationContextService.GetVariationContextValues(ctx, variationValueChange.VariationContextID)
@@ -123,7 +126,7 @@ func (s *ValueService) DeleteValue(ctx context.Context, params DeleteValueParams
 	}
 
 	if len(variation) == 0 {
-		return ErrCannotDeleteDefaultValue
+		return NewServiceError(ErrorCodeInvalidOperation, "Cannot delete default value", nil)
 	}
 
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {

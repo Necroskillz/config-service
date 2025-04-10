@@ -7,21 +7,23 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
 )
 
 type ChangesetService struct {
+	currentUserAccessor     *auth.CurrentUserAccessor
 	variationContextService *VariationContextService
 	unitOfWorkRunner        db.UnitOfWorkRunner
 	queries                 *db.Queries
 }
 
-func NewChangesetService(queries *db.Queries, variationContextService *VariationContextService, unitOfWorkRunner db.UnitOfWorkRunner) *ChangesetService {
-	return &ChangesetService{queries: queries, variationContextService: variationContextService, unitOfWorkRunner: unitOfWorkRunner}
+func NewChangesetService(queries *db.Queries, variationContextService *VariationContextService, unitOfWorkRunner db.UnitOfWorkRunner, currentUserAccessor *auth.CurrentUserAccessor) *ChangesetService {
+	return &ChangesetService{queries: queries, variationContextService: variationContextService, unitOfWorkRunner: unitOfWorkRunner, currentUserAccessor: currentUserAccessor}
 }
 
-func (s *ChangesetService) GetOpenChangesetForUser(ctx context.Context, userID uint) (uint, error) {
+func (s *ChangesetService) GetOpenChangesetIDForUser(ctx context.Context, userID uint) (uint, error) {
 	id, err := s.queries.GetOpenChangesetIDForUser(ctx, userID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -71,18 +73,26 @@ type Changeset struct {
 	ChangesetChanges []ChangesetChange
 }
 
-func (c *Changeset) CanBeAppliedBy(checker PermissionChecker) bool {
-	userID := checker.GetID()
+func NewChangeset(id uint, userID uint, userName string, state db.ChangesetState, changesetChanges []ChangesetChange) Changeset {
+	return Changeset{
+		ID:               id,
+		UserID:           userID,
+		UserName:         userName,
+		State:            state,
+		ChangesetChanges: changesetChanges,
+	}
+}
 
+func (c Changeset) CanBeAppliedBy(user *auth.User) bool {
 	if !c.IsOpen() && !c.IsCommitted() {
 		return false
 	}
 
-	if c.IsOpen() && !c.BelongsTo(userID) {
+	if c.IsOpen() && !c.BelongsTo(user.ID) {
 		return false
 	}
 
-	if checker.IsGlobalAdministrator() {
+	if user.IsGlobalAdmin {
 		return true
 	}
 
@@ -91,7 +101,7 @@ func (c *Changeset) CanBeAppliedBy(checker PermissionChecker) bool {
 			panic("service version id is nil")
 		}
 
-		if checker.GetPermissionForService(*change.ServiceVersionID) != constants.PermissionAdmin {
+		if user.GetPermissionForService(*change.ServiceVersionID) != constants.PermissionAdmin {
 			return false
 		}
 	}
@@ -99,27 +109,27 @@ func (c *Changeset) CanBeAppliedBy(checker PermissionChecker) bool {
 	return true
 }
 
-func (c *Changeset) BelongsTo(userID uint) bool {
+func (c Changeset) BelongsTo(userID uint) bool {
 	return c.UserID == userID
 }
 
-func (c *Changeset) IsOpen() bool {
+func (c Changeset) IsOpen() bool {
 	return c.State == db.ChangesetStateOpen
 }
 
-func (c *Changeset) IsCommitted() bool {
+func (c Changeset) IsCommitted() bool {
 	return c.State == db.ChangesetStateCommitted
 }
 
-func (c *Changeset) IsDiscarded() bool {
+func (c Changeset) IsDiscarded() bool {
 	return c.State == db.ChangesetStateDiscarded
 }
 
-func (c *Changeset) IsStashed() bool {
+func (c Changeset) IsStashed() bool {
 	return c.State == db.ChangesetStateStashed
 }
 
-func (c *Changeset) IsEmpty() bool {
+func (c Changeset) IsEmpty() bool {
 	return len(c.ChangesetChanges) == 0
 }
 
@@ -178,6 +188,12 @@ func (s *ChangesetService) GetChangeset(ctx context.Context, changesetID uint) (
 }
 
 func (s *ChangesetService) ApplyChangeset(ctx context.Context, changeset *Changeset) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	if !changeset.CanBeAppliedBy(user) {
+		return NewServiceError(ErrorCodePermissionDenied, "user does not have permission to apply changeset", nil)
+	}
+
 	startTime := time.Now()
 	endTime := startTime.Add(time.Microsecond * -1)
 

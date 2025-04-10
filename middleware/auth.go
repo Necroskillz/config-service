@@ -1,11 +1,13 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/auth"
+	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/service"
 )
 
@@ -32,12 +34,21 @@ func AuthMiddleware(userService *service.UserService, variationHierarchyService 
 					return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get variation hierarchy").WithInternal(err)
 				}
 
-				changeset, err := changesetService.GetOpenChangesetForUser(c.Request().Context(), user.ID)
+				changesetId, err := changesetService.GetOpenChangesetIDForUser(c.Request().Context(), user.ID)
 				if err != nil {
 					return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get open changeset for user").WithInternal(err)
 				}
 
-				auth.StoreUserInContext(c, user, changeset, variationHierarchy)
+				userBuilder := auth.NewUserBuilder(variationHierarchy)
+				userBuilder.WithBasicInfo(user.ID, user.Username, user.GlobalAdministrator)
+				userBuilder.WithChangesetId(changesetId)
+
+				for _, permission := range user.Permissions {
+					userBuilder.WithPermission(permission.ServiceID, permission.FeatureID, permission.KeyID, permission.Variation, permission.Permission)
+				}
+
+				auth.StoreUserInContext(c, userBuilder.User())
+				c.SetRequest(c.Request().WithContext(context.WithValue(c.Request().Context(), constants.UserContextKey, userBuilder.User())))
 			}
 
 			return next(c)

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/service"
 )
 
 type VariationPropertyValueParentsProvider interface {
@@ -14,12 +13,8 @@ type PermissionCollection struct {
 	parentsProvider VariationPropertyValueParentsProvider
 }
 
-func NewPermissionCollection(userPermissions []service.UserPermission, parentsProvider VariationPropertyValueParentsProvider) *PermissionCollection {
-	permissions := make([]Permission, len(userPermissions))
-
-	for i, permission := range userPermissions {
-		permissions[i] = CreatePermission(permission)
-	}
+func NewPermissionCollection(parentsProvider VariationPropertyValueParentsProvider) *PermissionCollection {
+	permissions := []Permission{}
 
 	return &PermissionCollection{
 		permissions:     permissions,
@@ -27,34 +22,40 @@ func NewPermissionCollection(userPermissions []service.UserPermission, parentsPr
 	}
 }
 
-func CreatePermission(userPermission service.UserPermission) Permission {
-	if len(userPermission.Variation) > 0 {
-		return &VariationPermission{
-			ServiceID:      userPermission.ServiceID,
-			FeatureID:      *userPermission.FeatureID,
-			KeyID:          *userPermission.KeyID,
-			PropertyValues: userPermission.Variation,
-			Level:          userPermission.Permission,
+func (p *PermissionCollection) AddPermission(serviceId uint, featureId *uint, keyId *uint, variation map[uint]string, permissionLevel constants.PermissionLevel) Permission {
+	var permission Permission
+
+	if len(variation) > 0 {
+		permission = &VariationPermission{
+			ServiceID:      serviceId,
+			FeatureID:      *featureId,
+			KeyID:          *keyId,
+			PropertyValues: variation,
+			Level:          permissionLevel,
 		}
-	} else if userPermission.KeyID != nil {
-		return &KeyPermission{
-			ServiceID: userPermission.ServiceID,
-			FeatureID: *userPermission.FeatureID,
-			KeyID:     *userPermission.KeyID,
-			Level:     userPermission.Permission,
+	} else if keyId != nil {
+		permission = &KeyPermission{
+			ServiceID: serviceId,
+			FeatureID: *featureId,
+			KeyID:     *keyId,
+			Level:     permissionLevel,
 		}
-	} else if userPermission.FeatureID != nil {
-		return &FeaturePermission{
-			ServiceID: userPermission.ServiceID,
-			FeatureID: *userPermission.FeatureID,
-			Level:     userPermission.Permission,
+	} else if featureId != nil {
+		permission = &FeaturePermission{
+			ServiceID: serviceId,
+			FeatureID: *featureId,
+			Level:     permissionLevel,
 		}
 	} else {
-		return &ServicePermission{
-			ServiceID: userPermission.ServiceID,
-			Level:     userPermission.Permission,
+		permission = &ServicePermission{
+			ServiceID: serviceId,
+			Level:     permissionLevel,
 		}
 	}
+
+	p.permissions = append(p.permissions, permission)
+
+	return permission
 }
 
 func (p *PermissionCollection) GetPermissionLevelFor(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint]string) constants.PermissionLevel {

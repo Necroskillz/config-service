@@ -1,22 +1,44 @@
 package service
 
-import (
-	"errors"
+type ErrorCode string
 
-	"github.com/necroskillz/config-service/constants"
+const (
+	ErrorCodeRecordNotFound   ErrorCode = "NOT_FOUND"
+	ErrorCodeInvalidPassword  ErrorCode = "INVALID_PASSWORD"
+	ErrorCodeInvalidOperation ErrorCode = "INVALID_OPERATION"
+	ErrorCodePermissionDenied ErrorCode = "PERMISSION_DENIED"
 )
+
+type ServiceError struct {
+	Message string
+	Err     error
+	Code    ErrorCode
+}
+
+func NewServiceError(code ErrorCode, message string, err error) *ServiceError {
+	return &ServiceError{Message: message, Err: err, Code: code}
+}
+
+func NewSentinelServiceError(code ErrorCode) *ServiceError {
+	return NewServiceError(code, "", nil)
+}
+
+func (e *ServiceError) Error() string {
+	return e.Message
+}
+
+func (e *ServiceError) Is(target error) bool {
+	t, ok := target.(*ServiceError)
+	if !ok {
+		return false
+	}
+
+	return e.Code == t.Code
+}
 
 var (
-	ErrRecordNotFound           = errors.New("record not found")
-	ErrInvalidPassword          = errors.New("invalid password")
-	ErrCannotDeleteDefaultValue = errors.New("cannot delete default value")
+	ErrRecordNotFound   = NewSentinelServiceError(ErrorCodeRecordNotFound)
+	ErrInvalidPassword  = NewSentinelServiceError(ErrorCodeInvalidPassword)
+	ErrInvalidOperation = NewSentinelServiceError(ErrorCodeInvalidOperation)
+	ErrPermissionDenied = NewSentinelServiceError(ErrorCodePermissionDenied)
 )
-
-type PermissionChecker interface {
-	GetID() uint
-	IsGlobalAdministrator() bool
-	GetPermissionForService(serviceId uint) constants.PermissionLevel
-	GetPermissionForFeature(serviceId uint, featureId uint) constants.PermissionLevel
-	GetPermissionForKey(serviceId uint, featureId uint, keyId uint) constants.PermissionLevel
-	GetPermissionForValue(serviceId uint, featureId uint, keyId uint, variation map[uint]string) constants.PermissionLevel
-}

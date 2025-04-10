@@ -172,7 +172,7 @@ func (h *Handler) DeleteValueSubmit(c echo.Context) error {
 	})
 
 	if err != nil {
-		if errors.Is(err, service.ErrCannotDeleteDefaultValue) {
+		if errors.Is(err, service.ErrInvalidOperation) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Cannot delete default value")
 		}
 

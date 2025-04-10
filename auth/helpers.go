@@ -9,7 +9,6 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/service"
 )
 
 type AuthState struct {
@@ -82,10 +81,8 @@ func ClearAuthFromSession(c echo.Context) error {
 	return nil
 }
 
-func StoreUserInContext(c echo.Context, user service.User, changesetID uint, parentsProvider VariationPropertyValueParentsProvider) {
-	authUser := NewUser(user, changesetID, parentsProvider)
-
-	c.Set(constants.UserKey, authUser)
+func StoreUserInContext(c echo.Context, user *User) {
+	c.Set(constants.UserKey, user)
 }
 
 func GetUserFromEchoContext(c echo.Context) *User {
@@ -107,4 +104,15 @@ func GetUserFromContext(c context.Context) *User {
 	}
 
 	return user
+}
+
+type CurrentUserAccessor struct {
+}
+
+func NewCurrentUserAccessor() *CurrentUserAccessor {
+	return &CurrentUserAccessor{}
+}
+
+func (c *CurrentUserAccessor) GetUser(ctx context.Context) *User {
+	return GetUserFromContext(ctx)
 }

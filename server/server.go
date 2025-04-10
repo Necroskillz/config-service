@@ -17,6 +17,7 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/handler"
 	"github.com/necroskillz/config-service/middleware"
@@ -67,11 +68,13 @@ func (s *Server) Start() error {
 
 	e.Static("/assets", "views/assets")
 
+	currentUserAccessor := auth.NewCurrentUserAccessor()
+
 	unitOfWorkRunner := db.NewPgxUnitOfWorkRunner(dbpool, queries)
 	variationContextService := service.NewVariationContextService(queries, unitOfWorkRunner, cache)
 	serviceService := service.NewServiceService(queries, unitOfWorkRunner)
 	userService := service.NewUserService(queries, variationContextService)
-	changesetService := service.NewChangesetService(queries, variationContextService, unitOfWorkRunner)
+	changesetService := service.NewChangesetService(queries, variationContextService, unitOfWorkRunner, currentUserAccessor)
 	variationHierarchyService := service.NewVariationHierarchyService(queries, cache)
 	featureService := service.NewFeatureService(unitOfWorkRunner, queries)
 	keyService := service.NewKeyService(unitOfWorkRunner, variationContextService, queries)

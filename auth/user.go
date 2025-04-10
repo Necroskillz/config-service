@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/service"
 )
 
 type User struct {
@@ -23,19 +22,6 @@ func AnonymousUser() *User {
 	}
 }
 
-func NewUser(userDto service.User, changesetID uint, parentsProvider VariationPropertyValueParentsProvider) *User {
-	user := &User{
-		ID:                   userDto.ID,
-		Username:             userDto.Username,
-		ChangesetID:          changesetID,
-		IsAuthenticated:      true,
-		IsGlobalAdmin:        userDto.GlobalAdministrator,
-		permissionCollection: NewPermissionCollection(userDto.Permissions, parentsProvider),
-	}
-
-	return user
-}
-
 func (u *User) getPermission(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint]string) constants.PermissionLevel {
 	if !u.IsAuthenticated {
 		return constants.PermissionViewer
@@ -46,14 +32,6 @@ func (u *User) getPermission(serviceId uint, featureId *uint, keyId *uint, varia
 	}
 
 	return u.permissionCollection.GetPermissionLevelFor(serviceId, featureId, keyId, variationPropertyValues)
-}
-
-func (u *User) IsGlobalAdministrator() bool {
-	return u.IsGlobalAdmin
-}
-
-func (u *User) GetID() uint {
-	return u.ID
 }
 
 func (u *User) GetPermissionForService(serviceId uint) constants.PermissionLevel {
