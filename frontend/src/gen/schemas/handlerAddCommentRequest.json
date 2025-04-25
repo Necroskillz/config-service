@@ -1,0 +1,1 @@
+{"properties":{"comment":{"type":"string"}},"required":["comment"],"type":"object","x-readme-ref-name":"handler.AddCommentRequest"}

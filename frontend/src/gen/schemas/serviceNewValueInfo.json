@@ -1,0 +1,1 @@
+{"properties":{"id":{"type":"integer"},"order":{"items":{"type":"integer"},"type":"array"}},"required":["id","order"],"type":"object","x-readme-ref-name":"service.NewValueInfo"}

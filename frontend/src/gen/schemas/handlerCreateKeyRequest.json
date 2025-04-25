@@ -1,0 +1,1 @@
+{"properties":{"defaultValue":{"type":"string"},"description":{"type":"string"},"name":{"type":"string"},"valueTypeId":{"type":"integer"}},"required":["name","valueTypeId"],"type":"object","x-readme-ref-name":"handler.CreateKeyRequest"}

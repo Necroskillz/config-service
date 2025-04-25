@@ -1,0 +1,1 @@
+{"properties":{"canEdit":{"type":"boolean"},"description":{"type":"string"},"featureId":{"type":"integer"},"id":{"type":"integer"},"name":{"type":"string"},"version":{"type":"integer"}},"required":["canEdit","description","featureId","id","name","version"],"type":"object","x-readme-ref-name":"service.FeatureVersionDto"}

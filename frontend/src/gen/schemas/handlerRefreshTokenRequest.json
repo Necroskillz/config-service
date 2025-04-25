@@ -1,0 +1,1 @@
+{"properties":{"refresh_token":{"type":"string"}},"required":["refresh_token"],"type":"object","x-readme-ref-name":"handler.RefreshTokenRequest"}

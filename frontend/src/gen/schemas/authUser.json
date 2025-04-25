@@ -1,0 +1,1 @@
+{"properties":{"changesetId":{"type":"integer"},"id":{"type":"integer"},"isAuthenticated":{"type":"boolean"},"isGlobalAdmin":{"type":"boolean"},"username":{"type":"string"}},"required":["changesetId","id","isAuthenticated","isGlobalAdmin","username"],"type":"object","x-readme-ref-name":"auth.User"}

@@ -1,0 +1,1 @@
+{"enum":["create","update","delete"],"type":"string","x-enum-varnames":["ChangesetChangeTypeCreate","ChangesetChangeTypeUpdate","ChangesetChangeTypeDelete"],"x-readme-ref-name":"db.ChangesetChangeType"}

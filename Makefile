@@ -1,43 +1,20 @@
-.PHONY: dev build test clean install-deps seed sqlc
+dev-backend:
+	cd backend && make dev
 
-# Default target
-all: build
+dev-frontend:
+	cd frontend && pnpm dev
 
-# Install dependencies
-install-deps:
-	go mod tidy
-	go install github.com/cosmtrek/air@latest
+swag:
+	cd backend && make swag
+	cd frontend && pnpm generate
 
 sqlc:
-	sqlc generate
+	cd backend && make sqlc
 
-# Run the server with hot reload using Air
-dev-server:
-	air
-
-dev-css:
-	tailwindcss -i ./views/assets/css/input.css -o ./views/assets/css/output.css --watch
-
-dev-views:
-	templ generate --watch
-
-dev:
-	make -j3 dev-server dev-css dev-views
-
-seed:
-	go run cmd/seed/main.go
-
-# Build the application
-build:
-	templ generate
-	tailwindcss -i ./views/assets/css/input.css -o ./views/assets/css/output.css -m
-	go build -o bin/server.exe ./cmd/server
-
-# Run tests
 test:
-	go test -v ./...
+	cd backend && make test
+	cd frontend && pnpm test || echo "No frontend tests defined"
 
-# Clean build artifacts
-clean:
-	rm -rf bin/
-	go clean
+build:
+	cd backend && make build
+	cd frontend && pnpm build 

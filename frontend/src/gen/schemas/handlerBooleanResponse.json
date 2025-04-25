@@ -1,0 +1,1 @@
+{"properties":{"value":{"type":"boolean"}},"required":["value"],"type":"object","x-readme-ref-name":"handler.BooleanResponse"}

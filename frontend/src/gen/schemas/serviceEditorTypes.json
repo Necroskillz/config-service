@@ -1,0 +1,1 @@
+{"enum":["text","boolean","integer","decimal","json"],"type":"string","x-enum-varnames":["EditorTypeText","EditorTypeBoolean","EditorTypeInteger","EditorTypeDecimal","EditorTypeJSON"],"x-readme-ref-name":"service.EditorTypes"}

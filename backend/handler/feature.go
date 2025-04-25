@@ -1,0 +1,160 @@
+package handler
+
+import (
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+	"github.com/necroskillz/config-service/service"
+)
+
+// @Summary Get features for a service version
+// @Description Get features for a service version
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Success 200 {object} []service.FeatureVersionDto
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features [get]
+func (h *Handler) Features(c echo.Context) error {
+	var serviceVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	serviceFeatures, err := h.FeatureService.GetServiceFeatures(c.Request().Context(), serviceVersionID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, serviceFeatures)
+}
+
+type CreateFeatureRequest struct {
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
+}
+
+// @Summary Create feature
+// @Description Create feature
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param createFeatureRequest body CreateFeatureRequest true "Create feature request"
+// @Success 200 {object} CreateResponse
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 422 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features [post]
+func (h *Handler) CreateFeature(c echo.Context) error {
+	var serviceVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	var data CreateFeatureRequest
+
+	err = c.Bind(&data)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	featureVersionID, err := h.FeatureService.CreateFeature(c.Request().Context(), service.CreateFeatureParams{
+		ServiceVersionID: serviceVersionID,
+		Name:             data.Name,
+		Description:      data.Description,
+	})
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, NewCreateResponse(featureVersionID))
+}
+
+// @Summary Get feature
+// @Description Get feature
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param feature_version_id path int true "Feature version ID"
+// @Success 200 {object} service.FeatureVersionDto
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/{feature_version_id} [get]
+func (h *Handler) Feature(c echo.Context) error {
+	var serviceVersionID uint
+	var featureVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).MustUint("feature_version_id", &featureVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	featureVersion, err := h.FeatureService.GetFeatureVersion(c.Request().Context(), serviceVersionID, featureVersionID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, featureVersion)
+}
+
+// @Summary Check if feature name is taken
+// @Description Check if feature name is taken
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param name path string true "Feature name"
+// @Success 200 {object} BooleanResponse
+// @Failure 401 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/name-taken/{name} [get]
+func (h *Handler) IsFeatureNameTaken(c echo.Context) error {
+	var name string
+	err := echo.PathParamsBinder(c).MustString("name", &name).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	exists, err := h.ValidationService.IsFeatureNameTaken(c.Request().Context(), name)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, NewBooleanResponse(exists))
+}
+
+// @Summary Get feature versions
+// @Description Get feature versions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param feature_version_id path int true "Feature version ID"
+// @Success 200 {object} []service.VersionLinkDto
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/{feature_version_id}/versions [get]
+func (h *Handler) FeatureVersions(c echo.Context) error {
+	var serviceVersionID uint
+	var featureVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).MustUint("feature_version_id", &featureVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	featureVersions, err := h.FeatureService.GetFeatureVersionsLinkedToServiceVersion(c.Request().Context(), featureVersionID, serviceVersionID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, featureVersions)
+}

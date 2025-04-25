@@ -21,11 +21,14 @@ Each `FeatureVersion` has a collection of `Keys`. Every key has a default value,
 
  - Go
    - Echo - http framework
+   - REST API - OpenAPI (swagger)
+   - jwt authentication
  - Postgres DB
    - sqlc - DB queries
  - Frontend
-   - Server side rendered
-   - templ - HTML templates with go
-   - htmx - call http and swap html
-   - Alpine.js - client interactivity
+   - pnpm package manager
+   - @tanstack/react-start
    - tailwindcss
+   - shadcn
+   - @tanstack - react-from, react-query, react-table
+   - @kubb/cli - generate react-query from OpenAPI

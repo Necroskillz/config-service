@@ -1,0 +1,1 @@
+{"properties":{"newId":{"type":"integer"}},"required":["newId"],"type":"object","x-readme-ref-name":"handler.CreateResponse"}

@@ -1,0 +1,1 @@
+{"properties":{"canEdit":{"type":"boolean"},"data":{"type":"string"},"id":{"type":"integer"},"order":{"items":{"type":"integer"},"type":"array"},"rank":{"type":"integer"},"variation":{"additionalProperties":{"type":"string"},"type":"object"}},"required":["canEdit","data","id","order","rank","variation"],"type":"object","x-readme-ref-name":"service.VariationValue"}

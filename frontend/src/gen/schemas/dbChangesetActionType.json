@@ -1,0 +1,1 @@
+{"enum":["apply","discard","stash","commit","reopen","comment"],"type":"string","x-enum-varnames":["ChangesetActionTypeApply","ChangesetActionTypeDiscard","ChangesetActionTypeStash","ChangesetActionTypeCommit","ChangesetActionTypeReopen","ChangesetActionTypeComment"],"x-readme-ref-name":"db.ChangesetActionType"}

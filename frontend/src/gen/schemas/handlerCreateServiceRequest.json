@@ -1,0 +1,1 @@
+{"properties":{"description":{"type":"string"},"name":{"type":"string"},"serviceTypeId":{"type":"integer"}},"required":["description","name","serviceTypeId"],"type":"object","x-readme-ref-name":"handler.CreateServiceRequest"}

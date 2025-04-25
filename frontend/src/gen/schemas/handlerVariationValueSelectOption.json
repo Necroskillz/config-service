@@ -1,0 +1,1 @@
+{"properties":{"depth":{"type":"integer"},"value":{"type":"string"}},"required":["depth","value"],"type":"object","x-readme-ref-name":"handler.VariationValueSelectOption"}

@@ -10,5 +10,18 @@
       "name": "postgres",
       "connectString": "postgres://postgres:postgres@localhost:5432/config_service?sslmode=disable"
     }
-  ]
+  ],
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "search.exclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "makefile.configureOnOpen": false
 }

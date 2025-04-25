@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev-backend",
+      "type": "shell",
+      "command": "make dev-backend",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "dev-frontend",
+      "type": "shell",
+      "command": "make dev-frontend",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "swag",
+      "type": "shell",
+      "command": "make swag",
+      "problemMatcher": []
+    },
+    {
+      "label": "sqlc",
+      "type": "shell",
+      "command": "make sqlc",
+      "problemMatcher": []
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "make test",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "make build",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "dev (all)",
+      "dependsOn": ["dev-backend", "dev-frontend"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+} 

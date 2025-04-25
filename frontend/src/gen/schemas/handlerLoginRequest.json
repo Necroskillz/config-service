@@ -1,0 +1,1 @@
+{"properties":{"password":{"type":"string"},"username":{"type":"string"}},"required":["password","username"],"type":"object","x-readme-ref-name":"handler.LoginRequest"}

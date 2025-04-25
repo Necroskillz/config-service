@@ -1,0 +1,1 @@
+{"properties":{"data":{"type":"string"},"variation":{"additionalProperties":{"type":"string"},"type":"object"}},"required":["data","variation"],"type":"object","x-readme-ref-name":"handler.UpdateValueRequest"}

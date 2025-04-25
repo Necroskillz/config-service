@@ -1,0 +1,1689 @@
+basePath: /api
+definitions:
+  auth.User:
+    properties:
+      changesetId:
+        type: integer
+      id:
+        type: integer
+      isAuthenticated:
+        type: boolean
+      isGlobalAdmin:
+        type: boolean
+      username:
+        type: string
+    required:
+    - changesetId
+    - id
+    - isAuthenticated
+    - isGlobalAdmin
+    - username
+    type: object
+  db.ChangesetActionType:
+    enum:
+    - apply
+    - discard
+    - stash
+    - commit
+    - reopen
+    - comment
+    type: string
+    x-enum-varnames:
+    - ChangesetActionTypeApply
+    - ChangesetActionTypeDiscard
+    - ChangesetActionTypeStash
+    - ChangesetActionTypeCommit
+    - ChangesetActionTypeReopen
+    - ChangesetActionTypeComment
+  db.ChangesetChangeType:
+    enum:
+    - create
+    - update
+    - delete
+    type: string
+    x-enum-varnames:
+    - ChangesetChangeTypeCreate
+    - ChangesetChangeTypeUpdate
+    - ChangesetChangeTypeDelete
+  db.ChangesetState:
+    enum:
+    - open
+    - committed
+    - applied
+    - rejected
+    - discarded
+    - stashed
+    type: string
+    x-enum-varnames:
+    - ChangesetStateOpen
+    - ChangesetStateCommitted
+    - ChangesetStateApplied
+    - ChangesetStateRejected
+    - ChangesetStateDiscarded
+    - ChangesetStateStashed
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+  handler.AddCommentRequest:
+    properties:
+      comment:
+        type: string
+    required:
+    - comment
+    type: object
+  handler.BooleanResponse:
+    properties:
+      value:
+        type: boolean
+    required:
+    - value
+    type: object
+  handler.CreateFeatureRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  handler.CreateKeyRequest:
+    properties:
+      defaultValue:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      valueTypeId:
+        type: integer
+    required:
+    - name
+    - valueTypeId
+    type: object
+  handler.CreateResponse:
+    properties:
+      newId:
+        type: integer
+    required:
+    - newId
+    type: object
+  handler.CreateServiceRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      serviceTypeId:
+        type: integer
+    required:
+    - description
+    - name
+    - serviceTypeId
+    type: object
+  handler.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  handler.SelectOption:
+    properties:
+      text:
+        type: string
+      value:
+        type: string
+    required:
+    - text
+    - value
+    type: object
+  handler.TokensResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    required:
+    - access_token
+    - refresh_token
+    type: object
+  handler.ValueRequest:
+    properties:
+      data:
+        type: string
+      variation:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - data
+    - variation
+    type: object
+  handler.VariationProperty:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/handler.VariationValueSelectOption'
+        type: array
+    required:
+    - displayName
+    - id
+    - name
+    - values
+    type: object
+  handler.VariationValueSelectOption:
+    properties:
+      depth:
+        type: integer
+      value:
+        type: string
+    required:
+    - depth
+    - value
+    type: object
+  service.ChangesetAction:
+    properties:
+      comment:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      type:
+        $ref: '#/definitions/db.ChangesetActionType'
+      userId:
+        type: integer
+      userName:
+        type: string
+    required:
+    - createdAt
+    - id
+    - type
+    - userId
+    - userName
+    type: object
+  service.ChangesetChange:
+    properties:
+      featureName:
+        type: string
+      featureVersion:
+        type: integer
+      featureVersionId:
+        type: integer
+      featureVersionServiceVersionId:
+        type: integer
+      id:
+        type: integer
+      keyId:
+        type: integer
+      keyName:
+        type: string
+      newVariationValueData:
+        type: string
+      newVariationValueId:
+        type: integer
+      oldVariationValueData:
+        type: string
+      oldVariationValueId:
+        type: integer
+      previousFeatureVersionId:
+        type: integer
+      previousServiceVersionId:
+        type: integer
+      serviceName:
+        type: string
+      serviceVersion:
+        type: integer
+      serviceVersionId:
+        type: integer
+      type:
+        $ref: '#/definitions/db.ChangesetChangeType'
+      variation:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - id
+    - serviceName
+    - serviceVersion
+    - serviceVersionId
+    - type
+    type: object
+  service.ChangesetDto:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/service.ChangesetAction'
+        type: array
+      canApply:
+        type: boolean
+      changes:
+        items:
+          $ref: '#/definitions/service.ChangesetChange'
+        type: array
+      id:
+        type: integer
+      state:
+        $ref: '#/definitions/db.ChangesetState'
+      userId:
+        type: integer
+      userName:
+        type: string
+      variationContext:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - actions
+    - canApply
+    - changes
+    - id
+    - state
+    - userId
+    - userName
+    - variationContext
+    type: object
+  service.EditorTypes:
+    enum:
+    - text
+    - boolean
+    - integer
+    - decimal
+    - json
+    type: string
+    x-enum-varnames:
+    - EditorTypeText
+    - EditorTypeBoolean
+    - EditorTypeInteger
+    - EditorTypeDecimal
+    - EditorTypeJSON
+  service.FeatureVersionDto:
+    properties:
+      canEdit:
+        type: boolean
+      description:
+        type: string
+      featureId:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      version:
+        type: integer
+    required:
+    - canEdit
+    - description
+    - featureId
+    - id
+    - name
+    - version
+    type: object
+  service.KeyDto:
+    properties:
+      canEdit:
+        type: boolean
+      description:
+        type: string
+      editor:
+        $ref: '#/definitions/service.EditorTypes'
+      id:
+        type: integer
+      name:
+        type: string
+      valueType:
+        type: string
+    required:
+    - canEdit
+    - editor
+    - id
+    - name
+    - valueType
+    type: object
+  service.NewValueInfo:
+    properties:
+      id:
+        type: integer
+      order:
+        items:
+          type: integer
+        type: array
+    required:
+    - id
+    - order
+    type: object
+  service.ServiceVersionDto:
+    properties:
+      canEdit:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      published:
+        type: boolean
+      serviceId:
+        type: integer
+      serviceTypeId:
+        type: integer
+      version:
+        type: integer
+    required:
+    - canEdit
+    - description
+    - id
+    - name
+    - published
+    - serviceId
+    - serviceTypeId
+    - version
+    type: object
+  service.VariationValue:
+    properties:
+      canEdit:
+        type: boolean
+      data:
+        type: string
+      id:
+        type: integer
+      order:
+        items:
+          type: integer
+        type: array
+      rank:
+        type: integer
+      variation:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - canEdit
+    - data
+    - id
+    - order
+    - rank
+    - variation
+    type: object
+  service.VersionLinkDto:
+    properties:
+      id:
+        type: integer
+      version:
+        type: integer
+    required:
+    - id
+    - version
+    type: object
+host: localhost:1323
+info:
+  contact: {}
+  description: This is the API for the Config Service
+  title: Config Service API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login to the application
+      parameters:
+      - description: Login request
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.TokensResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Login
+  /auth/refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: Refresh token
+      parameters:
+      - description: Refresh token request
+        in: body
+        name: refreshTokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.TokensResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Refresh token
+  /auth/user:
+    get:
+      consumes:
+      - application/json
+      description: Get the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+  /changesets/{changeset_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a changeset by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.ChangesetDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get a changeset
+  /changesets/{changeset_id}/apply:
+    put:
+      consumes:
+      - application/json
+      description: Apply a changeset by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Apply a changeset
+  /changesets/{changeset_id}/comment:
+    post:
+      consumes:
+      - application/json
+      description: Add a comment to a changeset by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      - description: Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AddCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Add a comment to a changeset
+  /changesets/{changeset_id}/commit:
+    put:
+      consumes:
+      - application/json
+      description: Commit a changeset by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Commit a changeset
+  /changesets/{changeset_id}/discard:
+    delete:
+      consumes:
+      - application/json
+      description: Discard a changeset by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Discard a changeset
+  /changesets/{changeset_id}/reopen:
+    put:
+      consumes:
+      - application/json
+      description: Reopen a changeset by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Reopen a changeset
+  /changesets/{changeset_id}/stash:
+    put:
+      consumes:
+      - application/json
+      description: Stash a changeset by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Stash a changeset
+  /service-types:
+    get:
+      consumes:
+      - application/json
+      description: Get all service types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.SelectOption'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get service types
+  /service-types/{service_type_id}/variation-properties:
+    get:
+      consumes:
+      - application/json
+      description: Get variation properties for a service type
+      parameters:
+      - description: Service type ID
+        in: path
+        name: service_type_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.VariationProperty'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get variation properties
+  /services:
+    get:
+      consumes:
+      - application/json
+      description: Get list of services
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.ServiceVersionDto'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get services
+    post:
+      consumes:
+      - application/json
+      description: Create service
+      parameters:
+      - description: Create service request
+        in: body
+        name: createServiceRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateServiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create service
+  /services/{service_version_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get service
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.ServiceVersionDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get service
+  /services/{service_version_id}/features:
+    get:
+      consumes:
+      - application/json
+      description: Get features for a service version
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.FeatureVersionDto'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get features for a service version
+    post:
+      consumes:
+      - application/json
+      description: Create feature
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Create feature request
+        in: body
+        name: createFeatureRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateFeatureRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create feature
+  /services/{service_version_id}/features/{feature_version_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get feature
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.FeatureVersionDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get feature
+  /services/{service_version_id}/features/{feature_version_id}/keys:
+    get:
+      consumes:
+      - application/json
+      description: Get keys for a feature
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.KeyDto'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get keys for a feature
+    post:
+      consumes:
+      - application/json
+      description: Create a key
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key DTO
+        in: body
+        name: key_dto
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateKeyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create a key
+  /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a key
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.KeyDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get a key
+  /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values:
+    get:
+      consumes:
+      - application/json
+      description: Get values for a key
+      parameters:
+      - description: Service Version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature Version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.VariationValue'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get values for a key
+    post:
+      consumes:
+      - application/json
+      description: Create value
+      parameters:
+      - description: Service Version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature Version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      - description: Value request
+        in: body
+        name: valueRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ValueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.NewValueInfo'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create value
+  /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values/{value_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete value
+      parameters:
+      - description: Service Version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature Version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      - description: Value ID
+        in: path
+        name: value_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Delete value
+    put:
+      consumes:
+      - application/json
+      description: Update value
+      parameters:
+      - description: Service Version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature Version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      - description: Value ID
+        in: path
+        name: value_id
+        required: true
+        type: integer
+      - description: Value request
+        in: body
+        name: valueRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ValueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.NewValueInfo'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Update value
+  /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values/{value_id}/can-edit:
+    get:
+      consumes:
+      - application/json
+      description: Can edit value with variation
+      parameters:
+      - description: Service Version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature Version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      - description: Value ID
+        in: path
+        name: value_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Can edit value with variation
+  /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values/can-add:
+    get:
+      consumes:
+      - application/json
+      description: Can operate value with variation
+      parameters:
+      - description: Service Version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature Version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Can operate value with variation
+  /services/{service_version_id}/features/{feature_version_id}/keys/name-taken/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Check if key name is taken
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BooleanResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Check if key name is taken
+  /services/{service_version_id}/features/{feature_version_id}/versions:
+    get:
+      consumes:
+      - application/json
+      description: Get feature versions
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.VersionLinkDto'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get feature versions
+  /services/{service_version_id}/features/name-taken/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Check if feature name is taken
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BooleanResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Check if feature name is taken
+  /services/{service_version_id}/versions:
+    get:
+      consumes:
+      - application/json
+      description: Get service versions
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.VersionLinkDto'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get service versions
+  /services/name-taken/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Check if service name is taken
+      parameters:
+      - description: Service name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BooleanResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Check if service name is taken
+  /value-types:
+    get:
+      consumes:
+      - application/json
+      description: Get all value types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.SelectOption'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get value types
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

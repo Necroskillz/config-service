@@ -1,0 +1,1 @@
+{"enum":["open","committed","applied","rejected","discarded","stashed"],"type":"string","x-enum-varnames":["ChangesetStateOpen","ChangesetStateCommitted","ChangesetStateApplied","ChangesetStateRejected","ChangesetStateDiscarded","ChangesetStateStashed"],"x-readme-ref-name":"db.ChangesetState"}
