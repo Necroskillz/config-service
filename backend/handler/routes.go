@@ -21,6 +21,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	serviceGroup := apiGroup.Group("/services")
 	serviceGroup.GET("", h.Services)
 	serviceGroup.POST("", h.CreateService)
+	serviceGroup.PUT("/:service_version_id", h.UpdateService)
+	serviceGroup.PUT("/:service_version_id/publish", h.PublishServiceVersion)
 	serviceGroup.GET("/:service_version_id", h.Service)
 	serviceGroup.GET("/:service_version_id/versions", h.ServiceVersions)
 	serviceGroup.GET("/name-taken/:name", h.IsServiceNameTaken)

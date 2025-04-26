@@ -7,8 +7,8 @@ import { Header } from '~/components/Header';
 import appCss from '~/styles/app.css?url';
 import { seo } from '~/utils/seo';
 import { isServer, QueryClient } from '@tanstack/react-query';
-import { AuthProvider, getAccessToken, setAccessToken, AnonymousUser, getRefreshToken, refreshFn, setRequestAccessToken } from '~/auth';
-import { useEffect, useState } from 'react';
+import { AuthProvider, getAccessToken, AnonymousUser, getRefreshToken, refreshFn, setRequestAccessToken } from '~/auth';
+import { useState } from 'react';
 import { AuthUser, getAuthUser } from '~/gen';
 
 export const Route = createRootRouteWithContext<{

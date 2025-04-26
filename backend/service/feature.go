@@ -92,11 +92,16 @@ func (s *FeatureService) GetServiceFeatures(ctx context.Context, serviceVersionI
 	return result, nil
 }
 
-func (s *FeatureService) GetFeatureVersionsLinkedToServiceVersion(ctx context.Context, featureID uint, serviceVersionID uint) ([]VersionLinkDto, error) {
+func (s *FeatureService) GetFeatureVersionsLinkedToServiceVersion(ctx context.Context, featureVersionID uint, serviceVersionID uint) ([]VersionLinkDto, error) {
+	_, featureVersion, err := s.coreService.GetFeatureVersion(ctx, serviceVersionID, featureVersionID)
+	if err != nil {
+		return nil, err
+	}
+
 	user := s.currentUserAccessor.GetUser(ctx)
 
 	featureVersions, err := s.queries.GetFeatureVersionsLinkedToServiceVersion(ctx, db.GetFeatureVersionsLinkedToServiceVersionParams{
-		FeatureID:        featureID,
+		FeatureID:        featureVersion.FeatureID,
 		ServiceVersionID: serviceVersionID,
 		ChangesetID:      user.ChangesetID,
 	})

@@ -3,26 +3,43 @@ import { useAuth } from '~/auth';
 import { SlimPage } from '~/components/SlimPage';
 import { PageTitle } from '~/components/PageTitle';
 import { buttonVariants } from '~/components/ui/button';
-import { getServicesQueryOptions } from '~/gen';
-import { ServiceList } from './-components/ServiceList';
-import { Suspense } from 'react';
+import { getServicesQueryOptions, useGetServicesSuspense } from '~/gen';
+import { List, ListItem } from '~/components/List';
+import { Badge } from '~/components/ui/badge';
+import { seo, appTitle } from '~/utils/seo';
 
 export const Route = createFileRoute('/(services)/services/')({
   component: ServicesRouteComponent,
   loader: async ({ context }) => {
-    context.queryClient.prefetchQuery(getServicesQueryOptions());
+    return context.queryClient.ensureQueryData(getServicesQueryOptions());
+  },
+  head: () => {
+    return {
+      meta: [...seo({ title: appTitle(['Services']) })],
+    };
   },
 });
 
 export function ServicesRouteComponent() {
   const { user } = useAuth();
+  const { data: servicesVersions } = useGetServicesSuspense();
 
   return (
     <SlimPage>
       <PageTitle>Services</PageTitle>
-      <Suspense fallback={<div>Loading...</div>}>
-        <ServiceList />
-      </Suspense>
+      <List>
+        {servicesVersions.map((serviceVersion) => (
+          <ListItem key={serviceVersion.id}>
+            <h2 className="text-lg font-bold">
+              <Link to="/services/$serviceVersionId" params={{ serviceVersionId: serviceVersion.id }}>
+                {serviceVersion.name}
+              </Link>
+              <Badge className="ml-2">v{serviceVersion.version}</Badge>
+            </h2>
+            <p className="text-sm text-muted-foreground">{serviceVersion.description}</p>
+          </ListItem>
+        ))}
+      </List>
 
       {user.isGlobalAdmin && (
         <div className="mt-8">

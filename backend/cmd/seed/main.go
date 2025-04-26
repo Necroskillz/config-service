@@ -114,11 +114,17 @@ func main() {
 
 	validFrom := time.Now()
 
-	MustCreate(queries.CreateServiceVersion(ctx, db.CreateServiceVersionParams{
+	serviceVersionId := MustCreate(queries.CreateServiceVersion(ctx, db.CreateServiceVersionParams{
 		ServiceID: serviceId,
 		Version:   1,
-		ValidFrom: &validFrom,
 	}))
+
+	MustExec(queries.StartServiceVersionValidity(ctx, db.StartServiceVersionValidityParams{
+		ServiceVersionID: serviceVersionId,
+		ValidFrom:        &validFrom,
+	}))
+
+	MustExec(queries.PublishServiceVersion(ctx, serviceVersionId))
 
 	MustCreate(queries.CreatePermission(ctx, db.CreatePermissionParams{
 		UserID:     1,

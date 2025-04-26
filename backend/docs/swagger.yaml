@@ -160,6 +160,13 @@ definitions:
     - access_token
     - refresh_token
     type: object
+  handler.UpdateServiceRequest:
+    properties:
+      description:
+        type: string
+    required:
+    - description
+    type: object
   handler.ValueRequest:
     properties:
       data:
@@ -387,6 +394,8 @@ definitions:
         type: integer
       serviceTypeId:
         type: integer
+      serviceTypeName:
+        type: string
       version:
         type: integer
     required:
@@ -397,6 +406,7 @@ definitions:
     - published
     - serviceId
     - serviceTypeId
+    - serviceTypeName
     - version
     type: object
   service.VariationValue:
@@ -915,6 +925,51 @@ paths:
       security:
       - BearerAuth: []
       summary: Get service
+    put:
+      consumes:
+      - application/json
+      description: Update service
+      parameters:
+      - description: Service version ID (for url consistency, the underling service
+          will be updated)
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Update service request
+        in: body
+        name: updateServiceRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateServiceRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Update service
   /services/{service_version_id}/features:
     get:
       consumes:
@@ -1592,6 +1647,41 @@ paths:
       security:
       - BearerAuth: []
       summary: Check if feature name is taken
+  /services/{service_version_id}/publish:
+    put:
+      consumes:
+      - application/json
+      description: Publish service version
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Publish service version
   /services/{service_version_id}/versions:
     get:
       consumes:

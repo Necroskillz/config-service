@@ -4,10 +4,10 @@ export const seo = ({
   keywords,
   image,
 }: {
-  title: string
-  description?: string
-  image?: string
-  keywords?: string
+  title: string;
+  description?: string;
+  image?: string;
+  keywords?: string;
 }) => {
   const tags = [
     { title },
@@ -27,7 +27,15 @@ export const seo = ({
           { name: 'og:image', content: image },
         ]
       : []),
-  ]
+  ];
 
-  return tags
+  return tags;
+};
+
+export function appTitle(parts: string[]): string {
+  return [...parts, 'Config Service'].join(' - ');
+}
+
+export function versionedTitle(versioned: { name: string; version: number }): string {
+  return `${versioned.name} v${versioned.version}`;
 }

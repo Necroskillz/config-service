@@ -4,6 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export function Header() {
   const { user } = useAuth();
+
   return (
     <div className="p-2 flex gap-2 text-lg">
       <Link to="/" activeOptions={{ exact: true }}>
@@ -13,7 +14,7 @@ export function Header() {
         <>
           <Link to="/services">Services</Link>
           {user.changesetId > 0 ? (
-            <Link to="/changesets/$changesetId" params={{ changesetId: user.changesetId }}>
+            <Link to="/changesets/$changesetId" params={{ changesetId: user.changesetId }} activeOptions={{ exact: true }}>
               Changeset
             </Link>
           ) : (

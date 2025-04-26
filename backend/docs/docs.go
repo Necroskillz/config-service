@@ -789,6 +789,74 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update service",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service version ID (for url consistency, the underling service will be updated)",
+                        "name": "service_version_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update service request",
+                        "name": "updateServiceRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateServiceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
             }
         },
         "/services/{service_version_id}/features": {
@@ -1830,6 +1898,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/services/{service_version_id}/publish": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Publish service version",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Publish service version",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service version ID",
+                        "name": "service_version_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/services/{service_version_id}/versions": {
             "get": {
                 "security": [
@@ -2155,6 +2278,17 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.UpdateServiceRequest": {
+            "type": "object",
+            "required": [
+                "description"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.ValueRequest": {
             "type": "object",
             "required": [
@@ -2467,6 +2601,7 @@ const docTemplate = `{
                 "published",
                 "serviceId",
                 "serviceTypeId",
+                "serviceTypeName",
                 "version"
             ],
             "properties": {
@@ -2490,6 +2625,9 @@ const docTemplate = `{
                 },
                 "serviceTypeId": {
                     "type": "integer"
+                },
+                "serviceTypeName": {
+                    "type": "string"
                 },
                 "version": {
                     "type": "integer"

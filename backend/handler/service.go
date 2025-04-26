@@ -62,9 +62,73 @@ func (h *Handler) CreateService(c echo.Context) error {
 	return c.JSON(http.StatusOK, NewCreateResponse(serviceId))
 }
 
-type ServiceResponse struct {
-	ServiceVersion  service.ServiceVersionDto   `json:"serviceVersion" validate:"required"`
-	ServiceFeatures []service.FeatureVersionDto `json:"features" validate:"required"`
+type UpdateServiceRequest struct {
+	Description string `json:"description" validate:"required"`
+}
+
+// @Summary Update service
+// @Description Update service
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID (for url consistency, the underling service will be updated)"
+// @Param updateServiceRequest body UpdateServiceRequest true "Update service request"
+// @Success 204
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 422 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id} [put]
+func (h *Handler) UpdateService(c echo.Context) error {
+	var serviceVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	var data UpdateServiceRequest
+	err = c.Bind(&data)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.ServiceService.UpdateService(c.Request().Context(), service.UpdateServiceParams{
+		ServiceVersionID: serviceVersionID,
+		Description:      data.Description,
+	})
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Publish service version
+// @Description Publish service version
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Success 204
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/publish [put]
+func (h *Handler) PublishServiceVersion(c echo.Context) error {
+	var serviceVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.ServiceService.PublishServiceVersion(c.Request().Context(), serviceVersionID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Get service

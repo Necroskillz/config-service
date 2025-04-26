@@ -1,53 +1,6 @@
 import { Link } from '@tanstack/react-router';
-import { VariantProps } from 'class-variance-authority';
-import { List, ListItem } from '~/components/List';
-import { Badge, badgeVariants } from '~/components/ui/badge';
-import { DbChangesetStateEnum, ServiceChangesetChange, useGetChangesetsChangesetIdSuspense } from '~/gen';
-import { ChangesetActions } from './ChangesetActions';
-
-export function ChangesetDetail({ changesetId }: { changesetId: number }) {
-  const { data: changeset } = useGetChangesetsChangesetIdSuspense(changesetId);
-
-  function getStateBadgeVariant(state: DbChangesetStateEnum): VariantProps<typeof badgeVariants>['variant'] {
-    switch (state) {
-      case 'open':
-        return 'default';
-      case 'discarded':
-        return 'destructive';
-      case 'applied':
-        return 'secondary';
-      case 'stashed':
-        return 'outline';
-      case 'committed':
-        return 'outline';
-      default:
-        return 'default';
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex gap-2">
-        <span className="font-semibold">State:</span>
-        <Badge variant={getStateBadgeVariant(changeset.state)}>{changeset.state}</Badge>
-      </div>
-      {changeset.changes.length > 0 ? (
-        <List>
-          {changeset.changes.map((change) => (
-            <ListItem key={change.id}>
-              <ChangesetChange change={change} />
-            </ListItem>
-          ))}
-        </List>
-      ) : (
-        <div className="text-muted-foreground">
-          {changeset.state === 'discarded' ? 'Changeset has been discarded' : 'Changeset contains no changes'}
-        </div>
-      )}
-      <ChangesetActions changeset={changeset} />
-    </div>
-  );
-}
+import { Badge } from '~/components/ui/badge';
+import { ServiceChangesetChange } from '~/gen';
 
 function getChangeTypeText(type: ServiceChangesetChange['type']) {
   switch (type) {
@@ -69,7 +22,7 @@ function Diff({ added, removed }: { added?: string; removed?: string }) {
   );
 }
 
-function ChangesetChange({ change }: { change: ServiceChangesetChange }) {
+export function ChangesetChange({ change }: { change: ServiceChangesetChange }) {
   if (change.newVariationValueId || change.oldVariationValueId) {
     return <ValueChange change={change} />;
   } else if (change.keyId) {

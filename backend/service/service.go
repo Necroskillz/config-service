@@ -14,27 +14,37 @@ type ServiceService struct {
 	changesetService    *ChangesetService
 	currentUserAccessor *auth.CurrentUserAccessor
 	validator           *Validator
+	coreService         *CoreService
 }
 
-func NewServiceService(queries *db.Queries, unitOfWorkRunner db.UnitOfWorkRunner, changesetService *ChangesetService, currentUserAccessor *auth.CurrentUserAccessor, validator *Validator) *ServiceService {
+func NewServiceService(
+	queries *db.Queries,
+	unitOfWorkRunner db.UnitOfWorkRunner,
+	changesetService *ChangesetService,
+	currentUserAccessor *auth.CurrentUserAccessor,
+	validator *Validator,
+	coreService *CoreService,
+) *ServiceService {
 	return &ServiceService{
 		unitOfWorkRunner:    unitOfWorkRunner,
 		queries:             queries,
 		changesetService:    changesetService,
 		currentUserAccessor: currentUserAccessor,
 		validator:           validator,
+		coreService:         coreService,
 	}
 }
 
 type ServiceVersionDto struct {
-	ID            uint   `json:"id" validate:"required"`
-	ServiceID     uint   `json:"serviceId" validate:"required"`
-	Name          string `json:"name" validate:"required"`
-	Description   string `json:"description" validate:"required"`
-	Version       int    `json:"version" validate:"required"`
-	Published     bool   `json:"published" validate:"required"`
-	CanEdit       bool   `json:"canEdit" validate:"required"`
-	ServiceTypeID uint   `json:"serviceTypeId" validate:"required"`
+	ID              uint   `json:"id" validate:"required"`
+	ServiceID       uint   `json:"serviceId" validate:"required"`
+	Name            string `json:"name" validate:"required"`
+	Description     string `json:"description" validate:"required"`
+	Version         int    `json:"version" validate:"required"`
+	Published       bool   `json:"published" validate:"required"`
+	CanEdit         bool   `json:"canEdit" validate:"required"`
+	ServiceTypeID   uint   `json:"serviceTypeId" validate:"required"`
+	ServiceTypeName string `json:"serviceTypeName" validate:"required"`
 }
 
 func (s *ServiceService) GetServiceVersion(ctx context.Context, id uint) (ServiceVersionDto, error) {
@@ -46,22 +56,28 @@ func (s *ServiceService) GetServiceVersion(ctx context.Context, id uint) (Servic
 	user := s.currentUserAccessor.GetUser(ctx)
 
 	return ServiceVersionDto{
-		ID:            serviceVersion.ID,
-		ServiceID:     serviceVersion.ServiceID,
-		Name:          serviceVersion.ServiceName,
-		Description:   serviceVersion.ServiceDescription,
-		Version:       serviceVersion.Version,
-		Published:     serviceVersion.Published,
-		CanEdit:       user.GetPermissionForService(serviceVersion.ServiceID) >= constants.PermissionAdmin,
-		ServiceTypeID: serviceVersion.ServiceTypeID,
+		ID:              serviceVersion.ID,
+		ServiceID:       serviceVersion.ServiceID,
+		Name:            serviceVersion.ServiceName,
+		Description:     serviceVersion.ServiceDescription,
+		Version:         serviceVersion.Version,
+		Published:       serviceVersion.Published,
+		CanEdit:         user.GetPermissionForService(serviceVersion.ServiceID) >= constants.PermissionAdmin,
+		ServiceTypeID:   serviceVersion.ServiceTypeID,
+		ServiceTypeName: serviceVersion.ServiceTypeName,
 	}, nil
 }
 
-func (s *ServiceService) GetServiceVersions(ctx context.Context, serviceID uint) ([]VersionLinkDto, error) {
+func (s *ServiceService) GetServiceVersions(ctx context.Context, serviceVersionID uint) ([]VersionLinkDto, error) {
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
+	if err != nil {
+		return nil, err
+	}
+
 	user := s.currentUserAccessor.GetUser(ctx)
 
 	serviceVersions, err := s.queries.GetServiceVersionsForService(ctx, db.GetServiceVersionsForServiceParams{
-		ServiceID:   serviceID,
+		ServiceID:   serviceVersion.ServiceID,
 		ChangesetID: user.ChangesetID,
 	})
 	if err != nil {
@@ -90,14 +106,15 @@ func (s *ServiceService) GetCurrentServiceVersions(ctx context.Context) ([]Servi
 	result := make([]ServiceVersionDto, len(serviceVersions))
 	for i, serviceVersion := range serviceVersions {
 		result[i] = ServiceVersionDto{
-			ID:            serviceVersion.ID,
-			ServiceID:     serviceVersion.ServiceID,
-			Name:          serviceVersion.ServiceName,
-			Description:   serviceVersion.ServiceDescription,
-			Version:       serviceVersion.Version,
-			Published:     serviceVersion.Published,
-			CanEdit:       user.GetPermissionForService(serviceVersion.ServiceID) >= constants.PermissionAdmin,
-			ServiceTypeID: serviceVersion.ServiceTypeID,
+			ID:              serviceVersion.ID,
+			ServiceID:       serviceVersion.ServiceID,
+			Name:            serviceVersion.ServiceName,
+			Description:     serviceVersion.ServiceDescription,
+			Version:         serviceVersion.Version,
+			Published:       serviceVersion.Published,
+			CanEdit:         user.GetPermissionForService(serviceVersion.ServiceID) >= constants.PermissionAdmin,
+			ServiceTypeID:   serviceVersion.ServiceTypeID,
+			ServiceTypeName: serviceVersion.ServiceTypeName,
 		}
 	}
 
@@ -178,4 +195,46 @@ func (s *ServiceService) CreateService(ctx context.Context, data CreateServicePa
 	}
 
 	return serviceVersionId, nil
+}
+
+type UpdateServiceParams struct {
+	ServiceVersionID uint
+	Description      string
+}
+
+func (s *ServiceService) UpdateService(ctx context.Context, data UpdateServiceParams) error {
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, data.ServiceVersionID)
+	if err != nil {
+		return err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	if user.GetPermissionForService(serviceVersion.ServiceID) < constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to update this service")
+	}
+
+	return s.queries.UpdateService(ctx, db.UpdateServiceParams{
+		ServiceID:   serviceVersion.ServiceID,
+		Description: data.Description,
+	})
+}
+
+func (s *ServiceService) PublishServiceVersion(ctx context.Context, serviceVersionID uint) error {
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
+	if err != nil {
+		return err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	if user.GetPermissionForService(serviceVersion.ServiceID) < constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to publish this service")
+	}
+
+	if serviceVersion.Published {
+		return NewServiceError(ErrorCodeInvalidOperation, "This service version is already published")
+	}
+
+	return s.queries.PublishServiceVersion(ctx, serviceVersionID)
 }

@@ -22,19 +22,19 @@ import {
 function getActionText(type: DbChangesetActionTypeEnum): string {
   switch (type) {
     case 'comment':
-      return 'Commented';
+      return 'commented';
     case 'apply':
-      return 'Applied changeset';
+      return 'applied changeset';
     case 'commit':
-      return 'Committed changeset';
+      return 'committed changeset';
     case 'discard':
-      return 'Discarded changeset';
+      return 'discarded changeset';
     case 'reopen':
-      return 'Reopened changeset';
+      return 'reopened changeset';
     case 'stash':
-      return 'Stashed changeset';
+      return 'stashed changeset';
     default:
-      return 'Unknown action';
+      return 'unknown action';
   }
 }
 
@@ -72,7 +72,9 @@ export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto
           {changeset.actions.map((action) => (
             <ListItem key={action.id}>
               <div className="flex items-center gap-2">
-                <TimeAgo title={new Date(action.createdAt).toLocaleString()} date={action.createdAt} />
+                <div className="text-sm text-muted-foreground">
+                  <TimeAgo title={new Date(action.createdAt).toLocaleString()} date={action.createdAt} />
+                </div>
                 <div>
                   <Link className="link" to="/users/$userId" params={{ userId: action.userId }}>
                     {action.userName}

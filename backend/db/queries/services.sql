@@ -2,9 +2,11 @@
 SELECT sv.*,
     s.name as service_name,
     s.description as service_description,
-    s.service_type_id as service_type_id
+    s.service_type_id as service_type_id,
+    st.name as service_type_name
 FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
+    JOIN service_types st ON st.id = s.service_type_id
 WHERE (
         sv.valid_from IS NOT NULL
         AND sv.valid_to IS NULL
@@ -54,9 +56,11 @@ ORDER BY sv.version;
 SELECT sv.*,
     s.name as service_name,
     s.description as service_description,
-    s.service_type_id as service_type_id
+    s.service_type_id as service_type_id,
+    st.name as service_type_name
 FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
+    JOIN service_types st ON st.id = s.service_type_id
 WHERE sv.id = @service_version_id
 LIMIT 1;
 -- name: GetServiceTypes :many
@@ -77,18 +81,18 @@ LIMIT 1;
 INSERT INTO services (name, description, service_type_id)
 VALUES (@name, @description, @service_type_id)
 RETURNING id;
+-- name: UpdateService :exec
+UPDATE services
+SET description = @description
+WHERE id = @service_id;
 -- name: CreateServiceVersion :one
-INSERT INTO service_versions (service_id, version, valid_from, published)
-VALUES (
-        @service_id,
-        @version,
-        sqlc.narg('valid_from')::timestamptz,
-        CASE
-            WHEN sqlc.narg('valid_from')::timestamptz IS NOT NULL THEN TRUE
-            ELSE FALSE
-        END
-    )
+INSERT INTO service_versions (service_id, version)
+VALUES (@service_id, @version)
 RETURNING id;
+-- name: PublishServiceVersion :exec
+UPDATE service_versions
+SET published = TRUE
+WHERE id = @service_version_id;
 -- name: CreateServiceType :one
 INSERT INTO service_types (name)
 VALUES (@name)

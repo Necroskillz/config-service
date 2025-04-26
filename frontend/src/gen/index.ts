@@ -49,7 +49,9 @@ export type { PutChangesetsChangesetIdApplyMutationKey } from './hooks/usePutCha
 export type { PutChangesetsChangesetIdCommitMutationKey } from './hooks/usePutChangesetsChangesetIdCommit.ts'
 export type { PutChangesetsChangesetIdReopenMutationKey } from './hooks/usePutChangesetsChangesetIdReopen.ts'
 export type { PutChangesetsChangesetIdStashMutationKey } from './hooks/usePutChangesetsChangesetIdStash.ts'
+export type { PutServicesServiceVersionIdMutationKey } from './hooks/usePutServicesServiceVersionId.ts'
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
+export type { PutServicesServiceVersionIdPublishMutationKey } from './hooks/usePutServicesServiceVersionIdPublish.ts'
 export type { AuthUser } from './types/auth/User.ts'
 export type { DbChangesetActionTypeEnum, DbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export type { DbChangesetChangeTypeEnum, DbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
@@ -226,6 +228,7 @@ export type { HandlerLoginRequest } from './types/handler/LoginRequest.ts'
 export type { HandlerRefreshTokenRequest } from './types/handler/RefreshTokenRequest.ts'
 export type { HandlerSelectOption } from './types/handler/SelectOption.ts'
 export type { HandlerTokensResponse } from './types/handler/TokensResponse.ts'
+export type { HandlerUpdateServiceRequest } from './types/handler/UpdateServiceRequest.ts'
 export type { HandlerValueRequest } from './types/handler/ValueRequest.ts'
 export type { HandlerVariationProperty } from './types/handler/VariationProperty.ts'
 export type { HandlerVariationValueSelectOption } from './types/handler/VariationValueSelectOption.ts'
@@ -342,6 +345,18 @@ export type {
   PutChangesetsChangesetIdStashMutation,
 } from './types/PutChangesetsChangesetIdStash.ts'
 export type {
+  PutServicesServiceVersionIdPathParams,
+  PutServicesServiceVersionId204,
+  PutServicesServiceVersionId401,
+  PutServicesServiceVersionId403,
+  PutServicesServiceVersionId404,
+  PutServicesServiceVersionId422,
+  PutServicesServiceVersionId500,
+  PutServicesServiceVersionIdMutationRequest,
+  PutServicesServiceVersionIdMutationResponse,
+  PutServicesServiceVersionIdMutation,
+} from './types/PutServicesServiceVersionId.ts'
+export type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId200,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401,
@@ -353,6 +368,16 @@ export type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutation,
 } from './types/PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
+export type {
+  PutServicesServiceVersionIdPublishPathParams,
+  PutServicesServiceVersionIdPublish204,
+  PutServicesServiceVersionIdPublish401,
+  PutServicesServiceVersionIdPublish403,
+  PutServicesServiceVersionIdPublish404,
+  PutServicesServiceVersionIdPublish500,
+  PutServicesServiceVersionIdPublishMutationResponse,
+  PutServicesServiceVersionIdPublishMutation,
+} from './types/PutServicesServiceVersionIdPublish.ts'
 export type { ServiceChangesetAction } from './types/service/ChangesetAction.ts'
 export type { ServiceChangesetChange } from './types/service/ChangesetChange.ts'
 export type { ServiceChangesetDto } from './types/service/ChangesetDto.ts'
@@ -614,11 +639,17 @@ export {
   putChangesetsChangesetIdStash,
   usePutChangesetsChangesetIdStash,
 } from './hooks/usePutChangesetsChangesetIdStash.ts'
+export { putServicesServiceVersionIdMutationKey, putServicesServiceVersionId, usePutServicesServiceVersionId } from './hooks/usePutServicesServiceVersionId.ts'
 export {
   putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey,
   putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
   usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
 } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
+export {
+  putServicesServiceVersionIdPublishMutationKey,
+  putServicesServiceVersionIdPublish,
+  usePutServicesServiceVersionIdPublish,
+} from './hooks/usePutServicesServiceVersionIdPublish.ts'
 export { dbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export { dbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export { dbChangesetState } from './types/db/ChangesetState.ts'

@@ -1,10 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { ServicesRouteComponent } from './(services)/services.index'
-import { getServicesQueryOptions } from '~/gen';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
-  component: ServicesRouteComponent,
-  loader: async ({ context }) => {
-    context.queryClient.prefetchQuery(getServicesQueryOptions());
+  beforeLoad: async () => {
+    throw redirect({ to: '/services' });
   },
-})
+});

@@ -16,8 +16,9 @@ import { Route as IndexImport } from './routes/index'
 import { Route as servicesServicesIndexImport } from './routes/(services)/services.index'
 import { Route as usersUsersUserIdImport } from './routes/(users)/users.$userId'
 import { Route as servicesServicesCreateImport } from './routes/(services)/services.create'
-import { Route as servicesServicesServiceVersionIdImport } from './routes/(services)/services.$serviceVersionId'
 import { Route as changesetsChangesetsChangesetIdImport } from './routes/(changesets)/changesets.$changesetId'
+import { Route as servicesServicesServiceVersionIdIndexImport } from './routes/(services)/services.$serviceVersionId.index'
+import { Route as servicesServicesServiceVersionIdEditImport } from './routes/(services)/services.$serviceVersionId.edit'
 import { Route as featuresServicesServiceVersionIdFeaturesCreateImport } from './routes/(features)/services.$serviceVersionId.features.create'
 import { Route as featuresServicesServiceVersionIdFeaturesFeatureVersionIdImport } from './routes/(features)/services.$serviceVersionId.features.$featureVersionId'
 import { Route as keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateImport } from './routes/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.create'
@@ -55,17 +56,24 @@ const servicesServicesCreateRoute = servicesServicesCreateImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const servicesServicesServiceVersionIdRoute =
-  servicesServicesServiceVersionIdImport.update({
-    id: '/(services)/services/$serviceVersionId',
-    path: '/services/$serviceVersionId',
-    getParentRoute: () => rootRoute,
-  } as any)
-
 const changesetsChangesetsChangesetIdRoute =
   changesetsChangesetsChangesetIdImport.update({
     id: '/(changesets)/changesets/$changesetId',
     path: '/changesets/$changesetId',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const servicesServicesServiceVersionIdIndexRoute =
+  servicesServicesServiceVersionIdIndexImport.update({
+    id: '/(services)/services/$serviceVersionId/',
+    path: '/services/$serviceVersionId/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const servicesServicesServiceVersionIdEditRoute =
+  servicesServicesServiceVersionIdEditImport.update({
+    id: '/(services)/services/$serviceVersionId/edit',
+    path: '/services/$serviceVersionId/edit',
     getParentRoute: () => rootRoute,
   } as any)
 
@@ -124,13 +132,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof changesetsChangesetsChangesetIdImport
       parentRoute: typeof rootRoute
     }
-    '/(services)/services/$serviceVersionId': {
-      id: '/(services)/services/$serviceVersionId'
-      path: '/services/$serviceVersionId'
-      fullPath: '/services/$serviceVersionId'
-      preLoaderRoute: typeof servicesServicesServiceVersionIdImport
-      parentRoute: typeof rootRoute
-    }
     '/(services)/services/create': {
       id: '/(services)/services/create'
       path: '/services/create'
@@ -150,6 +151,20 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof servicesServicesIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/(services)/services/$serviceVersionId/edit': {
+      id: '/(services)/services/$serviceVersionId/edit'
+      path: '/services/$serviceVersionId/edit'
+      fullPath: '/services/$serviceVersionId/edit'
+      preLoaderRoute: typeof servicesServicesServiceVersionIdEditImport
+      parentRoute: typeof rootRoute
+    }
+    '/(services)/services/$serviceVersionId/': {
+      id: '/(services)/services/$serviceVersionId/'
+      path: '/services/$serviceVersionId'
+      fullPath: '/services/$serviceVersionId'
+      preLoaderRoute: typeof servicesServicesServiceVersionIdIndexImport
       parentRoute: typeof rootRoute
     }
     '/(features)/services/$serviceVersionId/features/$featureVersionId': {
@@ -189,10 +204,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/changesets/$changesetId': typeof changesetsChangesetsChangesetIdRoute
-  '/services/$serviceVersionId': typeof servicesServicesServiceVersionIdRoute
   '/services/create': typeof servicesServicesCreateRoute
   '/users/$userId': typeof usersUsersUserIdRoute
   '/services': typeof servicesServicesIndexRoute
+  '/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
+  '/services/$serviceVersionId': typeof servicesServicesServiceVersionIdIndexRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute
   '/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
@@ -203,10 +219,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/changesets/$changesetId': typeof changesetsChangesetsChangesetIdRoute
-  '/services/$serviceVersionId': typeof servicesServicesServiceVersionIdRoute
   '/services/create': typeof servicesServicesCreateRoute
   '/users/$userId': typeof usersUsersUserIdRoute
   '/services': typeof servicesServicesIndexRoute
+  '/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
+  '/services/$serviceVersionId': typeof servicesServicesServiceVersionIdIndexRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute
   '/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
@@ -218,10 +235,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/(changesets)/changesets/$changesetId': typeof changesetsChangesetsChangesetIdRoute
-  '/(services)/services/$serviceVersionId': typeof servicesServicesServiceVersionIdRoute
   '/(services)/services/create': typeof servicesServicesCreateRoute
   '/(users)/users/$userId': typeof usersUsersUserIdRoute
   '/(services)/services/': typeof servicesServicesIndexRoute
+  '/(services)/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
+  '/(services)/services/$serviceVersionId/': typeof servicesServicesServiceVersionIdIndexRoute
   '/(features)/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute
   '/(features)/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
   '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
@@ -234,10 +252,11 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/changesets/$changesetId'
-    | '/services/$serviceVersionId'
     | '/services/create'
     | '/users/$userId'
     | '/services'
+    | '/services/$serviceVersionId/edit'
+    | '/services/$serviceVersionId'
     | '/services/$serviceVersionId/features/$featureVersionId'
     | '/services/$serviceVersionId/features/create'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/create'
@@ -247,10 +266,11 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/changesets/$changesetId'
-    | '/services/$serviceVersionId'
     | '/services/create'
     | '/users/$userId'
     | '/services'
+    | '/services/$serviceVersionId/edit'
+    | '/services/$serviceVersionId'
     | '/services/$serviceVersionId/features/$featureVersionId'
     | '/services/$serviceVersionId/features/create'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/create'
@@ -260,10 +280,11 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/(changesets)/changesets/$changesetId'
-    | '/(services)/services/$serviceVersionId'
     | '/(services)/services/create'
     | '/(users)/users/$userId'
     | '/(services)/services/'
+    | '/(services)/services/$serviceVersionId/edit'
+    | '/(services)/services/$serviceVersionId/'
     | '/(features)/services/$serviceVersionId/features/$featureVersionId'
     | '/(features)/services/$serviceVersionId/features/create'
     | '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create'
@@ -275,10 +296,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   changesetsChangesetsChangesetIdRoute: typeof changesetsChangesetsChangesetIdRoute
-  servicesServicesServiceVersionIdRoute: typeof servicesServicesServiceVersionIdRoute
   servicesServicesCreateRoute: typeof servicesServicesCreateRoute
   usersUsersUserIdRoute: typeof usersUsersUserIdRoute
   servicesServicesIndexRoute: typeof servicesServicesIndexRoute
+  servicesServicesServiceVersionIdEditRoute: typeof servicesServicesServiceVersionIdEditRoute
+  servicesServicesServiceVersionIdIndexRoute: typeof servicesServicesServiceVersionIdIndexRoute
   featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute: typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute
   featuresServicesServiceVersionIdFeaturesCreateRoute: typeof featuresServicesServiceVersionIdFeaturesCreateRoute
   keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute: typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
@@ -289,10 +311,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   changesetsChangesetsChangesetIdRoute: changesetsChangesetsChangesetIdRoute,
-  servicesServicesServiceVersionIdRoute: servicesServicesServiceVersionIdRoute,
   servicesServicesCreateRoute: servicesServicesCreateRoute,
   usersUsersUserIdRoute: usersUsersUserIdRoute,
   servicesServicesIndexRoute: servicesServicesIndexRoute,
+  servicesServicesServiceVersionIdEditRoute:
+    servicesServicesServiceVersionIdEditRoute,
+  servicesServicesServiceVersionIdIndexRoute:
+    servicesServicesServiceVersionIdIndexRoute,
   featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute:
     featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute,
   featuresServicesServiceVersionIdFeaturesCreateRoute:
@@ -316,10 +341,11 @@ export const routeTree = rootRoute
         "/",
         "/login",
         "/(changesets)/changesets/$changesetId",
-        "/(services)/services/$serviceVersionId",
         "/(services)/services/create",
         "/(users)/users/$userId",
         "/(services)/services/",
+        "/(services)/services/$serviceVersionId/edit",
+        "/(services)/services/$serviceVersionId/",
         "/(features)/services/$serviceVersionId/features/$featureVersionId",
         "/(features)/services/$serviceVersionId/features/create",
         "/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create",
@@ -335,9 +361,6 @@ export const routeTree = rootRoute
     "/(changesets)/changesets/$changesetId": {
       "filePath": "(changesets)/changesets.$changesetId.tsx"
     },
-    "/(services)/services/$serviceVersionId": {
-      "filePath": "(services)/services.$serviceVersionId.tsx"
-    },
     "/(services)/services/create": {
       "filePath": "(services)/services.create.tsx"
     },
@@ -346,6 +369,12 @@ export const routeTree = rootRoute
     },
     "/(services)/services/": {
       "filePath": "(services)/services.index.tsx"
+    },
+    "/(services)/services/$serviceVersionId/edit": {
+      "filePath": "(services)/services.$serviceVersionId.edit.tsx"
+    },
+    "/(services)/services/$serviceVersionId/": {
+      "filePath": "(services)/services.$serviceVersionId.index.tsx"
     },
     "/(features)/services/$serviceVersionId/features/$featureVersionId": {
       "filePath": "(features)/services.$serviceVersionId.features.$featureVersionId.tsx"

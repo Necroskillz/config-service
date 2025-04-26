@@ -43,27 +43,18 @@ func (q *Queries) CreateServiceType(ctx context.Context, name string) (uint, err
 }
 
 const createServiceVersion = `-- name: CreateServiceVersion :one
-INSERT INTO service_versions (service_id, version, valid_from, published)
-VALUES (
-        $1,
-        $2,
-        $3::timestamptz,
-        CASE
-            WHEN $3::timestamptz IS NOT NULL THEN TRUE
-            ELSE FALSE
-        END
-    )
+INSERT INTO service_versions (service_id, version)
+VALUES ($1, $2)
 RETURNING id
 `
 
 type CreateServiceVersionParams struct {
 	ServiceID uint
 	Version   int
-	ValidFrom *time.Time
 }
 
 func (q *Queries) CreateServiceVersion(ctx context.Context, arg CreateServiceVersionParams) (uint, error) {
-	row := q.db.QueryRow(ctx, createServiceVersion, arg.ServiceID, arg.Version, arg.ValidFrom)
+	row := q.db.QueryRow(ctx, createServiceVersion, arg.ServiceID, arg.Version)
 	var id uint
 	err := row.Scan(&id)
 	return id, err
@@ -109,9 +100,11 @@ const getActiveServiceVersions = `-- name: GetActiveServiceVersions :many
 SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
     s.name as service_name,
     s.description as service_description,
-    s.service_type_id as service_type_id
+    s.service_type_id as service_type_id,
+    st.name as service_type_name
 FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
+    JOIN service_types st ON st.id = s.service_type_id
 WHERE (
         sv.valid_from IS NOT NULL
         AND sv.valid_to IS NULL
@@ -150,6 +143,7 @@ type GetActiveServiceVersionsRow struct {
 	ServiceName        string
 	ServiceDescription string
 	ServiceTypeID      uint
+	ServiceTypeName    string
 }
 
 func (q *Queries) GetActiveServiceVersions(ctx context.Context, changesetID uint) ([]GetActiveServiceVersionsRow, error) {
@@ -173,6 +167,7 @@ func (q *Queries) GetActiveServiceVersions(ctx context.Context, changesetID uint
 			&i.ServiceName,
 			&i.ServiceDescription,
 			&i.ServiceTypeID,
+			&i.ServiceTypeName,
 		); err != nil {
 			return nil, err
 		}
@@ -242,9 +237,11 @@ const getServiceVersion = `-- name: GetServiceVersion :one
 SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
     s.name as service_name,
     s.description as service_description,
-    s.service_type_id as service_type_id
+    s.service_type_id as service_type_id,
+    st.name as service_type_name
 FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
+    JOIN service_types st ON st.id = s.service_type_id
 WHERE sv.id = $1
 LIMIT 1
 `
@@ -261,6 +258,7 @@ type GetServiceVersionRow struct {
 	ServiceName        string
 	ServiceDescription string
 	ServiceTypeID      uint
+	ServiceTypeName    string
 }
 
 func (q *Queries) GetServiceVersion(ctx context.Context, serviceVersionID uint) (GetServiceVersionRow, error) {
@@ -278,6 +276,7 @@ func (q *Queries) GetServiceVersion(ctx context.Context, serviceVersionID uint) 
 		&i.ServiceName,
 		&i.ServiceDescription,
 		&i.ServiceTypeID,
+		&i.ServiceTypeName,
 	)
 	return i, err
 }
@@ -335,6 +334,17 @@ func (q *Queries) GetServiceVersionsForService(ctx context.Context, arg GetServi
 	return items, nil
 }
 
+const publishServiceVersion = `-- name: PublishServiceVersion :exec
+UPDATE service_versions
+SET published = TRUE
+WHERE id = $1
+`
+
+func (q *Queries) PublishServiceVersion(ctx context.Context, serviceVersionID uint) error {
+	_, err := q.db.Exec(ctx, publishServiceVersion, serviceVersionID)
+	return err
+}
+
 const startServiceVersionValidity = `-- name: StartServiceVersionValidity :exec
 UPDATE service_versions
 SET valid_from = $1
@@ -348,5 +358,21 @@ type StartServiceVersionValidityParams struct {
 
 func (q *Queries) StartServiceVersionValidity(ctx context.Context, arg StartServiceVersionValidityParams) error {
 	_, err := q.db.Exec(ctx, startServiceVersionValidity, arg.ValidFrom, arg.ServiceVersionID)
+	return err
+}
+
+const updateService = `-- name: UpdateService :exec
+UPDATE services
+SET description = $1
+WHERE id = $2
+`
+
+type UpdateServiceParams struct {
+	Description string
+	ServiceID   uint
+}
+
+func (q *Queries) UpdateService(ctx context.Context, arg UpdateServiceParams) error {
+	_, err := q.db.Exec(ctx, updateService, arg.Description, arg.ServiceID)
 	return err
 }

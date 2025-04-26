@@ -33,6 +33,10 @@ export type ServiceServiceVersionDto = {
    */
   serviceTypeId: number
   /**
+   * @type string
+   */
+  serviceTypeName: string
+  /**
    * @type integer
    */
   version: number
