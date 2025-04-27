@@ -3,10 +3,10 @@ import { Link } from '@tanstack/react-router';
 import { useAuth } from '~/auth';
 import { List, ListItem } from '~/components/List';
 import { MutationErrors } from '~/components/MutationErrors';
+import { TimeAgo } from '~/components/TimeAgo';
 import { Button } from '~/components/ui/button';
 import { useAppForm } from '~/components/ui/tanstack-form';
 import { Textarea } from '~/components/ui/textarea';
-import TimeAgo from 'react-timeago';
 import {
   DbChangesetActionTypeEnum,
   ServiceChangesetDto,
@@ -73,7 +73,7 @@ export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto
             <ListItem key={action.id}>
               <div className="flex items-center gap-2">
                 <div className="text-sm text-muted-foreground">
-                  <TimeAgo title={new Date(action.createdAt).toLocaleString()} date={action.createdAt} />
+                  <TimeAgo datetime={action.createdAt} />
                 </div>
                 <div>
                   <Link className="link" to="/users/$userId" params={{ userId: action.userId }}>
