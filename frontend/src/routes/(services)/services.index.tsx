@@ -22,21 +22,25 @@ export const Route = createFileRoute('/(services)/services/')({
 
 export function ServicesRouteComponent() {
   const { user } = useAuth();
-  const { data: servicesVersions } = useGetServicesSuspense();
+  const { data: services } = useGetServicesSuspense();
 
   return (
     <SlimPage>
       <PageTitle>Services</PageTitle>
       <List>
-        {servicesVersions.map((serviceVersion) => (
-          <ListItem key={serviceVersion.id}>
+        {services.map((service) => (
+          <ListItem key={service.name}>
             <h2 className="text-lg font-bold">
-              <Link to="/services/$serviceVersionId" params={{ serviceVersionId: serviceVersion.id }}>
-                {serviceVersion.name}
+              <Link to="/services/$serviceVersionId" params={{ serviceVersionId: service.versions[service.versions.length - 1].id }}>
+                {service.name}
               </Link>
-              <Badge className="ml-2">v{serviceVersion.version}</Badge>
+              {service.versions.map((version) => (
+                <Badge variant={version.published ? 'default' : 'secondary'} className="ml-2" key={version.id}>
+                  v{version.version} ({version.published ? 'published' : 'draft'})
+                </Badge>
+              ))}
             </h2>
-            <p className="text-sm text-muted-foreground">{serviceVersion.description}</p>
+            <p className="text-sm text-muted-foreground">{service.description}</p>
           </ListItem>
         ))}
       </List>

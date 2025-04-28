@@ -616,7 +616,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.ServiceVersionDto"
+                                "$ref": "#/definitions/service.ServiceDto"
                             }
                         }
                     },
@@ -2591,6 +2591,28 @@ const docTemplate = `{
                 }
             }
         },
+        "service.ServiceDto": {
+            "type": "object",
+            "required": [
+                "description",
+                "name",
+                "versions"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "versions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ServiceVersionInfoDto"
+                    }
+                }
+            }
+        },
         "service.ServiceVersionDto": {
             "type": "object",
             "required": [
@@ -2628,6 +2650,25 @@ const docTemplate = `{
                 },
                 "serviceTypeName": {
                     "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.ServiceVersionInfoDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "published",
+                "version"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "published": {
+                    "type": "boolean"
                 },
                 "version": {
                     "type": "integer"

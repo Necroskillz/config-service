@@ -96,89 +96,6 @@ func (q *Queries) EndServiceVersionValidity(ctx context.Context, arg EndServiceV
 	return err
 }
 
-const getActiveServiceVersions = `-- name: GetActiveServiceVersions :many
-SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
-    s.name as service_name,
-    s.description as service_description,
-    s.service_type_id as service_type_id,
-    st.name as service_type_name
-FROM service_versions sv
-    JOIN services s ON s.id = sv.service_id
-    JOIN service_types st ON st.id = s.service_type_id
-WHERE (
-        sv.valid_from IS NOT NULL
-        AND sv.valid_to IS NULL
-        AND NOT EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $1
-                AND csc.type = 'create'
-                AND csc.previous_service_version_id = sv.id
-            LIMIT 1
-        )
-    )
-    OR (
-        sv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $1
-                AND csc.type = 'create'
-                AND csc.service_version_id = sv.id
-            LIMIT 1
-        )
-    )
-ORDER BY s.name
-`
-
-type GetActiveServiceVersionsRow struct {
-	ID                 uint
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
-	ValidFrom          *time.Time
-	ValidTo            *time.Time
-	ServiceID          uint
-	Version            int
-	Published          bool
-	ServiceName        string
-	ServiceDescription string
-	ServiceTypeID      uint
-	ServiceTypeName    string
-}
-
-func (q *Queries) GetActiveServiceVersions(ctx context.Context, changesetID uint) ([]GetActiveServiceVersionsRow, error) {
-	rows, err := q.db.Query(ctx, getActiveServiceVersions, changesetID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetActiveServiceVersionsRow
-	for rows.Next() {
-		var i GetActiveServiceVersionsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.ValidFrom,
-			&i.ValidTo,
-			&i.ServiceID,
-			&i.Version,
-			&i.Published,
-			&i.ServiceName,
-			&i.ServiceDescription,
-			&i.ServiceTypeID,
-			&i.ServiceTypeName,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getServiceIDByName = `-- name: GetServiceIDByName :one
 SELECT id
 FROM services
@@ -281,6 +198,78 @@ func (q *Queries) GetServiceVersion(ctx context.Context, serviceVersionID uint) 
 	return i, err
 }
 
+const getServiceVersions = `-- name: GetServiceVersions :many
+SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
+    s.name as service_name,
+    s.description as service_description,
+    s.service_type_id as service_type_id,
+    st.name as service_type_name
+FROM service_versions sv
+    JOIN services s ON s.id = sv.service_id
+    JOIN service_types st ON st.id = s.service_type_id
+WHERE (sv.valid_from IS NOT NULL)
+    OR (
+        sv.valid_from IS NULL
+        AND EXISTS (
+            SELECT csc.id
+            FROM changeset_changes csc
+            WHERE csc.changeset_id = $1
+                AND csc.type = 'create'
+                AND csc.service_version_id = sv.id
+            LIMIT 1
+        )
+    )
+ORDER BY s.name, sv.version ASC
+`
+
+type GetServiceVersionsRow struct {
+	ID                 uint
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	ValidFrom          *time.Time
+	ValidTo            *time.Time
+	ServiceID          uint
+	Version            int
+	Published          bool
+	ServiceName        string
+	ServiceDescription string
+	ServiceTypeID      uint
+	ServiceTypeName    string
+}
+
+func (q *Queries) GetServiceVersions(ctx context.Context, changesetID uint) ([]GetServiceVersionsRow, error) {
+	rows, err := q.db.Query(ctx, getServiceVersions, changesetID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetServiceVersionsRow
+	for rows.Next() {
+		var i GetServiceVersionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ValidFrom,
+			&i.ValidTo,
+			&i.ServiceID,
+			&i.Version,
+			&i.Published,
+			&i.ServiceName,
+			&i.ServiceDescription,
+			&i.ServiceTypeID,
+			&i.ServiceTypeName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getServiceVersionsForService = `-- name: GetServiceVersionsForService :many
 SELECT sv.id,
     sv.version
@@ -301,7 +290,7 @@ WHERE sv.service_id = $1
             )
         )
     )
-ORDER BY sv.version
+ORDER BY sv.version ASC
 `
 
 type GetServiceVersionsForServiceParams struct {

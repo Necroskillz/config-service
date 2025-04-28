@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"sort"
+	"strings"
 
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
@@ -68,7 +70,7 @@ func (s *ServiceService) GetServiceVersion(ctx context.Context, id uint) (Servic
 	}, nil
 }
 
-func (s *ServiceService) GetServiceVersions(ctx context.Context, serviceVersionID uint) ([]VersionLinkDto, error) {
+func (s *ServiceService) GetServiceVersionsForServiceVersion(ctx context.Context, serviceVersionID uint) ([]VersionLinkDto, error) {
 	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return nil, err
@@ -95,28 +97,69 @@ func (s *ServiceService) GetServiceVersions(ctx context.Context, serviceVersionI
 	return result, nil
 }
 
-func (s *ServiceService) GetCurrentServiceVersions(ctx context.Context) ([]ServiceVersionDto, error) {
+type ServiceVersionInfoDto struct {
+	ID        uint `json:"id" validate:"required"`
+	Published bool `json:"published" validate:"required"`
+	Version   int  `json:"version" validate:"required"`
+}
+
+type ServiceDto struct {
+	Name        string                  `json:"name" validate:"required"`
+	Description string                  `json:"description" validate:"required"`
+	Versions    []ServiceVersionInfoDto `json:"versions" validate:"required"`
+}
+
+func (s *ServiceService) GetServices(ctx context.Context) ([]ServiceDto, error) {
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	serviceVersions, err := s.queries.GetActiveServiceVersions(ctx, user.ChangesetID)
+	serviceVersions, err := s.queries.GetServiceVersions(ctx, user.ChangesetID)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]ServiceVersionDto, len(serviceVersions))
-	for i, serviceVersion := range serviceVersions {
-		result[i] = ServiceVersionDto{
-			ID:              serviceVersion.ID,
-			ServiceID:       serviceVersion.ServiceID,
-			Name:            serviceVersion.ServiceName,
-			Description:     serviceVersion.ServiceDescription,
-			Version:         serviceVersion.Version,
-			Published:       serviceVersion.Published,
-			CanEdit:         user.GetPermissionForService(serviceVersion.ServiceID) >= constants.PermissionAdmin,
-			ServiceTypeID:   serviceVersion.ServiceTypeID,
-			ServiceTypeName: serviceVersion.ServiceTypeName,
+	services := make(map[uint]ServiceDto)
+
+	for _, serviceVersion := range serviceVersions {
+		if service, ok := services[serviceVersion.ServiceID]; ok {
+			// display the last published and draft ones after the last published
+			if serviceVersion.Published {
+				service.Versions = []ServiceVersionInfoDto{
+					{
+						ID:        serviceVersion.ID,
+						Published: true,
+						Version:   serviceVersion.Version,
+					},
+				}
+			} else {
+				service.Versions = append(service.Versions, ServiceVersionInfoDto{
+					ID:        serviceVersion.ID,
+					Published: false,
+					Version:   serviceVersion.Version,
+				})
+			}
+		} else {
+			services[serviceVersion.ServiceID] = ServiceDto{
+				Name:        serviceVersion.ServiceName,
+				Description: serviceVersion.ServiceDescription,
+				Versions: []ServiceVersionInfoDto{
+					{
+						ID:        serviceVersion.ID,
+						Published: serviceVersion.Published,
+						Version:   serviceVersion.Version,
+					},
+				},
+			}
 		}
 	}
+
+	result := make([]ServiceDto, 0, len(services))
+	for _, service := range services {
+		result = append(result, service)
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return strings.Compare(strings.ToLower(result[i].Name), strings.ToLower(result[j].Name)) < 0
+	})
 
 	return result, nil
 }

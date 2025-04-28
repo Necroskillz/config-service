@@ -1,0 +1,1 @@
+{"properties":{"id":{"type":"integer"},"published":{"type":"boolean"},"version":{"type":"integer"}},"required":["id","published","version"],"type":"object","x-readme-ref-name":"service.ServiceVersionInfoDto"}

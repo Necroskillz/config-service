@@ -378,6 +378,21 @@ definitions:
     - id
     - order
     type: object
+  service.ServiceDto:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      versions:
+        items:
+          $ref: '#/definitions/service.ServiceVersionInfoDto'
+        type: array
+    required:
+    - description
+    - name
+    - versions
+    type: object
   service.ServiceVersionDto:
     properties:
       canEdit:
@@ -407,6 +422,19 @@ definitions:
     - serviceId
     - serviceTypeId
     - serviceTypeName
+    - version
+    type: object
+  service.ServiceVersionInfoDto:
+    properties:
+      id:
+        type: integer
+      published:
+        type: boolean
+      version:
+        type: integer
+    required:
+    - id
+    - published
     - version
     type: object
   service.VariationValue:
@@ -842,7 +870,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.ServiceVersionDto'
+              $ref: '#/definitions/service.ServiceDto'
             type: array
         "401":
           description: Unauthorized

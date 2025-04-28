@@ -385,7 +385,9 @@ export type { ServiceEditorTypesEnum, ServiceEditorTypes } from './types/service
 export type { ServiceFeatureVersionDto } from './types/service/FeatureVersionDto.ts'
 export type { ServiceKeyDto } from './types/service/KeyDto.ts'
 export type { ServiceNewValueInfo } from './types/service/NewValueInfo.ts'
+export type { ServiceServiceDto } from './types/service/ServiceDto.ts'
 export type { ServiceServiceVersionDto } from './types/service/ServiceVersionDto.ts'
+export type { ServiceServiceVersionInfoDto } from './types/service/ServiceVersionInfoDto.ts'
 export type { ServiceVariationValue } from './types/service/VariationValue.ts'
 export type { ServiceVersionLinkDto } from './types/service/VersionLinkDto.ts'
 export {

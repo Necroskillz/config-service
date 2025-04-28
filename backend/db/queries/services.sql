@@ -1,4 +1,4 @@
--- name: GetActiveServiceVersions :many
+-- name: GetServiceVersions :many
 SELECT sv.*,
     s.name as service_name,
     s.description as service_description,
@@ -7,18 +7,7 @@ SELECT sv.*,
 FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
-WHERE (
-        sv.valid_from IS NOT NULL
-        AND sv.valid_to IS NULL
-        AND NOT EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
-                AND csc.type = 'create'
-                AND csc.previous_service_version_id = sv.id
-            LIMIT 1
-        )
-    )
+WHERE (sv.valid_from IS NOT NULL)
     OR (
         sv.valid_from IS NULL
         AND EXISTS (
@@ -30,7 +19,7 @@ WHERE (
             LIMIT 1
         )
     )
-ORDER BY s.name;
+ORDER BY s.name, sv.version ASC;
 -- name: GetServiceVersionsForService :many
 SELECT sv.id,
     sv.version
@@ -51,7 +40,7 @@ WHERE sv.service_id = @service_id
             )
         )
     )
-ORDER BY sv.version;
+ORDER BY sv.version ASC;
 -- name: GetServiceVersion :one
 SELECT sv.*,
     s.name as service_name,

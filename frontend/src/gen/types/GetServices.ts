@@ -4,12 +4,12 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceServiceVersionDto } from './service/ServiceVersionDto.ts'
+import type { ServiceServiceDto } from './service/ServiceDto.ts'
 
 /**
  * @description OK
  */
-export type GetServices200 = ServiceServiceVersionDto[]
+export type GetServices200 = ServiceServiceDto[]
 
 /**
  * @description Unauthorized

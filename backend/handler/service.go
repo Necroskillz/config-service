@@ -12,12 +12,12 @@ import (
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} []service.ServiceVersionDto
+// @Success 200 {object} []service.ServiceDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /services [get]
 func (h *Handler) Services(c echo.Context) error {
-	serviceVersions, err := h.ServiceService.GetCurrentServiceVersions(c.Request().Context())
+	serviceVersions, err := h.ServiceService.GetServices(c.Request().Context())
 	if err != nil {
 		return ToHTTPError(err)
 	}
@@ -176,7 +176,7 @@ func (h *Handler) ServiceVersions(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	serviceVersions, err := h.ServiceService.GetServiceVersions(c.Request().Context(), serviceVersionID)
+	serviceVersions, err := h.ServiceService.GetServiceVersionsForServiceVersion(c.Request().Context(), serviceVersionID)
 	if err != nil {
 		return ToHTTPError(err)
 	}
