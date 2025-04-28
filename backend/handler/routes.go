@@ -29,9 +29,12 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	featureGroup := serviceGroup.Group("/:service_version_id/features")
 	featureGroup.GET("", h.Features)
+	featureGroup.GET("/linkable", h.LinkableFeatures)
 	featureGroup.POST("", h.CreateFeature)
 	featureGroup.GET("/:feature_version_id", h.Feature)
 	featureGroup.GET("/:feature_version_id/versions", h.FeatureVersions)
+	featureGroup.POST("/:feature_version_id/link", h.LinkFeatureVersion)
+	featureGroup.DELETE("/:feature_version_id/unlink", h.UnlinkFeatureVersion)
 	featureGroup.GET("/name-taken/:name", h.IsFeatureNameTaken)
 
 	keyGroup := featureGroup.Group("/:feature_version_id/keys")

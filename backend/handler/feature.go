@@ -84,7 +84,7 @@ func (h *Handler) CreateFeature(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
-// @Success 200 {object} service.FeatureVersionDto
+// @Success 200 {object} service.FeatureVersionWithPermissionDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -157,4 +157,88 @@ func (h *Handler) FeatureVersions(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, featureVersions)
+}
+
+// @Summary Get linkable features for a service version
+// @Description Get feature versions that can be linked to a service version
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Success 200 {object} []service.FeatureVersionDto
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/linkable [get]
+func (h *Handler) LinkableFeatures(c echo.Context) error {
+	var serviceVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	linkableFeatures, err := h.FeatureService.GetFeatureVersionsLinkableToServiceVersion(c.Request().Context(), serviceVersionID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, linkableFeatures)
+}
+
+// @Summary Unlink feature version
+// @Description Unlink feature version from a service version
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param feature_version_id path int true "Feature version ID"
+// @Success 204
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/{feature_version_id}/unlink [delete]
+func (h *Handler) UnlinkFeatureVersion(c echo.Context) error {
+	var serviceVersionID uint
+	var featureVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).MustUint("feature_version_id", &featureVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.FeatureService.UnlinkFeatureVersion(c.Request().Context(), serviceVersionID, featureVersionID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+// @Summary Link feature version
+// @Description Link feature version to a service version
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param feature_version_id path int true "Feature version ID"
+// @Success 204
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/{feature_version_id}/link [post]
+func (h *Handler) LinkFeatureVersion(c echo.Context) error {
+	var serviceVersionID uint
+	var featureVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).MustUint("feature_version_id", &featureVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.FeatureService.LinkFeatureVersion(c.Request().Context(), serviceVersionID, featureVersionID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusOK)
 }

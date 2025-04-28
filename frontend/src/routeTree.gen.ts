@@ -18,6 +18,7 @@ import { Route as usersUsersUserIdImport } from './routes/(users)/users.$userId'
 import { Route as servicesServicesCreateImport } from './routes/(services)/services.create'
 import { Route as changesetsChangesetsChangesetIdImport } from './routes/(changesets)/changesets.$changesetId'
 import { Route as servicesServicesServiceVersionIdIndexImport } from './routes/(services)/services.$serviceVersionId.index'
+import { Route as servicesServicesServiceVersionIdLinkImport } from './routes/(services)/services.$serviceVersionId.link'
 import { Route as servicesServicesServiceVersionIdEditImport } from './routes/(services)/services.$serviceVersionId.edit'
 import { Route as featuresServicesServiceVersionIdFeaturesCreateImport } from './routes/(features)/services.$serviceVersionId.features.create'
 import { Route as featuresServicesServiceVersionIdFeaturesFeatureVersionIdImport } from './routes/(features)/services.$serviceVersionId.features.$featureVersionId'
@@ -67,6 +68,13 @@ const servicesServicesServiceVersionIdIndexRoute =
   servicesServicesServiceVersionIdIndexImport.update({
     id: '/(services)/services/$serviceVersionId/',
     path: '/services/$serviceVersionId/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const servicesServicesServiceVersionIdLinkRoute =
+  servicesServicesServiceVersionIdLinkImport.update({
+    id: '/(services)/services/$serviceVersionId/link',
+    path: '/services/$serviceVersionId/link',
     getParentRoute: () => rootRoute,
   } as any)
 
@@ -160,6 +168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof servicesServicesServiceVersionIdEditImport
       parentRoute: typeof rootRoute
     }
+    '/(services)/services/$serviceVersionId/link': {
+      id: '/(services)/services/$serviceVersionId/link'
+      path: '/services/$serviceVersionId/link'
+      fullPath: '/services/$serviceVersionId/link'
+      preLoaderRoute: typeof servicesServicesServiceVersionIdLinkImport
+      parentRoute: typeof rootRoute
+    }
     '/(services)/services/$serviceVersionId/': {
       id: '/(services)/services/$serviceVersionId/'
       path: '/services/$serviceVersionId'
@@ -208,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/users/$userId': typeof usersUsersUserIdRoute
   '/services': typeof servicesServicesIndexRoute
   '/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
+  '/services/$serviceVersionId/link': typeof servicesServicesServiceVersionIdLinkRoute
   '/services/$serviceVersionId': typeof servicesServicesServiceVersionIdIndexRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute
   '/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
@@ -223,6 +239,7 @@ export interface FileRoutesByTo {
   '/users/$userId': typeof usersUsersUserIdRoute
   '/services': typeof servicesServicesIndexRoute
   '/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
+  '/services/$serviceVersionId/link': typeof servicesServicesServiceVersionIdLinkRoute
   '/services/$serviceVersionId': typeof servicesServicesServiceVersionIdIndexRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute
   '/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
@@ -239,6 +256,7 @@ export interface FileRoutesById {
   '/(users)/users/$userId': typeof usersUsersUserIdRoute
   '/(services)/services/': typeof servicesServicesIndexRoute
   '/(services)/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
+  '/(services)/services/$serviceVersionId/link': typeof servicesServicesServiceVersionIdLinkRoute
   '/(services)/services/$serviceVersionId/': typeof servicesServicesServiceVersionIdIndexRoute
   '/(features)/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute
   '/(features)/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
@@ -256,6 +274,7 @@ export interface FileRouteTypes {
     | '/users/$userId'
     | '/services'
     | '/services/$serviceVersionId/edit'
+    | '/services/$serviceVersionId/link'
     | '/services/$serviceVersionId'
     | '/services/$serviceVersionId/features/$featureVersionId'
     | '/services/$serviceVersionId/features/create'
@@ -270,6 +289,7 @@ export interface FileRouteTypes {
     | '/users/$userId'
     | '/services'
     | '/services/$serviceVersionId/edit'
+    | '/services/$serviceVersionId/link'
     | '/services/$serviceVersionId'
     | '/services/$serviceVersionId/features/$featureVersionId'
     | '/services/$serviceVersionId/features/create'
@@ -284,6 +304,7 @@ export interface FileRouteTypes {
     | '/(users)/users/$userId'
     | '/(services)/services/'
     | '/(services)/services/$serviceVersionId/edit'
+    | '/(services)/services/$serviceVersionId/link'
     | '/(services)/services/$serviceVersionId/'
     | '/(features)/services/$serviceVersionId/features/$featureVersionId'
     | '/(features)/services/$serviceVersionId/features/create'
@@ -300,6 +321,7 @@ export interface RootRouteChildren {
   usersUsersUserIdRoute: typeof usersUsersUserIdRoute
   servicesServicesIndexRoute: typeof servicesServicesIndexRoute
   servicesServicesServiceVersionIdEditRoute: typeof servicesServicesServiceVersionIdEditRoute
+  servicesServicesServiceVersionIdLinkRoute: typeof servicesServicesServiceVersionIdLinkRoute
   servicesServicesServiceVersionIdIndexRoute: typeof servicesServicesServiceVersionIdIndexRoute
   featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute: typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute
   featuresServicesServiceVersionIdFeaturesCreateRoute: typeof featuresServicesServiceVersionIdFeaturesCreateRoute
@@ -316,6 +338,8 @@ const rootRouteChildren: RootRouteChildren = {
   servicesServicesIndexRoute: servicesServicesIndexRoute,
   servicesServicesServiceVersionIdEditRoute:
     servicesServicesServiceVersionIdEditRoute,
+  servicesServicesServiceVersionIdLinkRoute:
+    servicesServicesServiceVersionIdLinkRoute,
   servicesServicesServiceVersionIdIndexRoute:
     servicesServicesServiceVersionIdIndexRoute,
   featuresServicesServiceVersionIdFeaturesFeatureVersionIdRoute:
@@ -345,6 +369,7 @@ export const routeTree = rootRoute
         "/(users)/users/$userId",
         "/(services)/services/",
         "/(services)/services/$serviceVersionId/edit",
+        "/(services)/services/$serviceVersionId/link",
         "/(services)/services/$serviceVersionId/",
         "/(features)/services/$serviceVersionId/features/$featureVersionId",
         "/(features)/services/$serviceVersionId/features/create",
@@ -372,6 +397,9 @@ export const routeTree = rootRoute
     },
     "/(services)/services/$serviceVersionId/edit": {
       "filePath": "(services)/services.$serviceVersionId.edit.tsx"
+    },
+    "/(services)/services/$serviceVersionId/link": {
+      "filePath": "(services)/services.$serviceVersionId.link.tsx"
     },
     "/(services)/services/$serviceVersionId/": {
       "filePath": "(services)/services.$serviceVersionId.index.tsx"

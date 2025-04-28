@@ -21,14 +21,12 @@ import { useGetServicesServiceVersionIdVersions } from '~/gen/hooks/useGetServic
 import { seo, appTitle, versionedTitle } from '~/utils/seo';
 import { MutationErrors } from '~/components/MutationErrors';
 
-const ParamsSchema = z.object({
-  serviceVersionId: z.coerce.number(),
-});
-
 export const Route = createFileRoute('/(services)/services/$serviceVersionId/')({
   component: RouteComponent,
   params: {
-    parse: ParamsSchema.parse,
+    parse: z.object({
+      serviceVersionId: z.coerce.number(),
+    }).parse,
   },
   loader: async ({ context, params }) => {
     return Promise.all([
@@ -111,25 +109,32 @@ function RouteComponent() {
             </DropdownMenuContent>
           </DropdownMenu>
           <div className="flex items-center w-full justify-end">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <EllipsisIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Link className="w-full" to="/services/$serviceVersionId/edit" params={{ serviceVersionId }}>
-                    Edit
-                  </Link>
-                </DropdownMenuItem>
-                {!serviceVersion.published && (
-                  <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
-                    Publish
+            {serviceVersion.canEdit && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <EllipsisIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <Link className="w-full" to="/services/$serviceVersionId/edit" params={{ serviceVersionId }}>
+                      Edit
+                    </Link>
                   </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuItem>
+                    <Link className="w-full" to="/services/$serviceVersionId/link" params={{ serviceVersionId }}>
+                      Link/Unlink features
+                    </Link>
+                  </DropdownMenuItem>
+                  {!serviceVersion.published && (
+                    <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
+                      Publish
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
         <div className="text-muted-foreground">{serviceVersion.description}</div>

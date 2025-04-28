@@ -1,5 +1,6 @@
 export type { DeleteChangesetsChangesetIdDiscardMutationKey } from './hooks/useDeleteChangesetsChangesetIdDiscard.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
+export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
 export type { GetAuthUserQueryKey } from './hooks/useGetAuthUser.ts'
 export type { GetAuthUserSuspenseQueryKey } from './hooks/useGetAuthUserSuspense.ts'
 export type { GetChangesetsChangesetIdQueryKey } from './hooks/useGetChangesetsChangesetId.ts'
@@ -25,6 +26,8 @@ export type { GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysSuspenseQue
 export type { GetServicesServiceVersionIdFeaturesFeatureVersionIdSuspenseQueryKey } from './hooks/useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense.ts'
 export type { GetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsQueryKey } from './hooks/useGetServicesServiceVersionIdFeaturesFeatureVersionIdVersions.ts'
 export type { GetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsSuspenseQueryKey } from './hooks/useGetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsSuspense.ts'
+export type { GetServicesServiceVersionIdFeaturesLinkableQueryKey } from './hooks/useGetServicesServiceVersionIdFeaturesLinkable.ts'
+export type { GetServicesServiceVersionIdFeaturesLinkableSuspenseQueryKey } from './hooks/useGetServicesServiceVersionIdFeaturesLinkableSuspense.ts'
 export type { GetServicesServiceVersionIdFeaturesNameTakenNameQueryKey } from './hooks/useGetServicesServiceVersionIdFeaturesNameTakenName.ts'
 export type { GetServicesServiceVersionIdFeaturesNameTakenNameSuspenseQueryKey } from './hooks/useGetServicesServiceVersionIdFeaturesNameTakenNameSuspense.ts'
 export type { GetServicesServiceVersionIdFeaturesSuspenseQueryKey } from './hooks/useGetServicesServiceVersionIdFeaturesSuspense.ts'
@@ -45,6 +48,7 @@ export type { PostServicesMutationKey } from './hooks/usePostServices.ts'
 export type { PostServicesServiceVersionIdFeaturesMutationKey } from './hooks/usePostServicesServiceVersionIdFeatures.ts'
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys.ts'
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues.ts'
+export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
 export type { PutChangesetsChangesetIdApplyMutationKey } from './hooks/usePutChangesetsChangesetIdApply.ts'
 export type { PutChangesetsChangesetIdCommitMutationKey } from './hooks/usePutChangesetsChangesetIdCommit.ts'
 export type { PutChangesetsChangesetIdReopenMutationKey } from './hooks/usePutChangesetsChangesetIdReopen.ts'
@@ -76,6 +80,16 @@ export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutation,
 } from './types/DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
+export type {
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkPathParams,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink204,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink401,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink403,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink404,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink500,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutation,
+} from './types/DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
 export type { EchoHTTPError } from './types/echo/HTTPError.ts'
 export type { GetAuthUser200, GetAuthUser401, GetAuthUser500, GetAuthUserQueryResponse, GetAuthUserQuery } from './types/GetAuthUser.ts'
 export type {
@@ -191,6 +205,15 @@ export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsQuery,
 } from './types/GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions.ts'
 export type {
+  GetServicesServiceVersionIdFeaturesLinkablePathParams,
+  GetServicesServiceVersionIdFeaturesLinkable200,
+  GetServicesServiceVersionIdFeaturesLinkable401,
+  GetServicesServiceVersionIdFeaturesLinkable404,
+  GetServicesServiceVersionIdFeaturesLinkable500,
+  GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
+  GetServicesServiceVersionIdFeaturesLinkableQuery,
+} from './types/GetServicesServiceVersionIdFeaturesLinkable.ts'
+export type {
   GetServicesServiceVersionIdFeaturesNameTakenNamePathParams,
   GetServicesServiceVersionIdFeaturesNameTakenName200,
   GetServicesServiceVersionIdFeaturesNameTakenName401,
@@ -305,6 +328,16 @@ export type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutation,
 } from './types/PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues.ts'
 export type {
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkPathParams,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdLink204,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdLink401,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdLink403,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdLink404,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdLink500,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationResponse,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutation,
+} from './types/PostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
+export type {
   PutChangesetsChangesetIdApplyPathParams,
   PutChangesetsChangesetIdApply204,
   PutChangesetsChangesetIdApply401,
@@ -383,6 +416,7 @@ export type { ServiceChangesetChange } from './types/service/ChangesetChange.ts'
 export type { ServiceChangesetDto } from './types/service/ChangesetDto.ts'
 export type { ServiceEditorTypesEnum, ServiceEditorTypes } from './types/service/EditorTypes.ts'
 export type { ServiceFeatureVersionDto } from './types/service/FeatureVersionDto.ts'
+export type { ServiceFeatureVersionWithPermissionDto } from './types/service/FeatureVersionWithPermissionDto.ts'
 export type { ServiceKeyDto } from './types/service/KeyDto.ts'
 export type { ServiceNewValueInfo } from './types/service/NewValueInfo.ts'
 export type { ServiceServiceDto } from './types/service/ServiceDto.ts'
@@ -400,6 +434,11 @@ export {
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
   useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
 } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
+export {
+  deleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey,
+  deleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink,
+  useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink,
+} from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
 export { getAuthUserQueryKey, getAuthUser, getAuthUserQueryOptions, useGetAuthUser } from './hooks/useGetAuthUser.ts'
 export { getAuthUserSuspenseQueryKey, getAuthUserSuspense, getAuthUserSuspenseQueryOptions, useGetAuthUserSuspense } from './hooks/useGetAuthUserSuspense.ts'
 export {
@@ -536,6 +575,18 @@ export {
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsSuspense,
 } from './hooks/useGetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsSuspense.ts'
 export {
+  getServicesServiceVersionIdFeaturesLinkableQueryKey,
+  getServicesServiceVersionIdFeaturesLinkable,
+  getServicesServiceVersionIdFeaturesLinkableQueryOptions,
+  useGetServicesServiceVersionIdFeaturesLinkable,
+} from './hooks/useGetServicesServiceVersionIdFeaturesLinkable.ts'
+export {
+  getServicesServiceVersionIdFeaturesLinkableSuspenseQueryKey,
+  getServicesServiceVersionIdFeaturesLinkableSuspense,
+  getServicesServiceVersionIdFeaturesLinkableSuspenseQueryOptions,
+  useGetServicesServiceVersionIdFeaturesLinkableSuspense,
+} from './hooks/useGetServicesServiceVersionIdFeaturesLinkableSuspense.ts'
+export {
   getServicesServiceVersionIdFeaturesNameTakenNameQueryKey,
   getServicesServiceVersionIdFeaturesNameTakenName,
   getServicesServiceVersionIdFeaturesNameTakenNameQueryOptions,
@@ -621,6 +672,11 @@ export {
   postServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues,
   usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues,
 } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues.ts'
+export {
+  postServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationKey,
+  postServicesServiceVersionIdFeaturesFeatureVersionIdLink,
+  usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink,
+} from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
 export {
   putChangesetsChangesetIdApplyMutationKey,
   putChangesetsChangesetIdApply,

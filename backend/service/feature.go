@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
@@ -37,28 +39,32 @@ func NewFeatureService(
 
 type FeatureVersionDto struct {
 	ID          uint   `json:"id" validate:"required"`
-	FeatureID   uint   `json:"featureId" validate:"required"`
 	Version     int    `json:"version" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	Name        string `json:"name" validate:"required"`
-	CanEdit     bool   `json:"canEdit" validate:"required"`
 }
 
-func (s *FeatureService) GetFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) (FeatureVersionDto, error) {
+type FeatureVersionWithPermissionDto struct {
+	FeatureVersionDto
+	CanEdit bool `json:"canEdit" validate:"required"`
+}
+
+func (s *FeatureService) GetFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) (FeatureVersionWithPermissionDto, error) {
 	_, featureVersion, err := s.coreService.GetFeatureVersion(ctx, serviceVersionID, featureVersionID)
 	if err != nil {
-		return FeatureVersionDto{}, err
+		return FeatureVersionWithPermissionDto{}, err
 	}
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	return FeatureVersionDto{
-		ID:          featureVersion.ID,
-		FeatureID:   featureVersion.FeatureID,
-		Version:     featureVersion.Version,
-		Description: featureVersion.FeatureDescription,
-		Name:        featureVersion.FeatureName,
-		CanEdit:     user.GetPermissionForService(featureVersion.FeatureID) >= constants.PermissionAdmin,
+	return FeatureVersionWithPermissionDto{
+		FeatureVersionDto: FeatureVersionDto{
+			ID:          featureVersion.ID,
+			Version:     featureVersion.Version,
+			Description: featureVersion.FeatureDescription,
+			Name:        featureVersion.FeatureName,
+		},
+		CanEdit: user.GetPermissionForService(featureVersion.FeatureID) >= constants.PermissionAdmin,
 	}, nil
 }
 
@@ -81,11 +87,9 @@ func (s *FeatureService) GetServiceFeatures(ctx context.Context, serviceVersionI
 	for i, featureVersion := range featureVersions {
 		result[i] = FeatureVersionDto{
 			ID:          featureVersion.ID,
-			FeatureID:   featureVersion.FeatureID,
 			Version:     featureVersion.Version,
 			Description: featureVersion.FeatureDescription,
 			Name:        featureVersion.FeatureName,
-			CanEdit:     user.GetPermissionForService(featureVersion.FeatureID) >= constants.PermissionAdmin,
 		}
 	}
 
@@ -114,6 +118,36 @@ func (s *FeatureService) GetFeatureVersionsLinkedToServiceVersion(ctx context.Co
 		result[i] = VersionLinkDto{
 			ID:      featureVersion.ID,
 			Version: featureVersion.Version,
+		}
+	}
+
+	return result, nil
+}
+
+func (s *FeatureService) GetFeatureVersionsLinkableToServiceVersion(ctx context.Context, serviceVersionID uint) ([]FeatureVersionDto, error) {
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
+	if err != nil {
+		return nil, err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	featureVersions, err := s.queries.GetFeatureVersionsLinkableToServiceVersion(ctx, db.GetFeatureVersionsLinkableToServiceVersionParams{
+		ServiceVersionID: serviceVersionID,
+		ChangesetID:      user.ChangesetID,
+		ServiceID:        serviceVersion.ServiceID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]FeatureVersionDto, len(featureVersions))
+	for i, featureVersion := range featureVersions {
+		result[i] = FeatureVersionDto{
+			ID:          featureVersion.ID,
+			Version:     featureVersion.Version,
+			Description: featureVersion.FeatureDescription,
+			Name:        featureVersion.FeatureName,
 		}
 	}
 
@@ -202,4 +236,137 @@ func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeature
 	})
 
 	return featureVersionID, err
+}
+
+func (s *FeatureService) UnlinkFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) error {
+	serviceVersion, _, linkID, err := s.coreService.GetFeatureVersionWithLinkID(ctx, serviceVersionID, featureVersionID)
+	if err != nil {
+		return err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to unlink features for this service")
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		changesetID, err := s.changesetService.EnsureChangesetForUser(ctx)
+		if err != nil {
+			return err
+		}
+
+		change, err := tx.GetChangeForFeatureVersionServiceVersion(ctx, db.GetChangeForFeatureVersionServiceVersionParams{
+			ChangesetID:      changesetID,
+			ServiceVersionID: serviceVersionID,
+			FeatureVersionID: featureVersionID,
+		})
+		if err != nil {
+			if !errors.Is(err, pgx.ErrNoRows) {
+				return err
+			}
+		}
+
+		if change.ID == 0 {
+			if err = tx.AddDeleteFeatureVersionServiceVersionChange(ctx, db.AddDeleteFeatureVersionServiceVersionChangeParams{
+				ChangesetID:                    changesetID,
+				FeatureVersionServiceVersionID: linkID,
+				ServiceVersionID:               serviceVersionID,
+				FeatureVersionID:               featureVersionID,
+			}); err != nil {
+				return err
+			}
+		} else {
+			if change.Type == "delete" {
+				return NewServiceError(ErrorCodeInvalidOperation, "Feature version already has an unlink change in the current changeset")
+			}
+
+			if err = tx.DeleteChange(ctx, change.ID); err != nil {
+				return err
+			}
+
+			if err = tx.DeleteFeatureVersionServiceVersion(ctx, linkID); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func (s *FeatureService) LinkFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) error {
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
+	if err != nil {
+		return err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to link features for this service")
+	}
+
+	featureVersion, err := s.queries.GetFeatureVersion(ctx, featureVersionID)
+	if err != nil {
+		return err
+	}
+
+	if featureVersion.ServiceID != serviceVersion.ServiceID {
+		return NewServiceError(ErrorCodeInvalidOperation, "Unable to link feature version to a different service version")
+	}
+
+	linked, err := s.queries.IsFeatureLinkedToServiceVersion(ctx, db.IsFeatureLinkedToServiceVersionParams{
+		FeatureID:        featureVersion.FeatureID,
+		ServiceVersionID: serviceVersionID,
+		ChangesetID:      user.ChangesetID,
+	})
+	if err != nil {
+		return err
+	}
+
+	if linked {
+		return NewServiceError(ErrorCodeInvalidOperation, "Feature is already linked to this service version")
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		changesetID, err := s.changesetService.EnsureChangesetForUser(ctx)
+		if err != nil {
+			return err
+		}
+
+		change, err := tx.GetChangeForFeatureVersionServiceVersion(ctx, db.GetChangeForFeatureVersionServiceVersionParams{
+			ChangesetID:      changesetID,
+			ServiceVersionID: serviceVersionID,
+			FeatureVersionID: featureVersionID,
+		})
+		if err != nil {
+			if !errors.Is(err, pgx.ErrNoRows) {
+				return err
+			}
+		}
+
+		if change.ID == 0 {
+			linkID, err := tx.CreateFeatureVersionServiceVersion(ctx, db.CreateFeatureVersionServiceVersionParams{
+				ServiceVersionID: serviceVersionID,
+				FeatureVersionID: featureVersionID,
+			})
+			if err != nil {
+				return err
+			}
+
+			if err = tx.AddCreateFeatureVersionServiceVersionChange(ctx, db.AddCreateFeatureVersionServiceVersionChangeParams{
+				ChangesetID:                    changesetID,
+				FeatureVersionServiceVersionID: linkID,
+				ServiceVersionID:               serviceVersionID,
+				FeatureVersionID:               featureVersionID,
+			}); err != nil {
+				return err
+			}
+		} else {
+			// has to be a delete change
+			if err = tx.DeleteChange(ctx, change.ID); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }

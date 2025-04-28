@@ -26,6 +26,7 @@ WHERE vv.key_id = @key_id
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'variation_value'
                     AND csc.old_variation_value_id = vv.id
                 LIMIT 1
             )
@@ -36,6 +37,7 @@ WHERE vv.key_id = @key_id
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'variation_value'
                     AND csc.new_variation_value_id = vv.id
                 LIMIT 1
             )
@@ -54,6 +56,7 @@ WHERE vv.key_id = @key_id
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'variation_value'
                     AND csc.old_variation_value_id = vv.id
                 LIMIT 1
             )
@@ -64,6 +67,7 @@ WHERE vv.key_id = @key_id
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'variation_value'
                     AND csc.new_variation_value_id = vv.id
                 LIMIT 1
             )

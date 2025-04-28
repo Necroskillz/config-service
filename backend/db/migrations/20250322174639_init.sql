@@ -15,6 +15,7 @@ CREATE TYPE changeset_action_type AS ENUM (
     'reopen',
     'comment'
 );
+CREATE TYPE changeset_change_kind AS ENUM ('feature_version', 'service_version', 'feature_version_service_version', 'key', 'variation_value');
 CREATE TYPE changeset_change_type AS ENUM ('create', 'update', 'delete');
 CREATE TYPE permission_level AS ENUM ('editor', 'admin');
 CREATE TABLE users (
@@ -161,6 +162,7 @@ CREATE TABLE changeset_changes (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     changeset_id BIGINT NOT NULL REFERENCES changesets(id),
     type changeset_change_type NOT NULL,
+    kind changeset_change_kind NOT NULL,
     feature_version_id BIGINT REFERENCES feature_versions(id),
     previous_feature_version_id BIGINT REFERENCES feature_versions(id),
     service_version_id BIGINT NOT NULL REFERENCES service_versions(id),
@@ -170,6 +172,7 @@ CREATE TABLE changeset_changes (
     new_variation_value_id BIGINT REFERENCES variation_values(id),
     old_variation_value_id BIGINT REFERENCES variation_values(id)
 );
+CREATE INDEX idx_changeset_changes_kind ON changeset_changes(kind);
 CREATE TABLE changeset_actions (
     id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -201,3 +204,5 @@ DROP TABLE users;
 DROP TYPE permission_level;
 DROP TYPE changeset_change_type;
 DROP TYPE changeset_state;
+DROP TYPE changeset_action_type;
+DROP TYPE changeset_change_kind;

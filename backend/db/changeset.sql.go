@@ -12,7 +12,12 @@ import (
 
 const addChangesetAction = `-- name: AddChangesetAction :exec
 INSERT INTO changeset_actions (changeset_id, user_id, type, comment)
-VALUES ($1, $2, $3, $4)
+VALUES (
+        $1,
+        $2,
+        $3,
+        $4
+    )
 `
 
 type AddChangesetActionParams struct {
@@ -38,14 +43,16 @@ INSERT INTO changeset_changes (
         feature_version_id,
         previous_feature_version_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         $1,
         $2::bigint,
         $3,
         $4::bigint,
-        'create'
+        'create',
+        'feature_version'
     )
 `
 
@@ -72,14 +79,16 @@ INSERT INTO changeset_changes (
         feature_version_service_version_id,
         feature_version_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         $1,
         $2::bigint,
         $3::bigint,
         $4::bigint,
-        'create'
+        'create',
+        'feature_version_service_version'
     )
 `
 
@@ -106,14 +115,16 @@ INSERT INTO changeset_changes (
         key_id,
         feature_version_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         $1,
         $2::bigint,
         $3::bigint,
         $4::bigint,
-        'create'
+        'create',
+        'key'
     )
 `
 
@@ -139,13 +150,15 @@ INSERT INTO changeset_changes (
         changeset_id,
         service_version_id,
         previous_service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         $1,
         $2::bigint,
         $3,
-        'create'
+        'create',
+        'service_version'
     )
 `
 
@@ -167,7 +180,8 @@ INSERT INTO changeset_changes (
         feature_version_id,
         key_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         $1,
@@ -175,7 +189,8 @@ VALUES (
         $3::bigint,
         $4::bigint,
         $5::bigint,
-        'create'
+        'create',
+        'variation_value'
     )
 `
 
@@ -204,14 +219,16 @@ INSERT INTO changeset_changes (
         feature_version_service_version_id,
         feature_version_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         $1,
         $2::bigint,
         $3::bigint,
         $4::bigint,
-        'delete'
+        'delete',
+        'feature_version_service_version'
     )
 `
 
@@ -239,7 +256,8 @@ INSERT INTO changeset_changes (
         feature_version_id,
         key_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         $1,
@@ -247,7 +265,8 @@ VALUES (
         $3::bigint,
         $4::bigint,
         $5::bigint,
-        'delete'
+        'delete',
+        'variation_value'
     )
 `
 
@@ -278,7 +297,8 @@ INSERT INTO changeset_changes (
         feature_version_id,
         key_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         $1,
@@ -287,7 +307,8 @@ VALUES (
         $4::bigint,
         $5::bigint,
         $6::bigint,
-        'update'
+        'update',
+        'variation_value'
     )
 `
 
@@ -333,6 +354,37 @@ WHERE id = $1
 func (q *Queries) DeleteChange(ctx context.Context, changeID uint) error {
 	_, err := q.db.Exec(ctx, deleteChange, changeID)
 	return err
+}
+
+const getChangeForFeatureVersionServiceVersion = `-- name: GetChangeForFeatureVersionServiceVersion :one
+SELECT csc.id,
+    csc.type,
+    csc.feature_version_service_version_id
+FROM changeset_changes csc
+WHERE csc.changeset_id = $1
+    AND csc.service_version_id = $2::bigint
+    AND csc.feature_version_id = $3::bigint
+    AND csc.kind = 'feature_version_service_version'
+LIMIT 1
+`
+
+type GetChangeForFeatureVersionServiceVersionParams struct {
+	ChangesetID      uint
+	ServiceVersionID uint
+	FeatureVersionID uint
+}
+
+type GetChangeForFeatureVersionServiceVersionRow struct {
+	ID                             uint
+	Type                           ChangesetChangeType
+	FeatureVersionServiceVersionID *uint
+}
+
+func (q *Queries) GetChangeForFeatureVersionServiceVersion(ctx context.Context, arg GetChangeForFeatureVersionServiceVersionParams) (GetChangeForFeatureVersionServiceVersionRow, error) {
+	row := q.db.QueryRow(ctx, getChangeForFeatureVersionServiceVersion, arg.ChangesetID, arg.ServiceVersionID, arg.FeatureVersionID)
+	var i GetChangeForFeatureVersionServiceVersionRow
+	err := row.Scan(&i.ID, &i.Type, &i.FeatureVersionServiceVersionID)
+	return i, err
 }
 
 const getChangeForVariationValue = `-- name: GetChangeForVariationValue :one
@@ -462,6 +514,7 @@ func (q *Queries) GetChangesetActions(ctx context.Context, changesetID uint) ([]
 const getChangesetChanges = `-- name: GetChangesetChanges :many
 SELECT csc.id,
     csc.type,
+    csc.kind,
     sv.id as service_version_id,
     csc.previous_service_version_id,
     s.name as service_name,
@@ -494,6 +547,7 @@ ORDER BY csc.id
 type GetChangesetChangesRow struct {
 	ID                             uint
 	Type                           ChangesetChangeType
+	Kind                           ChangesetChangeKind
 	ServiceVersionID               uint
 	PreviousServiceVersionID       *uint
 	ServiceName                    string
@@ -524,6 +578,7 @@ func (q *Queries) GetChangesetChanges(ctx context.Context, changesetID uint) ([]
 		if err := rows.Scan(
 			&i.ID,
 			&i.Type,
+			&i.Kind,
 			&i.ServiceVersionID,
 			&i.PreviousServiceVersionID,
 			&i.ServiceName,

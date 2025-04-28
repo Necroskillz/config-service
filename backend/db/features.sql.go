@@ -146,7 +146,8 @@ WHERE fvsv.service_version_id = $1
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = $2
-                    AND csc.type = 'create'
+                    AND csc.kind = 'feature_version_service_version'
+                    AND csc.type = 'delete'
                     AND csc.feature_version_service_version_id = fvsv.id
                 LIMIT 1
             )
@@ -157,6 +158,7 @@ WHERE fvsv.service_version_id = $1
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = $2
+                    AND csc.kind = 'feature_version_service_version'
                     AND csc.type = 'create'
                     AND csc.feature_version_service_version_id = fvsv.id
                 LIMIT 1
@@ -221,7 +223,8 @@ func (q *Queries) GetFeatureIDByName(ctx context.Context, name string) (uint, er
 const getFeatureVersion = `-- name: GetFeatureVersion :one
 SELECT fv.id, fv.created_at, fv.updated_at, fv.valid_from, fv.valid_to, fv.version, fv.feature_id,
     f.name as feature_name,
-    f.description as feature_description
+    f.description as feature_description,
+    f.service_id
 FROM feature_versions fv
     JOIN features f ON f.id = fv.feature_id
 WHERE fv.id = $1
@@ -238,6 +241,7 @@ type GetFeatureVersionRow struct {
 	FeatureID          uint
 	FeatureName        string
 	FeatureDescription string
+	ServiceID          uint
 }
 
 func (q *Queries) GetFeatureVersion(ctx context.Context, featureVersionID uint) (GetFeatureVersionRow, error) {
@@ -253,8 +257,163 @@ func (q *Queries) GetFeatureVersion(ctx context.Context, featureVersionID uint) 
 		&i.FeatureID,
 		&i.FeatureName,
 		&i.FeatureDescription,
+		&i.ServiceID,
 	)
 	return i, err
+}
+
+const getFeatureVersionServiceVersionLinkID = `-- name: GetFeatureVersionServiceVersionLinkID :one
+SELECT fvsv.id
+FROM feature_version_service_versions fvsv
+WHERE fvsv.feature_version_id = $1
+    AND fvsv.service_version_id = $2
+    AND (
+        (
+            fvsv.valid_from IS NOT NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $3
+                    AND csc.kind = 'feature_version_service_version'
+                    AND csc.type = 'delete'
+                    AND csc.feature_version_service_version_id = fvsv.id
+                LIMIT 1
+            )
+        )
+        OR (
+            fvsv.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $3
+                    AND csc.kind = 'feature_version_service_version'
+                    AND csc.type = 'create'
+                    AND csc.feature_version_service_version_id = fvsv.id
+                LIMIT 1
+            )
+        )
+    )
+`
+
+type GetFeatureVersionServiceVersionLinkIDParams struct {
+	FeatureVersionID uint
+	ServiceVersionID uint
+	ChangesetID      uint
+}
+
+func (q *Queries) GetFeatureVersionServiceVersionLinkID(ctx context.Context, arg GetFeatureVersionServiceVersionLinkIDParams) (uint, error) {
+	row := q.db.QueryRow(ctx, getFeatureVersionServiceVersionLinkID, arg.FeatureVersionID, arg.ServiceVersionID, arg.ChangesetID)
+	var id uint
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getFeatureVersionsLinkableToServiceVersion = `-- name: GetFeatureVersionsLinkableToServiceVersion :many
+SELECT fv.id,
+    fv.version,
+    f.name as feature_name,
+    f.description as feature_description
+FROM feature_versions fv
+    JOIN features f ON f.id = fv.feature_id
+WHERE f.service_id = $1
+    AND (
+        (
+            fv.valid_from IS NOT NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.kind = 'feature_version'
+                    AND csc.type = 'delete'
+                    AND csc.feature_version_id = fv.id
+                LIMIT 1
+            )
+        )
+        OR (
+            fv.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $2
+                    AND csc.kind = 'feature_version'
+                    AND csc.type = 'create'
+                    AND csc.feature_version_id = fv.id
+                LIMIT 1
+            )
+        )
+    )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM feature_version_service_versions fvsv
+        WHERE fvsv.feature_version_id = fv.id
+            AND fvsv.service_version_id = $3
+            AND (
+                (
+                    fvsv.valid_from IS NOT NULL
+                    AND NOT EXISTS (
+                        SELECT csc.id
+                        FROM changeset_changes csc
+                        WHERE csc.changeset_id = $2
+                            AND csc.kind = 'feature_version_service_version'
+                            AND csc.type = 'delete'
+                            AND csc.feature_version_service_version_id = fvsv.id
+                        LIMIT 1
+                    )
+                )
+                OR (
+                    fvsv.valid_from IS NULL
+                    AND EXISTS (
+                        SELECT csc.id
+                        FROM changeset_changes csc
+                        WHERE csc.changeset_id = $2
+                            AND csc.kind = 'feature_version_service_version'
+                            AND csc.type = 'create'
+                            AND csc.feature_version_service_version_id = fvsv.id
+                        LIMIT 1
+                    )
+                )
+            )
+    )
+ORDER BY f.name,
+    fv.version
+`
+
+type GetFeatureVersionsLinkableToServiceVersionParams struct {
+	ServiceID        uint
+	ChangesetID      uint
+	ServiceVersionID uint
+}
+
+type GetFeatureVersionsLinkableToServiceVersionRow struct {
+	ID                 uint
+	Version            int
+	FeatureName        string
+	FeatureDescription string
+}
+
+func (q *Queries) GetFeatureVersionsLinkableToServiceVersion(ctx context.Context, arg GetFeatureVersionsLinkableToServiceVersionParams) ([]GetFeatureVersionsLinkableToServiceVersionRow, error) {
+	rows, err := q.db.Query(ctx, getFeatureVersionsLinkableToServiceVersion, arg.ServiceID, arg.ChangesetID, arg.ServiceVersionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFeatureVersionsLinkableToServiceVersionRow
+	for rows.Next() {
+		var i GetFeatureVersionsLinkableToServiceVersionRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Version,
+			&i.FeatureName,
+			&i.FeatureDescription,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getFeatureVersionsLinkedToServiceVersion = `-- name: GetFeatureVersionsLinkedToServiceVersion :many
@@ -266,13 +425,25 @@ FROM feature_version_service_versions fvsv
 WHERE fv.feature_id = $1
     AND fvsv.service_version_id = $2
     AND (
-        fvsv.valid_from IS NOT NULL
+        (
+            fvsv.valid_from IS NOT NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = $3
+                    AND csc.kind = 'feature_version_service_version'
+                    AND csc.type = 'delete'
+                    AND csc.feature_version_service_version_id = fvsv.id
+                LIMIT 1
+            )
+        )
         OR (
             fvsv.valid_from IS NULL
             AND EXISTS (
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = $3
+                    AND csc.kind = 'feature_version_service_version'
                     AND csc.type = 'create'
                     AND csc.feature_version_service_version_id = fvsv.id
                 LIMIT 1
@@ -313,20 +484,33 @@ func (q *Queries) GetFeatureVersionsLinkedToServiceVersion(ctx context.Context, 
 	return items, nil
 }
 
-const isFeatureVersionLinkedToServiceVersion = `-- name: IsFeatureVersionLinkedToServiceVersion :one
+const isFeatureLinkedToServiceVersion = `-- name: IsFeatureLinkedToServiceVersion :one
 SELECT EXISTS (
         SELECT 1
         FROM feature_version_service_versions fvsv
-        WHERE fvsv.feature_version_id = $1
+            JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
+        WHERE fv.feature_id = $1
             AND fvsv.service_version_id = $2
             AND (
-                fvsv.valid_from IS NOT NULL
+                (
+                    fvsv.valid_from IS NOT NULL
+                    AND NOT EXISTS (
+                        SELECT csc.id
+                        FROM changeset_changes csc
+                        WHERE csc.changeset_id = $3
+                            AND csc.kind = 'feature_version_service_version'
+                            AND csc.type = 'delete'
+                            AND csc.feature_version_service_version_id = fvsv.id
+                        LIMIT 1
+                    )
+                )
                 OR (
                     fvsv.valid_from IS NULL
                     AND EXISTS (
                         SELECT csc.id
                         FROM changeset_changes csc
                         WHERE csc.changeset_id = $3
+                            AND csc.kind = 'feature_version_service_version'
                             AND csc.type = 'create'
                             AND csc.feature_version_service_version_id = fvsv.id
                         LIMIT 1
@@ -336,14 +520,14 @@ SELECT EXISTS (
     )
 `
 
-type IsFeatureVersionLinkedToServiceVersionParams struct {
-	FeatureVersionID uint
+type IsFeatureLinkedToServiceVersionParams struct {
+	FeatureID        uint
 	ServiceVersionID uint
 	ChangesetID      uint
 }
 
-func (q *Queries) IsFeatureVersionLinkedToServiceVersion(ctx context.Context, arg IsFeatureVersionLinkedToServiceVersionParams) (bool, error) {
-	row := q.db.QueryRow(ctx, isFeatureVersionLinkedToServiceVersion, arg.FeatureVersionID, arg.ServiceVersionID, arg.ChangesetID)
+func (q *Queries) IsFeatureLinkedToServiceVersion(ctx context.Context, arg IsFeatureLinkedToServiceVersionParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isFeatureLinkedToServiceVersion, arg.FeatureID, arg.ServiceVersionID, arg.ChangesetID)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err

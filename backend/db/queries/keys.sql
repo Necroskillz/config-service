@@ -21,6 +21,7 @@ WHERE k.feature_version_id = @feature_version_id
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'key'
                     AND csc.type = 'delete'
                     AND csc.key_id = k.id
                 LIMIT 1
@@ -32,6 +33,7 @@ WHERE k.feature_version_id = @feature_version_id
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'key'
                     AND csc.type = 'create'
                     AND csc.key_id = k.id
                 LIMIT 1

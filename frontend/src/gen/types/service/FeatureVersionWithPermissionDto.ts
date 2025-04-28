@@ -3,7 +3,11 @@
  * Do not edit manually.
  */
 
-export type ServiceFeatureVersionDto = {
+export type ServiceFeatureVersionWithPermissionDto = {
+  /**
+   * @type boolean
+   */
+  canEdit: boolean
   /**
    * @type string
    */

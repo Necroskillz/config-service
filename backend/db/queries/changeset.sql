@@ -23,7 +23,12 @@ SET state = @state
 WHERE id = @changeset_id;
 -- name: AddChangesetAction :exec
 INSERT INTO changeset_actions (changeset_id, user_id, type, comment)
-VALUES (@changeset_id, @user_id, @type, sqlc.narg('comment'));
+VALUES (
+        @changeset_id,
+        @user_id,
+        @type,
+        sqlc.narg('comment')
+    );
 -- name: GetChangesetActions :many
 SELECT ca.id,
     ca.type,
@@ -38,6 +43,7 @@ ORDER BY ca.id;
 -- name: GetChangesetChanges :many
 SELECT csc.id,
     csc.type,
+    csc.kind,
     sv.id as service_version_id,
     csc.previous_service_version_id,
     s.name as service_name,
@@ -82,6 +88,16 @@ WHERE csc.changeset_id = @changeset_id
         OR csc.new_variation_value_id = @variation_value_id::bigint
     )
 LIMIT 1;
+-- name: GetChangeForFeatureVersionServiceVersion :one
+SELECT csc.id,
+    csc.type,
+    csc.feature_version_service_version_id
+FROM changeset_changes csc
+WHERE csc.changeset_id = @changeset_id
+    AND csc.service_version_id = @service_version_id::bigint
+    AND csc.feature_version_id = @feature_version_id::bigint
+    AND csc.kind = 'feature_version_service_version'
+LIMIT 1;
 -- name: DeleteChange :exec
 DELETE FROM changeset_changes
 WHERE id = @change_id;
@@ -90,13 +106,15 @@ INSERT INTO changeset_changes (
         changeset_id,
         service_version_id,
         previous_service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         @changeset_id,
         @service_version_id::bigint,
         sqlc.narg('previous_service_version_id'),
-        'create'
+        'create',
+        'service_version'
     );
 -- name: AddCreateFeatureVersionChange :exec
 INSERT INTO changeset_changes (
@@ -104,14 +122,16 @@ INSERT INTO changeset_changes (
         feature_version_id,
         previous_feature_version_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         @changeset_id,
         @feature_version_id::bigint,
         sqlc.narg('previous_feature_version_id'),
         @service_version_id::bigint,
-        'create'
+        'create',
+        'feature_version'
     );
 -- name: AddCreateFeatureVersionServiceVersionChange :exec
 INSERT INTO changeset_changes (
@@ -119,14 +139,16 @@ INSERT INTO changeset_changes (
         feature_version_service_version_id,
         feature_version_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         @changeset_id,
         @feature_version_service_version_id::bigint,
         @feature_version_id::bigint,
         @service_version_id::bigint,
-        'create'
+        'create',
+        'feature_version_service_version'
     );
 -- name: AddDeleteFeatureVersionServiceVersionChange :exec
 INSERT INTO changeset_changes (
@@ -134,14 +156,16 @@ INSERT INTO changeset_changes (
         feature_version_service_version_id,
         feature_version_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         @changeset_id,
         @feature_version_service_version_id::bigint,
         @feature_version_id::bigint,
         @service_version_id::bigint,
-        'delete'
+        'delete',
+        'feature_version_service_version'
     );
 -- name: AddCreateKeyChange :exec
 INSERT INTO changeset_changes (
@@ -149,14 +173,16 @@ INSERT INTO changeset_changes (
         key_id,
         feature_version_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         @changeset_id,
         @key_id::bigint,
         @feature_version_id::bigint,
         @service_version_id::bigint,
-        'create'
+        'create',
+        'key'
     );
 -- name: AddCreateVariationValueChange :exec
 INSERT INTO changeset_changes (
@@ -165,7 +191,8 @@ INSERT INTO changeset_changes (
         feature_version_id,
         key_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         @changeset_id,
@@ -173,7 +200,8 @@ VALUES (
         @feature_version_id::bigint,
         @key_id::bigint,
         @service_version_id::bigint,
-        'create'
+        'create',
+        'variation_value'
     );
 -- name: AddDeleteVariationValueChange :exec
 INSERT INTO changeset_changes (
@@ -182,7 +210,8 @@ INSERT INTO changeset_changes (
         feature_version_id,
         key_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         @changeset_id,
@@ -190,7 +219,8 @@ VALUES (
         @feature_version_id::bigint,
         @key_id::bigint,
         @service_version_id::bigint,
-        'delete'
+        'delete',
+        'variation_value'
     );
 -- name: AddUpdateVariationValueChange :exec
 INSERT INTO changeset_changes (
@@ -200,7 +230,8 @@ INSERT INTO changeset_changes (
         feature_version_id,
         key_id,
         service_version_id,
-        type
+        type,
+        kind
     )
 VALUES (
         @changeset_id,
@@ -209,5 +240,6 @@ VALUES (
         @feature_version_id::bigint,
         @key_id::bigint,
         @service_version_id::bigint,
-        'update'
+        'update',
+        'variation_value'
     );

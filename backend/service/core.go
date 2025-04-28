@@ -17,6 +17,8 @@ func NewCoreService(queries *db.Queries, currentUserAccessor *auth.CurrentUserAc
 	return &CoreService{queries: queries, currentUserAccessor: currentUserAccessor}
 }
 
+// TODO: Add changeset constrains to all queries
+
 func (s *CoreService) GetServiceVersion(ctx context.Context, serviceVersionID uint) (db.GetServiceVersionRow, error) {
 	serviceVersion, err := s.queries.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
@@ -26,32 +28,41 @@ func (s *CoreService) GetServiceVersion(ctx context.Context, serviceVersionID ui
 	return serviceVersion, nil
 }
 
-func (s *CoreService) GetFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) (db.GetServiceVersionRow, db.GetFeatureVersionRow, error) {
+func (s *CoreService) GetFeatureVersionWithLinkID(ctx context.Context, serviceVersionID uint, featureVersionID uint) (db.GetServiceVersionRow, db.GetFeatureVersionRow, uint, error) {
 	var serviceVersion db.GetServiceVersionRow
 	var featureVersion db.GetFeatureVersionRow
 	user := s.currentUserAccessor.GetUser(ctx)
 
 	serviceVersion, err := s.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
-		return serviceVersion, featureVersion, err
+		return serviceVersion, featureVersion, 0, err
 	}
 
 	featureVersion, err = s.queries.GetFeatureVersion(ctx, featureVersionID)
 	if err != nil {
-		return serviceVersion, featureVersion, NewDbError(err, "FeatureVersion")
+		return serviceVersion, featureVersion, 0, NewDbError(err, "FeatureVersion")
 	}
 
-	linked, err := s.queries.IsFeatureVersionLinkedToServiceVersion(ctx, db.IsFeatureVersionLinkedToServiceVersionParams{
+	linkID, err := s.queries.GetFeatureVersionServiceVersionLinkID(ctx, db.GetFeatureVersionServiceVersionLinkIDParams{
 		FeatureVersionID: featureVersion.ID,
 		ServiceVersionID: serviceVersion.ID,
 		ChangesetID:      user.ChangesetID,
 	})
 	if err != nil {
-		return serviceVersion, featureVersion, NewDbError(err, "FeatureVersion")
+		return serviceVersion, featureVersion, 0, NewDbError(err, "FeatureVersionServiceVersion link")
 	}
 
-	if !linked {
-		return serviceVersion, featureVersion, NewServiceError(ErrorCodeRecordNotFound, fmt.Sprintf("Feature version %d is not linked to service version %d", featureVersion.ID, serviceVersion.ID))
+	if linkID == 0 {
+		return serviceVersion, featureVersion, 0, NewServiceError(ErrorCodeRecordNotFound, fmt.Sprintf("Feature version %d is not linked to service version %d", featureVersion.ID, serviceVersion.ID))
+	}
+
+	return serviceVersion, featureVersion, linkID, nil
+}
+
+func (s *CoreService) GetFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) (db.GetServiceVersionRow, db.GetFeatureVersionRow, error) {
+	serviceVersion, featureVersion, _, err := s.GetFeatureVersionWithLinkID(ctx, serviceVersionID, featureVersionID)
+	if err != nil {
+		return serviceVersion, featureVersion, err
 	}
 
 	return serviceVersion, featureVersion, nil

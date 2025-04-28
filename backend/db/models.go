@@ -56,6 +56,51 @@ func (ns NullChangesetActionType) Value() (driver.Value, error) {
 	return string(ns.ChangesetActionType), nil
 }
 
+type ChangesetChangeKind string
+
+const (
+	ChangesetChangeKindFeatureVersion               ChangesetChangeKind = "feature_version"
+	ChangesetChangeKindServiceVersion               ChangesetChangeKind = "service_version"
+	ChangesetChangeKindFeatureVersionServiceVersion ChangesetChangeKind = "feature_version_service_version"
+	ChangesetChangeKindKey                          ChangesetChangeKind = "key"
+	ChangesetChangeKindVariationValue               ChangesetChangeKind = "variation_value"
+)
+
+func (e *ChangesetChangeKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ChangesetChangeKind(s)
+	case string:
+		*e = ChangesetChangeKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ChangesetChangeKind: %T", src)
+	}
+	return nil
+}
+
+type NullChangesetChangeKind struct {
+	ChangesetChangeKind ChangesetChangeKind
+	Valid               bool // Valid is true if ChangesetChangeKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullChangesetChangeKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.ChangesetChangeKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ChangesetChangeKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullChangesetChangeKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ChangesetChangeKind), nil
+}
+
 type ChangesetChangeType string
 
 const (
@@ -209,6 +254,7 @@ type ChangesetChange struct {
 	CreatedAt                      time.Time
 	ChangesetID                    uint
 	Type                           ChangesetChangeType
+	Kind                           ChangesetChangeKind
 	FeatureVersionID               *uint
 	PreviousFeatureVersionID       *uint
 	ServiceVersionID               uint

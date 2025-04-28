@@ -1,12 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { SlimPage } from '~/components/SlimPage';
 import { PageTitle } from '~/components/PageTitle';
-import {
-  getServicesQueryKey,
-  getServicesServiceVersionIdQueryKey,
-  getServicesServiceVersionIdQueryOptions,
-  usePutServicesServiceVersionId,
-} from '~/gen';
+import { getServicesServiceVersionIdQueryOptions, usePutServicesServiceVersionId } from '~/gen';
 import { z } from 'zod';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { MutationErrors } from '~/components/MutationErrors';
@@ -14,7 +9,6 @@ import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
-import { useQueryClient } from '@tanstack/react-query';
 import { versionedTitle, seo, appTitle } from '~/utils/seo';
 
 export const Route = createFileRoute('/(services)/services/$serviceVersionId/edit')({

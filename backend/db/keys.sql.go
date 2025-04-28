@@ -104,6 +104,7 @@ WHERE k.feature_version_id = $1
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = $2
+                    AND csc.kind = 'key'
                     AND csc.type = 'delete'
                     AND csc.key_id = k.id
                 LIMIT 1
@@ -115,6 +116,7 @@ WHERE k.feature_version_id = $1
                 SELECT csc.id
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = $2
+                    AND csc.kind = 'key'
                     AND csc.type = 'create'
                     AND csc.key_id = k.id
                 LIMIT 1

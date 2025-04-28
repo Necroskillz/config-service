@@ -215,6 +215,7 @@ WHERE (sv.valid_from IS NOT NULL)
             FROM changeset_changes csc
             WHERE csc.changeset_id = $1
                 AND csc.type = 'create'
+                AND csc.kind = 'service_version'
                 AND csc.service_version_id = sv.id
             LIMIT 1
         )
@@ -285,6 +286,7 @@ WHERE sv.service_id = $1
                 FROM changeset_changes csc
                 WHERE csc.changeset_id = $2
                     AND csc.type = 'create'
+                    AND csc.kind = 'service_version'
                     AND csc.service_version_id = sv.id
                 LIMIT 1
             )
