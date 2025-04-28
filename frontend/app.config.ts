@@ -14,4 +14,18 @@ export default defineConfig({
       tailwindcss(),
     ],
   },
+
+  // https://react.dev/learn/react-compiler
+  react: {
+    babel: {
+      plugins: [
+        [
+          'babel-plugin-react-compiler',
+          {
+            target: '19',
+          },
+        ],
+      ],
+    },
+  },
 });

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { MutationErrors } from '~/components/MutationErrors';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
-import { useAppForm } from '~/components/ui/tanstack-form';
+import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
 import { seo, appTitle } from '~/utils/seo';
 
@@ -95,7 +95,7 @@ function RouteComponent() {
               },
             }}
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Name</field.FormLabel>
                 <field.FormControl>
                   <Input
@@ -108,13 +108,13 @@ function RouteComponent() {
                   />
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <form.AppField
             name="description"
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Description</field.FormLabel>
                 <field.FormControl>
                   <Textarea
@@ -126,13 +126,13 @@ function RouteComponent() {
                   />
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <form.AppField
             name="serviceTypeId"
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Service Type</field.FormLabel>
                 <field.FormControl>
                   <Select
@@ -163,7 +163,7 @@ function RouteComponent() {
                   </Select>
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <div>

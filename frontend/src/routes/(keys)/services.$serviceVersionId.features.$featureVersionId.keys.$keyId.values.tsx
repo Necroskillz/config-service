@@ -28,7 +28,7 @@ import { PageTitle } from '~/components/PageTitle';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter, Table } from '~/components/ui/table';
-import { useAppForm } from '~/components/ui/tanstack-form';
+import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { VariationSelect } from '~/components/VariationSelect';
 import { cn } from '~/lib/utils';
 
@@ -215,7 +215,7 @@ function RouteComponent() {
   function cachePerVariation(fn: (value: ValueFormData) => Promise<string | undefined>) {
     const cache = new Map<string, string | undefined>();
 
-    return async (value: ValueFormData) => {
+    return async (value: ValueFormData): Promise<string | undefined> => {
       const key = JSON.stringify(value.variation);
       if (cache.has(key)) {
         return cache.get(key);
@@ -223,6 +223,7 @@ function RouteComponent() {
 
       const result = await fn(value);
       cache.set(key, result);
+      return result;
     };
   }
 
@@ -273,6 +274,7 @@ function RouteComponent() {
         params: value.variation,
       });
     } catch (err: any) {
+      console.log(err);
       return asyncValidatorErrorMessage(err);
     }
   });
@@ -320,7 +322,7 @@ function RouteComponent() {
                 <editForm.AppField
                   name="data"
                   children={(field) => (
-                    <field.FormItem>
+                    <>
                       <field.FormControl>
                         <Input
                           id={`edit-${field.name}`}
@@ -331,7 +333,7 @@ function RouteComponent() {
                           disabled={editForm.state.isSubmitting}
                         />
                       </field.FormControl>
-                    </field.FormItem>
+                    </>
                   )}
                 />
               ) : (
@@ -345,7 +347,7 @@ function RouteComponent() {
             <addForm.AppField
               name="data"
               children={(field) => (
-                <field.FormItem>
+                <>
                   <field.FormControl>
                     <Input
                       id={`edit-${field.name}`}
@@ -356,7 +358,7 @@ function RouteComponent() {
                       disabled={addForm.state.isSubmitting}
                     />
                   </field.FormControl>
-                </field.FormItem>
+                </>
               )}
             />
           );

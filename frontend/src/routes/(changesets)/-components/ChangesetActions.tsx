@@ -5,7 +5,7 @@ import { List, ListItem } from '~/components/List';
 import { MutationErrors } from '~/components/MutationErrors';
 import { TimeAgo } from '~/components/TimeAgo';
 import { Button } from '~/components/ui/button';
-import { useAppForm } from '~/components/ui/tanstack-form';
+import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
 import {
   DbChangesetActionTypeEnum,
@@ -95,7 +95,7 @@ export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto
               <form.AppField
                 name="comment"
                 children={(field) => (
-                  <field.FormItem>
+                  <>
                     <field.FormLabel htmlFor={field.name}>Comment</field.FormLabel>
                     <field.FormControl>
                       <Textarea
@@ -107,7 +107,7 @@ export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto
                       />
                     </field.FormControl>
                     <field.FormMessage />
-                  </field.FormItem>
+                  </>
                 )}
               />
 

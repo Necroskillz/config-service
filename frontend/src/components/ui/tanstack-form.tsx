@@ -1,111 +1,63 @@
 import { Slot } from '@radix-ui/react-slot';
-import * as React from 'react';
-
 import { Label } from '~/components/ui/label';
 import { cn } from '~/lib/utils';
-import { createFormHook, createFormHookContexts, useStore } from '@tanstack/react-form';
+import { useStore } from '@tanstack/react-form';
+import { useFieldContext } from './tanstack-form-context';
 
-const { fieldContext, formContext, useFieldContext: _useFieldContext, useFormContext } = createFormHookContexts();
-
-const { useAppForm, withForm } = createFormHook({
-  fieldContext,
-  formContext,
-  fieldComponents: {
-    FormLabel,
-    FormControl,
-    FormDescription,
-    FormMessage,
-    FormItem,
-  },
-  formComponents: {},
-});
-
-type FormItemContextValue = {
-  id: string;
-};
-
-const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
-
-function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
-  const id = React.useId();
-
-  return (
-    <FormItemContext.Provider value={{ id }}>
-      <div data-slot="form-item" className={cn('grid gap-2', className)} {...props} />
-    </FormItemContext.Provider>
-  );
-}
-
-const useFieldContext = () => {
-  const { id } = React.useContext(FormItemContext);
-  const { name, store, ...fieldContext } = _useFieldContext();
-
+export function FormLabel({ className, ...props }: React.ComponentPropsWithoutRef<typeof Label>) {
+  const { name, store } = useFieldContext();
   const errors = useStore(store, (state) => state.meta.errors);
-  if (!fieldContext) {
-    throw new Error('useFieldContext should be used within <FormItem>');
-  }
-
-  return {
-    id,
-    name,
-    formItemId: `${id}-form-item`,
-    formDescriptionId: `${id}-form-item-description`,
-    formMessageId: `${id}-form-item-message`,
-    errors,
-    store,
-    ...fieldContext,
-  };
-};
-
-function FormLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
-  const { formItemId, errors, getMeta } = useFieldContext();
-  const isTouched = getMeta().isTouched;
-  const hasError = !!errors.length && isTouched;
+  const isTouched = useStore(store, (state) => state.meta.isTouched);
+  const hasError = errors.length > 0 && isTouched;
 
   return (
     <Label
       data-slot="form-label"
       data-error={hasError}
       className={cn('data-[error=true]:text-destructive', className)}
-      htmlFor={formItemId}
+      htmlFor={name}
       {...props}
     />
   );
 }
 
-function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
-  const { errors, formItemId, formDescriptionId, formMessageId, getMeta } = useFieldContext();
-  const isTouched = getMeta().isTouched;
-  const hasError = !!errors.length && isTouched;
+export function FormControl({ ...props }: React.ComponentPropsWithoutRef<typeof Slot>) {
+  const { name, store } = useFieldContext();
+  const errors = useStore(store, (state) => state.meta.errors);
+  const isTouched = useStore(store, (state) => state.meta.isTouched);
+  const hasError = errors.length > 0 && isTouched;
 
   return (
     <Slot
       data-slot="form-control"
-      id={formItemId}
-      aria-describedby={!errors.length ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+      id={name}
+      aria-describedby={hasError ? `${name}-description ${name}-message` : `${name}-description`}
       aria-invalid={hasError}
       {...props}
     />
   );
 }
 
-function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
-  const { formDescriptionId } = useFieldContext();
-
-  return <p data-slot="form-description" id={formDescriptionId} className={cn('text-muted-foreground text-sm', className)} {...props} />;
-}
-
-function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
-  const { errors, formMessageId, getMeta } = useFieldContext();
-  const isTouched = getMeta().isTouched;
-  const body = errors.length ? String(errors.at(0)?.message ?? errors.at(0) ?? '') : props.children;
-  if (!body || !isTouched) return null;
+export function FormDescription({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
+  const { name } = useFieldContext();
 
   return (
-    <p data-slot="form-message" id={formMessageId} className={cn('text-destructive text-sm', className)} {...props}>
+    <p data-slot="form-description" id={`${name}-description`} className={cn('text-muted-foreground text-sm', className)} {...props} />
+  );
+}
+
+export function FormMessage({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
+  const { name, store } = useFieldContext();
+  const errors = useStore(store, (state) => state.meta.errors);
+  const isTouched = useStore(store, (state) => state.meta.isTouched);
+  const hasError = errors.length > 0 && isTouched;
+
+  const body = hasError ? String(errors.at(0)?.message ?? errors.at(0) ?? '') : props.children;
+  if (!body) return null;
+
+  return (
+    <p data-slot="form-message" id={`${name}-message`} className={cn('text-destructive text-sm', className)} {...props}>
       {body}
     </p>
   );
 }
-
-export { useAppForm, useFormContext, useFieldContext, withForm };

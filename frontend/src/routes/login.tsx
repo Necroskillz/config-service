@@ -4,7 +4,7 @@ import { useAuth } from '~/auth';
 import { useMutation } from '@tanstack/react-query';
 import { Input } from '~/components/ui/input';
 import { Button } from '~/components/ui/button';
-import { useAppForm } from '~/components/ui/tanstack-form';
+import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 
 export const Route = createFileRoute('/login')({
@@ -63,7 +63,7 @@ function RouteComponent() {
           <form.AppField
             name="username"
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Username</field.FormLabel>
                 <field.FormControl>
                   <Input
@@ -76,13 +76,13 @@ function RouteComponent() {
                   />
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <form.AppField
             name="password"
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Password</field.FormLabel>
                 <field.FormControl>
                   <Input
@@ -95,7 +95,7 @@ function RouteComponent() {
                   />
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <div>

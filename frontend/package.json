@@ -23,6 +23,7 @@
     "@tanstack/react-router-devtools": "^1.115.3",
     "@tanstack/react-start": "^1.115.3",
     "axios": "^1.8.4",
+    "babel-plugin-react-compiler": "19.1.0-rc.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.492.0",

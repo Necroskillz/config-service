@@ -16,7 +16,7 @@ import { useEffect } from 'react';
 import { MutationErrors } from '~/components/MutationErrors';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
-import { useAppForm } from '~/components/ui/tanstack-form';
+import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
 import { versionedTitle } from '~/utils/seo';
 import { appTitle } from '~/utils/seo';
@@ -56,7 +56,7 @@ function RouteComponent() {
       staleTime: Infinity,
     },
   });
-  
+
   const mutation = usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys({
     mutation: {
       onSuccess: async ({ newId }) => {
@@ -134,7 +134,7 @@ function RouteComponent() {
               },
             }}
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Name</field.FormLabel>
                 <field.FormControl>
                   <Input
@@ -147,13 +147,13 @@ function RouteComponent() {
                   />
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <form.AppField
             name="description"
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Description</field.FormLabel>
                 <field.FormControl>
                   <Textarea
@@ -165,13 +165,13 @@ function RouteComponent() {
                   />
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <form.AppField
             name="valueTypeId"
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Value Type</field.FormLabel>
                 <field.FormControl>
                   <Select
@@ -202,13 +202,13 @@ function RouteComponent() {
                   </Select>
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <form.AppField
             name="defaultValue"
             children={(field) => (
-              <field.FormItem>
+              <>
                 <field.FormLabel htmlFor={field.name}>Default Value</field.FormLabel>
                 <field.FormControl>
                   <Input
@@ -221,7 +221,7 @@ function RouteComponent() {
                   />
                 </field.FormControl>
                 <field.FormMessage />
-              </field.FormItem>
+              </>
             )}
           />
           <div>
