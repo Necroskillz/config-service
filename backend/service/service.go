@@ -184,18 +184,24 @@ type CreateServiceParams struct {
 }
 
 func (s *ServiceService) validateCreateService(ctx context.Context, data CreateServiceParams) error {
-	return s.validator.
+	err := s.validator.
 		Validate(data.Name, "Name").MaxLength(100).Required().ServiceNameNotTaken().
 		Validate(data.Description, "Description").MaxLength(500).Required().
 		Validate(data.ServiceTypeID, "Service Type ID").Min(1).
 		Error(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	if !s.currentUserAccessor.GetUser(ctx).IsGlobalAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create services")
+	}
+
+	return nil
 }
 
 func (s *ServiceService) CreateService(ctx context.Context, data CreateServiceParams) (uint, error) {
-	if !s.currentUserAccessor.GetUser(ctx).IsGlobalAdmin {
-		return 0, NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create services")
-	}
-
 	if err := s.validateCreateService(ctx, data); err != nil {
 		return 0, err
 	}
@@ -245,8 +251,11 @@ type UpdateServiceParams struct {
 	Description      string
 }
 
-func (s *ServiceService) UpdateService(ctx context.Context, data UpdateServiceParams) error {
-	serviceVersion, err := s.coreService.GetServiceVersion(ctx, data.ServiceVersionID)
+func (s *ServiceService) validateUpdateService(ctx context.Context, data UpdateServiceParams, serviceVersion db.GetServiceVersionRow) error {
+	err := s.validator.
+		Validate(data.Description, "Description").MaxLength(500).Required().
+		Error(ctx)
+
 	if err != nil {
 		return err
 	}
@@ -255,6 +264,19 @@ func (s *ServiceService) UpdateService(ctx context.Context, data UpdateServicePa
 
 	if user.GetPermissionForService(serviceVersion.ServiceID) < constants.PermissionAdmin {
 		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to update this service")
+	}
+
+	return nil
+}
+
+func (s *ServiceService) UpdateService(ctx context.Context, data UpdateServiceParams) error {
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, data.ServiceVersionID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.validateUpdateService(ctx, data, serviceVersion); err != nil {
+		return err
 	}
 
 	return s.queries.UpdateService(ctx, db.UpdateServiceParams{

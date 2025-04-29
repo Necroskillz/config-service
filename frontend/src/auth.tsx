@@ -117,8 +117,6 @@ export const AuthProvider = ({ children, accessToken }: { children: React.ReactN
   const { data: user } = useGetAuthUserSuspense();
   const [userState, setUserState] = useState<User>(user);
 
-  const queryClient = useQueryClient();
-
   useEffect(() => {
     setUserState(user);
   }, [user]);

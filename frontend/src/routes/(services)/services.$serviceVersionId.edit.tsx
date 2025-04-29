@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { SlimPage } from '~/components/SlimPage';
 import { PageTitle } from '~/components/PageTitle';
-import { getServicesServiceVersionIdQueryOptions, usePutServicesServiceVersionId } from '~/gen';
+import { getServicesServiceVersionIdQueryOptions, useGetServicesServiceVersionIdSuspense, usePutServicesServiceVersionId } from '~/gen';
 import { z } from 'zod';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { MutationErrors } from '~/components/MutationErrors';
@@ -37,14 +37,13 @@ export const Route = createFileRoute('/(services)/services/$serviceVersionId/edi
 });
 
 function RouteComponent() {
-  const serviceVersion = Route.useLoaderData();
+  const { serviceVersionId } = Route.useParams();
+  const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const navigate = useNavigate();
-  const { refresh } = useChangeset();
   const mutation = usePutServicesServiceVersionId({
     mutation: {
       onSuccess: async () => {
         navigate({ to: '/services/$serviceVersionId', params: { serviceVersionId: serviceVersion.id } });
-        refresh();
       },
     },
   });

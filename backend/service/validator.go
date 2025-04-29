@@ -249,6 +249,10 @@ func (v *ValidatorContext) Rule(ruleID RuleID, options ...any) *ValidatorContext
 	return v
 }
 
+func (v *ValidatorContext) Func(fn func(vc *ValidatorContext) *ValidatorContext) *ValidatorContext {
+	return fn(v)
+}
+
 func (v *ValidatorContext) Error(ctx context.Context) error {
 	for _, rule := range v.rules {
 		err := rule.fn(ctx, rule.fieldName, rule.value)

@@ -221,6 +221,10 @@ SELECT EXISTS (
 INSERT INTO features (name, description, service_id)
 VALUES (@name, @description, @service_id)
 RETURNING id;
+-- name: UpdateFeature :exec
+UPDATE features
+SET description = @description
+WHERE id = @feature_id;
 -- name: CreateFeatureVersion :one
 INSERT INTO feature_versions (feature_id, version, valid_from)
 VALUES (@feature_id, @version, @valid_from)

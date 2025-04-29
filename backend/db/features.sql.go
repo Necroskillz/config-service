@@ -564,3 +564,19 @@ func (q *Queries) StartFeatureVersionValidity(ctx context.Context, arg StartFeat
 	_, err := q.db.Exec(ctx, startFeatureVersionValidity, arg.ValidFrom, arg.FeatureVersionID)
 	return err
 }
+
+const updateFeature = `-- name: UpdateFeature :exec
+UPDATE features
+SET description = $1
+WHERE id = $2
+`
+
+type UpdateFeatureParams struct {
+	Description string
+	FeatureID   uint
+}
+
+func (q *Queries) UpdateFeature(ctx context.Context, arg UpdateFeatureParams) error {
+	_, err := q.db.Exec(ctx, updateFeature, arg.Description, arg.FeatureID)
+	return err
+}

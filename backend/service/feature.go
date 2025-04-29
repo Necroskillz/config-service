@@ -160,11 +160,25 @@ type CreateFeatureParams struct {
 	Description      string
 }
 
-func (s *FeatureService) validateCreateFeature(ctx context.Context, data CreateFeatureParams) error {
-	return s.validator.
+func descriptionValidatorFunc(v *ValidatorContext) *ValidatorContext {
+	return v.Required().MaxLength(500)
+}
+
+func (s *FeatureService) validateCreateFeature(ctx context.Context, data CreateFeatureParams, serviceVersion db.GetServiceVersionRow) error {
+	v := s.validator.
 		Validate(data.Name, "Name").Required().FeatureNameNotTaken().MaxLength(100).
-		Validate(data.Description, "Description").Required().MaxLength(500).
-		Error(ctx)
+		Validate(data.Description, "Description").Func(descriptionValidatorFunc)
+
+	if err := v.Error(ctx); err != nil {
+		return err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create features for this service")
+	}
+
+	return nil
 }
 
 func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeatureParams) (uint, error) {
@@ -173,12 +187,7 @@ func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeature
 		return 0, err
 	}
 
-	user := s.currentUserAccessor.GetUser(ctx)
-	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
-		return 0, NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create features for this service")
-	}
-
-	if err := s.validateCreateFeature(ctx, params); err != nil {
+	if err := s.validateCreateFeature(ctx, params, serviceVersion); err != nil {
 		return 0, err
 	}
 
@@ -236,6 +245,52 @@ func (s *FeatureService) CreateFeature(ctx context.Context, params CreateFeature
 	})
 
 	return featureVersionID, err
+}
+
+type UpdateFeatureParams struct {
+	ServiceVersionID uint
+	FeatureVersionID uint
+	Description      string
+}
+
+func (s *FeatureService) validateUpdateFeature(ctx context.Context, data UpdateFeatureParams, serviceVersion db.GetServiceVersionRow) error {
+	err := s.validator.
+		Validate(data.Description, "Description").Func(descriptionValidatorFunc).
+		Error(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create features for this service")
+	}
+
+	return nil
+}
+
+func (s *FeatureService) UpdateFeature(ctx context.Context, params UpdateFeatureParams) error {
+	serviceVersion, featureVersion, err := s.coreService.GetFeatureVersion(ctx, params.ServiceVersionID, params.FeatureVersionID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.validateUpdateFeature(ctx, params, serviceVersion); err != nil {
+		return err
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		err = tx.UpdateFeature(ctx, db.UpdateFeatureParams{
+			FeatureID:   featureVersion.FeatureID,
+			Description: params.Description,
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (s *FeatureService) UnlinkFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) error {

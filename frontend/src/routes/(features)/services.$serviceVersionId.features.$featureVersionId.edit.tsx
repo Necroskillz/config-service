@@ -1,78 +1,78 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { SlimPage } from '~/components/SlimPage';
 import { PageTitle } from '~/components/PageTitle';
+import { getServicesServiceVersionIdQueryOptions, getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions, usePutServicesServiceVersionIdFeaturesFeatureVersionId, useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense, useGetServicesServiceVersionIdSuspense } from '~/gen';
 import { z } from 'zod';
-import {
-  getServicesServiceVersionIdFeaturesNameTakenName,
-  getServicesServiceVersionIdQueryOptions,
-  useGetServicesServiceVersionIdSuspense,
-  usePostServicesServiceVersionIdFeatures,
-} from '~/gen';
-import { seo, appTitle, versionedTitle } from '~/utils/seo';
+import { Label } from '@radix-ui/react-dropdown-menu';
 import { MutationErrors } from '~/components/MutationErrors';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
-import { useChangeset } from '~/hooks/useChangeset';
-export const Route = createFileRoute('/(features)/services/$serviceVersionId/features/create')({
+import { versionedTitle, seo, appTitle } from '~/utils/seo';
+
+export const Route = createFileRoute('/(features)/services/$serviceVersionId/features/$featureVersionId/edit')({
   component: RouteComponent,
   params: {
     parse: z.object({
       serviceVersionId: z.coerce.number(),
+      featureVersionId: z.coerce.number(),
     }).parse,
   },
   loader: async ({ context, params }) => {
-    return context.queryClient.ensureQueryData(getServicesServiceVersionIdQueryOptions(params.serviceVersionId));
+    return Promise.all([
+      context.queryClient.ensureQueryData(getServicesServiceVersionIdQueryOptions(params.serviceVersionId)),
+      context.queryClient.ensureQueryData(getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions(params.serviceVersionId, params.featureVersionId)),
+    ]);
   },
-  head: ({ loaderData: serviceVersion }) => {
+  head: (ctx) => {
+    const [serviceVersion, featureVersion] = ctx.loaderData;
+
     return {
-      meta: [...seo({ title: appTitle(['Create Feature', versionedTitle(serviceVersion)]) })],
+      meta: [
+        ...seo({
+          title: appTitle(['Edit', versionedTitle(featureVersion), versionedTitle(serviceVersion)]),
+          description: featureVersion.description,
+        }),
+      ],
     };
   },
 });
 
 function RouteComponent() {
-  const { serviceVersionId } = Route.useParams();
+  const { serviceVersionId, featureVersionId } = Route.useParams();
+  const { data: featureVersion } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense(serviceVersionId, featureVersionId);
   const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
-
   const navigate = useNavigate();
-  const { refresh } = useChangeset();
-  const mutation = usePostServicesServiceVersionIdFeatures({
+  const mutation = usePutServicesServiceVersionIdFeaturesFeatureVersionId({
     mutation: {
-      onSuccess: ({ newId }) => {
-        navigate({
-          to: '/services/$serviceVersionId/features/$featureVersionId',
-          params: { featureVersionId: newId, serviceVersionId },
-        });
-        refresh();
+      onSuccess: async () => {
+        navigate({ to: '/services/$serviceVersionId/features/$featureVersionId', params: { serviceVersionId, featureVersionId } });
       },
     },
   });
 
   const form = useAppForm({
     defaultValues: {
-      name: '',
-      description: '',
+      description: featureVersion.description,
     },
     validators: {
       onChange: z.object({
-        name: z.string().min(1, 'Name is required'),
         description: z.string().min(1, 'Description is required'),
       }),
     },
     onSubmit: async ({ value }) => {
-      await mutation.mutateAsync({ service_version_id: serviceVersionId, data: value });
+      await mutation.mutateAsync({ service_version_id: serviceVersionId, feature_version_id: featureVersionId, data: value });
     },
   });
 
   return (
     <SlimPage>
-      <PageTitle>Create Feature</PageTitle>
+      <PageTitle>Edit Feature {featureVersion.name}</PageTitle>
 
       <div className="text-muted-foreground mb-4">
         <p>
-          Created feature will be linked to{' '}
+          Feature is linked to{' '}
           <Link className="text-accent-foreground" to="/services/$serviceVersionId" params={{ serviceVersionId }}>
             {serviceVersion.name} v{serviceVersion.version}
           </Link>
@@ -89,38 +89,10 @@ function RouteComponent() {
           }}
         >
           <MutationErrors mutations={[mutation]} />
-          <form.AppField
-            name="name"
-            validators={{
-              onChangeAsync: async ({ value }) => {
-                if (!value) {
-                  return;
-                }
-
-                const response = await getServicesServiceVersionIdFeaturesNameTakenName(serviceVersionId, value);
-                const isTaken = response.value;
-                if (isTaken) {
-                  return 'Feature name is already taken';
-                }
-              },
-            }}
-            children={(field) => (
-              <>
-                <field.FormLabel htmlFor={field.name}>Name</field.FormLabel>
-                <field.FormControl>
-                  <Input
-                    type="text"
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                  />
-                </field.FormControl>
-                <field.FormMessage />
-              </>
-            )}
-          />
+          <div className="flex flex-col gap-2">
+            <Label>Name</Label>
+            <Input type="text" id="name" name="name" value={featureVersion.name} disabled />
+          </div>
           <form.AppField
             name="description"
             children={(field) => (
@@ -144,7 +116,7 @@ function RouteComponent() {
               selector={(state) => [state.canSubmit, state.isSubmitting]}
               children={([canSubmit, isSubmitting]) => (
                 <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                  Create
+                  Save
                 </Button>
               )}
             />

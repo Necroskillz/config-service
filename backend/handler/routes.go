@@ -32,6 +32,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	featureGroup.GET("/linkable", h.LinkableFeatures)
 	featureGroup.POST("", h.CreateFeature)
 	featureGroup.GET("/:feature_version_id", h.Feature)
+	featureGroup.PUT("/:feature_version_id", h.UpdateFeature)
 	featureGroup.GET("/:feature_version_id/versions", h.FeatureVersions)
 	featureGroup.POST("/:feature_version_id/link", h.LinkFeatureVersion)
 	featureGroup.DELETE("/:feature_version_id/unlink", h.UnlinkFeatureVersion)

@@ -167,6 +167,13 @@ definitions:
     - access_token
     - refresh_token
     type: object
+  handler.UpdateFeatureRequest:
+    properties:
+      description:
+        type: string
+    required:
+    - description
+    type: object
   handler.UpdateServiceRequest:
     properties:
       description:
@@ -1174,6 +1181,51 @@ paths:
       security:
       - BearerAuth: []
       summary: Get feature
+    put:
+      consumes:
+      - application/json
+      description: Create feature
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Update feature request
+        in: body
+        name: updateFeatureRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateFeatureRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create feature
   /services/{service_version_id}/features/{feature_version_id}/keys:
     get:
       consumes:

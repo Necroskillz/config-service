@@ -77,6 +77,51 @@ func (h *Handler) CreateFeature(c echo.Context) error {
 	return c.JSON(http.StatusOK, NewCreateResponse(featureVersionID))
 }
 
+type UpdateFeatureRequest struct {
+	Description string `json:"description" validate:"required"`
+}
+
+// @Summary Create feature
+// @Description Create feature
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param feature_version_id path int true "Feature version ID"
+// @Param updateFeatureRequest body UpdateFeatureRequest true "Update feature request"
+// @Success 204
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 422 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/{feature_version_id} [put]
+func (h *Handler) UpdateFeature(c echo.Context) error {
+	var serviceVersionID uint
+	var featureVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).MustUint("feature_version_id", &featureVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	var data UpdateFeatureRequest
+
+	err = c.Bind(&data)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.FeatureService.UpdateFeature(c.Request().Context(), service.UpdateFeatureParams{
+		ServiceVersionID: serviceVersionID,
+		FeatureVersionID: featureVersionID,
+		Description:      data.Description,
+	})
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
 // @Summary Get feature
 // @Description Get feature
 // @Accept json
