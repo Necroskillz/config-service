@@ -185,6 +185,10 @@ func (v *VariationHierarchy) VariationMapToIds(serviceTypeID uint, variation map
 }
 
 func (v *VariationHierarchy) GetRank(serviceTypeID uint, variation map[uint]string) int {
+	if _, ok := v.serviceTypes[serviceTypeID]; !ok {
+		panic(fmt.Sprintf("Service type %d not found", serviceTypeID))
+	}
+
 	rank := 0
 
 	for propertyID, value := range variation {
@@ -198,6 +202,10 @@ func (v *VariationHierarchy) GetRank(serviceTypeID uint, variation map[uint]stri
 }
 
 func (v *VariationHierarchy) GetOrder(serviceTypeID uint, variation map[uint]string) []int {
+	if _, ok := v.serviceTypes[serviceTypeID]; !ok {
+		panic(fmt.Sprintf("Service type %d not found", serviceTypeID))
+	}
+
 	order := make([]int, len(v.serviceTypes[serviceTypeID].Order))
 
 	for propertyID, value := range variation {

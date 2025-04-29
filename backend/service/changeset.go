@@ -278,7 +278,7 @@ func (s *ChangesetService) ApplyChangeset(ctx context.Context, changesetID uint,
 	user := s.currentUserAccessor.GetUser(ctx)
 
 	if !changeset.CanBeAppliedBy(user) {
-		return NewServiceError(ErrorCodePermissionDenied, "user does not have permission to apply changeset")
+		return NewServiceError(ErrorCodePermissionDenied, "To apply changeset, it needs to be in an open or committed state and the user needs to have admin permissions for all changes")
 	}
 
 	startTime := time.Now()
@@ -619,4 +619,19 @@ func (s *ChangesetService) AddComment(ctx context.Context, changesetID uint, com
 	}
 
 	return nil
+}
+
+func (s *ChangesetService) GetChangesetChangesCount(ctx context.Context) (int, error) {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	if user.ChangesetID == 0 {
+		return 0, nil
+	}
+
+	count, err := s.queries.GetChangesetChangesCount(ctx, user.ChangesetID)
+	if err != nil {
+		return 0, NewDbError(err, "ChangesetChangesCount")
+	}
+
+	return count, nil
 }

@@ -21,6 +21,7 @@ import {
   getServicesServiceVersionIdFeaturesQueryOptions,
   getServicesServiceVersionIdFeaturesLinkableQueryOptions,
 } from '~/gen';
+import { useChangeset } from '~/hooks/useChangeset';
 import { appTitle, versionedTitle, seo } from '~/utils/seo';
 
 export const Route = createFileRoute('/(services)/services/$serviceVersionId/link')({
@@ -47,6 +48,7 @@ export const Route = createFileRoute('/(services)/services/$serviceVersionId/lin
 function RouteComponent() {
   const { serviceVersionId } = Route.useParams();
   const queryClient = useQueryClient();
+  const { refresh } = useChangeset();
 
   const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const { data: features } = useGetServicesServiceVersionIdFeaturesSuspense(serviceVersionId);
@@ -55,6 +57,7 @@ function RouteComponent() {
   function refetchData() {
     queryClient.refetchQueries({ queryKey: getServicesServiceVersionIdFeaturesQueryKey(serviceVersionId) });
     queryClient.refetchQueries({ queryKey: getServicesServiceVersionIdFeaturesLinkableQueryKey(serviceVersionId) });
+    refresh();
   }
 
   const unlinkMutation = useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink({

@@ -21,7 +21,7 @@ import { Textarea } from '~/components/ui/textarea';
 import { versionedTitle } from '~/utils/seo';
 import { appTitle } from '~/utils/seo';
 import { seo } from '~/utils/seo';
-
+import { useChangeset } from '~/hooks/useChangeset';
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create')({
   component: RouteComponent,
   params: {
@@ -50,6 +50,7 @@ export const Route = createFileRoute('/(keys)/services/$serviceVersionId/feature
 function RouteComponent() {
   const { serviceVersionId, featureVersionId } = Route.useParams();
   const navigate = useNavigate();
+  const { refresh } = useChangeset();
   const { data: featureVersion } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense(serviceVersionId, featureVersionId);
   const { data: valueTypes, isLoading } = useGetValueTypes({
     query: {
@@ -64,6 +65,7 @@ function RouteComponent() {
           to: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values',
           params: { serviceVersionId, featureVersionId, keyId: newId },
         });
+        refresh();
       },
     },
   });

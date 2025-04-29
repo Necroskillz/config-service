@@ -7,10 +7,6 @@ export type AuthUser = {
   /**
    * @type integer
    */
-  changesetId: number
-  /**
-   * @type integer
-   */
   id: number
   /**
    * @type boolean

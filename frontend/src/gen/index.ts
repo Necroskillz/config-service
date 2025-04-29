@@ -5,6 +5,8 @@ export type { GetAuthUserQueryKey } from './hooks/useGetAuthUser.ts'
 export type { GetAuthUserSuspenseQueryKey } from './hooks/useGetAuthUserSuspense.ts'
 export type { GetChangesetsChangesetIdQueryKey } from './hooks/useGetChangesetsChangesetId.ts'
 export type { GetChangesetsChangesetIdSuspenseQueryKey } from './hooks/useGetChangesetsChangesetIdSuspense.ts'
+export type { GetChangesetsCurrentQueryKey } from './hooks/useGetChangesetsCurrent.ts'
+export type { GetChangesetsCurrentSuspenseQueryKey } from './hooks/useGetChangesetsCurrentSuspense.ts'
 export type { GetServicesQueryKey } from './hooks/useGetServices.ts'
 export type { GetServicesNameTakenNameQueryKey } from './hooks/useGetServicesNameTakenName.ts'
 export type { GetServicesNameTakenNameSuspenseQueryKey } from './hooks/useGetServicesNameTakenNameSuspense.ts'
@@ -101,6 +103,14 @@ export type {
   GetChangesetsChangesetIdQueryResponse,
   GetChangesetsChangesetIdQuery,
 } from './types/GetChangesetsChangesetId.ts'
+export type {
+  GetChangesetsCurrent200,
+  GetChangesetsCurrent401,
+  GetChangesetsCurrent404,
+  GetChangesetsCurrent500,
+  GetChangesetsCurrentQueryResponse,
+  GetChangesetsCurrentQuery,
+} from './types/GetChangesetsCurrent.ts'
 export type { GetServices200, GetServices401, GetServices500, GetServicesQueryResponse, GetServicesQuery } from './types/GetServices.ts'
 export type {
   GetServicesNameTakenNamePathParams,
@@ -243,6 +253,7 @@ export type {
 export type { GetValueTypes200, GetValueTypes401, GetValueTypes500, GetValueTypesQueryResponse, GetValueTypesQuery } from './types/GetValueTypes.ts'
 export type { HandlerAddCommentRequest } from './types/handler/AddCommentRequest.ts'
 export type { HandlerBooleanResponse } from './types/handler/BooleanResponse.ts'
+export type { HandlerChangesetInfoResponse } from './types/handler/ChangesetInfoResponse.ts'
 export type { HandlerCreateFeatureRequest } from './types/handler/CreateFeatureRequest.ts'
 export type { HandlerCreateKeyRequest } from './types/handler/CreateKeyRequest.ts'
 export type { HandlerCreateResponse } from './types/handler/CreateResponse.ts'
@@ -453,6 +464,18 @@ export {
   getChangesetsChangesetIdSuspenseQueryOptions,
   useGetChangesetsChangesetIdSuspense,
 } from './hooks/useGetChangesetsChangesetIdSuspense.ts'
+export {
+  getChangesetsCurrentQueryKey,
+  getChangesetsCurrent,
+  getChangesetsCurrentQueryOptions,
+  useGetChangesetsCurrent,
+} from './hooks/useGetChangesetsCurrent.ts'
+export {
+  getChangesetsCurrentSuspenseQueryKey,
+  getChangesetsCurrentSuspense,
+  getChangesetsCurrentSuspenseQueryOptions,
+  useGetChangesetsCurrentSuspense,
+} from './hooks/useGetChangesetsCurrentSuspense.ts'
 export { getServicesQueryKey, getServices, getServicesQueryOptions, useGetServices } from './hooks/useGetServices.ts'
 export {
   getServicesNameTakenNameQueryKey,

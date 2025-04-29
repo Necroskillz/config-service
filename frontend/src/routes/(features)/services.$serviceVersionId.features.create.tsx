@@ -14,7 +14,7 @@ import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
-
+import { useChangeset } from '~/hooks/useChangeset';
 export const Route = createFileRoute('/(features)/services/$serviceVersionId/features/create')({
   component: RouteComponent,
   params: {
@@ -37,6 +37,7 @@ function RouteComponent() {
   const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
 
   const navigate = useNavigate();
+  const { refresh } = useChangeset();
   const mutation = usePostServicesServiceVersionIdFeatures({
     mutation: {
       onSuccess: ({ newId }) => {
@@ -44,6 +45,7 @@ function RouteComponent() {
           to: '/services/$serviceVersionId/features/$featureVersionId',
           params: { featureVersionId: newId, serviceVersionId },
         });
+        refresh();
       },
     },
   });

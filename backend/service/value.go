@@ -89,8 +89,8 @@ func (s *ValueService) GetKeyValues(ctx context.Context, serviceVersionID uint, 
 			Data:      value.Data,
 			Variation: variation,
 			CanEdit:   user.GetPermissionForValue(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID, variation) >= constants.PermissionEditor,
-			Rank:      variationHierarchy.GetRank(serviceVersionID, variation),
-			Order:     variationHierarchy.GetOrder(serviceVersionID, variation),
+			Rank:      variationHierarchy.GetRank(serviceVersion.ServiceTypeID, variation),
+			Order:     variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, variation),
 		}
 	}
 
@@ -192,7 +192,7 @@ func (s *ValueService) CreateValue(ctx context.Context, data CreateValueParams) 
 		return NewValueInfo{}, err
 	}
 
-	return NewValueInfo{ID: variationValueID, Order: variationHierarchy.GetOrder(data.ServiceVersionID, data.Variation)}, nil
+	return NewValueInfo{ID: variationValueID, Order: variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, data.Variation)}, nil
 }
 
 type DeleteValueParams struct {
@@ -392,5 +392,5 @@ func (s *ValueService) UpdateValue(ctx context.Context, params UpdateValueParams
 		return NewValueInfo{}, err
 	}
 
-	return NewValueInfo{ID: variationValueID, Order: variationHierarchy.GetOrder(params.ServiceVersionID, params.Variation)}, nil
+	return NewValueInfo{ID: variationValueID, Order: variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, params.Variation)}, nil
 }

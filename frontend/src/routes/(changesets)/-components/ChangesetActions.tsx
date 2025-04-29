@@ -18,6 +18,7 @@ import {
   usePutChangesetsChangesetIdReopen,
   usePutChangesetsChangesetIdStash,
 } from '~/gen';
+import { useChangeset } from '~/hooks/useChangeset';
 
 function getActionText(type: DbChangesetActionTypeEnum): string {
   switch (type) {
@@ -40,6 +41,7 @@ function getActionText(type: DbChangesetActionTypeEnum): string {
 
 export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto }) {
   const { user } = useAuth();
+  const { refresh } = useChangeset();
 
   const queryClient = useQueryClient();
 
@@ -61,6 +63,10 @@ export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto
       await mutation.mutateAsync({ changeset_id: changeset.id, data: { comment: value.comment } });
       queryClient.refetchQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
       form.reset();
+
+      if (meta.action !== 'comment') {
+        refresh();
+      }
     },
   });
 
@@ -119,9 +125,11 @@ export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto
                 })}
                 children={({ canSubmit, isSubmitting, comment }) => (
                   <div className="flex gap-2">
-                    <Button disabled={!canSubmit || isSubmitting} onClick={() => form.handleSubmit({ action: 'apply' })}>
-                      {comment ? 'Comment and Apply' : 'Apply'}
-                    </Button>
+                    {changeset.canApply && (
+                      <Button disabled={!canSubmit || isSubmitting} onClick={() => form.handleSubmit({ action: 'apply' })}>
+                        {comment ? 'Comment and Apply' : 'Apply'}
+                      </Button>
+                    )}
                     {changeset.userId === user.id && changeset.state === 'open' && (
                       <>
                         <Button

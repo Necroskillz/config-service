@@ -20,6 +20,7 @@ import {
   usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues,
   usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
   ServiceVariationValue,
+  getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
 } from '~/gen';
 import { ColumnDef, useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import { HttpError } from '~/axios';
@@ -31,6 +32,10 @@ import { TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter, Ta
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { VariationSelect } from '~/components/VariationSelect';
 import { cn } from '~/lib/utils';
+import { useChangeset } from '~/hooks/useChangeset';
+import { versionedTitle } from '~/utils/seo';
+import { appTitle } from '~/utils/seo';
+import { seo } from '~/utils/seo';
 
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values')({
   component: RouteComponent,
@@ -42,22 +47,37 @@ export const Route = createFileRoute('/(keys)/services/$serviceVersionId/feature
     }).parse,
   },
   loader: async ({ context, params }) => {
-    context.queryClient.prefetchQuery(getServicesServiceVersionIdQueryOptions(params.serviceVersionId));
-    context.queryClient.prefetchQuery(getServiceTypesServiceTypeIdVariationPropertiesQueryOptions(params.serviceVersionId));
-    context.queryClient.prefetchQuery(
-      getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesQueryOptions(
-        params.serviceVersionId,
-        params.featureVersionId,
-        params.keyId
-      )
-    );
-    context.queryClient.prefetchQuery(
-      getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions(
-        params.serviceVersionId,
-        params.featureVersionId,
-        params.keyId
-      )
-    );
+    return Promise.all([
+      context.queryClient.ensureQueryData(getServicesServiceVersionIdQueryOptions(params.serviceVersionId)).then(async (serviceVersion) => {
+        await context.queryClient.ensureQueryData(
+          getServiceTypesServiceTypeIdVariationPropertiesQueryOptions(serviceVersion.serviceTypeId)
+        );
+
+        return serviceVersion;
+      }),
+      context.queryClient.ensureQueryData(
+        getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions(params.serviceVersionId, params.featureVersionId)
+      ),
+      context.queryClient.ensureQueryData(
+        getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions(
+          params.serviceVersionId,
+          params.featureVersionId,
+          params.keyId
+        )
+      ),
+      context.queryClient.ensureQueryData(
+        getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesQueryOptions(
+          params.serviceVersionId,
+          params.featureVersionId,
+          params.keyId
+        )
+      ),
+    ]);
+  },
+  head: ({ loaderData: [serviceVersion, featureVersion, key] }) => {
+    return {
+      meta: [...seo({ title: appTitle(['Values', key.name, versionedTitle(featureVersion), versionedTitle(serviceVersion)]) })],
+    };
   },
 });
 
@@ -68,6 +88,7 @@ export type ValueFormData = {
 
 function RouteComponent() {
   const { serviceVersionId, featureVersionId, keyId } = Route.useParams();
+  const { refresh } = useChangeset();
   const { data: key } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense(serviceVersionId, featureVersionId, keyId);
   const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const { data: values } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesSuspense(
@@ -75,7 +96,11 @@ function RouteComponent() {
     featureVersionId,
     keyId
   );
-  const { data: properties } = useGetServiceTypesServiceTypeIdVariationPropertiesSuspense(serviceVersion.serviceTypeId);
+  const { data: properties } = useGetServiceTypesServiceTypeIdVariationPropertiesSuspense(serviceVersion.serviceTypeId, {
+    query: {
+      staleTime: Infinity,
+    },
+  });
 
   const [data, setData] = useState<ServiceVariationValue[]>(values);
 
@@ -163,6 +188,7 @@ function RouteComponent() {
         const newItem: ServiceVariationValue = createNewItem(info, variables.data);
 
         updateData(newItem, editingValueId!);
+        refresh();
 
         setEditingValueId(null);
       },
@@ -175,7 +201,7 @@ function RouteComponent() {
         const newItem: ServiceVariationValue = createNewItem(info, variables.data);
 
         updateData(newItem);
-
+        refresh();
         setShowAddForm(false);
         addForm.reset();
       },
@@ -186,6 +212,7 @@ function RouteComponent() {
     mutation: {
       onSuccess: (_, variables) => {
         setData((old) => old.filter((item) => item.id !== variables.value_id));
+        refresh();
       },
     },
   });

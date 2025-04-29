@@ -2,8 +2,6 @@ basePath: /api
 definitions:
   auth.User:
     properties:
-      changesetId:
-        type: integer
       id:
         type: integer
       isAuthenticated:
@@ -13,7 +11,6 @@ definitions:
       username:
         type: string
     required:
-    - changesetId
     - id
     - isAuthenticated
     - isGlobalAdmin
@@ -78,6 +75,16 @@ definitions:
         type: boolean
     required:
     - value
+    type: object
+  handler.ChangesetInfoResponse:
+    properties:
+      id:
+        type: integer
+      numberOfChanges:
+        type: integer
+    required:
+    - id
+    - numberOfChanges
     type: object
   handler.CreateFeatureRequest:
     properties:
@@ -606,6 +613,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Get a changeset
   /changesets/{changeset_id}/apply:
     put:
@@ -639,6 +648,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Apply a changeset
   /changesets/{changeset_id}/comment:
     post:
@@ -678,6 +689,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Add a comment to a changeset
   /changesets/{changeset_id}/commit:
     put:
@@ -711,6 +724,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Commit a changeset
   /changesets/{changeset_id}/discard:
     delete:
@@ -744,6 +759,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Discard a changeset
   /changesets/{changeset_id}/reopen:
     put:
@@ -777,6 +794,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Reopen a changeset
   /changesets/{changeset_id}/stash:
     put:
@@ -810,7 +829,36 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Stash a changeset
+  /changesets/current:
+    get:
+      consumes:
+      - application/json
+      description: Get the current changeset info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ChangesetInfoResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get the current changeset info
   /service-types:
     get:
       consumes:

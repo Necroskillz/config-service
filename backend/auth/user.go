@@ -8,7 +8,7 @@ type User struct {
 	ID                   uint   `json:"id" validate:"required"`
 	Username             string `json:"username" validate:"required"`
 	IsAuthenticated      bool   `json:"isAuthenticated" validate:"required"`
-	ChangesetID          uint   `json:"changesetId" validate:"required"`
+	ChangesetID          uint   `json:"-"`
 	IsGlobalAdmin        bool   `json:"isGlobalAdmin" validate:"required"`
 	permissionCollection *PermissionCollection
 }

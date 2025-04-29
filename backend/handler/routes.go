@@ -60,6 +60,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	valueGroup.GET("/:value_id/can-edit", h.CanEditValue)
 
 	changesetsGroup := apiGroup.Group("/changesets")
+	changesetsGroup.GET("/current", h.GetCurrentChangesetInfo)
 
 	changesetGroup := changesetsGroup.Group("/:changeset_id")
 	changesetGroup.GET("", h.Changeset)
@@ -69,4 +70,5 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	changesetGroup.PUT("/stash", h.StashChangeset)
 	changesetGroup.DELETE("", h.DiscardChangeset)
 	changesetGroup.POST("/comment", h.AddComment)
+
 }

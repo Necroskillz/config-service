@@ -10,6 +10,7 @@ import (
 // @Description Get a changeset by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 200 {object} service.ChangesetDto
 // @Failure 401 {object} echo.HTTPError
@@ -39,6 +40,7 @@ type OptionalCommentRequest struct {
 // @Description Apply a changeset by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
 // @Failure 401 {object} echo.HTTPError
@@ -71,6 +73,7 @@ func (h *Handler) ApplyChangeset(c echo.Context) error {
 // @Description Commit a changeset by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
 // @Failure 401 {object} echo.HTTPError
@@ -103,6 +106,7 @@ func (h *Handler) CommitChangeset(c echo.Context) error {
 // @Description Reopen a changeset by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
 // @Failure 401 {object} echo.HTTPError
@@ -129,6 +133,7 @@ func (h *Handler) ReopenChangeset(c echo.Context) error {
 // @Description Discard a changeset by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
 // @Failure 401 {object} echo.HTTPError
@@ -155,6 +160,7 @@ func (h *Handler) DiscardChangeset(c echo.Context) error {
 // @Description Stash a changeset by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
 // @Failure 401 {object} echo.HTTPError
@@ -185,6 +191,7 @@ type AddCommentRequest struct {
 // @Description Add a comment to a changeset by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Param comment body AddCommentRequest true "Comment"
 // @Success 204
@@ -212,4 +219,33 @@ func (h *Handler) AddComment(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+type ChangesetInfoResponse struct {
+	ID              uint `json:"id" validate:"required"`
+	NumberOfChanges int  `json:"numberOfChanges" validate:"required"`
+}
+
+// @Summary Get the current changeset info
+// @Description Get the current changeset info
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} ChangesetInfoResponse
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets/current [get]
+func (h *Handler) GetCurrentChangesetInfo(c echo.Context) error {
+	user := h.CurrentUserAccessor.GetUser(c.Request().Context())
+
+	count, err := h.ChangesetService.GetChangesetChangesCount(c.Request().Context())
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, ChangesetInfoResponse{
+		ID:              user.ChangesetID,
+		NumberOfChanges: count,
+	})
 }

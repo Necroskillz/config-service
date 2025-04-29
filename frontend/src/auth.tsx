@@ -1,9 +1,10 @@
 import { createServerFn } from '@tanstack/react-start';
-import { getCookie, setCookie, deleteCookie, getEvent, getContext, setContext } from '@tanstack/react-start/server';
-import { createContext, useState, use } from 'react';
+import { getCookie, setCookie, deleteCookie, getContext, setContext } from '@tanstack/react-start/server';
+import { createContext, useState, useEffect, use } from 'react';
 import { z } from 'zod';
-import { AuthUser, postAuthLogin, postAuthRefreshToken, getAuthUser } from './gen';
+import { AuthUser, postAuthLogin, postAuthRefreshToken, getAuthUser, getAuthUserQueryKey, useGetAuthUserSuspense } from './gen';
 import { isServer } from './utils/is-server';
+import { useQueryClient } from '@tanstack/react-query';
 
 export type User = AuthUser;
 
@@ -11,7 +12,6 @@ interface AuthContextType {
   user: User;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  setUser: (user: User) => void;
 }
 
 export const AnonymousUser: User = {
@@ -19,7 +19,6 @@ export const AnonymousUser: User = {
   username: 'Anonymous',
   isAuthenticated: false,
   isGlobalAdmin: false,
-  changesetId: 0,
 };
 
 function setTokenCookies(accessToken: string, refreshToken: string) {
@@ -113,9 +112,16 @@ export function setAccessToken(accessToken: string | null) {
 }
 const AuthContext = createContext<AuthContextType>(undefined as unknown as AuthContextType);
 
-export const AuthProvider = ({ children, user, accessToken }: { children: React.ReactNode; user: User; accessToken: string | null }) => {
-  const [userState, setUserState] = useState<User>(user);
+export const AuthProvider = ({ children, accessToken }: { children: React.ReactNode; accessToken: string | null }) => {
   setAccessToken(accessToken);
+  const { data: user } = useGetAuthUserSuspense();
+  const [userState, setUserState] = useState<User>(user);
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setUserState(user);
+  }, [user]);
 
   async function login(username: string, password: string) {
     const { accessToken, user } = await loginFn({ data: { username, password } });
@@ -128,11 +134,7 @@ export const AuthProvider = ({ children, user, accessToken }: { children: React.
     setUserState(AnonymousUser);
   }
 
-  function setUser(user: User) {
-    setUserState(user);
-  }
-
-  return <AuthContext value={{ user: userState, login, logout, setUser }}>{children}</AuthContext>;
+  return <AuthContext value={{ user: userState, login, logout }}>{children}</AuthContext>;
 };
 
 export const useAuth = () => {

@@ -10,14 +10,13 @@ import { List, ListItem } from '~/components/List';
 import { badgeVariants } from '~/components/ui/badge';
 import { ChangesetActions } from './-components/ChangesetActions';
 import { seo, appTitle } from '~/utils/seo';
-const Schema = z.object({
-  changesetId: z.coerce.number(),
-});
 
 export const Route = createFileRoute('/(changesets)/changesets/$changesetId')({
   component: RouteComponent,
   params: {
-    parse: Schema.parse,
+    parse: z.object({
+      changesetId: z.coerce.number(),
+    }).parse,
   },
   loader: async ({ context, params }) => {
     return context.queryClient.ensureQueryData(getChangesetsChangesetIdQueryOptions(params.changesetId));

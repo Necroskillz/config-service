@@ -71,6 +71,10 @@ FROM changeset_changes csc
     LEFT JOIN variation_contexts vc ON vc.id = COALESCE(nv.variation_context_id, ov.variation_context_id)
 WHERE changeset_id = @changeset_id
 ORDER BY csc.id;
+-- name: GetChangesetChangesCount :one
+SELECT COUNT(*)::integer
+FROM changeset_changes csc
+WHERE csc.changeset_id = @changeset_id;
 -- name: GetChangeForVariationValue :one
 SELECT csc.id,
     csc.type,

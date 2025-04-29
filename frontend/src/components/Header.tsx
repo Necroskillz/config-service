@@ -1,9 +1,12 @@
 import { Link } from '@tanstack/react-router';
 import { useAuth } from '~/auth';
+import { Badge } from './ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuTriggerLabel } from './ui/dropdown-menu';
+import { useChangeset } from '~/hooks/useChangeset';
 
 export function Header() {
   const { user } = useAuth();
+  const { id: changesetId, numberOfChanges } = useChangeset();
 
   return (
     <div className="p-2 flex gap-2 text-lg">
@@ -13,13 +16,13 @@ export function Header() {
       {user.isAuthenticated && (
         <>
           <Link to="/services">Services</Link>
-          {user.changesetId > 0 ? (
-            <Link to="/changesets/$changesetId" params={{ changesetId: user.changesetId }} activeOptions={{ exact: true }}>
-              Changeset
-            </Link>
-          ) : (
-            <span>No Changeset</span>
-          )}
+          <Link
+            to={changesetId > 0 ? '/changesets/$changesetId' : '/changesets/empty'}
+            params={{ changesetId }}
+            activeOptions={{ exact: true }}
+          >
+            Changeset <Badge variant="outline">{numberOfChanges}</Badge>
+          </Link>
         </>
       )}
       <div className="ml-auto">{user.isAuthenticated ? <UserMenu /> : <Link to="/login">Login</Link>}</div>

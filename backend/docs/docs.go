@@ -144,8 +144,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/changesets/current": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get the current changeset info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get the current changeset info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ChangesetInfoResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/changesets/{changeset_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a changeset by ID",
                 "consumes": [
                     "application/json"
@@ -193,6 +241,11 @@ const docTemplate = `{
         },
         "/changesets/{changeset_id}/apply": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Apply a changeset by ID",
                 "consumes": [
                     "application/json"
@@ -243,6 +296,11 @@ const docTemplate = `{
         },
         "/changesets/{changeset_id}/comment": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Add a comment to a changeset by ID",
                 "consumes": [
                     "application/json"
@@ -302,6 +360,11 @@ const docTemplate = `{
         },
         "/changesets/{changeset_id}/commit": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Commit a changeset by ID",
                 "consumes": [
                     "application/json"
@@ -352,6 +415,11 @@ const docTemplate = `{
         },
         "/changesets/{changeset_id}/discard": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Discard a changeset by ID",
                 "consumes": [
                     "application/json"
@@ -402,6 +470,11 @@ const docTemplate = `{
         },
         "/changesets/{changeset_id}/reopen": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Reopen a changeset by ID",
                 "consumes": [
                     "application/json"
@@ -452,6 +525,11 @@ const docTemplate = `{
         },
         "/changesets/{changeset_id}/stash": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Stash a changeset by ID",
                 "consumes": [
                     "application/json"
@@ -2232,16 +2310,12 @@ const docTemplate = `{
         "auth.User": {
             "type": "object",
             "required": [
-                "changesetId",
                 "id",
                 "isAuthenticated",
                 "isGlobalAdmin",
                 "username"
             ],
             "properties": {
-                "changesetId": {
-                    "type": "integer"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -2332,6 +2406,21 @@ const docTemplate = `{
             "properties": {
                 "value": {
                     "type": "boolean"
+                }
+            }
+        },
+        "handler.ChangesetInfoResponse": {
+            "type": "object",
+            "required": [
+                "id",
+                "numberOfChanges"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "numberOfChanges": {
+                    "type": "integer"
                 }
             }
         },

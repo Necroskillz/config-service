@@ -606,6 +606,19 @@ func (q *Queries) GetChangesetChanges(ctx context.Context, changesetID uint) ([]
 	return items, nil
 }
 
+const getChangesetChangesCount = `-- name: GetChangesetChangesCount :one
+SELECT COUNT(*)::integer
+FROM changeset_changes csc
+WHERE csc.changeset_id = $1
+`
+
+func (q *Queries) GetChangesetChangesCount(ctx context.Context, changesetID uint) (int, error) {
+	row := q.db.QueryRow(ctx, getChangesetChangesCount, changesetID)
+	var column_1 int
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const getOpenChangesetIDForUser = `-- name: GetOpenChangesetIDForUser :one
 SELECT id
 FROM changesets

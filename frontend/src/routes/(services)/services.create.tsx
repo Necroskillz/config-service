@@ -11,7 +11,7 @@ import { Input } from '~/components/ui/input';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
 import { seo, appTitle } from '~/utils/seo';
-
+import { useChangeset } from '~/hooks/useChangeset';
 export const Route = createFileRoute('/(services)/services/create')({
   component: RouteComponent,
   loader: async ({ context }) => {
@@ -26,6 +26,7 @@ export const Route = createFileRoute('/(services)/services/create')({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const { refresh } = useChangeset();
   const { data: serviceTypes, isLoading } = useGetServiceTypes({
     query: {
       staleTime: Infinity,
@@ -35,6 +36,7 @@ function RouteComponent() {
     mutation: {
       onSuccess: async ({ newId }) => {
         navigate({ to: '/services/$serviceVersionId', params: { serviceVersionId: newId } });
+        refresh();
       },
     },
   });

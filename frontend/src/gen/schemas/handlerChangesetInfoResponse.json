@@ -1,0 +1,1 @@
+{"properties":{"id":{"type":"integer"},"numberOfChanges":{"type":"integer"}},"required":["id","numberOfChanges"],"type":"object","x-readme-ref-name":"handler.ChangesetInfoResponse"}
