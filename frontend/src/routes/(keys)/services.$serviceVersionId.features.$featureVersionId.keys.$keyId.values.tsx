@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { z } from 'zod';
 import { Fragment, useMemo, useState } from 'react';
 import {
@@ -36,6 +36,9 @@ import { useChangeset } from '~/hooks/useChangeset';
 import { versionedTitle } from '~/utils/seo';
 import { appTitle } from '~/utils/seo';
 import { seo } from '~/utils/seo';
+import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
+import { DropdownMenu } from '~/components/ui/dropdown-menu';
+import { EllipsisIcon } from 'lucide-react';
 
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values')({
   component: RouteComponent,
@@ -476,11 +479,11 @@ function RouteComponent() {
                 />
               ) : (
                 <>
-                  {!isDefaultValue && (
-                    <>
-                      <Button variant="outline" onClick={setEditing}>
-                        Edit
-                      </Button>
+                  <>
+                    <Button variant="outline" onClick={setEditing}>
+                      Edit
+                    </Button>
+                    {!isDefaultValue && (
                       <Button
                         variant="destructive"
                         onClick={() =>
@@ -494,8 +497,8 @@ function RouteComponent() {
                       >
                         Delete
                       </Button>
-                    </>
-                  )}
+                    )}
+                  </>
                 </>
               )}
             </div>
@@ -539,7 +542,27 @@ function RouteComponent() {
 
   return (
     <div className="p-4">
-      <PageTitle>Key {key.name}</PageTitle>
+      <div className="flex items-center justify-between mb-8">
+        <PageTitle className="mb-0">Key {key.name}</PageTitle>
+        <div className="flex items-center">
+          {key.canEdit && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <EllipsisIcon className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Link className="w-full" to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit" params={{ serviceVersionId, featureVersionId, keyId }}>
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
       <div className="flex flex-col gap-4">
         {key.description && <p className="text-muted-foreground">{key.description}</p>}
         <MutationErrors mutations={[createMutation, updateMutation, deleteMutation]} />

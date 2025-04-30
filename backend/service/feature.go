@@ -160,10 +160,6 @@ type CreateFeatureParams struct {
 	Description      string
 }
 
-func descriptionValidatorFunc(v *ValidatorContext) *ValidatorContext {
-	return v.Required().MaxLength(500)
-}
-
 func (s *FeatureService) validateCreateFeature(ctx context.Context, data CreateFeatureParams, serviceVersion db.GetServiceVersionRow) error {
 	v := s.validator.
 		Validate(data.Name, "Name").Required().FeatureNameNotTaken().MaxLength(100).
@@ -348,11 +344,7 @@ func (s *FeatureService) UnlinkFeatureVersion(ctx context.Context, serviceVersio
 	})
 }
 
-func (s *FeatureService) LinkFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) error {
-	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
-	if err != nil {
-		return err
-	}
+func (s *FeatureService) validateLinkFeatureVersion(ctx context.Context, serviceVersion db.GetServiceVersionRow, featureVersionID uint) error {
 
 	user := s.currentUserAccessor.GetUser(ctx)
 	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
@@ -370,7 +362,7 @@ func (s *FeatureService) LinkFeatureVersion(ctx context.Context, serviceVersionI
 
 	linked, err := s.queries.IsFeatureLinkedToServiceVersion(ctx, db.IsFeatureLinkedToServiceVersionParams{
 		FeatureID:        featureVersion.FeatureID,
-		ServiceVersionID: serviceVersionID,
+		ServiceVersionID: serviceVersion.ID,
 		ChangesetID:      user.ChangesetID,
 	})
 	if err != nil {
@@ -379,6 +371,19 @@ func (s *FeatureService) LinkFeatureVersion(ctx context.Context, serviceVersionI
 
 	if linked {
 		return NewServiceError(ErrorCodeInvalidOperation, "Feature is already linked to this service version")
+	}
+
+	return nil
+}
+
+func (s *FeatureService) LinkFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) error {
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.validateLinkFeatureVersion(ctx, serviceVersion, featureVersionID); err != nil {
+		return err
 	}
 
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {

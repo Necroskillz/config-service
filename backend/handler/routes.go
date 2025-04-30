@@ -43,6 +43,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	keyGroup.GET("/create", h.CreateKey)
 	keyGroup.POST("", h.CreateKey)
 	keyGroup.GET("/:key_id", h.Key)
+	keyGroup.PUT("/:key_id", h.UpdateKey)
 	keyGroup.GET("/name-taken/:name", h.IsKeyNameTaken)
 
 	serviceTypeGroup := apiGroup.Group("/service-types")

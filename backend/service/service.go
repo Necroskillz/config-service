@@ -186,7 +186,7 @@ type CreateServiceParams struct {
 func (s *ServiceService) validateCreateService(ctx context.Context, data CreateServiceParams) error {
 	err := s.validator.
 		Validate(data.Name, "Name").MaxLength(100).Required().ServiceNameNotTaken().
-		Validate(data.Description, "Description").MaxLength(500).Required().
+		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc).
 		Validate(data.ServiceTypeID, "Service Type ID").Min(1).
 		Error(ctx)
 
@@ -253,7 +253,7 @@ type UpdateServiceParams struct {
 
 func (s *ServiceService) validateUpdateService(ctx context.Context, data UpdateServiceParams, serviceVersion db.GetServiceVersionRow) error {
 	err := s.validator.
-		Validate(data.Description, "Description").MaxLength(500).Required().
+		Validate(data.Description, "Description").Func(descriptionValidatorFunc).
 		Error(ctx)
 
 	if err != nil {

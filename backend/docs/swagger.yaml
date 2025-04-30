@@ -174,6 +174,11 @@ definitions:
     required:
     - description
     type: object
+  handler.UpdateKeyRequest:
+    properties:
+      description:
+        type: string
+    type: object
   handler.UpdateServiceRequest:
     properties:
       description:
@@ -1356,6 +1361,58 @@ paths:
       security:
       - BearerAuth: []
       summary: Get a key
+    put:
+      consumes:
+      - application/json
+      description: Create a key
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      - description: Key DTO
+        in: body
+        name: key_dto
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateKeyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create a key
   /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values:
     get:
       consumes:

@@ -26,6 +26,7 @@ import { Route as featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexI
 import { Route as featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditImport } from './routes/(features)/services.$serviceVersionId.features.$featureVersionId.edit'
 import { Route as keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateImport } from './routes/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.create'
 import { Route as keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesImport } from './routes/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.values'
+import { Route as keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditImport } from './routes/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.edit'
 
 // Create/Update Routes
 
@@ -126,6 +127,15 @@ const keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute =
     {
       id: '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values',
       path: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values',
+      getParentRoute: () => rootRoute,
+    } as any,
+  )
+
+const keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute =
+  keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditImport.update(
+    {
+      id: '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit',
+      path: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit',
       getParentRoute: () => rootRoute,
     } as any,
   )
@@ -232,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateImport
       parentRoute: typeof rootRoute
     }
+    '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit': {
+      id: '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
+      path: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
+      fullPath: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
+      preLoaderRoute: typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditImport
+      parentRoute: typeof rootRoute
+    }
     '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values': {
       id: '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values'
       path: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values'
@@ -259,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/services/$serviceVersionId/features/$featureVersionId/edit': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
+  '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute
 }
 
@@ -277,6 +295,7 @@ export interface FileRoutesByTo {
   '/services/$serviceVersionId/features/$featureVersionId/edit': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
+  '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute
 }
 
@@ -296,6 +315,7 @@ export interface FileRoutesById {
   '/(features)/services/$serviceVersionId/features/$featureVersionId/edit': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
   '/(features)/services/$serviceVersionId/features/$featureVersionId/': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
   '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
+  '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute
   '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values': typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute
 }
 
@@ -316,6 +336,7 @@ export interface FileRouteTypes {
     | '/services/$serviceVersionId/features/$featureVersionId/edit'
     | '/services/$serviceVersionId/features/$featureVersionId'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/create'
+    | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -333,6 +354,7 @@ export interface FileRouteTypes {
     | '/services/$serviceVersionId/features/$featureVersionId/edit'
     | '/services/$serviceVersionId/features/$featureVersionId'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/create'
+    | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values'
   id:
     | '__root__'
@@ -350,6 +372,7 @@ export interface FileRouteTypes {
     | '/(features)/services/$serviceVersionId/features/$featureVersionId/edit'
     | '/(features)/services/$serviceVersionId/features/$featureVersionId/'
     | '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create'
+    | '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
     | '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values'
   fileRoutesById: FileRoutesById
 }
@@ -369,6 +392,7 @@ export interface RootRouteChildren {
   featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute: typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
   featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute: typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
   keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute: typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
+  keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute: typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute
   keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute: typeof keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute
 }
 
@@ -394,6 +418,8 @@ const rootRouteChildren: RootRouteChildren = {
     featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute,
   keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute:
     keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute,
+  keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute:
+    keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute,
   keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute:
     keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute,
 }
@@ -422,6 +448,7 @@ export const routeTree = rootRoute
         "/(features)/services/$serviceVersionId/features/$featureVersionId/edit",
         "/(features)/services/$serviceVersionId/features/$featureVersionId/",
         "/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create",
+        "/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit",
         "/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values"
       ]
     },
@@ -466,6 +493,9 @@ export const routeTree = rootRoute
     },
     "/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create": {
       "filePath": "(keys)/services.$serviceVersionId.features.$featureVersionId.keys.create.tsx"
+    },
+    "/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit": {
+      "filePath": "(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.edit.tsx"
     },
     "/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values": {
       "filePath": "(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.values.tsx"

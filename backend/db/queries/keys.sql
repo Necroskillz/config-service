@@ -58,6 +58,10 @@ VALUES (
         @feature_version_id
     )
 RETURNING id;
+-- name: UpdateKey :exec
+UPDATE keys
+SET description = @description
+WHERE id = @key_id;
 -- name: GetKeyIDByName :one
 SELECT id
 FROM keys

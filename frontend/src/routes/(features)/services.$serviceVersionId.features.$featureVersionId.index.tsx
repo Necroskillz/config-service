@@ -76,10 +76,30 @@ function RouteComponent() {
   }
   return (
     <SlimPage>
-      <PageTitle>
-        {featureVersion.name}
-        <Badge className="ml-2">v{featureVersion.version}</Badge>
-      </PageTitle>
+      <div className="flex items-center justify-between mb-8">
+        <PageTitle className="mb-0">
+          {featureVersion.name}
+          <Badge className="ml-2">v{featureVersion.version}</Badge>
+        </PageTitle>
+        <div className="flex items-center">
+            {featureVersion.canEdit && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <EllipsisIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <Link className="w-full" to="/services/$serviceVersionId/features/$featureVersionId/edit" params={{ serviceVersionId, featureVersionId }}>
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+      </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-row gap-2 items-center">
           <span>Version</span>
@@ -107,24 +127,6 @@ function RouteComponent() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <div className="flex items-center w-full justify-end">
-            {featureVersion.canEdit && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <EllipsisIcon className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>
-                    <Link className="w-full" to="/services/$serviceVersionId/features/$featureVersionId/edit" params={{ serviceVersionId, featureVersionId }}>
-                      Edit
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
         </div>
         <div className="text-muted-foreground">{featureVersion.description}</div>
         <List>

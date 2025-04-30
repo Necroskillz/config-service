@@ -73,3 +73,11 @@ var (
 	ErrDuplicateVariation = NewSentinelServiceError(ErrorCodeDuplicateVariation)
 	ErrUnknownError       = NewSentinelServiceError(ErrorCodeUnknownError)
 )
+
+func descriptionValidatorFunc(v *ValidatorContext) *ValidatorContext {
+	return v.Required().MaxLength(1000)
+}
+
+func optionalDescriptionValidatorFunc(v *ValidatorContext) *ValidatorContext {
+	return v.MaxLength(1000)
+}

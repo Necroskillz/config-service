@@ -88,7 +88,7 @@ type CreateKeyRequest struct {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
-// @Param key_dto body CreateKeyRequest true "Key DTO"
+// @Param createKeyRequest body CreateKeyRequest true "Create key request"
 // @Success 200 {object} CreateResponse
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
@@ -124,6 +124,58 @@ func (h *Handler) CreateKey(c echo.Context) error {
 	return c.JSON(http.StatusOK, NewCreateResponse(keyID))
 }
 
+type UpdateKeyRequest struct {
+	Description string `json:"description"`
+}
+
+// @Summary Create a key
+// @Description Create a key
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param feature_version_id path int true "Feature version ID"
+// @Param key_id path int true "Key ID"
+// @Param updateKeyRequest body UpdateKeyRequest true "Update key request"
+// @Success 200 {object} CreateResponse
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/{feature_version_id}/keys/{key_id} [put]
+func (h *Handler) UpdateKey(c echo.Context) error {
+	var serviceVersionID uint
+	var featureVersionID uint
+	var keyID uint
+
+	err := echo.PathParamsBinder(c).
+		MustUint("service_version_id", &serviceVersionID).
+		MustUint("feature_version_id", &featureVersionID).
+		MustUint("key_id", &keyID).
+		BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	var data UpdateKeyRequest
+	err = c.Bind(&data)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.KeyService.UpdateKey(c.Request().Context(), service.UpdateKeyParams{
+		ServiceVersionID: serviceVersionID,
+		FeatureVersionID: featureVersionID,
+		KeyID:            keyID,
+		Description:      data.Description,
+	})
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, NewCreateResponse(keyID))
+}
+
 // @Summary Check if key name is taken
 // @Description Check if key name is taken
 // @Accept json
@@ -145,7 +197,7 @@ func (h *Handler) IsKeyNameTaken(c echo.Context) error {
 	err := echo.PathParamsBinder(c).
 		MustUint("service_version_id", &serviceVersionID).
 		MustUint("feature_version_id", &featureVersionID).
-		String("name", &name).
+		MustString("name", &name).
 		BindError()
 	if err != nil {
 		return ToHTTPError(err)

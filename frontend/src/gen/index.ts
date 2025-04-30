@@ -57,6 +57,7 @@ export type { PutChangesetsChangesetIdReopenMutationKey } from './hooks/usePutCh
 export type { PutChangesetsChangesetIdStashMutationKey } from './hooks/usePutChangesetsChangesetIdStash.ts'
 export type { PutServicesServiceVersionIdMutationKey } from './hooks/usePutServicesServiceVersionId.ts'
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionId.ts'
+export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { PutServicesServiceVersionIdPublishMutationKey } from './hooks/usePutServicesServiceVersionIdPublish.ts'
 export type { AuthUser } from './types/auth/User.ts'
@@ -264,6 +265,7 @@ export type { HandlerRefreshTokenRequest } from './types/handler/RefreshTokenReq
 export type { HandlerSelectOption } from './types/handler/SelectOption.ts'
 export type { HandlerTokensResponse } from './types/handler/TokensResponse.ts'
 export type { HandlerUpdateFeatureRequest } from './types/handler/UpdateFeatureRequest.ts'
+export type { HandlerUpdateKeyRequest } from './types/handler/UpdateKeyRequest.ts'
 export type { HandlerUpdateServiceRequest } from './types/handler/UpdateServiceRequest.ts'
 export type { HandlerValueRequest } from './types/handler/ValueRequest.ts'
 export type { HandlerVariationProperty } from './types/handler/VariationProperty.ts'
@@ -413,6 +415,17 @@ export type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationResponse,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdMutation,
 } from './types/PutServicesServiceVersionIdFeaturesFeatureVersionId.ts'
+export type {
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationResponse,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutation,
+} from './types/PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId200,
@@ -739,6 +752,11 @@ export {
   putServicesServiceVersionIdFeaturesFeatureVersionId,
   usePutServicesServiceVersionIdFeaturesFeatureVersionId,
 } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionId.ts'
+export {
+  putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey,
+  putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
+  usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
+} from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export {
   putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey,
   putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,

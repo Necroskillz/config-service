@@ -119,11 +119,23 @@ type CreateKeyParams struct {
 	ValueTypeID      uint
 }
 
-func (s *KeyService) validateCreateKey(ctx context.Context, data CreateKeyParams) error {
-	return s.validator.
+func (s *KeyService) validateCreateKey(ctx context.Context, data CreateKeyParams, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow) error {
+	err := s.validator.
 		Validate(data.Name, "Name").Required().KeyNameNotTaken(data.FeatureVersionID).
 		Validate(data.ValueTypeID, "Value Type ID").Min(1).
+		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc).
 		Error(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) < constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create keys for this feature")
+	}
+
+	return nil
 }
 
 func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uint, error) {
@@ -132,12 +144,7 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 		return 0, err
 	}
 
-	user := s.currentUserAccessor.GetUser(ctx)
-	if user.GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) < constants.PermissionAdmin {
-		return 0, NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create keys for this feature")
-	}
-
-	err = s.validateCreateKey(ctx, params)
+	err = s.validateCreateKey(ctx, params, serviceVersion, featureVersion)
 	if err != nil {
 		return 0, err
 	}
@@ -199,4 +206,50 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 	})
 
 	return keyID, err
+}
+
+type UpdateKeyParams struct {
+	ServiceVersionID uint
+	FeatureVersionID uint
+	KeyID            uint
+	Description      string
+}
+
+func (s *KeyService) validateUpdateKey(ctx context.Context, data UpdateKeyParams, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow, key db.GetKeyRow) error {
+	err := s.validator.
+		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc).
+		Error(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) < constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to update keys for this feature")
+	}
+
+	return nil
+}
+
+func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) error {
+	serviceVersion, featureVersion, key, err := s.coreService.GetKey(ctx, params.ServiceVersionID, params.FeatureVersionID, params.KeyID)
+	if err != nil {
+		return err
+	}
+
+	err = s.validateUpdateKey(ctx, params, serviceVersion, featureVersion, key)
+	if err != nil {
+		return err
+	}
+
+	err = s.queries.UpdateKey(ctx, db.UpdateKeyParams{
+		KeyID:       params.KeyID,
+		Description: &params.Description,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

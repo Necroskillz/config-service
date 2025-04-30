@@ -280,3 +280,19 @@ func (q *Queries) StartKeyValidity(ctx context.Context, arg StartKeyValidityPara
 	_, err := q.db.Exec(ctx, startKeyValidity, arg.ValidFrom, arg.KeyID)
 	return err
 }
+
+const updateKey = `-- name: UpdateKey :exec
+UPDATE keys
+SET description = $1
+WHERE id = $2
+`
+
+type UpdateKeyParams struct {
+	Description *string
+	KeyID       uint
+}
+
+func (q *Queries) UpdateKey(ctx context.Context, arg UpdateKeyParams) error {
+	_, err := q.db.Exec(ctx, updateKey, arg.Description, arg.KeyID)
+	return err
+}

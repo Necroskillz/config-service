@@ -77,12 +77,43 @@ function RouteComponent() {
 
   return (
     <SlimPage>
-      <PageTitle>
-        {serviceVersion.name}
-        <Badge className="ml-2">
-          v{serviceVersion.version} ({serviceVersion.published ? 'published' : 'draft'})
-        </Badge>
-      </PageTitle>
+      <div className="flex items-center justify-between mb-8">
+        <PageTitle className="mb-0">
+          {serviceVersion.name}
+          <Badge className="ml-2">
+            v{serviceVersion.version} ({serviceVersion.published ? 'published' : 'draft'})
+          </Badge>
+        </PageTitle>
+        <div className="flex items-center">
+          {serviceVersion.canEdit && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <EllipsisIcon className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Link className="w-full" to="/services/$serviceVersionId/edit" params={{ serviceVersionId }}>
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link className="w-full" to="/services/$serviceVersionId/link" params={{ serviceVersionId }}>
+                    Link/Unlink features
+                  </Link>
+                </DropdownMenuItem>
+                {!serviceVersion.published && (
+                  <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
+                    Publish
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
+
       <div className="flex flex-col gap-4">
         <MutationErrors mutations={[publishMutation]} />
         <div className="flex flex-row gap-2 items-center">
@@ -108,34 +139,6 @@ function RouteComponent() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <div className="flex items-center w-full justify-end">
-            {serviceVersion.canEdit && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <EllipsisIcon className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>
-                    <Link className="w-full" to="/services/$serviceVersionId/edit" params={{ serviceVersionId }}>
-                      Edit
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link className="w-full" to="/services/$serviceVersionId/link" params={{ serviceVersionId }}>
-                      Link/Unlink features
-                    </Link>
-                  </DropdownMenuItem>
-                  {!serviceVersion.published && (
-                    <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
-                      Publish
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
         </div>
         <div className="text-muted-foreground">{serviceVersion.description}</div>
         <List>
