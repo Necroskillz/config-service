@@ -25,6 +25,11 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdPathParams = {
 export type GetServicesServiceVersionIdFeaturesFeatureVersionId200 = ServiceFeatureVersionWithPermissionDto
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdFeaturesFeatureVersionId400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdFeaturesFeatureVersionId401 = EchoHTTPError
@@ -45,6 +50,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdQuery = {
   Response: GetServicesServiceVersionIdFeaturesFeatureVersionId200
   PathParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdPathParams
   Errors:
+    | GetServicesServiceVersionIdFeaturesFeatureVersionId400
     | GetServicesServiceVersionIdFeaturesFeatureVersionId401
     | GetServicesServiceVersionIdFeaturesFeatureVersionId404
     | GetServicesServiceVersionIdFeaturesFeatureVersionId500

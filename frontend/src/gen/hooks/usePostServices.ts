@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostServicesMutationRequest,
   PostServicesMutationResponse,
+  PostServices400,
   PostServices401,
   PostServices403,
   PostServices422,
@@ -33,7 +34,7 @@ export async function postServices(
 
   const res = await request<
     PostServicesMutationResponse,
-    ResponseErrorConfig<PostServices401 | PostServices403 | PostServices422 | PostServices500>,
+    ResponseErrorConfig<PostServices400 | PostServices401 | PostServices403 | PostServices422 | PostServices500>,
     PostServicesMutationRequest
   >({ method: 'POST', url: `/services`, data, ...requestConfig })
   return res.data
@@ -48,7 +49,7 @@ export function usePostServices<TContext>(
   options: {
     mutation?: UseMutationOptions<
       PostServicesMutationResponse,
-      ResponseErrorConfig<PostServices401 | PostServices403 | PostServices422 | PostServices500>,
+      ResponseErrorConfig<PostServices400 | PostServices401 | PostServices403 | PostServices422 | PostServices500>,
       { data: PostServicesMutationRequest },
       TContext
     > & { client?: QueryClient }
@@ -60,7 +61,7 @@ export function usePostServices<TContext>(
 
   return useMutation<
     PostServicesMutationResponse,
-    ResponseErrorConfig<PostServices401 | PostServices403 | PostServices422 | PostServices500>,
+    ResponseErrorConfig<PostServices400 | PostServices401 | PostServices403 | PostServices422 | PostServices500>,
     { data: PostServicesMutationRequest },
     TContext
   >(

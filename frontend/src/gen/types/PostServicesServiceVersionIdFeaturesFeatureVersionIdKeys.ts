@@ -26,6 +26,11 @@ export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams =
 export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys200 = HandlerCreateResponse
 
 /**
+ * @description Bad Request
+ */
+export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys401 = EchoHTTPError
@@ -46,7 +51,7 @@ export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys404 = EchoHT
 export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys500 = EchoHTTPError
 
 /**
- * @description Key DTO
+ * @description Create key request
  */
 export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationRequest = HandlerCreateKeyRequest
 
@@ -57,6 +62,7 @@ export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutation = {
   Request: PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationRequest
   PathParams: PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams
   Errors:
+    | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
     | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
     | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys403
     | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys404

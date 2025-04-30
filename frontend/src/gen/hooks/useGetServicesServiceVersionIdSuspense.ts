@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesServiceVersionIdQueryResponse,
   GetServicesServiceVersionIdPathParams,
+  GetServicesServiceVersionId400,
   GetServicesServiceVersionId401,
   GetServicesServiceVersionId404,
   GetServicesServiceVersionId500,
@@ -33,7 +34,7 @@ export async function getServicesServiceVersionIdSuspense(
 
   const res = await request<
     GetServicesServiceVersionIdQueryResponse,
-    ResponseErrorConfig<GetServicesServiceVersionId401 | GetServicesServiceVersionId404 | GetServicesServiceVersionId500>,
+    ResponseErrorConfig<GetServicesServiceVersionId400 | GetServicesServiceVersionId401 | GetServicesServiceVersionId404 | GetServicesServiceVersionId500>,
     unknown
   >({ method: 'GET', url: `/services/${service_version_id}`, ...requestConfig })
   return res.data
@@ -46,7 +47,7 @@ export function getServicesServiceVersionIdSuspenseQueryOptions(
   const queryKey = getServicesServiceVersionIdSuspenseQueryKey(service_version_id)
   return queryOptions<
     GetServicesServiceVersionIdQueryResponse,
-    ResponseErrorConfig<GetServicesServiceVersionId401 | GetServicesServiceVersionId404 | GetServicesServiceVersionId500>,
+    ResponseErrorConfig<GetServicesServiceVersionId400 | GetServicesServiceVersionId401 | GetServicesServiceVersionId404 | GetServicesServiceVersionId500>,
     GetServicesServiceVersionIdQueryResponse,
     typeof queryKey
   >({
@@ -74,7 +75,7 @@ export function useGetServicesServiceVersionIdSuspense<
     query?: Partial<
       UseSuspenseQueryOptions<
         GetServicesServiceVersionIdQueryResponse,
-        ResponseErrorConfig<GetServicesServiceVersionId401 | GetServicesServiceVersionId404 | GetServicesServiceVersionId500>,
+        ResponseErrorConfig<GetServicesServiceVersionId400 | GetServicesServiceVersionId401 | GetServicesServiceVersionId404 | GetServicesServiceVersionId500>,
         TData,
         TQueryKey
       >
@@ -92,9 +93,10 @@ export function useGetServicesServiceVersionIdSuspense<
       ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
     },
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetServicesServiceVersionId401 | GetServicesServiceVersionId404 | GetServicesServiceVersionId500>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseSuspenseQueryResult<
+    TData,
+    ResponseErrorConfig<GetServicesServiceVersionId400 | GetServicesServiceVersionId401 | GetServicesServiceVersionId404 | GetServicesServiceVersionId500>
+  > & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

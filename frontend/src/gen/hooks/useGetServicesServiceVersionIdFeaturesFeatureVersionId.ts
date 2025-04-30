@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionId400,
   GetServicesServiceVersionIdFeaturesFeatureVersionId401,
   GetServicesServiceVersionIdFeaturesFeatureVersionId404,
   GetServicesServiceVersionIdFeaturesFeatureVersionId500,
@@ -43,6 +44,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionId(
   const res = await request<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionId500
@@ -61,6 +63,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions(
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionId500
@@ -94,6 +97,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionId<
       QueryObserverOptions<
         GetServicesServiceVersionIdFeaturesFeatureVersionIdQueryResponse,
         ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesFeatureVersionId400
           | GetServicesServiceVersionIdFeaturesFeatureVersionId401
           | GetServicesServiceVersionIdFeaturesFeatureVersionId404
           | GetServicesServiceVersionIdFeaturesFeatureVersionId500
@@ -119,6 +123,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionId<
   ) as UseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionId500

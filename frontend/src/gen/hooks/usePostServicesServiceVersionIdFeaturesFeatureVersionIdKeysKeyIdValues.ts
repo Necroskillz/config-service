@@ -9,6 +9,7 @@ import type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationRequest,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationResponse,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPathParams,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues403,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues404,
@@ -42,6 +43,7 @@ export async function postServicesServiceVersionIdFeaturesFeatureVersionIdKeysKe
   const res = await request<
     PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationResponse,
     ResponseErrorConfig<
+      | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues403
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues404
@@ -63,6 +65,7 @@ export function usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId
     mutation?: UseMutationOptions<
       PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationResponse,
       ResponseErrorConfig<
+        | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400
         | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401
         | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues403
         | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues404
@@ -86,6 +89,7 @@ export function usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId
   return useMutation<
     PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationResponse,
     ResponseErrorConfig<
+      | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues403
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues404

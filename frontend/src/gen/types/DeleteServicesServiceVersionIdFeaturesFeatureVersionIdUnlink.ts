@@ -24,6 +24,11 @@ export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkPathPara
 export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink204 = any
 
 /**
+ * @description Bad Request
+ */
+export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink401 = EchoHTTPError
@@ -49,6 +54,7 @@ export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutation
   Response: DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink204
   PathParams: DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkPathParams
   Errors:
+    | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink400
     | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink401
     | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink403
     | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink404

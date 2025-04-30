@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500,
@@ -47,6 +48,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   const res = await request<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500
@@ -66,6 +68,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQuer
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500
@@ -100,6 +103,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId<
       QueryObserverOptions<
         GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryResponse,
         ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500
@@ -131,6 +135,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId<
   ) as UseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500

@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServiceTypesServiceTypeIdVariationPropertiesQueryResponse,
   GetServiceTypesServiceTypeIdVariationPropertiesPathParams,
+  GetServiceTypesServiceTypeIdVariationProperties400,
   GetServiceTypesServiceTypeIdVariationProperties401,
   GetServiceTypesServiceTypeIdVariationProperties404,
   GetServiceTypesServiceTypeIdVariationProperties500,
@@ -35,6 +36,7 @@ export async function getServiceTypesServiceTypeIdVariationProperties(
   const res = await request<
     GetServiceTypesServiceTypeIdVariationPropertiesQueryResponse,
     ResponseErrorConfig<
+      | GetServiceTypesServiceTypeIdVariationProperties400
       | GetServiceTypesServiceTypeIdVariationProperties401
       | GetServiceTypesServiceTypeIdVariationProperties404
       | GetServiceTypesServiceTypeIdVariationProperties500
@@ -52,6 +54,7 @@ export function getServiceTypesServiceTypeIdVariationPropertiesQueryOptions(
   return queryOptions<
     GetServiceTypesServiceTypeIdVariationPropertiesQueryResponse,
     ResponseErrorConfig<
+      | GetServiceTypesServiceTypeIdVariationProperties400
       | GetServiceTypesServiceTypeIdVariationProperties401
       | GetServiceTypesServiceTypeIdVariationProperties404
       | GetServiceTypesServiceTypeIdVariationProperties500
@@ -84,6 +87,7 @@ export function useGetServiceTypesServiceTypeIdVariationProperties<
       QueryObserverOptions<
         GetServiceTypesServiceTypeIdVariationPropertiesQueryResponse,
         ResponseErrorConfig<
+          | GetServiceTypesServiceTypeIdVariationProperties400
           | GetServiceTypesServiceTypeIdVariationProperties401
           | GetServiceTypesServiceTypeIdVariationProperties404
           | GetServiceTypesServiceTypeIdVariationProperties500
@@ -109,6 +113,7 @@ export function useGetServiceTypesServiceTypeIdVariationProperties<
   ) as UseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServiceTypesServiceTypeIdVariationProperties400
       | GetServiceTypesServiceTypeIdVariationProperties401
       | GetServiceTypesServiceTypeIdVariationProperties404
       | GetServiceTypesServiceTypeIdVariationProperties500

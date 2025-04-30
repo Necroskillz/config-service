@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
   GetServicesServiceVersionIdFeaturesLinkablePathParams,
+  GetServicesServiceVersionIdFeaturesLinkable400,
   GetServicesServiceVersionIdFeaturesLinkable401,
   GetServicesServiceVersionIdFeaturesLinkable404,
   GetServicesServiceVersionIdFeaturesLinkable500,
@@ -35,7 +36,10 @@ export async function getServicesServiceVersionIdFeaturesLinkable(
   const res = await request<
     GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
     ResponseErrorConfig<
-      GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+      | GetServicesServiceVersionIdFeaturesLinkable400
+      | GetServicesServiceVersionIdFeaturesLinkable401
+      | GetServicesServiceVersionIdFeaturesLinkable404
+      | GetServicesServiceVersionIdFeaturesLinkable500
     >,
     unknown
   >({ method: 'GET', url: `/services/${service_version_id}/features/linkable`, ...requestConfig })
@@ -50,7 +54,10 @@ export function getServicesServiceVersionIdFeaturesLinkableQueryOptions(
   return queryOptions<
     GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
     ResponseErrorConfig<
-      GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+      | GetServicesServiceVersionIdFeaturesLinkable400
+      | GetServicesServiceVersionIdFeaturesLinkable401
+      | GetServicesServiceVersionIdFeaturesLinkable404
+      | GetServicesServiceVersionIdFeaturesLinkable500
     >,
     GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
     typeof queryKey
@@ -80,7 +87,10 @@ export function useGetServicesServiceVersionIdFeaturesLinkable<
       QueryObserverOptions<
         GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
         ResponseErrorConfig<
-          GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+          | GetServicesServiceVersionIdFeaturesLinkable400
+          | GetServicesServiceVersionIdFeaturesLinkable401
+          | GetServicesServiceVersionIdFeaturesLinkable404
+          | GetServicesServiceVersionIdFeaturesLinkable500
         >,
         TData,
         TQueryData,
@@ -103,7 +113,10 @@ export function useGetServicesServiceVersionIdFeaturesLinkable<
   ) as UseQueryResult<
     TData,
     ResponseErrorConfig<
-      GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+      | GetServicesServiceVersionIdFeaturesLinkable400
+      | GetServicesServiceVersionIdFeaturesLinkable401
+      | GetServicesServiceVersionIdFeaturesLinkable404
+      | GetServicesServiceVersionIdFeaturesLinkable500
     >
   > & { queryKey: TQueryKey }
 

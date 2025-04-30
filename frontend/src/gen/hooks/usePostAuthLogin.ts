@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostAuthLoginMutationRequest,
   PostAuthLoginMutationResponse,
+  PostAuthLogin400,
   PostAuthLogin401,
   PostAuthLogin422,
   PostAuthLogin500,
@@ -32,7 +33,7 @@ export async function postAuthLogin(
 
   const res = await request<
     PostAuthLoginMutationResponse,
-    ResponseErrorConfig<PostAuthLogin401 | PostAuthLogin422 | PostAuthLogin500>,
+    ResponseErrorConfig<PostAuthLogin400 | PostAuthLogin401 | PostAuthLogin422 | PostAuthLogin500>,
     PostAuthLoginMutationRequest
   >({ method: 'POST', url: `/auth/login`, data, ...requestConfig })
   return res.data
@@ -47,7 +48,7 @@ export function usePostAuthLogin<TContext>(
   options: {
     mutation?: UseMutationOptions<
       PostAuthLoginMutationResponse,
-      ResponseErrorConfig<PostAuthLogin401 | PostAuthLogin422 | PostAuthLogin500>,
+      ResponseErrorConfig<PostAuthLogin400 | PostAuthLogin401 | PostAuthLogin422 | PostAuthLogin500>,
       { data: PostAuthLoginMutationRequest },
       TContext
     > & { client?: QueryClient }
@@ -59,7 +60,7 @@ export function usePostAuthLogin<TContext>(
 
   return useMutation<
     PostAuthLoginMutationResponse,
-    ResponseErrorConfig<PostAuthLogin401 | PostAuthLogin422 | PostAuthLogin500>,
+    ResponseErrorConfig<PostAuthLogin400 | PostAuthLogin401 | PostAuthLogin422 | PostAuthLogin500>,
     { data: PostAuthLoginMutationRequest },
     TContext
   >(

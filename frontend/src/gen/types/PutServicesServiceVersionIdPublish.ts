@@ -19,6 +19,11 @@ export type PutServicesServiceVersionIdPublishPathParams = {
 export type PutServicesServiceVersionIdPublish204 = any
 
 /**
+ * @description Bad Request
+ */
+export type PutServicesServiceVersionIdPublish400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PutServicesServiceVersionIdPublish401 = EchoHTTPError
@@ -44,6 +49,7 @@ export type PutServicesServiceVersionIdPublishMutation = {
   Response: PutServicesServiceVersionIdPublish204
   PathParams: PutServicesServiceVersionIdPublishPathParams
   Errors:
+    | PutServicesServiceVersionIdPublish400
     | PutServicesServiceVersionIdPublish401
     | PutServicesServiceVersionIdPublish403
     | PutServicesServiceVersionIdPublish404

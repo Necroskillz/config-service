@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetChangesetsChangesetIdQueryResponse,
   GetChangesetsChangesetIdPathParams,
+  GetChangesetsChangesetId400,
   GetChangesetsChangesetId401,
   GetChangesetsChangesetId404,
   GetChangesetsChangesetId500,
@@ -33,7 +34,7 @@ export async function getChangesetsChangesetId(
 
   const res = await request<
     GetChangesetsChangesetIdQueryResponse,
-    ResponseErrorConfig<GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
+    ResponseErrorConfig<GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
     unknown
   >({ method: 'GET', url: `/changesets/${changeset_id}`, ...requestConfig })
   return res.data
@@ -46,7 +47,7 @@ export function getChangesetsChangesetIdQueryOptions(
   const queryKey = getChangesetsChangesetIdQueryKey(changeset_id)
   return queryOptions<
     GetChangesetsChangesetIdQueryResponse,
-    ResponseErrorConfig<GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
+    ResponseErrorConfig<GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
     GetChangesetsChangesetIdQueryResponse,
     typeof queryKey
   >({
@@ -74,7 +75,7 @@ export function useGetChangesetsChangesetId<
     query?: Partial<
       QueryObserverOptions<
         GetChangesetsChangesetIdQueryResponse,
-        ResponseErrorConfig<GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
+        ResponseErrorConfig<GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
         TData,
         TQueryData,
         TQueryKey
@@ -93,9 +94,10 @@ export function useGetChangesetsChangesetId<
       ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
     },
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseQueryResult<
+    TData,
+    ResponseErrorConfig<GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>
+  > & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

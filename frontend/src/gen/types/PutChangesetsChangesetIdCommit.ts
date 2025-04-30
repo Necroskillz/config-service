@@ -19,6 +19,11 @@ export type PutChangesetsChangesetIdCommitPathParams = {
 export type PutChangesetsChangesetIdCommit204 = any
 
 /**
+ * @description Bad Request
+ */
+export type PutChangesetsChangesetIdCommit400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PutChangesetsChangesetIdCommit401 = EchoHTTPError
@@ -43,5 +48,10 @@ export type PutChangesetsChangesetIdCommitMutationResponse = PutChangesetsChange
 export type PutChangesetsChangesetIdCommitMutation = {
   Response: PutChangesetsChangesetIdCommit204
   PathParams: PutChangesetsChangesetIdCommitPathParams
-  Errors: PutChangesetsChangesetIdCommit401 | PutChangesetsChangesetIdCommit403 | PutChangesetsChangesetIdCommit404 | PutChangesetsChangesetIdCommit500
+  Errors:
+    | PutChangesetsChangesetIdCommit400
+    | PutChangesetsChangesetIdCommit401
+    | PutChangesetsChangesetIdCommit403
+    | PutChangesetsChangesetIdCommit404
+    | PutChangesetsChangesetIdCommit500
 }

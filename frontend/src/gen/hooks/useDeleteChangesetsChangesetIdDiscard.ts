@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   DeleteChangesetsChangesetIdDiscardMutationResponse,
   DeleteChangesetsChangesetIdDiscardPathParams,
+  DeleteChangesetsChangesetIdDiscard400,
   DeleteChangesetsChangesetIdDiscard401,
   DeleteChangesetsChangesetIdDiscard403,
   DeleteChangesetsChangesetIdDiscard404,
@@ -34,6 +35,7 @@ export async function deleteChangesetsChangesetIdDiscard(
   const res = await request<
     DeleteChangesetsChangesetIdDiscardMutationResponse,
     ResponseErrorConfig<
+      | DeleteChangesetsChangesetIdDiscard400
       | DeleteChangesetsChangesetIdDiscard401
       | DeleteChangesetsChangesetIdDiscard403
       | DeleteChangesetsChangesetIdDiscard404
@@ -54,6 +56,7 @@ export function useDeleteChangesetsChangesetIdDiscard<TContext>(
     mutation?: UseMutationOptions<
       DeleteChangesetsChangesetIdDiscardMutationResponse,
       ResponseErrorConfig<
+        | DeleteChangesetsChangesetIdDiscard400
         | DeleteChangesetsChangesetIdDiscard401
         | DeleteChangesetsChangesetIdDiscard403
         | DeleteChangesetsChangesetIdDiscard404
@@ -71,6 +74,7 @@ export function useDeleteChangesetsChangesetIdDiscard<TContext>(
   return useMutation<
     DeleteChangesetsChangesetIdDiscardMutationResponse,
     ResponseErrorConfig<
+      | DeleteChangesetsChangesetIdDiscard400
       | DeleteChangesetsChangesetIdDiscard401
       | DeleteChangesetsChangesetIdDiscard403
       | DeleteChangesetsChangesetIdDiscard404

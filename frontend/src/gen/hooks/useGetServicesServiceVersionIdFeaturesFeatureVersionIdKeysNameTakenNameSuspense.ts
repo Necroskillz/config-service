@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenNameQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenNamePathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName500,
@@ -47,6 +48,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysNam
   const res = await request<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenNameQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName500
@@ -66,6 +68,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTaken
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenNameQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName500
@@ -100,6 +103,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTa
       UseSuspenseQueryOptions<
         GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenNameQueryResponse,
         ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName400
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName401
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName404
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName500
@@ -130,6 +134,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTa
   ) as UseSuspenseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName500

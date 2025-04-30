@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500,
@@ -43,6 +44,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeys(
   const res = await request<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500
@@ -61,6 +63,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryOpti
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500
@@ -94,6 +97,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeys<
       QueryObserverOptions<
         GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryResponse,
         ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500
@@ -123,6 +127,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeys<
   ) as UseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500

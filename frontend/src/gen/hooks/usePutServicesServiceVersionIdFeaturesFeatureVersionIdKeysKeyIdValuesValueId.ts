@@ -9,6 +9,7 @@ import type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationRequest,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404,
@@ -43,6 +44,7 @@ export async function putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   const res = await request<
     PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
     ResponseErrorConfig<
+      | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404
@@ -64,6 +66,7 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
     mutation?: UseMutationOptions<
       PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
       ResponseErrorConfig<
+        | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400
         | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401
         | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403
         | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404
@@ -88,6 +91,7 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
   return useMutation<
     PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
     ResponseErrorConfig<
+      | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404

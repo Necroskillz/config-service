@@ -3,10 +3,14 @@ export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdVal
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
 export type { GetAuthUserQueryKey } from './hooks/useGetAuthUser.ts'
 export type { GetAuthUserSuspenseQueryKey } from './hooks/useGetAuthUserSuspense.ts'
+export type { GetChangesetsQueryKey } from './hooks/useGetChangesets.ts'
+export type { GetChangesetsApprovableCountQueryKey } from './hooks/useGetChangesetsApprovableCount.ts'
+export type { GetChangesetsApprovableCountSuspenseQueryKey } from './hooks/useGetChangesetsApprovableCountSuspense.ts'
 export type { GetChangesetsChangesetIdQueryKey } from './hooks/useGetChangesetsChangesetId.ts'
 export type { GetChangesetsChangesetIdSuspenseQueryKey } from './hooks/useGetChangesetsChangesetIdSuspense.ts'
 export type { GetChangesetsCurrentQueryKey } from './hooks/useGetChangesetsCurrent.ts'
 export type { GetChangesetsCurrentSuspenseQueryKey } from './hooks/useGetChangesetsCurrentSuspense.ts'
+export type { GetChangesetsSuspenseQueryKey } from './hooks/useGetChangesetsSuspense.ts'
 export type { GetServicesQueryKey } from './hooks/useGetServices.ts'
 export type { GetServicesNameTakenNameQueryKey } from './hooks/useGetServicesNameTakenName.ts'
 export type { GetServicesNameTakenNameSuspenseQueryKey } from './hooks/useGetServicesNameTakenNameSuspense.ts'
@@ -67,6 +71,7 @@ export type { DbChangesetStateEnum, DbChangesetState } from './types/db/Changese
 export type {
   DeleteChangesetsChangesetIdDiscardPathParams,
   DeleteChangesetsChangesetIdDiscard204,
+  DeleteChangesetsChangesetIdDiscard400,
   DeleteChangesetsChangesetIdDiscard401,
   DeleteChangesetsChangesetIdDiscard403,
   DeleteChangesetsChangesetIdDiscard404,
@@ -77,6 +82,7 @@ export type {
 export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId204,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404,
@@ -87,6 +93,7 @@ export type {
 export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkPathParams,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink204,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink400,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink401,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink403,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink404,
@@ -97,8 +104,26 @@ export type {
 export type { EchoHTTPError } from './types/echo/HTTPError.ts'
 export type { GetAuthUser200, GetAuthUser401, GetAuthUser500, GetAuthUserQueryResponse, GetAuthUserQuery } from './types/GetAuthUser.ts'
 export type {
+  GetChangesetsQueryParams,
+  GetChangesets200,
+  GetChangesets400,
+  GetChangesets401,
+  GetChangesets404,
+  GetChangesets500,
+  GetChangesetsQueryResponse,
+  GetChangesetsQuery,
+} from './types/GetChangesets.ts'
+export type {
+  GetChangesetsApprovableCount200,
+  GetChangesetsApprovableCount401,
+  GetChangesetsApprovableCount500,
+  GetChangesetsApprovableCountQueryResponse,
+  GetChangesetsApprovableCountQuery,
+} from './types/GetChangesetsApprovableCount.ts'
+export type {
   GetChangesetsChangesetIdPathParams,
   GetChangesetsChangesetId200,
+  GetChangesetsChangesetId400,
   GetChangesetsChangesetId401,
   GetChangesetsChangesetId404,
   GetChangesetsChangesetId500,
@@ -117,6 +142,7 @@ export type { GetServices200, GetServices401, GetServices500, GetServicesQueryRe
 export type {
   GetServicesNameTakenNamePathParams,
   GetServicesNameTakenName200,
+  GetServicesNameTakenName400,
   GetServicesNameTakenName401,
   GetServicesNameTakenName500,
   GetServicesNameTakenNameQueryResponse,
@@ -125,6 +151,7 @@ export type {
 export type {
   GetServicesServiceVersionIdPathParams,
   GetServicesServiceVersionId200,
+  GetServicesServiceVersionId400,
   GetServicesServiceVersionId401,
   GetServicesServiceVersionId404,
   GetServicesServiceVersionId500,
@@ -134,6 +161,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesPathParams,
   GetServicesServiceVersionIdFeatures200,
+  GetServicesServiceVersionIdFeatures400,
   GetServicesServiceVersionIdFeatures401,
   GetServicesServiceVersionIdFeatures404,
   GetServicesServiceVersionIdFeatures500,
@@ -143,6 +171,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdPathParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionId200,
+  GetServicesServiceVersionIdFeaturesFeatureVersionId400,
   GetServicesServiceVersionIdFeaturesFeatureVersionId401,
   GetServicesServiceVersionIdFeaturesFeatureVersionId404,
   GetServicesServiceVersionIdFeaturesFeatureVersionId500,
@@ -152,6 +181,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys200,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500,
@@ -161,6 +191,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500,
@@ -170,6 +201,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPathParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues500,
@@ -179,6 +211,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd204,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd403,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd404,
@@ -190,6 +223,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit204,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit403,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit404,
@@ -201,6 +235,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenNamePathParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName200,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName500,
@@ -210,6 +245,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsPathParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions200,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions500,
@@ -219,6 +255,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesLinkablePathParams,
   GetServicesServiceVersionIdFeaturesLinkable200,
+  GetServicesServiceVersionIdFeaturesLinkable400,
   GetServicesServiceVersionIdFeaturesLinkable401,
   GetServicesServiceVersionIdFeaturesLinkable404,
   GetServicesServiceVersionIdFeaturesLinkable500,
@@ -228,6 +265,7 @@ export type {
 export type {
   GetServicesServiceVersionIdFeaturesNameTakenNamePathParams,
   GetServicesServiceVersionIdFeaturesNameTakenName200,
+  GetServicesServiceVersionIdFeaturesNameTakenName400,
   GetServicesServiceVersionIdFeaturesNameTakenName401,
   GetServicesServiceVersionIdFeaturesNameTakenName500,
   GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
@@ -236,6 +274,7 @@ export type {
 export type {
   GetServicesServiceVersionIdVersionsPathParams,
   GetServicesServiceVersionIdVersions200,
+  GetServicesServiceVersionIdVersions400,
   GetServicesServiceVersionIdVersions401,
   GetServicesServiceVersionIdVersions404,
   GetServicesServiceVersionIdVersions500,
@@ -246,6 +285,7 @@ export type { GetServiceTypes200, GetServiceTypes401, GetServiceTypes500, GetSer
 export type {
   GetServiceTypesServiceTypeIdVariationPropertiesPathParams,
   GetServiceTypesServiceTypeIdVariationProperties200,
+  GetServiceTypesServiceTypeIdVariationProperties400,
   GetServiceTypesServiceTypeIdVariationProperties401,
   GetServiceTypesServiceTypeIdVariationProperties404,
   GetServiceTypesServiceTypeIdVariationProperties500,
@@ -254,6 +294,7 @@ export type {
 } from './types/GetServiceTypesServiceTypeIdVariationProperties.ts'
 export type { GetValueTypes200, GetValueTypes401, GetValueTypes500, GetValueTypesQueryResponse, GetValueTypesQuery } from './types/GetValueTypes.ts'
 export type { HandlerAddCommentRequest } from './types/handler/AddCommentRequest.ts'
+export type { HandlerApprovableChangesetCountResponse } from './types/handler/ApprovableChangesetCountResponse.ts'
 export type { HandlerBooleanResponse } from './types/handler/BooleanResponse.ts'
 export type { HandlerChangesetInfoResponse } from './types/handler/ChangesetInfoResponse.ts'
 export type { HandlerCreateFeatureRequest } from './types/handler/CreateFeatureRequest.ts'
@@ -272,6 +313,7 @@ export type { HandlerVariationProperty } from './types/handler/VariationProperty
 export type { HandlerVariationValueSelectOption } from './types/handler/VariationValueSelectOption.ts'
 export type {
   PostAuthLogin200,
+  PostAuthLogin400,
   PostAuthLogin401,
   PostAuthLogin422,
   PostAuthLogin500,
@@ -281,6 +323,7 @@ export type {
 } from './types/PostAuthLogin.ts'
 export type {
   PostAuthRefreshToken200,
+  PostAuthRefreshToken400,
   PostAuthRefreshToken401,
   PostAuthRefreshToken500,
   PostAuthRefreshTokenMutationRequest,
@@ -290,6 +333,7 @@ export type {
 export type {
   PostChangesetsChangesetIdCommentPathParams,
   PostChangesetsChangesetIdComment204,
+  PostChangesetsChangesetIdComment400,
   PostChangesetsChangesetIdComment401,
   PostChangesetsChangesetIdComment403,
   PostChangesetsChangesetIdComment404,
@@ -300,6 +344,7 @@ export type {
 } from './types/PostChangesetsChangesetIdComment.ts'
 export type {
   PostServices200,
+  PostServices400,
   PostServices401,
   PostServices403,
   PostServices422,
@@ -311,6 +356,7 @@ export type {
 export type {
   PostServicesServiceVersionIdFeaturesPathParams,
   PostServicesServiceVersionIdFeatures200,
+  PostServicesServiceVersionIdFeatures400,
   PostServicesServiceVersionIdFeatures401,
   PostServicesServiceVersionIdFeatures403,
   PostServicesServiceVersionIdFeatures422,
@@ -322,6 +368,7 @@ export type {
 export type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys200,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys400,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys401,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys403,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys404,
@@ -333,6 +380,7 @@ export type {
 export type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPathParams,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues403,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues404,
@@ -355,6 +403,7 @@ export type {
 export type {
   PutChangesetsChangesetIdApplyPathParams,
   PutChangesetsChangesetIdApply204,
+  PutChangesetsChangesetIdApply400,
   PutChangesetsChangesetIdApply401,
   PutChangesetsChangesetIdApply403,
   PutChangesetsChangesetIdApply404,
@@ -365,6 +414,7 @@ export type {
 export type {
   PutChangesetsChangesetIdCommitPathParams,
   PutChangesetsChangesetIdCommit204,
+  PutChangesetsChangesetIdCommit400,
   PutChangesetsChangesetIdCommit401,
   PutChangesetsChangesetIdCommit403,
   PutChangesetsChangesetIdCommit404,
@@ -375,6 +425,7 @@ export type {
 export type {
   PutChangesetsChangesetIdReopenPathParams,
   PutChangesetsChangesetIdReopen204,
+  PutChangesetsChangesetIdReopen400,
   PutChangesetsChangesetIdReopen401,
   PutChangesetsChangesetIdReopen403,
   PutChangesetsChangesetIdReopen404,
@@ -385,6 +436,7 @@ export type {
 export type {
   PutChangesetsChangesetIdStashPathParams,
   PutChangesetsChangesetIdStash204,
+  PutChangesetsChangesetIdStash400,
   PutChangesetsChangesetIdStash401,
   PutChangesetsChangesetIdStash403,
   PutChangesetsChangesetIdStash404,
@@ -395,6 +447,7 @@ export type {
 export type {
   PutServicesServiceVersionIdPathParams,
   PutServicesServiceVersionId204,
+  PutServicesServiceVersionId400,
   PutServicesServiceVersionId401,
   PutServicesServiceVersionId403,
   PutServicesServiceVersionId404,
@@ -407,6 +460,7 @@ export type {
 export type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdPathParams,
   PutServicesServiceVersionIdFeaturesFeatureVersionId204,
+  PutServicesServiceVersionIdFeaturesFeatureVersionId400,
   PutServicesServiceVersionIdFeaturesFeatureVersionId401,
   PutServicesServiceVersionIdFeaturesFeatureVersionId403,
   PutServicesServiceVersionIdFeaturesFeatureVersionId422,
@@ -418,6 +472,7 @@ export type {
 export type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404,
@@ -429,6 +484,7 @@ export type {
 export type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId200,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404,
@@ -441,6 +497,7 @@ export type {
 export type {
   PutServicesServiceVersionIdPublishPathParams,
   PutServicesServiceVersionIdPublish204,
+  PutServicesServiceVersionIdPublish400,
   PutServicesServiceVersionIdPublish401,
   PutServicesServiceVersionIdPublish403,
   PutServicesServiceVersionIdPublish404,
@@ -451,11 +508,13 @@ export type {
 export type { ServiceChangesetAction } from './types/service/ChangesetAction.ts'
 export type { ServiceChangesetChange } from './types/service/ChangesetChange.ts'
 export type { ServiceChangesetDto } from './types/service/ChangesetDto.ts'
+export type { ServiceChangesetItemDto } from './types/service/ChangesetItemDto.ts'
 export type { ServiceEditorTypesEnum, ServiceEditorTypes } from './types/service/EditorTypes.ts'
 export type { ServiceFeatureVersionDto } from './types/service/FeatureVersionDto.ts'
 export type { ServiceFeatureVersionWithPermissionDto } from './types/service/FeatureVersionWithPermissionDto.ts'
 export type { ServiceKeyDto } from './types/service/KeyDto.ts'
 export type { ServiceNewValueInfo } from './types/service/NewValueInfo.ts'
+export type { ServicePaginatedResultServiceChangesetItemDto } from './types/service/PaginatedResultServiceChangesetItemDto.ts'
 export type { ServiceServiceDto } from './types/service/ServiceDto.ts'
 export type { ServiceServiceVersionDto } from './types/service/ServiceVersionDto.ts'
 export type { ServiceServiceVersionInfoDto } from './types/service/ServiceVersionInfoDto.ts'
@@ -478,6 +537,19 @@ export {
 } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
 export { getAuthUserQueryKey, getAuthUser, getAuthUserQueryOptions, useGetAuthUser } from './hooks/useGetAuthUser.ts'
 export { getAuthUserSuspenseQueryKey, getAuthUserSuspense, getAuthUserSuspenseQueryOptions, useGetAuthUserSuspense } from './hooks/useGetAuthUserSuspense.ts'
+export { getChangesetsQueryKey, getChangesets, getChangesetsQueryOptions, useGetChangesets } from './hooks/useGetChangesets.ts'
+export {
+  getChangesetsApprovableCountQueryKey,
+  getChangesetsApprovableCount,
+  getChangesetsApprovableCountQueryOptions,
+  useGetChangesetsApprovableCount,
+} from './hooks/useGetChangesetsApprovableCount.ts'
+export {
+  getChangesetsApprovableCountSuspenseQueryKey,
+  getChangesetsApprovableCountSuspense,
+  getChangesetsApprovableCountSuspenseQueryOptions,
+  useGetChangesetsApprovableCountSuspense,
+} from './hooks/useGetChangesetsApprovableCountSuspense.ts'
 export {
   getChangesetsChangesetIdQueryKey,
   getChangesetsChangesetId,
@@ -502,6 +574,12 @@ export {
   getChangesetsCurrentSuspenseQueryOptions,
   useGetChangesetsCurrentSuspense,
 } from './hooks/useGetChangesetsCurrentSuspense.ts'
+export {
+  getChangesetsSuspenseQueryKey,
+  getChangesetsSuspense,
+  getChangesetsSuspenseQueryOptions,
+  useGetChangesetsSuspense,
+} from './hooks/useGetChangesetsSuspense.ts'
 export { getServicesQueryKey, getServices, getServicesQueryOptions, useGetServices } from './hooks/useGetServices.ts'
 export {
   getServicesNameTakenNameQueryKey,

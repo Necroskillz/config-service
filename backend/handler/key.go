@@ -15,6 +15,7 @@ import (
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
 // @Success 200 {array} service.KeyDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -48,6 +49,7 @@ func (h *Handler) Keys(c echo.Context) error {
 // @Param feature_version_id path int true "Feature version ID"
 // @Param key_id path int true "Key ID"
 // @Success 200 {object} service.KeyDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -90,6 +92,7 @@ type CreateKeyRequest struct {
 // @Param feature_version_id path int true "Feature version ID"
 // @Param createKeyRequest body CreateKeyRequest true "Create key request"
 // @Success 200 {object} CreateResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -138,6 +141,7 @@ type UpdateKeyRequest struct {
 // @Param key_id path int true "Key ID"
 // @Param updateKeyRequest body UpdateKeyRequest true "Update key request"
 // @Success 200 {object} CreateResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -185,6 +189,7 @@ func (h *Handler) UpdateKey(c echo.Context) error {
 // @Param feature_version_id path int true "Feature version ID"
 // @Param name path string true "Key name"
 // @Success 200 {object} BooleanResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError

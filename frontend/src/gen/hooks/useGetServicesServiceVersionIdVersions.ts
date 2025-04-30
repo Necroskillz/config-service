@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesServiceVersionIdVersionsQueryResponse,
   GetServicesServiceVersionIdVersionsPathParams,
+  GetServicesServiceVersionIdVersions400,
   GetServicesServiceVersionIdVersions401,
   GetServicesServiceVersionIdVersions404,
   GetServicesServiceVersionIdVersions500,
@@ -33,7 +34,12 @@ export async function getServicesServiceVersionIdVersions(
 
   const res = await request<
     GetServicesServiceVersionIdVersionsQueryResponse,
-    ResponseErrorConfig<GetServicesServiceVersionIdVersions401 | GetServicesServiceVersionIdVersions404 | GetServicesServiceVersionIdVersions500>,
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdVersions400
+      | GetServicesServiceVersionIdVersions401
+      | GetServicesServiceVersionIdVersions404
+      | GetServicesServiceVersionIdVersions500
+    >,
     unknown
   >({ method: 'GET', url: `/services/${service_version_id}/versions`, ...requestConfig })
   return res.data
@@ -46,7 +52,12 @@ export function getServicesServiceVersionIdVersionsQueryOptions(
   const queryKey = getServicesServiceVersionIdVersionsQueryKey(service_version_id)
   return queryOptions<
     GetServicesServiceVersionIdVersionsQueryResponse,
-    ResponseErrorConfig<GetServicesServiceVersionIdVersions401 | GetServicesServiceVersionIdVersions404 | GetServicesServiceVersionIdVersions500>,
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdVersions400
+      | GetServicesServiceVersionIdVersions401
+      | GetServicesServiceVersionIdVersions404
+      | GetServicesServiceVersionIdVersions500
+    >,
     GetServicesServiceVersionIdVersionsQueryResponse,
     typeof queryKey
   >({
@@ -74,7 +85,12 @@ export function useGetServicesServiceVersionIdVersions<
     query?: Partial<
       QueryObserverOptions<
         GetServicesServiceVersionIdVersionsQueryResponse,
-        ResponseErrorConfig<GetServicesServiceVersionIdVersions401 | GetServicesServiceVersionIdVersions404 | GetServicesServiceVersionIdVersions500>,
+        ResponseErrorConfig<
+          | GetServicesServiceVersionIdVersions400
+          | GetServicesServiceVersionIdVersions401
+          | GetServicesServiceVersionIdVersions404
+          | GetServicesServiceVersionIdVersions500
+        >,
         TData,
         TQueryData,
         TQueryKey
@@ -95,7 +111,12 @@ export function useGetServicesServiceVersionIdVersions<
     queryClient,
   ) as UseQueryResult<
     TData,
-    ResponseErrorConfig<GetServicesServiceVersionIdVersions401 | GetServicesServiceVersionIdVersions404 | GetServicesServiceVersionIdVersions500>
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdVersions400
+      | GetServicesServiceVersionIdVersions401
+      | GetServicesServiceVersionIdVersions404
+      | GetServicesServiceVersionIdVersions500
+    >
   > & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey

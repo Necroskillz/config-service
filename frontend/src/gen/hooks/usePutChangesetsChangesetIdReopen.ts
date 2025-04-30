@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutChangesetsChangesetIdReopenMutationResponse,
   PutChangesetsChangesetIdReopenPathParams,
+  PutChangesetsChangesetIdReopen400,
   PutChangesetsChangesetIdReopen401,
   PutChangesetsChangesetIdReopen403,
   PutChangesetsChangesetIdReopen404,
@@ -34,7 +35,11 @@ export async function putChangesetsChangesetIdReopen(
   const res = await request<
     PutChangesetsChangesetIdReopenMutationResponse,
     ResponseErrorConfig<
-      PutChangesetsChangesetIdReopen401 | PutChangesetsChangesetIdReopen403 | PutChangesetsChangesetIdReopen404 | PutChangesetsChangesetIdReopen500
+      | PutChangesetsChangesetIdReopen400
+      | PutChangesetsChangesetIdReopen401
+      | PutChangesetsChangesetIdReopen403
+      | PutChangesetsChangesetIdReopen404
+      | PutChangesetsChangesetIdReopen500
     >,
     unknown
   >({ method: 'PUT', url: `/changesets/${changeset_id}/reopen`, ...requestConfig })
@@ -51,7 +56,11 @@ export function usePutChangesetsChangesetIdReopen<TContext>(
     mutation?: UseMutationOptions<
       PutChangesetsChangesetIdReopenMutationResponse,
       ResponseErrorConfig<
-        PutChangesetsChangesetIdReopen401 | PutChangesetsChangesetIdReopen403 | PutChangesetsChangesetIdReopen404 | PutChangesetsChangesetIdReopen500
+        | PutChangesetsChangesetIdReopen400
+        | PutChangesetsChangesetIdReopen401
+        | PutChangesetsChangesetIdReopen403
+        | PutChangesetsChangesetIdReopen404
+        | PutChangesetsChangesetIdReopen500
       >,
       { changeset_id: PutChangesetsChangesetIdReopenPathParams['changeset_id'] },
       TContext
@@ -65,7 +74,11 @@ export function usePutChangesetsChangesetIdReopen<TContext>(
   return useMutation<
     PutChangesetsChangesetIdReopenMutationResponse,
     ResponseErrorConfig<
-      PutChangesetsChangesetIdReopen401 | PutChangesetsChangesetIdReopen403 | PutChangesetsChangesetIdReopen404 | PutChangesetsChangesetIdReopen500
+      | PutChangesetsChangesetIdReopen400
+      | PutChangesetsChangesetIdReopen401
+      | PutChangesetsChangesetIdReopen403
+      | PutChangesetsChangesetIdReopen404
+      | PutChangesetsChangesetIdReopen500
     >,
     { changeset_id: PutChangesetsChangesetIdReopenPathParams['changeset_id'] },
     TContext

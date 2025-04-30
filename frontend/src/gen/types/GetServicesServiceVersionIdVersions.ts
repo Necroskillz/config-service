@@ -20,6 +20,11 @@ export type GetServicesServiceVersionIdVersionsPathParams = {
 export type GetServicesServiceVersionIdVersions200 = ServiceVersionLinkDto[]
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdVersions400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdVersions401 = EchoHTTPError
@@ -39,5 +44,9 @@ export type GetServicesServiceVersionIdVersionsQueryResponse = GetServicesServic
 export type GetServicesServiceVersionIdVersionsQuery = {
   Response: GetServicesServiceVersionIdVersions200
   PathParams: GetServicesServiceVersionIdVersionsPathParams
-  Errors: GetServicesServiceVersionIdVersions401 | GetServicesServiceVersionIdVersions404 | GetServicesServiceVersionIdVersions500
+  Errors:
+    | GetServicesServiceVersionIdVersions400
+    | GetServicesServiceVersionIdVersions401
+    | GetServicesServiceVersionIdVersions404
+    | GetServicesServiceVersionIdVersions500
 }

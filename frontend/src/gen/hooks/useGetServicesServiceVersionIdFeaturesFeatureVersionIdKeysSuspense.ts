@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500,
@@ -45,6 +46,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysSus
   const res = await request<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500
@@ -63,6 +65,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysSuspenseQ
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500
@@ -96,6 +99,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysSuspen
       UseSuspenseQueryOptions<
         GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQueryResponse,
         ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500
@@ -124,6 +128,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysSuspen
   ) as UseSuspenseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500

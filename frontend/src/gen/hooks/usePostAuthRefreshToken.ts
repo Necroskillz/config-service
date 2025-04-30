@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostAuthRefreshTokenMutationRequest,
   PostAuthRefreshTokenMutationResponse,
+  PostAuthRefreshToken400,
   PostAuthRefreshToken401,
   PostAuthRefreshToken500,
 } from '../types/PostAuthRefreshToken.ts'
@@ -31,7 +32,7 @@ export async function postAuthRefreshToken(
 
   const res = await request<
     PostAuthRefreshTokenMutationResponse,
-    ResponseErrorConfig<PostAuthRefreshToken401 | PostAuthRefreshToken500>,
+    ResponseErrorConfig<PostAuthRefreshToken400 | PostAuthRefreshToken401 | PostAuthRefreshToken500>,
     PostAuthRefreshTokenMutationRequest
   >({ method: 'POST', url: `/auth/refresh_token`, data, ...requestConfig })
   return res.data
@@ -46,7 +47,7 @@ export function usePostAuthRefreshToken<TContext>(
   options: {
     mutation?: UseMutationOptions<
       PostAuthRefreshTokenMutationResponse,
-      ResponseErrorConfig<PostAuthRefreshToken401 | PostAuthRefreshToken500>,
+      ResponseErrorConfig<PostAuthRefreshToken400 | PostAuthRefreshToken401 | PostAuthRefreshToken500>,
       { data: PostAuthRefreshTokenMutationRequest },
       TContext
     > & { client?: QueryClient }
@@ -58,7 +59,7 @@ export function usePostAuthRefreshToken<TContext>(
 
   return useMutation<
     PostAuthRefreshTokenMutationResponse,
-    ResponseErrorConfig<PostAuthRefreshToken401 | PostAuthRefreshToken500>,
+    ResponseErrorConfig<PostAuthRefreshToken400 | PostAuthRefreshToken401 | PostAuthRefreshToken500>,
     { data: PostAuthRefreshTokenMutationRequest },
     TContext
   >(

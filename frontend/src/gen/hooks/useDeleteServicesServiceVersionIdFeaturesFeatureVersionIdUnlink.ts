@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkPathParams,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink400,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink401,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink403,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink404,
@@ -38,6 +39,7 @@ export async function deleteServicesServiceVersionIdFeaturesFeatureVersionIdUnli
   const res = await request<
     DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,
     ResponseErrorConfig<
+      | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink400
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink401
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink403
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink404
@@ -58,6 +60,7 @@ export function useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink<
     mutation?: UseMutationOptions<
       DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,
       ResponseErrorConfig<
+        | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink400
         | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink401
         | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink403
         | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink404
@@ -78,6 +81,7 @@ export function useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink<
   return useMutation<
     DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,
     ResponseErrorConfig<
+      | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink400
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink401
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink403
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink404

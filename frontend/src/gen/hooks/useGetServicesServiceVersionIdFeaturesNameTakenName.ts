@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
   GetServicesServiceVersionIdFeaturesNameTakenNamePathParams,
+  GetServicesServiceVersionIdFeaturesNameTakenName400,
   GetServicesServiceVersionIdFeaturesNameTakenName401,
   GetServicesServiceVersionIdFeaturesNameTakenName500,
 } from '../types/GetServicesServiceVersionIdFeaturesNameTakenName.ts'
@@ -35,7 +36,11 @@ export async function getServicesServiceVersionIdFeaturesNameTakenName(
 
   const res = await request<
     GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
-    ResponseErrorConfig<GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500>,
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesNameTakenName400
+      | GetServicesServiceVersionIdFeaturesNameTakenName401
+      | GetServicesServiceVersionIdFeaturesNameTakenName500
+    >,
     unknown
   >({ method: 'GET', url: `/services/${service_version_id}/features/name-taken/${name}`, ...requestConfig })
   return res.data
@@ -49,7 +54,11 @@ export function getServicesServiceVersionIdFeaturesNameTakenNameQueryOptions(
   const queryKey = getServicesServiceVersionIdFeaturesNameTakenNameQueryKey(service_version_id, name)
   return queryOptions<
     GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
-    ResponseErrorConfig<GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500>,
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesNameTakenName400
+      | GetServicesServiceVersionIdFeaturesNameTakenName401
+      | GetServicesServiceVersionIdFeaturesNameTakenName500
+    >,
     GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
     typeof queryKey
   >({
@@ -78,7 +87,11 @@ export function useGetServicesServiceVersionIdFeaturesNameTakenName<
     query?: Partial<
       QueryObserverOptions<
         GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
-        ResponseErrorConfig<GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500>,
+        ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesNameTakenName400
+          | GetServicesServiceVersionIdFeaturesNameTakenName401
+          | GetServicesServiceVersionIdFeaturesNameTakenName500
+        >,
         TData,
         TQueryData,
         TQueryKey
@@ -97,9 +110,14 @@ export function useGetServicesServiceVersionIdFeaturesNameTakenName<
       ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
     },
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseQueryResult<
+    TData,
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesNameTakenName400
+      | GetServicesServiceVersionIdFeaturesNameTakenName401
+      | GetServicesServiceVersionIdFeaturesNameTakenName500
+    >
+  > & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

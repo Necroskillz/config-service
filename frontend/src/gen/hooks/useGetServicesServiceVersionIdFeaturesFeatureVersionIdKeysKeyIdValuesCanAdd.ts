@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd403,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd404,
@@ -49,6 +50,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   const res = await request<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd403
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd404
@@ -70,6 +72,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValu
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd403
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd404
@@ -106,6 +109,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
       QueryObserverOptions<
         GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryResponse,
         ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd403
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd404
@@ -139,6 +143,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
   ) as UseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd403
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd404

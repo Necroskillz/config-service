@@ -20,6 +20,11 @@ export type GetServiceTypesServiceTypeIdVariationPropertiesPathParams = {
 export type GetServiceTypesServiceTypeIdVariationProperties200 = HandlerVariationProperty[]
 
 /**
+ * @description Bad Request
+ */
+export type GetServiceTypesServiceTypeIdVariationProperties400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServiceTypesServiceTypeIdVariationProperties401 = EchoHTTPError
@@ -40,6 +45,7 @@ export type GetServiceTypesServiceTypeIdVariationPropertiesQuery = {
   Response: GetServiceTypesServiceTypeIdVariationProperties200
   PathParams: GetServiceTypesServiceTypeIdVariationPropertiesPathParams
   Errors:
+    | GetServiceTypesServiceTypeIdVariationProperties400
     | GetServiceTypesServiceTypeIdVariationProperties401
     | GetServiceTypesServiceTypeIdVariationProperties404
     | GetServiceTypesServiceTypeIdVariationProperties500

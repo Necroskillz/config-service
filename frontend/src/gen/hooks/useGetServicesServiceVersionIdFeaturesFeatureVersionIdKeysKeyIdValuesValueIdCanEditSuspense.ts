@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit403,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit404,
@@ -51,6 +52,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   const res = await request<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit403
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit404
@@ -78,6 +80,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValu
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit403
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit404
@@ -121,6 +124,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
       UseSuspenseQueryOptions<
         GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryResponse,
         ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit403
           | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit404
@@ -155,6 +159,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
   ) as UseSuspenseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit403
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit404

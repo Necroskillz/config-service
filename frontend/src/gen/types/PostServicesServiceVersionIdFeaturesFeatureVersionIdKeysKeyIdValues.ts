@@ -31,6 +31,11 @@ export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesP
 export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200 = ServiceNewValueInfo
 
 /**
+ * @description Bad Request
+ */
+export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401 = EchoHTTPError
@@ -68,6 +73,7 @@ export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesM
   Request: PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationRequest
   PathParams: PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPathParams
   Errors:
+    | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400
     | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401
     | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues403
     | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues404

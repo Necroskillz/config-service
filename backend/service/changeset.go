@@ -69,6 +69,79 @@ func (s *ChangesetService) EnsureChangesetForUser(ctx context.Context) (uint, er
 	return id, nil
 }
 
+type ChangesetsFilter struct {
+	Limit      int
+	Offset     int
+	AuthorID   *uint
+	Approvable bool
+}
+
+type ChangesetItemDto struct {
+	ID           uint              `json:"id" validate:"required"`
+	CreatedAt    time.Time         `json:"createdAt" validate:"required"`
+	State        db.ChangesetState `json:"state" validate:"required"`
+	LastActionAt time.Time         `json:"lastActionAt" validate:"required"`
+	ActionCount  int               `json:"actionCount" validate:"required"`
+	UserName     string            `json:"userName" validate:"required"`
+	UserID       uint              `json:"userId" validate:"required"`
+}
+
+func (s *ChangesetService) GetChangesets(ctx context.Context, filter ChangesetsFilter) (PaginatedResult[ChangesetItemDto], error) {
+	if filter.Limit > 100 {
+		return PaginatedResult[ChangesetItemDto]{}, NewServiceError(ErrorCodeInvalidOperation, "Limit cannot be greater than 100")
+	}
+
+	var approverID *uint
+	if filter.Approvable {
+		user := s.currentUserAccessor.GetUser(ctx)
+		approverID = &user.ID
+	}
+
+	changesets, err := s.queries.GetChangesets(ctx, db.GetChangesetsParams{
+		Limit:      filter.Limit,
+		Offset:     filter.Offset,
+		UserID:     filter.AuthorID,
+		ApproverID: approverID,
+	})
+	if err != nil {
+		return PaginatedResult[ChangesetItemDto]{}, NewDbError(err, "Changesets")
+	}
+
+	changesetItems := make([]ChangesetItemDto, len(changesets))
+	for i, changeset := range changesets {
+		changesetItems[i] = ChangesetItemDto{
+			ID:           changeset.ID,
+			CreatedAt:    changeset.CreatedAt,
+			State:        changeset.State,
+			LastActionAt: changeset.LastActionAt,
+			ActionCount:  changeset.ActionCount,
+			UserName:     changeset.UserName,
+			UserID:       changeset.UserID,
+		}
+	}
+
+	var total int
+	if len(changesets) > 0 {
+		total = changesets[0].TotalCount
+	}
+
+	return PaginatedResult[ChangesetItemDto]{
+		Items:      changesetItems,
+		TotalCount: total,
+	}, nil
+}
+
+func (s *ChangesetService) GetApprovableChangesetCount(ctx context.Context) (int, error) {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	count, err := s.queries.GetApprovableChangesetCount(ctx, user.ID)
+	if err != nil {
+		return 0, NewDbError(err, "ApprovableChangesetCount")
+	}
+
+	return count, nil
+}
+
 type ChangesetChange struct {
 	ID                             uint                   `json:"id" validate:"required"`
 	Type                           db.ChangesetChangeType `json:"type" validate:"required"`

@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
   GetServicesServiceVersionIdFeaturesLinkablePathParams,
+  GetServicesServiceVersionIdFeaturesLinkable400,
   GetServicesServiceVersionIdFeaturesLinkable401,
   GetServicesServiceVersionIdFeaturesLinkable404,
   GetServicesServiceVersionIdFeaturesLinkable500,
@@ -35,7 +36,10 @@ export async function getServicesServiceVersionIdFeaturesLinkableSuspense(
   const res = await request<
     GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
     ResponseErrorConfig<
-      GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+      | GetServicesServiceVersionIdFeaturesLinkable400
+      | GetServicesServiceVersionIdFeaturesLinkable401
+      | GetServicesServiceVersionIdFeaturesLinkable404
+      | GetServicesServiceVersionIdFeaturesLinkable500
     >,
     unknown
   >({ method: 'GET', url: `/services/${service_version_id}/features/linkable`, ...requestConfig })
@@ -50,7 +54,10 @@ export function getServicesServiceVersionIdFeaturesLinkableSuspenseQueryOptions(
   return queryOptions<
     GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
     ResponseErrorConfig<
-      GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+      | GetServicesServiceVersionIdFeaturesLinkable400
+      | GetServicesServiceVersionIdFeaturesLinkable401
+      | GetServicesServiceVersionIdFeaturesLinkable404
+      | GetServicesServiceVersionIdFeaturesLinkable500
     >,
     GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
     typeof queryKey
@@ -80,7 +87,10 @@ export function useGetServicesServiceVersionIdFeaturesLinkableSuspense<
       UseSuspenseQueryOptions<
         GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
         ResponseErrorConfig<
-          GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+          | GetServicesServiceVersionIdFeaturesLinkable400
+          | GetServicesServiceVersionIdFeaturesLinkable401
+          | GetServicesServiceVersionIdFeaturesLinkable404
+          | GetServicesServiceVersionIdFeaturesLinkable500
         >,
         TData,
         TQueryKey
@@ -102,7 +112,10 @@ export function useGetServicesServiceVersionIdFeaturesLinkableSuspense<
   ) as UseSuspenseQueryResult<
     TData,
     ResponseErrorConfig<
-      GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+      | GetServicesServiceVersionIdFeaturesLinkable400
+      | GetServicesServiceVersionIdFeaturesLinkable401
+      | GetServicesServiceVersionIdFeaturesLinkable404
+      | GetServicesServiceVersionIdFeaturesLinkable500
     >
   > & { queryKey: TQueryKey }
 

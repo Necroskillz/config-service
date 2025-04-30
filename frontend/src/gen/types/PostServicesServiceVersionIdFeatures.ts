@@ -21,6 +21,11 @@ export type PostServicesServiceVersionIdFeaturesPathParams = {
 export type PostServicesServiceVersionIdFeatures200 = HandlerCreateResponse
 
 /**
+ * @description Bad Request
+ */
+export type PostServicesServiceVersionIdFeatures400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PostServicesServiceVersionIdFeatures401 = EchoHTTPError
@@ -52,6 +57,7 @@ export type PostServicesServiceVersionIdFeaturesMutation = {
   Request: PostServicesServiceVersionIdFeaturesMutationRequest
   PathParams: PostServicesServiceVersionIdFeaturesPathParams
   Errors:
+    | PostServicesServiceVersionIdFeatures400
     | PostServicesServiceVersionIdFeatures401
     | PostServicesServiceVersionIdFeatures403
     | PostServicesServiceVersionIdFeatures422

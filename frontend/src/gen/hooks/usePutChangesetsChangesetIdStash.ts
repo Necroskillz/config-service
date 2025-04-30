@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutChangesetsChangesetIdStashMutationResponse,
   PutChangesetsChangesetIdStashPathParams,
+  PutChangesetsChangesetIdStash400,
   PutChangesetsChangesetIdStash401,
   PutChangesetsChangesetIdStash403,
   PutChangesetsChangesetIdStash404,
@@ -34,7 +35,11 @@ export async function putChangesetsChangesetIdStash(
   const res = await request<
     PutChangesetsChangesetIdStashMutationResponse,
     ResponseErrorConfig<
-      PutChangesetsChangesetIdStash401 | PutChangesetsChangesetIdStash403 | PutChangesetsChangesetIdStash404 | PutChangesetsChangesetIdStash500
+      | PutChangesetsChangesetIdStash400
+      | PutChangesetsChangesetIdStash401
+      | PutChangesetsChangesetIdStash403
+      | PutChangesetsChangesetIdStash404
+      | PutChangesetsChangesetIdStash500
     >,
     unknown
   >({ method: 'PUT', url: `/changesets/${changeset_id}/stash`, ...requestConfig })
@@ -51,7 +56,11 @@ export function usePutChangesetsChangesetIdStash<TContext>(
     mutation?: UseMutationOptions<
       PutChangesetsChangesetIdStashMutationResponse,
       ResponseErrorConfig<
-        PutChangesetsChangesetIdStash401 | PutChangesetsChangesetIdStash403 | PutChangesetsChangesetIdStash404 | PutChangesetsChangesetIdStash500
+        | PutChangesetsChangesetIdStash400
+        | PutChangesetsChangesetIdStash401
+        | PutChangesetsChangesetIdStash403
+        | PutChangesetsChangesetIdStash404
+        | PutChangesetsChangesetIdStash500
       >,
       { changeset_id: PutChangesetsChangesetIdStashPathParams['changeset_id'] },
       TContext
@@ -65,7 +74,11 @@ export function usePutChangesetsChangesetIdStash<TContext>(
   return useMutation<
     PutChangesetsChangesetIdStashMutationResponse,
     ResponseErrorConfig<
-      PutChangesetsChangesetIdStash401 | PutChangesetsChangesetIdStash403 | PutChangesetsChangesetIdStash404 | PutChangesetsChangesetIdStash500
+      | PutChangesetsChangesetIdStash400
+      | PutChangesetsChangesetIdStash401
+      | PutChangesetsChangesetIdStash403
+      | PutChangesetsChangesetIdStash404
+      | PutChangesetsChangesetIdStash500
     >,
     { changeset_id: PutChangesetsChangesetIdStashPathParams['changeset_id'] },
     TContext

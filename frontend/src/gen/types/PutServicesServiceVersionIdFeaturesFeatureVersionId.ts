@@ -25,6 +25,11 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdPathParams = {
 export type PutServicesServiceVersionIdFeaturesFeatureVersionId204 = any
 
 /**
+ * @description Bad Request
+ */
+export type PutServicesServiceVersionIdFeaturesFeatureVersionId400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PutServicesServiceVersionIdFeaturesFeatureVersionId401 = EchoHTTPError
@@ -56,6 +61,7 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdMutation = {
   Request: PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationRequest
   PathParams: PutServicesServiceVersionIdFeaturesFeatureVersionIdPathParams
   Errors:
+    | PutServicesServiceVersionIdFeaturesFeatureVersionId400
     | PutServicesServiceVersionIdFeaturesFeatureVersionId401
     | PutServicesServiceVersionIdFeaturesFeatureVersionId403
     | PutServicesServiceVersionIdFeaturesFeatureVersionId422

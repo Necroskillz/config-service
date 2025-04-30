@@ -20,6 +20,11 @@ export type PostChangesetsChangesetIdCommentPathParams = {
 export type PostChangesetsChangesetIdComment204 = any
 
 /**
+ * @description Bad Request
+ */
+export type PostChangesetsChangesetIdComment400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PostChangesetsChangesetIdComment401 = EchoHTTPError
@@ -50,5 +55,10 @@ export type PostChangesetsChangesetIdCommentMutation = {
   Response: PostChangesetsChangesetIdComment204
   Request: PostChangesetsChangesetIdCommentMutationRequest
   PathParams: PostChangesetsChangesetIdCommentPathParams
-  Errors: PostChangesetsChangesetIdComment401 | PostChangesetsChangesetIdComment403 | PostChangesetsChangesetIdComment404 | PostChangesetsChangesetIdComment500
+  Errors:
+    | PostChangesetsChangesetIdComment400
+    | PostChangesetsChangesetIdComment401
+    | PostChangesetsChangesetIdComment403
+    | PostChangesetsChangesetIdComment404
+    | PostChangesetsChangesetIdComment500
 }

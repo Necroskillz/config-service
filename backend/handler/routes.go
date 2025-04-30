@@ -62,7 +62,9 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	valueGroup.GET("/:value_id/can-edit", h.CanEditValue)
 
 	changesetsGroup := apiGroup.Group("/changesets")
+	changesetsGroup.GET("", h.Changesets)
 	changesetsGroup.GET("/current", h.GetCurrentChangesetInfo)
+	changesetsGroup.GET("/approvable-count", h.GetApprovableChangesetCount)
 
 	changesetGroup := changesetsGroup.Group("/:changeset_id")
 	changesetGroup.GET("", h.Changeset)

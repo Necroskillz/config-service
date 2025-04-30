@@ -16,6 +16,7 @@ import (
 // @Param feature_version_id path int true "Feature Version ID"
 // @Param key_id path int true "Key ID"
 // @Success 200 {array} service.VariationValue
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -57,6 +58,7 @@ type ValueRequest struct {
 // @Param key_id path int true "Key ID"
 // @Param valueRequest body ValueRequest true "Value request"
 // @Success 200 {object} service.NewValueInfo
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -108,6 +110,7 @@ func (h *Handler) CreateValue(c echo.Context) error {
 // @Param value_id path int true "Value ID"
 // @Param valueRequest body ValueRequest true "Value request"
 // @Success 200 {object} service.NewValueInfo
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -161,6 +164,7 @@ func (h *Handler) UpdateValue(c echo.Context) error {
 // @Param key_id path int true "Key ID"
 // @Param value_id path int true "Value ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -204,6 +208,7 @@ func (h *Handler) DeleteValue(c echo.Context) error {
 // @Param feature_version_id path int true "Feature Version ID"
 // @Param key_id path int true "Key ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -247,6 +252,7 @@ func (h *Handler) CanAddValue(c echo.Context) error {
 // @Param key_id path int true "Key ID"
 // @Param value_id path int true "Value ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError

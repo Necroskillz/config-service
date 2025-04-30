@@ -9,6 +9,7 @@ import type {
   PostChangesetsChangesetIdCommentMutationRequest,
   PostChangesetsChangesetIdCommentMutationResponse,
   PostChangesetsChangesetIdCommentPathParams,
+  PostChangesetsChangesetIdComment400,
   PostChangesetsChangesetIdComment401,
   PostChangesetsChangesetIdComment403,
   PostChangesetsChangesetIdComment404,
@@ -36,7 +37,11 @@ export async function postChangesetsChangesetIdComment(
   const res = await request<
     PostChangesetsChangesetIdCommentMutationResponse,
     ResponseErrorConfig<
-      PostChangesetsChangesetIdComment401 | PostChangesetsChangesetIdComment403 | PostChangesetsChangesetIdComment404 | PostChangesetsChangesetIdComment500
+      | PostChangesetsChangesetIdComment400
+      | PostChangesetsChangesetIdComment401
+      | PostChangesetsChangesetIdComment403
+      | PostChangesetsChangesetIdComment404
+      | PostChangesetsChangesetIdComment500
     >,
     PostChangesetsChangesetIdCommentMutationRequest
   >({ method: 'POST', url: `/changesets/${changeset_id}/comment`, data, ...requestConfig })
@@ -53,7 +58,11 @@ export function usePostChangesetsChangesetIdComment<TContext>(
     mutation?: UseMutationOptions<
       PostChangesetsChangesetIdCommentMutationResponse,
       ResponseErrorConfig<
-        PostChangesetsChangesetIdComment401 | PostChangesetsChangesetIdComment403 | PostChangesetsChangesetIdComment404 | PostChangesetsChangesetIdComment500
+        | PostChangesetsChangesetIdComment400
+        | PostChangesetsChangesetIdComment401
+        | PostChangesetsChangesetIdComment403
+        | PostChangesetsChangesetIdComment404
+        | PostChangesetsChangesetIdComment500
       >,
       { changeset_id: PostChangesetsChangesetIdCommentPathParams['changeset_id']; data: PostChangesetsChangesetIdCommentMutationRequest },
       TContext
@@ -67,7 +76,11 @@ export function usePostChangesetsChangesetIdComment<TContext>(
   return useMutation<
     PostChangesetsChangesetIdCommentMutationResponse,
     ResponseErrorConfig<
-      PostChangesetsChangesetIdComment401 | PostChangesetsChangesetIdComment403 | PostChangesetsChangesetIdComment404 | PostChangesetsChangesetIdComment500
+      | PostChangesetsChangesetIdComment400
+      | PostChangesetsChangesetIdComment401
+      | PostChangesetsChangesetIdComment403
+      | PostChangesetsChangesetIdComment404
+      | PostChangesetsChangesetIdComment500
     >,
     { changeset_id: PostChangesetsChangesetIdCommentPathParams['changeset_id']; data: PostChangesetsChangesetIdCommentMutationRequest },
     TContext

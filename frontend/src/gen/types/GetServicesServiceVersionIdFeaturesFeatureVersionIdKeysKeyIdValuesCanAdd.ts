@@ -29,6 +29,11 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCa
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd204 = any
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401 = EchoHTTPError
@@ -60,6 +65,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCa
   Response: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd204
   PathParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams
   Errors:
+    | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd403
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd404

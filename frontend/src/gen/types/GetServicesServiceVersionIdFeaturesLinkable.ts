@@ -20,6 +20,11 @@ export type GetServicesServiceVersionIdFeaturesLinkablePathParams = {
 export type GetServicesServiceVersionIdFeaturesLinkable200 = ServiceFeatureVersionDto[]
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdFeaturesLinkable400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdFeaturesLinkable401 = EchoHTTPError
@@ -39,5 +44,9 @@ export type GetServicesServiceVersionIdFeaturesLinkableQueryResponse = GetServic
 export type GetServicesServiceVersionIdFeaturesLinkableQuery = {
   Response: GetServicesServiceVersionIdFeaturesLinkable200
   PathParams: GetServicesServiceVersionIdFeaturesLinkablePathParams
-  Errors: GetServicesServiceVersionIdFeaturesLinkable401 | GetServicesServiceVersionIdFeaturesLinkable404 | GetServicesServiceVersionIdFeaturesLinkable500
+  Errors:
+    | GetServicesServiceVersionIdFeaturesLinkable400
+    | GetServicesServiceVersionIdFeaturesLinkable401
+    | GetServicesServiceVersionIdFeaturesLinkable404
+    | GetServicesServiceVersionIdFeaturesLinkable500
 }

@@ -22,6 +22,7 @@
     "@tanstack/react-router": "^1.115.3",
     "@tanstack/react-router-devtools": "^1.115.3",
     "@tanstack/react-start": "^1.115.3",
+    "@tanstack/zod-adapter": "^1.119.0",
     "axios": "^1.8.4",
     "babel-plugin-react-compiler": "19.1.0-rc.1",
     "class-variance-authority": "^0.7.1",

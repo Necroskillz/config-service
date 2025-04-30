@@ -31,6 +31,11 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathPara
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200 = HandlerCreateResponse
 
 /**
+ * @description Bad Request
+ */
+export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401 = EchoHTTPError
@@ -51,7 +56,7 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404 = Ec
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500 = EchoHTTPError
 
 /**
- * @description Key DTO
+ * @description Update key request
  */
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest = HandlerUpdateKeyRequest
 
@@ -62,6 +67,7 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutation
   Request: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest
   PathParams: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams
   Errors:
+    | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400
     | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401
     | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403
     | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404

@@ -38,6 +38,7 @@ type CreateServiceRequest struct {
 // @Security BearerAuth
 // @Param createServiceRequest body CreateServiceRequest true "Create service request"
 // @Success 200 {object} CreateResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 422 {object} echo.HTTPError
@@ -74,6 +75,7 @@ type UpdateServiceRequest struct {
 // @Param service_version_id path int true "Service version ID (for url consistency, the underling service will be updated)"
 // @Param updateServiceRequest body UpdateServiceRequest true "Update service request"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -111,6 +113,7 @@ func (h *Handler) UpdateService(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -138,6 +141,7 @@ func (h *Handler) PublishServiceVersion(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Success 200 {object} service.ServiceVersionDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -164,6 +168,7 @@ func (h *Handler) Service(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Success 200 {object} []service.VersionLinkDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -191,6 +196,7 @@ func (h *Handler) ServiceVersions(c echo.Context) error {
 // @Security BearerAuth
 // @Param name path string true "Service name"
 // @Success 200 {object} BooleanResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /services/name-taken/{name} [get]

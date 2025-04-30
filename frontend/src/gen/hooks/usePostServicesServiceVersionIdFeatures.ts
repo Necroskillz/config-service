@@ -9,6 +9,7 @@ import type {
   PostServicesServiceVersionIdFeaturesMutationRequest,
   PostServicesServiceVersionIdFeaturesMutationResponse,
   PostServicesServiceVersionIdFeaturesPathParams,
+  PostServicesServiceVersionIdFeatures400,
   PostServicesServiceVersionIdFeatures401,
   PostServicesServiceVersionIdFeatures403,
   PostServicesServiceVersionIdFeatures422,
@@ -36,6 +37,7 @@ export async function postServicesServiceVersionIdFeatures(
   const res = await request<
     PostServicesServiceVersionIdFeaturesMutationResponse,
     ResponseErrorConfig<
+      | PostServicesServiceVersionIdFeatures400
       | PostServicesServiceVersionIdFeatures401
       | PostServicesServiceVersionIdFeatures403
       | PostServicesServiceVersionIdFeatures422
@@ -56,6 +58,7 @@ export function usePostServicesServiceVersionIdFeatures<TContext>(
     mutation?: UseMutationOptions<
       PostServicesServiceVersionIdFeaturesMutationResponse,
       ResponseErrorConfig<
+        | PostServicesServiceVersionIdFeatures400
         | PostServicesServiceVersionIdFeatures401
         | PostServicesServiceVersionIdFeatures403
         | PostServicesServiceVersionIdFeatures422
@@ -73,6 +76,7 @@ export function usePostServicesServiceVersionIdFeatures<TContext>(
   return useMutation<
     PostServicesServiceVersionIdFeaturesMutationResponse,
     ResponseErrorConfig<
+      | PostServicesServiceVersionIdFeatures400
       | PostServicesServiceVersionIdFeatures401
       | PostServicesServiceVersionIdFeatures403
       | PostServicesServiceVersionIdFeatures422

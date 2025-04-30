@@ -34,6 +34,11 @@ export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValue
 export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId204 = any
 
 /**
+ * @description Bad Request
+ */
+export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401 = EchoHTTPError
@@ -60,6 +65,7 @@ export type DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValue
   Response: DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId204
   PathParams: DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams
   Errors:
+    | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400
     | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401
     | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403
     | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404

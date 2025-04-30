@@ -30,6 +30,11 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName200 = HandlerBooleanResponse
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName401 = EchoHTTPError
@@ -51,6 +56,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName
   Response: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName200
   PathParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenNamePathParams
   Errors:
+    | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName400
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName401
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName404
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName500

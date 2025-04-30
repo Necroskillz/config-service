@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404,
@@ -40,6 +41,7 @@ export async function deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeys
   const res = await request<
     DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
     ResponseErrorConfig<
+      | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404
@@ -60,6 +62,7 @@ export function useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
     mutation?: UseMutationOptions<
       DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
       ResponseErrorConfig<
+        | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400
         | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401
         | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403
         | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404
@@ -82,6 +85,7 @@ export function useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   return useMutation<
     DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
     ResponseErrorConfig<
+      | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403
       | DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404

@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetChangesetsChangesetIdQueryResponse,
   GetChangesetsChangesetIdPathParams,
+  GetChangesetsChangesetId400,
   GetChangesetsChangesetId401,
   GetChangesetsChangesetId404,
   GetChangesetsChangesetId500,
@@ -33,7 +34,7 @@ export async function getChangesetsChangesetIdSuspense(
 
   const res = await request<
     GetChangesetsChangesetIdQueryResponse,
-    ResponseErrorConfig<GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
+    ResponseErrorConfig<GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
     unknown
   >({ method: 'GET', url: `/changesets/${changeset_id}`, ...requestConfig })
   return res.data
@@ -46,7 +47,7 @@ export function getChangesetsChangesetIdSuspenseQueryOptions(
   const queryKey = getChangesetsChangesetIdSuspenseQueryKey(changeset_id)
   return queryOptions<
     GetChangesetsChangesetIdQueryResponse,
-    ResponseErrorConfig<GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
+    ResponseErrorConfig<GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
     GetChangesetsChangesetIdQueryResponse,
     typeof queryKey
   >({
@@ -74,7 +75,7 @@ export function useGetChangesetsChangesetIdSuspense<
     query?: Partial<
       UseSuspenseQueryOptions<
         GetChangesetsChangesetIdQueryResponse,
-        ResponseErrorConfig<GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
+        ResponseErrorConfig<GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>,
         TData,
         TQueryKey
       >
@@ -92,9 +93,10 @@ export function useGetChangesetsChangesetIdSuspense<
       ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
     },
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseSuspenseQueryResult<
+    TData,
+    ResponseErrorConfig<GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500>
+  > & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

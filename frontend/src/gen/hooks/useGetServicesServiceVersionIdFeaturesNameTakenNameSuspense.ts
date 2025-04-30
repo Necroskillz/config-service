@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
   GetServicesServiceVersionIdFeaturesNameTakenNamePathParams,
+  GetServicesServiceVersionIdFeaturesNameTakenName400,
   GetServicesServiceVersionIdFeaturesNameTakenName401,
   GetServicesServiceVersionIdFeaturesNameTakenName500,
 } from '../types/GetServicesServiceVersionIdFeaturesNameTakenName.ts'
@@ -37,7 +38,11 @@ export async function getServicesServiceVersionIdFeaturesNameTakenNameSuspense(
 
   const res = await request<
     GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
-    ResponseErrorConfig<GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500>,
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesNameTakenName400
+      | GetServicesServiceVersionIdFeaturesNameTakenName401
+      | GetServicesServiceVersionIdFeaturesNameTakenName500
+    >,
     unknown
   >({ method: 'GET', url: `/services/${service_version_id}/features/name-taken/${name}`, ...requestConfig })
   return res.data
@@ -51,7 +56,11 @@ export function getServicesServiceVersionIdFeaturesNameTakenNameSuspenseQueryOpt
   const queryKey = getServicesServiceVersionIdFeaturesNameTakenNameSuspenseQueryKey(service_version_id, name)
   return queryOptions<
     GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
-    ResponseErrorConfig<GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500>,
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesNameTakenName400
+      | GetServicesServiceVersionIdFeaturesNameTakenName401
+      | GetServicesServiceVersionIdFeaturesNameTakenName500
+    >,
     GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
     typeof queryKey
   >({
@@ -80,7 +89,11 @@ export function useGetServicesServiceVersionIdFeaturesNameTakenNameSuspense<
     query?: Partial<
       UseSuspenseQueryOptions<
         GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
-        ResponseErrorConfig<GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500>,
+        ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesNameTakenName400
+          | GetServicesServiceVersionIdFeaturesNameTakenName401
+          | GetServicesServiceVersionIdFeaturesNameTakenName500
+        >,
         TData,
         TQueryKey
       >
@@ -100,7 +113,11 @@ export function useGetServicesServiceVersionIdFeaturesNameTakenNameSuspense<
     queryClient,
   ) as UseSuspenseQueryResult<
     TData,
-    ResponseErrorConfig<GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500>
+    ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesNameTakenName400
+      | GetServicesServiceVersionIdFeaturesNameTakenName401
+      | GetServicesServiceVersionIdFeaturesNameTakenName500
+    >
   > & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey

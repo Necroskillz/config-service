@@ -13,6 +13,11 @@ import type { HandlerCreateServiceRequest } from './handler/CreateServiceRequest
 export type PostServices200 = HandlerCreateResponse
 
 /**
+ * @description Bad Request
+ */
+export type PostServices400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PostServices401 = EchoHTTPError
@@ -42,5 +47,5 @@ export type PostServicesMutationResponse = PostServices200
 export type PostServicesMutation = {
   Response: PostServices200
   Request: PostServicesMutationRequest
-  Errors: PostServices401 | PostServices403 | PostServices422 | PostServices500
+  Errors: PostServices400 | PostServices401 | PostServices403 | PostServices422 | PostServices500
 }

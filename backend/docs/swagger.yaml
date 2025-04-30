@@ -69,6 +69,13 @@ definitions:
     required:
     - comment
     type: object
+  handler.ApprovableChangesetCountResponse:
+    properties:
+      count:
+        type: integer
+    required:
+    - count
+    type: object
   handler.BooleanResponse:
     properties:
       value:
@@ -328,6 +335,31 @@ definitions:
     - userName
     - variationContext
     type: object
+  service.ChangesetItemDto:
+    properties:
+      actionCount:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: integer
+      lastActionAt:
+        type: string
+      state:
+        $ref: '#/definitions/db.ChangesetState'
+      userId:
+        type: integer
+      userName:
+        type: string
+    required:
+    - actionCount
+    - createdAt
+    - id
+    - lastActionAt
+    - state
+    - userId
+    - userName
+    type: object
   service.EditorTypes:
     enum:
     - text
@@ -409,6 +441,18 @@ definitions:
     required:
     - id
     - order
+    type: object
+  service.PaginatedResult-service_ChangesetItemDto:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/service.ChangesetItemDto'
+        type: array
+      totalCount:
+        type: integer
+    required:
+    - items
+    - totalCount
     type: object
   service.ServiceDto:
     properties:
@@ -531,6 +575,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.TokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -563,6 +611,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.TokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -595,6 +647,54 @@ paths:
       security:
       - BearerAuth: []
       summary: Get current user
+  /changesets:
+    get:
+      consumes:
+      - application/json
+      description: Get changesets
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Author ID
+        in: query
+        name: authorId
+        type: integer
+      - description: Approvable
+        in: query
+        name: approvable
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.PaginatedResult-service_ChangesetItemDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get changesets
   /changesets/{changeset_id}:
     get:
       consumes:
@@ -613,6 +713,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/service.ChangesetDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -644,6 +748,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -685,6 +793,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -720,6 +832,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -755,6 +871,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -790,6 +910,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -825,6 +949,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -844,6 +972,29 @@ paths:
       security:
       - BearerAuth: []
       summary: Stash a changeset
+  /changesets/approvable-count:
+    get:
+      consumes:
+      - application/json
+      description: Get the number of approvable changesets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ApprovableChangesetCountResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get the number of approvable changesets
   /changesets/current:
     get:
       consumes:
@@ -916,6 +1067,10 @@ paths:
             items:
               $ref: '#/definitions/handler.VariationProperty'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -974,6 +1129,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1011,6 +1170,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/service.ServiceVersionDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1048,6 +1211,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1091,6 +1258,10 @@ paths:
             items:
               $ref: '#/definitions/service.FeatureVersionDto'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1129,6 +1300,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1171,6 +1346,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/service.FeatureVersionWithPermissionDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1212,6 +1391,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1256,6 +1439,10 @@ paths:
             items:
               $ref: '#/definitions/service.KeyDto'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1286,9 +1473,9 @@ paths:
         name: feature_version_id
         required: true
         type: integer
-      - description: Key DTO
+      - description: Create key request
         in: body
-        name: key_dto
+        name: createKeyRequest
         required: true
         schema:
           $ref: '#/definitions/handler.CreateKeyRequest'
@@ -1299,6 +1486,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1346,6 +1537,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/service.KeyDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1381,9 +1576,9 @@ paths:
         name: key_id
         required: true
         type: integer
-      - description: Key DTO
+      - description: Update key request
         in: body
-        name: key_dto
+        name: updateKeyRequest
         required: true
         schema:
           $ref: '#/definitions/handler.UpdateKeyRequest'
@@ -1394,6 +1589,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1443,6 +1642,10 @@ paths:
             items:
               $ref: '#/definitions/service.VariationValue'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1491,6 +1694,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/service.NewValueInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1545,6 +1752,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1602,6 +1813,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/service.NewValueInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1656,6 +1871,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1705,6 +1924,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1756,6 +1979,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.BooleanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1832,6 +2059,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1876,6 +2107,10 @@ paths:
             items:
               $ref: '#/definitions/service.VersionLinkDto'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1911,6 +2146,10 @@ paths:
             items:
               $ref: '#/definitions/service.FeatureVersionDto'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1949,6 +2188,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.BooleanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -1976,6 +2219,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -2015,6 +2262,10 @@ paths:
             items:
               $ref: '#/definitions/service.VersionLinkDto'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:
@@ -2048,6 +2299,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.BooleanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
           schema:

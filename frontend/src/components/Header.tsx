@@ -3,10 +3,16 @@ import { useAuth } from '~/auth';
 import { Badge } from './ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuTriggerLabel } from './ui/dropdown-menu';
 import { useChangeset } from '~/hooks/useChangeset';
+import { useGetChangesetsApprovableCount } from '~/gen';
 
 export function Header() {
   const { user } = useAuth();
   const { id: changesetId, numberOfChanges } = useChangeset();
+  const { data: approvableCount } = useGetChangesetsApprovableCount({
+    query: {
+      refetchInterval: 60000,
+    },
+  });
 
   return (
     <div className="p-2 flex gap-2 text-lg">
@@ -22,6 +28,14 @@ export function Header() {
             activeOptions={{ exact: true }}
           >
             Changeset <Badge variant="outline">{numberOfChanges}</Badge>
+          </Link>
+          <Link
+            to="/changesets"
+            search={{ mode: approvableCount?.count && approvableCount.count > 0 ? 'approvable' : 'my' }}
+            activeOptions={{ exact: true, includeSearch: false }}
+          >
+            Changesets
+            {approvableCount?.count && approvableCount.count > 0 && <Badge variant="outline">{approvableCount.count}</Badge>}
           </Link>
         </>
       )}

@@ -3,13 +3,11 @@ import { z } from 'zod';
 import { SlimPage } from '~/components/SlimPage';
 import { ChangesetChange } from './-components/ChangesetChange';
 import { PageTitle } from '~/components/PageTitle';
-import { DbChangesetStateEnum, getChangesetsChangesetIdQueryOptions, useGetChangesetsChangesetIdSuspense } from '~/gen';
-import { VariantProps } from 'class-variance-authority';
-import { Badge } from '~/components/ui/badge';
+import { getChangesetsChangesetIdQueryOptions, useGetChangesetsChangesetIdSuspense } from '~/gen';
 import { List, ListItem } from '~/components/List';
-import { badgeVariants } from '~/components/ui/badge';
 import { ChangesetActions } from './-components/ChangesetActions';
 import { seo, appTitle } from '~/utils/seo';
+import { ChangesetState } from './-components/ChangesetState';
 
 export const Route = createFileRoute('/(changesets)/changesets/$changesetId')({
   component: RouteComponent,
@@ -33,22 +31,6 @@ function RouteComponent() {
 
   const { data: changeset } = useGetChangesetsChangesetIdSuspense(changesetId);
 
-  function getStateBadgeVariant(state: DbChangesetStateEnum): VariantProps<typeof badgeVariants>['variant'] {
-    switch (state) {
-      case 'open':
-        return 'default';
-      case 'discarded':
-        return 'destructive';
-      case 'applied':
-        return 'secondary';
-      case 'stashed':
-        return 'outline';
-      case 'committed':
-        return 'outline';
-      default:
-        return 'default';
-    }
-  }
 
   return (
     <SlimPage>
@@ -56,7 +38,7 @@ function RouteComponent() {
       <div className="flex flex-col gap-4">
         <div className="flex gap-2">
           <span className="font-semibold">State:</span>
-          <Badge variant={getStateBadgeVariant(changeset.state)}>{changeset.state}</Badge>
+          <ChangesetState state={changeset.state} />
         </div>
         {changeset.changes.length > 0 ? (
           <List>

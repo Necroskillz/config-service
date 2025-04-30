@@ -20,6 +20,11 @@ export type GetServicesNameTakenNamePathParams = {
 export type GetServicesNameTakenName200 = HandlerBooleanResponse
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesNameTakenName400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesNameTakenName401 = EchoHTTPError
@@ -34,5 +39,5 @@ export type GetServicesNameTakenNameQueryResponse = GetServicesNameTakenName200
 export type GetServicesNameTakenNameQuery = {
   Response: GetServicesNameTakenName200
   PathParams: GetServicesNameTakenNamePathParams
-  Errors: GetServicesNameTakenName401 | GetServicesNameTakenName500
+  Errors: GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500
 }

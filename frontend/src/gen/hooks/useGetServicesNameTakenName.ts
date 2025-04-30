@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesNameTakenNameQueryResponse,
   GetServicesNameTakenNamePathParams,
+  GetServicesNameTakenName400,
   GetServicesNameTakenName401,
   GetServicesNameTakenName500,
 } from '../types/GetServicesNameTakenName.ts'
@@ -30,11 +31,11 @@ export async function getServicesNameTakenName(
 ) {
   const { client: request = client, ...requestConfig } = config
 
-  const res = await request<GetServicesNameTakenNameQueryResponse, ResponseErrorConfig<GetServicesNameTakenName401 | GetServicesNameTakenName500>, unknown>({
-    method: 'GET',
-    url: `/services/name-taken/${name}`,
-    ...requestConfig,
-  })
+  const res = await request<
+    GetServicesNameTakenNameQueryResponse,
+    ResponseErrorConfig<GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500>,
+    unknown
+  >({ method: 'GET', url: `/services/name-taken/${name}`, ...requestConfig })
   return res.data
 }
 
@@ -45,7 +46,7 @@ export function getServicesNameTakenNameQueryOptions(
   const queryKey = getServicesNameTakenNameQueryKey(name)
   return queryOptions<
     GetServicesNameTakenNameQueryResponse,
-    ResponseErrorConfig<GetServicesNameTakenName401 | GetServicesNameTakenName500>,
+    ResponseErrorConfig<GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500>,
     GetServicesNameTakenNameQueryResponse,
     typeof queryKey
   >({
@@ -73,7 +74,7 @@ export function useGetServicesNameTakenName<
     query?: Partial<
       QueryObserverOptions<
         GetServicesNameTakenNameQueryResponse,
-        ResponseErrorConfig<GetServicesNameTakenName401 | GetServicesNameTakenName500>,
+        ResponseErrorConfig<GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500>,
         TData,
         TQueryData,
         TQueryKey
@@ -92,7 +93,9 @@ export function useGetServicesNameTakenName<
       ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
     },
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<GetServicesNameTakenName401 | GetServicesNameTakenName500>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500>> & {
+    queryKey: TQueryKey
+  }
 
   query.queryKey = queryKey as TQueryKey
 

@@ -25,6 +25,11 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsPathParam
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions200 = ServiceVersionLinkDto[]
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions401 = EchoHTTPError
@@ -45,6 +50,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsQuery = {
   Response: GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions200
   PathParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdVersionsPathParams
   Errors:
+    | GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions400
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions401
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions404
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdVersions500

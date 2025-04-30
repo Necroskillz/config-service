@@ -9,6 +9,7 @@ import type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationResponse,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404,
@@ -41,6 +42,7 @@ export async function putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   const res = await request<
     PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationResponse,
     ResponseErrorConfig<
+      | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404
@@ -61,6 +63,7 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId<
     mutation?: UseMutationOptions<
       PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationResponse,
       ResponseErrorConfig<
+        | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400
         | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401
         | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403
         | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404
@@ -83,6 +86,7 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId<
   return useMutation<
     PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationResponse,
     ResponseErrorConfig<
+      | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403
       | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404

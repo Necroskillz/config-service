@@ -1,0 +1,1 @@
+{"properties":{"count":{"type":"integer"}},"required":["count"],"type":"object","x-readme-ref-name":"handler.ApprovableChangesetCountResponse"}

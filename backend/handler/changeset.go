@@ -4,7 +4,50 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/necroskillz/config-service/service"
 )
+
+type ChangesetsRequest struct {
+	Limit      int   `query:"limit" validate:"required"`
+	Offset     int   `query:"offset" validate:"required"`
+	AuthorID   *uint `query:"authorId"`
+	Approvable bool  `query:"approvable"`
+}
+
+// @Summary Get changesets
+// @Description Get changesets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param limit query int false "Limit"
+// @Param offset query int false "Offset"
+// @Param authorId query uint false "Author ID"
+// @Param approvable query bool false "Approvable"
+// @Success 200 {object} service.PaginatedResult[service.ChangesetItemDto]
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets [get]
+func (h *Handler) Changesets(c echo.Context) error {
+	var request ChangesetsRequest
+	err := c.Bind(&request)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	changesets, err := h.ChangesetService.GetChangesets(c.Request().Context(), service.ChangesetsFilter{
+		AuthorID:   request.AuthorID,
+		Approvable: request.Approvable,
+		Limit:      request.Limit,
+		Offset:     request.Offset,
+	})
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, changesets)
+}
 
 // @Summary Get a changeset
 // @Description Get a changeset by ID
@@ -13,6 +56,7 @@ import (
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 200 {object} service.ChangesetDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -43,6 +87,7 @@ type OptionalCommentRequest struct {
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -76,6 +121,7 @@ func (h *Handler) ApplyChangeset(c echo.Context) error {
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -109,6 +155,7 @@ func (h *Handler) CommitChangeset(c echo.Context) error {
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -136,6 +183,7 @@ func (h *Handler) ReopenChangeset(c echo.Context) error {
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -163,6 +211,7 @@ func (h *Handler) DiscardChangeset(c echo.Context) error {
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -195,6 +244,7 @@ type AddCommentRequest struct {
 // @Param changeset_id path uint true "Changeset ID"
 // @Param comment body AddCommentRequest true "Comment"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -247,5 +297,29 @@ func (h *Handler) GetCurrentChangesetInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, ChangesetInfoResponse{
 		ID:              user.ChangesetID,
 		NumberOfChanges: count,
+	})
+}
+
+type ApprovableChangesetCountResponse struct {
+	Count int `json:"count" validate:"required"`
+}
+
+// @Summary Get the number of approvable changesets
+// @Description Get the number of approvable changesets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} ApprovableChangesetCountResponse
+// @Failure 401 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets/approvable-count [get]
+func (h *Handler) GetApprovableChangesetCount(c echo.Context) error {
+	count, err := h.ChangesetService.GetApprovableChangesetCount(c.Request().Context())
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, ApprovableChangesetCountResponse{
+		Count: count,
 	})
 }

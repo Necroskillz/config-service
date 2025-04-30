@@ -9,6 +9,7 @@ import type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationRequest,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationResponse,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdPathParams,
+  PutServicesServiceVersionIdFeaturesFeatureVersionId400,
   PutServicesServiceVersionIdFeaturesFeatureVersionId401,
   PutServicesServiceVersionIdFeaturesFeatureVersionId403,
   PutServicesServiceVersionIdFeaturesFeatureVersionId422,
@@ -38,6 +39,7 @@ export async function putServicesServiceVersionIdFeaturesFeatureVersionId(
   const res = await request<
     PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationResponse,
     ResponseErrorConfig<
+      | PutServicesServiceVersionIdFeaturesFeatureVersionId400
       | PutServicesServiceVersionIdFeaturesFeatureVersionId401
       | PutServicesServiceVersionIdFeaturesFeatureVersionId403
       | PutServicesServiceVersionIdFeaturesFeatureVersionId422
@@ -58,6 +60,7 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionId<TContext>
     mutation?: UseMutationOptions<
       PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationResponse,
       ResponseErrorConfig<
+        | PutServicesServiceVersionIdFeaturesFeatureVersionId400
         | PutServicesServiceVersionIdFeaturesFeatureVersionId401
         | PutServicesServiceVersionIdFeaturesFeatureVersionId403
         | PutServicesServiceVersionIdFeaturesFeatureVersionId422
@@ -79,6 +82,7 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionId<TContext>
   return useMutation<
     PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationResponse,
     ResponseErrorConfig<
+      | PutServicesServiceVersionIdFeaturesFeatureVersionId400
       | PutServicesServiceVersionIdFeaturesFeatureVersionId401
       | PutServicesServiceVersionIdFeaturesFeatureVersionId403
       | PutServicesServiceVersionIdFeaturesFeatureVersionId422

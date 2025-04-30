@@ -15,8 +15,15 @@ CREATE TYPE changeset_action_type AS ENUM (
     'reopen',
     'comment'
 );
-CREATE TYPE changeset_change_kind AS ENUM ('feature_version', 'service_version', 'feature_version_service_version', 'key', 'variation_value');
+CREATE TYPE changeset_change_kind AS ENUM (
+    'feature_version',
+    'service_version',
+    'feature_version_service_version',
+    'key',
+    'variation_value'
+);
 CREATE TYPE changeset_change_type AS ENUM ('create', 'update', 'delete');
+CREATE TYPE user_permission_kind AS ENUM ('service', 'feature', 'key', 'variation');
 CREATE TYPE permission_level AS ENUM ('editor', 'admin');
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
@@ -143,6 +150,7 @@ CREATE TABLE variation_context_variation_property_values (
 );
 CREATE TABLE user_permissions (
     id BIGSERIAL PRIMARY KEY,
+    kind user_permission_kind NOT NULL,
     user_id BIGINT NOT NULL REFERENCES users(id),
     service_id BIGINT NOT NULL REFERENCES services(id),
     feature_id BIGINT REFERENCES features(id),
@@ -206,3 +214,4 @@ DROP TYPE changeset_change_type;
 DROP TYPE changeset_state;
 DROP TYPE changeset_action_type;
 DROP TYPE changeset_change_kind;
+DROP TYPE user_permission_kind;

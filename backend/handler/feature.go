@@ -14,6 +14,7 @@ import (
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Success 200 {object} []service.FeatureVersionDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -46,6 +47,7 @@ type CreateFeatureRequest struct {
 // @Param service_version_id path int true "Service version ID"
 // @Param createFeatureRequest body CreateFeatureRequest true "Create feature request"
 // @Success 200 {object} CreateResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 422 {object} echo.HTTPError
@@ -90,6 +92,7 @@ type UpdateFeatureRequest struct {
 // @Param feature_version_id path int true "Feature version ID"
 // @Param updateFeatureRequest body UpdateFeatureRequest true "Update feature request"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 422 {object} echo.HTTPError
@@ -130,6 +133,7 @@ func (h *Handler) UpdateFeature(c echo.Context) error {
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
 // @Success 200 {object} service.FeatureVersionWithPermissionDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -158,6 +162,7 @@ func (h *Handler) Feature(c echo.Context) error {
 // @Param service_version_id path int true "Service version ID"
 // @Param name path string true "Feature name"
 // @Success 200 {object} BooleanResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /services/{service_version_id}/features/name-taken/{name} [get]
@@ -184,6 +189,7 @@ func (h *Handler) IsFeatureNameTaken(c echo.Context) error {
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
 // @Success 200 {object} []service.VersionLinkDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -211,6 +217,7 @@ func (h *Handler) FeatureVersions(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Success 200 {object} []service.FeatureVersionDto
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -238,6 +245,7 @@ func (h *Handler) LinkableFeatures(c echo.Context) error {
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
 // @Success 204
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError

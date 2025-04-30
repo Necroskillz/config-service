@@ -25,6 +25,11 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams = 
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys200 = ServiceKeyDto[]
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401 = EchoHTTPError
@@ -45,6 +50,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysQuery = {
   Response: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys200
   PathParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams
   Errors:
+    | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeys500

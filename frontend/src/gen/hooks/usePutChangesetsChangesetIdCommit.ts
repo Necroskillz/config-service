@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutChangesetsChangesetIdCommitMutationResponse,
   PutChangesetsChangesetIdCommitPathParams,
+  PutChangesetsChangesetIdCommit400,
   PutChangesetsChangesetIdCommit401,
   PutChangesetsChangesetIdCommit403,
   PutChangesetsChangesetIdCommit404,
@@ -34,7 +35,11 @@ export async function putChangesetsChangesetIdCommit(
   const res = await request<
     PutChangesetsChangesetIdCommitMutationResponse,
     ResponseErrorConfig<
-      PutChangesetsChangesetIdCommit401 | PutChangesetsChangesetIdCommit403 | PutChangesetsChangesetIdCommit404 | PutChangesetsChangesetIdCommit500
+      | PutChangesetsChangesetIdCommit400
+      | PutChangesetsChangesetIdCommit401
+      | PutChangesetsChangesetIdCommit403
+      | PutChangesetsChangesetIdCommit404
+      | PutChangesetsChangesetIdCommit500
     >,
     unknown
   >({ method: 'PUT', url: `/changesets/${changeset_id}/commit`, ...requestConfig })
@@ -51,7 +56,11 @@ export function usePutChangesetsChangesetIdCommit<TContext>(
     mutation?: UseMutationOptions<
       PutChangesetsChangesetIdCommitMutationResponse,
       ResponseErrorConfig<
-        PutChangesetsChangesetIdCommit401 | PutChangesetsChangesetIdCommit403 | PutChangesetsChangesetIdCommit404 | PutChangesetsChangesetIdCommit500
+        | PutChangesetsChangesetIdCommit400
+        | PutChangesetsChangesetIdCommit401
+        | PutChangesetsChangesetIdCommit403
+        | PutChangesetsChangesetIdCommit404
+        | PutChangesetsChangesetIdCommit500
       >,
       { changeset_id: PutChangesetsChangesetIdCommitPathParams['changeset_id'] },
       TContext
@@ -65,7 +74,11 @@ export function usePutChangesetsChangesetIdCommit<TContext>(
   return useMutation<
     PutChangesetsChangesetIdCommitMutationResponse,
     ResponseErrorConfig<
-      PutChangesetsChangesetIdCommit401 | PutChangesetsChangesetIdCommit403 | PutChangesetsChangesetIdCommit404 | PutChangesetsChangesetIdCommit500
+      | PutChangesetsChangesetIdCommit400
+      | PutChangesetsChangesetIdCommit401
+      | PutChangesetsChangesetIdCommit403
+      | PutChangesetsChangesetIdCommit404
+      | PutChangesetsChangesetIdCommit500
     >,
     { changeset_id: PutChangesetsChangesetIdCommitPathParams['changeset_id'] },
     TContext

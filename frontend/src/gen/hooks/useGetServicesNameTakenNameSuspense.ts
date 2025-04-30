@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesNameTakenNameQueryResponse,
   GetServicesNameTakenNamePathParams,
+  GetServicesNameTakenName400,
   GetServicesNameTakenName401,
   GetServicesNameTakenName500,
 } from '../types/GetServicesNameTakenName.ts'
@@ -30,11 +31,11 @@ export async function getServicesNameTakenNameSuspense(
 ) {
   const { client: request = client, ...requestConfig } = config
 
-  const res = await request<GetServicesNameTakenNameQueryResponse, ResponseErrorConfig<GetServicesNameTakenName401 | GetServicesNameTakenName500>, unknown>({
-    method: 'GET',
-    url: `/services/name-taken/${name}`,
-    ...requestConfig,
-  })
+  const res = await request<
+    GetServicesNameTakenNameQueryResponse,
+    ResponseErrorConfig<GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500>,
+    unknown
+  >({ method: 'GET', url: `/services/name-taken/${name}`, ...requestConfig })
   return res.data
 }
 
@@ -45,7 +46,7 @@ export function getServicesNameTakenNameSuspenseQueryOptions(
   const queryKey = getServicesNameTakenNameSuspenseQueryKey(name)
   return queryOptions<
     GetServicesNameTakenNameQueryResponse,
-    ResponseErrorConfig<GetServicesNameTakenName401 | GetServicesNameTakenName500>,
+    ResponseErrorConfig<GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500>,
     GetServicesNameTakenNameQueryResponse,
     typeof queryKey
   >({
@@ -73,7 +74,7 @@ export function useGetServicesNameTakenNameSuspense<
     query?: Partial<
       UseSuspenseQueryOptions<
         GetServicesNameTakenNameQueryResponse,
-        ResponseErrorConfig<GetServicesNameTakenName401 | GetServicesNameTakenName500>,
+        ResponseErrorConfig<GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500>,
         TData,
         TQueryKey
       >
@@ -91,7 +92,9 @@ export function useGetServicesNameTakenNameSuspense<
       ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
     },
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetServicesNameTakenName401 | GetServicesNameTakenName500>> & { queryKey: TQueryKey }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetServicesNameTakenName400 | GetServicesNameTakenName401 | GetServicesNameTakenName500>> & {
+    queryKey: TQueryKey
+  }
 
   query.queryKey = queryKey as TQueryKey
 

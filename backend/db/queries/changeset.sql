@@ -1,3 +1,72 @@
+-- name: GetChangesets :many
+WITH changeset_services AS (
+    SELECT DISTINCT cs.id,
+        sv.service_id
+    FROM changesets cs
+        JOIN changeset_changes csc ON csc.changeset_id = cs.id
+        JOIN service_versions sv ON sv.id = csc.service_version_id
+    WHERE cs.state = 'committed'
+),
+user_service_permissions AS (
+    SELECT DISTINCT service_id
+    FROM user_permissions up
+    WHERE up.kind = 'service'
+        AND up.user_id = sqlc.narg('approver_id')::bigint
+        AND up.permission = 'admin'
+),
+filtered_changesets AS (
+    SELECT cs.id
+    FROM changesets cs
+    WHERE (
+            sqlc.narg('user_id')::bigint IS NULL
+            OR cs.user_id = sqlc.narg('user_id')::bigint
+        )
+        AND (
+            sqlc.narg('approver_id')::bigint IS NULL
+            OR (
+                cs.state = 'committed'
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM changeset_services sub
+                    WHERE sub.id = cs.id
+                        AND sub.service_id NOT IN (
+                            SELECT service_id
+                            FROM user_service_permissions
+                        )
+                )
+            )
+        )
+),
+last_actions AS (
+    SELECT DISTINCT ON (changeset_id) changeset_id,
+        created_at as last_action_at
+    FROM changeset_actions
+    ORDER BY changeset_id,
+        created_at DESC
+),
+action_counts AS (
+    SELECT changeset_id,
+        COUNT(*)::integer as action_count
+    FROM changeset_actions
+    GROUP BY changeset_id
+),
+total_count AS (
+    SELECT COUNT(*)::integer as total
+    FROM filtered_changesets
+)
+SELECT cs.*,
+    COALESCE(la.last_action_at, cs.created_at) as last_action_at,
+    COALESCE(ac.action_count, 0)::integer as action_count,
+    u.name as user_name,
+    tc.total as total_count
+FROM filtered_changesets fc
+    JOIN changesets cs ON cs.id = fc.id
+    JOIN users u ON u.id = cs.user_id
+    LEFT JOIN last_actions la ON la.changeset_id = cs.id
+    LEFT JOIN action_counts ac ON ac.changeset_id = cs.id
+    CROSS JOIN total_count tc
+ORDER BY cs.id DESC
+LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;
 -- name: CreateChangeset :one
 INSERT INTO changesets (user_id, state)
 VALUES (@user_id, 'open')
@@ -75,6 +144,33 @@ ORDER BY csc.id;
 SELECT COUNT(*)::integer
 FROM changeset_changes csc
 WHERE csc.changeset_id = @changeset_id;
+-- name: GetApprovableChangesetCount :one
+WITH changeset_services AS (
+    SELECT DISTINCT cs.id,
+        sv.service_id
+    FROM changesets cs
+        JOIN changeset_changes csc ON csc.changeset_id = cs.id
+        JOIN service_versions sv ON sv.id = csc.service_version_id
+    WHERE cs.state = 'committed'
+),
+user_service_permissions AS (
+    SELECT DISTINCT service_id
+    FROM user_permissions up
+    WHERE up.kind = 'service'
+        AND up.user_id = @user_id
+        AND up.permission = 'admin'
+)
+SELECT COUNT(DISTINCT cs.id)::integer
+FROM changeset_services cs
+WHERE NOT EXISTS (
+        SELECT 1
+        FROM changeset_services sub
+        WHERE sub.id = cs.id
+            AND sub.service_id NOT IN (
+                SELECT service_id
+                FROM user_service_permissions
+            )
+    );
 -- name: GetChangeForVariationValue :one
 SELECT csc.id,
     csc.type,

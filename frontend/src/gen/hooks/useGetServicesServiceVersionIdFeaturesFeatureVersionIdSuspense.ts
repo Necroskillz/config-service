@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionId400,
   GetServicesServiceVersionIdFeaturesFeatureVersionId401,
   GetServicesServiceVersionIdFeaturesFeatureVersionId404,
   GetServicesServiceVersionIdFeaturesFeatureVersionId500,
@@ -45,6 +46,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdSuspens
   const res = await request<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionId500
@@ -63,6 +65,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdSuspenseQuery
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdQueryResponse,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionId500
@@ -96,6 +99,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense<
       UseSuspenseQueryOptions<
         GetServicesServiceVersionIdFeaturesFeatureVersionIdQueryResponse,
         ResponseErrorConfig<
+          | GetServicesServiceVersionIdFeaturesFeatureVersionId400
           | GetServicesServiceVersionIdFeaturesFeatureVersionId401
           | GetServicesServiceVersionIdFeaturesFeatureVersionId404
           | GetServicesServiceVersionIdFeaturesFeatureVersionId500
@@ -124,6 +128,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense<
   ) as UseSuspenseQueryResult<
     TData,
     ResponseErrorConfig<
+      | GetServicesServiceVersionIdFeaturesFeatureVersionId400
       | GetServicesServiceVersionIdFeaturesFeatureVersionId401
       | GetServicesServiceVersionIdFeaturesFeatureVersionId404
       | GetServicesServiceVersionIdFeaturesFeatureVersionId500

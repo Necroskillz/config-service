@@ -19,6 +19,11 @@ export type DeleteChangesetsChangesetIdDiscardPathParams = {
 export type DeleteChangesetsChangesetIdDiscard204 = any
 
 /**
+ * @description Bad Request
+ */
+export type DeleteChangesetsChangesetIdDiscard400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type DeleteChangesetsChangesetIdDiscard401 = EchoHTTPError
@@ -44,6 +49,7 @@ export type DeleteChangesetsChangesetIdDiscardMutation = {
   Response: DeleteChangesetsChangesetIdDiscard204
   PathParams: DeleteChangesetsChangesetIdDiscardPathParams
   Errors:
+    | DeleteChangesetsChangesetIdDiscard400
     | DeleteChangesetsChangesetIdDiscard401
     | DeleteChangesetsChangesetIdDiscard403
     | DeleteChangesetsChangesetIdDiscard404

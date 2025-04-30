@@ -36,6 +36,11 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesVa
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId200 = ServiceNewValueInfo
 
 /**
+ * @description Bad Request
+ */
+export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401 = EchoHTTPError
@@ -73,6 +78,7 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesVa
   Request: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationRequest
   PathParams: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams
   Errors:
+    | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId400
     | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId401
     | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId403
     | PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId404

@@ -30,6 +30,11 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPa
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200 = ServiceVariationValue[]
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401 = EchoHTTPError
@@ -51,6 +56,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesQu
   Response: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200
   PathParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPathParams
   Errors:
+    | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues400
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues401
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues404
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues500

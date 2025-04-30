@@ -9,6 +9,7 @@ import type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationRequest,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationResponse,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysPathParams,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys400,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys401,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys403,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys404,
@@ -40,6 +41,7 @@ export async function postServicesServiceVersionIdFeaturesFeatureVersionIdKeys(
   const res = await request<
     PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationResponse,
     ResponseErrorConfig<
+      | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys403
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
@@ -60,6 +62,7 @@ export function usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys<TCon
     mutation?: UseMutationOptions<
       PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationResponse,
       ResponseErrorConfig<
+        | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
         | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
         | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys403
         | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys404
@@ -81,6 +84,7 @@ export function usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys<TCon
   return useMutation<
     PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationResponse,
     ResponseErrorConfig<
+      | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys400
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys401
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys403
       | PostServicesServiceVersionIdFeaturesFeatureVersionIdKeys404

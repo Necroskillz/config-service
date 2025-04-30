@@ -19,6 +19,11 @@ export type PutChangesetsChangesetIdStashPathParams = {
 export type PutChangesetsChangesetIdStash204 = any
 
 /**
+ * @description Bad Request
+ */
+export type PutChangesetsChangesetIdStash400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PutChangesetsChangesetIdStash401 = EchoHTTPError
@@ -43,5 +48,10 @@ export type PutChangesetsChangesetIdStashMutationResponse = PutChangesetsChanges
 export type PutChangesetsChangesetIdStashMutation = {
   Response: PutChangesetsChangesetIdStash204
   PathParams: PutChangesetsChangesetIdStashPathParams
-  Errors: PutChangesetsChangesetIdStash401 | PutChangesetsChangesetIdStash403 | PutChangesetsChangesetIdStash404 | PutChangesetsChangesetIdStash500
+  Errors:
+    | PutChangesetsChangesetIdStash400
+    | PutChangesetsChangesetIdStash401
+    | PutChangesetsChangesetIdStash403
+    | PutChangesetsChangesetIdStash404
+    | PutChangesetsChangesetIdStash500
 }

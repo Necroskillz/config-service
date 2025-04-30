@@ -13,6 +13,11 @@ import type { HandlerTokensResponse } from './handler/TokensResponse.ts'
 export type PostAuthRefreshToken200 = HandlerTokensResponse
 
 /**
+ * @description Bad Request
+ */
+export type PostAuthRefreshToken400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type PostAuthRefreshToken401 = EchoHTTPError
@@ -32,5 +37,5 @@ export type PostAuthRefreshTokenMutationResponse = PostAuthRefreshToken200
 export type PostAuthRefreshTokenMutation = {
   Response: PostAuthRefreshToken200
   Request: PostAuthRefreshTokenMutationRequest
-  Errors: PostAuthRefreshToken401 | PostAuthRefreshToken500
+  Errors: PostAuthRefreshToken400 | PostAuthRefreshToken401 | PostAuthRefreshToken500
 }

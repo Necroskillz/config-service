@@ -20,6 +20,11 @@ export type GetChangesetsChangesetIdPathParams = {
 export type GetChangesetsChangesetId200 = ServiceChangesetDto
 
 /**
+ * @description Bad Request
+ */
+export type GetChangesetsChangesetId400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetChangesetsChangesetId401 = EchoHTTPError
@@ -39,5 +44,5 @@ export type GetChangesetsChangesetIdQueryResponse = GetChangesetsChangesetId200
 export type GetChangesetsChangesetIdQuery = {
   Response: GetChangesetsChangesetId200
   PathParams: GetChangesetsChangesetIdPathParams
-  Errors: GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500
+  Errors: GetChangesetsChangesetId400 | GetChangesetsChangesetId401 | GetChangesetsChangesetId404 | GetChangesetsChangesetId500
 }

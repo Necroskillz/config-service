@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutChangesetsChangesetIdApplyMutationResponse,
   PutChangesetsChangesetIdApplyPathParams,
+  PutChangesetsChangesetIdApply400,
   PutChangesetsChangesetIdApply401,
   PutChangesetsChangesetIdApply403,
   PutChangesetsChangesetIdApply404,
@@ -34,7 +35,11 @@ export async function putChangesetsChangesetIdApply(
   const res = await request<
     PutChangesetsChangesetIdApplyMutationResponse,
     ResponseErrorConfig<
-      PutChangesetsChangesetIdApply401 | PutChangesetsChangesetIdApply403 | PutChangesetsChangesetIdApply404 | PutChangesetsChangesetIdApply500
+      | PutChangesetsChangesetIdApply400
+      | PutChangesetsChangesetIdApply401
+      | PutChangesetsChangesetIdApply403
+      | PutChangesetsChangesetIdApply404
+      | PutChangesetsChangesetIdApply500
     >,
     unknown
   >({ method: 'PUT', url: `/changesets/${changeset_id}/apply`, ...requestConfig })
@@ -51,7 +56,11 @@ export function usePutChangesetsChangesetIdApply<TContext>(
     mutation?: UseMutationOptions<
       PutChangesetsChangesetIdApplyMutationResponse,
       ResponseErrorConfig<
-        PutChangesetsChangesetIdApply401 | PutChangesetsChangesetIdApply403 | PutChangesetsChangesetIdApply404 | PutChangesetsChangesetIdApply500
+        | PutChangesetsChangesetIdApply400
+        | PutChangesetsChangesetIdApply401
+        | PutChangesetsChangesetIdApply403
+        | PutChangesetsChangesetIdApply404
+        | PutChangesetsChangesetIdApply500
       >,
       { changeset_id: PutChangesetsChangesetIdApplyPathParams['changeset_id'] },
       TContext
@@ -65,7 +74,11 @@ export function usePutChangesetsChangesetIdApply<TContext>(
   return useMutation<
     PutChangesetsChangesetIdApplyMutationResponse,
     ResponseErrorConfig<
-      PutChangesetsChangesetIdApply401 | PutChangesetsChangesetIdApply403 | PutChangesetsChangesetIdApply404 | PutChangesetsChangesetIdApply500
+      | PutChangesetsChangesetIdApply400
+      | PutChangesetsChangesetIdApply401
+      | PutChangesetsChangesetIdApply403
+      | PutChangesetsChangesetIdApply404
+      | PutChangesetsChangesetIdApply500
     >,
     { changeset_id: PutChangesetsChangesetIdApplyPathParams['changeset_id'] },
     TContext

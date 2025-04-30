@@ -40,6 +40,7 @@ type TokensResponse struct {
 // @Produce json
 // @Param loginRequest body LoginRequest true "Login request"
 // @Success 200 {object} TokensResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 422 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -82,6 +83,7 @@ type RefreshTokenRequest struct {
 // @Produce json
 // @Param refreshTokenRequest body RefreshTokenRequest true "Refresh token request"
 // @Success 200 {object} TokensResponse
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /auth/refresh_token [post]

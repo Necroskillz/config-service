@@ -47,6 +47,7 @@ type VariationValueSelectOption struct {
 // @Security BearerAuth
 // @Param service_type_id path uint true "Service type ID"
 // @Success 200 {array} VariationProperty
+// @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError

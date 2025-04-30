@@ -25,6 +25,11 @@ export type GetServicesServiceVersionIdFeaturesNameTakenNamePathParams = {
 export type GetServicesServiceVersionIdFeaturesNameTakenName200 = HandlerBooleanResponse
 
 /**
+ * @description Bad Request
+ */
+export type GetServicesServiceVersionIdFeaturesNameTakenName400 = EchoHTTPError
+
+/**
  * @description Unauthorized
  */
 export type GetServicesServiceVersionIdFeaturesNameTakenName401 = EchoHTTPError
@@ -39,5 +44,8 @@ export type GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse = GetS
 export type GetServicesServiceVersionIdFeaturesNameTakenNameQuery = {
   Response: GetServicesServiceVersionIdFeaturesNameTakenName200
   PathParams: GetServicesServiceVersionIdFeaturesNameTakenNamePathParams
-  Errors: GetServicesServiceVersionIdFeaturesNameTakenName401 | GetServicesServiceVersionIdFeaturesNameTakenName500
+  Errors:
+    | GetServicesServiceVersionIdFeaturesNameTakenName400
+    | GetServicesServiceVersionIdFeaturesNameTakenName401
+    | GetServicesServiceVersionIdFeaturesNameTakenName500
 }

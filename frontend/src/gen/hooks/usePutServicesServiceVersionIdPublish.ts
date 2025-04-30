@@ -8,6 +8,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutServicesServiceVersionIdPublishMutationResponse,
   PutServicesServiceVersionIdPublishPathParams,
+  PutServicesServiceVersionIdPublish400,
   PutServicesServiceVersionIdPublish401,
   PutServicesServiceVersionIdPublish403,
   PutServicesServiceVersionIdPublish404,
@@ -34,6 +35,7 @@ export async function putServicesServiceVersionIdPublish(
   const res = await request<
     PutServicesServiceVersionIdPublishMutationResponse,
     ResponseErrorConfig<
+      | PutServicesServiceVersionIdPublish400
       | PutServicesServiceVersionIdPublish401
       | PutServicesServiceVersionIdPublish403
       | PutServicesServiceVersionIdPublish404
@@ -54,6 +56,7 @@ export function usePutServicesServiceVersionIdPublish<TContext>(
     mutation?: UseMutationOptions<
       PutServicesServiceVersionIdPublishMutationResponse,
       ResponseErrorConfig<
+        | PutServicesServiceVersionIdPublish400
         | PutServicesServiceVersionIdPublish401
         | PutServicesServiceVersionIdPublish403
         | PutServicesServiceVersionIdPublish404
@@ -71,6 +74,7 @@ export function usePutServicesServiceVersionIdPublish<TContext>(
   return useMutation<
     PutServicesServiceVersionIdPublishMutationResponse,
     ResponseErrorConfig<
+      | PutServicesServiceVersionIdPublish400
       | PutServicesServiceVersionIdPublish401
       | PutServicesServiceVersionIdPublish403
       | PutServicesServiceVersionIdPublish404

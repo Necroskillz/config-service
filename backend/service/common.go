@@ -81,3 +81,8 @@ func descriptionValidatorFunc(v *ValidatorContext) *ValidatorContext {
 func optionalDescriptionValidatorFunc(v *ValidatorContext) *ValidatorContext {
 	return v.MaxLength(1000)
 }
+
+type PaginatedResult[T any] struct {
+	Items      []T `json:"items" validate:"required"`
+	TotalCount int `json:"totalCount" validate:"required"`
+}
