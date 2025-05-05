@@ -10,7 +10,7 @@ import { Textarea } from '~/components/ui/textarea';
 import {
   DbChangesetActionTypeEnum,
   ServiceChangesetDto,
-  useDeleteChangesetsChangesetIdDiscard,
+  useDeleteChangesetsChangesetId,
   getChangesetsChangesetIdQueryKey,
   usePostChangesetsChangesetIdComment,
   usePutChangesetsChangesetIdApply,
@@ -48,7 +48,7 @@ export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto
   const mutations = {
     apply: usePutChangesetsChangesetIdApply(),
     commit: usePutChangesetsChangesetIdCommit(),
-    discard: useDeleteChangesetsChangesetIdDiscard(),
+    discard: useDeleteChangesetsChangesetId(),
     reopen: usePutChangesetsChangesetIdReopen(),
     stash: usePutChangesetsChangesetIdStash(),
     comment: usePostChangesetsChangesetIdComment(),

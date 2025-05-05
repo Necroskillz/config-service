@@ -139,7 +139,43 @@
     outline: none !important;
   }
 
-  a.active, a.link {
+  a.active,
+  a.link {
     @apply text-accent-foreground;
+  }
+
+  .json-editor-container {
+    resize: both;
+    overflow: auto;
+    @apply pb-1 pr-1;
+    min-height: 200px;
+    min-width: 400px;
+    max-height: 720px;
+    max-width: 1080px;
+  }
+  .json-editor-container .cm-editor,
+  .json-editor-container > div {
+    height: 100%;
+    min-height: 200px;
+  }
+  .json-editor-container .cm-gutter,
+  .json-editor-container .cm-content {
+    min-height: 100px;
+  }
+
+  .json-viewer-container {
+    resize: both;
+    overflow: auto;
+    @apply pb-1 pr-1;
+    max-height: 720px;
+    max-width: 1080px;
+  }
+  .json-viewer-container .cm-editor,
+  .json-viewer-container > div {
+    height: 100%;
+  }
+  .json-viewer-container .cm-gutter,
+  .json-viewer-container .cm-content {
+    min-height: 100px;
   }
 }

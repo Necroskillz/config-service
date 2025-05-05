@@ -1,4 +1,4 @@
-export type { DeleteChangesetsChangesetIdDiscardMutationKey } from './hooks/useDeleteChangesetsChangesetIdDiscard.ts'
+export type { DeleteChangesetsChangesetIdMutationKey } from './hooks/useDeleteChangesetsChangesetId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
 export type { GetAuthUserQueryKey } from './hooks/useGetAuthUser.ts'
@@ -68,17 +68,19 @@ export type { AuthUser } from './types/auth/User.ts'
 export type { DbChangesetActionTypeEnum, DbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export type { DbChangesetChangeTypeEnum, DbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export type { DbChangesetStateEnum, DbChangesetState } from './types/db/ChangesetState.ts'
+export type { DbValueTypeKindEnum, DbValueTypeKind } from './types/db/ValueTypeKind.ts'
+export type { DbValueValidatorTypeEnum, DbValueValidatorType } from './types/db/ValueValidatorType.ts'
 export type {
-  DeleteChangesetsChangesetIdDiscardPathParams,
-  DeleteChangesetsChangesetIdDiscard204,
-  DeleteChangesetsChangesetIdDiscard400,
-  DeleteChangesetsChangesetIdDiscard401,
-  DeleteChangesetsChangesetIdDiscard403,
-  DeleteChangesetsChangesetIdDiscard404,
-  DeleteChangesetsChangesetIdDiscard500,
-  DeleteChangesetsChangesetIdDiscardMutationResponse,
-  DeleteChangesetsChangesetIdDiscardMutation,
-} from './types/DeleteChangesetsChangesetIdDiscard.ts'
+  DeleteChangesetsChangesetIdPathParams,
+  DeleteChangesetsChangesetId204,
+  DeleteChangesetsChangesetId400,
+  DeleteChangesetsChangesetId401,
+  DeleteChangesetsChangesetId403,
+  DeleteChangesetsChangesetId404,
+  DeleteChangesetsChangesetId500,
+  DeleteChangesetsChangesetIdMutationResponse,
+  DeleteChangesetsChangesetIdMutation,
+} from './types/DeleteChangesetsChangesetId.ts'
 export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId204,
@@ -505,26 +507,27 @@ export type {
   PutServicesServiceVersionIdPublishMutationResponse,
   PutServicesServiceVersionIdPublishMutation,
 } from './types/PutServicesServiceVersionIdPublish.ts'
+export type { ServiceAllowedValidatorDto } from './types/service/AllowedValidatorDto.ts'
 export type { ServiceChangesetAction } from './types/service/ChangesetAction.ts'
 export type { ServiceChangesetChange } from './types/service/ChangesetChange.ts'
 export type { ServiceChangesetDto } from './types/service/ChangesetDto.ts'
 export type { ServiceChangesetItemDto } from './types/service/ChangesetItemDto.ts'
-export type { ServiceEditorTypesEnum, ServiceEditorTypes } from './types/service/EditorTypes.ts'
 export type { ServiceFeatureVersionDto } from './types/service/FeatureVersionDto.ts'
 export type { ServiceFeatureVersionWithPermissionDto } from './types/service/FeatureVersionWithPermissionDto.ts'
 export type { ServiceKeyDto } from './types/service/KeyDto.ts'
+export type { ServiceKeyItemDto } from './types/service/KeyItemDto.ts'
 export type { ServiceNewValueInfo } from './types/service/NewValueInfo.ts'
 export type { ServicePaginatedResultServiceChangesetItemDto } from './types/service/PaginatedResultServiceChangesetItemDto.ts'
 export type { ServiceServiceDto } from './types/service/ServiceDto.ts'
 export type { ServiceServiceVersionDto } from './types/service/ServiceVersionDto.ts'
 export type { ServiceServiceVersionInfoDto } from './types/service/ServiceVersionInfoDto.ts'
+export type { ServiceValidatorDto } from './types/service/ValidatorDto.ts'
+export type { ServiceValidatorWithParameterTypeDto } from './types/service/ValidatorWithParameterTypeDto.ts'
+export type { ServiceValueTypeDto } from './types/service/ValueTypeDto.ts'
+export type { ServiceValueValidatorParameterTypeEnum, ServiceValueValidatorParameterType } from './types/service/ValueValidatorParameterType.ts'
 export type { ServiceVariationValue } from './types/service/VariationValue.ts'
 export type { ServiceVersionLinkDto } from './types/service/VersionLinkDto.ts'
-export {
-  deleteChangesetsChangesetIdDiscardMutationKey,
-  deleteChangesetsChangesetIdDiscard,
-  useDeleteChangesetsChangesetIdDiscard,
-} from './hooks/useDeleteChangesetsChangesetIdDiscard.ts'
+export { deleteChangesetsChangesetIdMutationKey, deleteChangesetsChangesetId, useDeleteChangesetsChangesetId } from './hooks/useDeleteChangesetsChangesetId.ts'
 export {
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey,
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
@@ -848,4 +851,6 @@ export {
 export { dbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export { dbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export { dbChangesetState } from './types/db/ChangesetState.ts'
-export { serviceEditorTypes } from './types/service/EditorTypes.ts'
+export { dbValueTypeKind } from './types/db/ValueTypeKind.ts'
+export { dbValueValidatorType } from './types/db/ValueValidatorType.ts'
+export { serviceValueValidatorParameterType } from './types/service/ValueValidatorParameterType.ts'

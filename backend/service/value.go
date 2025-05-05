@@ -21,6 +21,7 @@ type ValueService struct {
 	validator                 *Validator
 	coreService               *CoreService
 	validationService         *ValidationService
+	valueValidatorService     *ValueValidatorService
 }
 
 func NewValueService(
@@ -33,6 +34,7 @@ func NewValueService(
 	validator *Validator,
 	coreService *CoreService,
 	validationService *ValidationService,
+	valueValidatorService *ValueValidatorService,
 ) *ValueService {
 	return &ValueService{
 		unitOfWorkRunner:          unitOfWorkRunner,
@@ -44,6 +46,7 @@ func NewValueService(
 		validator:                 validator,
 		coreService:               coreService,
 		validationService:         validationService,
+		valueValidatorService:     valueValidatorService,
 	}
 }
 
@@ -120,9 +123,33 @@ type CreateValueParams struct {
 	Variation        map[uint]string
 }
 
-func (s *ValueService) validateCreateValue(ctx context.Context, data CreateValueParams) error {
+func (s *ValueService) valueDataValidator(ctx context.Context, valueTypeID uint, keyID uint) (ValidatorFunc, error) {
+	valueValidators, err := s.valueValidatorService.GetValueValidators(ctx, keyID, valueTypeID)
+	if err != nil {
+		return nil, err
+	}
+
+	validatorFunc, err := s.valueValidatorService.CreateValueValidatorFunc(valueValidators)
+	if err != nil {
+		return nil, err
+	}
+
+	return validatorFunc, nil
+}
+
+func (s *ValueService) validateCreateValue(ctx context.Context, data CreateValueParams, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow, key db.GetKeyRow) error {
+	err := s.validationService.canAddValueInternal(ctx, serviceVersion, featureVersion, key, data.Variation)
+	if err != nil {
+		return err
+	}
+
+	validatorFunc, err := s.valueDataValidator(ctx, key.ValueTypeID, key.ID)
+	if err != nil {
+		return err
+	}
+
 	return s.validator.
-		Validate(data.Data, "Data").MaxLength(1000).Required(). // TODO: other validations based on ValueType
+		Validate(data.Data, "Data").Func(validatorFunc).
 		Validate(data.Variation, "Variation").Required().
 		Error(ctx)
 }
@@ -133,12 +160,7 @@ func (s *ValueService) CreateValue(ctx context.Context, data CreateValueParams) 
 		return NewValueInfo{}, err
 	}
 
-	err = s.validationService.canAddValueInternal(ctx, serviceVersion, featureVersion, key, data.Variation)
-	if err != nil {
-		return NewValueInfo{}, err
-	}
-
-	if err := s.validateCreateValue(ctx, data); err != nil {
+	if err := s.validateCreateValue(ctx, data, serviceVersion, featureVersion, key); err != nil {
 		return NewValueInfo{}, err
 	}
 
@@ -292,9 +314,19 @@ type UpdateValueParams struct {
 	Variation        map[uint]string
 }
 
-func (s *ValueService) validateUpdateValue(ctx context.Context, data UpdateValueParams) error {
+func (s *ValueService) validateUpdateValue(ctx context.Context, data UpdateValueParams, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow, key db.GetKeyRow, value db.VariationValue) error {
+	err := s.validationService.canEditValueInternal(ctx, serviceVersion, featureVersion, key, value, data.Variation)
+	if err != nil {
+		return err
+	}
+
+	validatorFunc, err := s.valueDataValidator(ctx, key.ValueTypeID, key.ID)
+	if err != nil {
+		return err
+	}
+
 	v := s.validator.
-		Validate(data.Data, "Data").MaxLength(1000).Required(). // TODO: other validations based on ValueType
+		Validate(data.Data, "Data").Func(validatorFunc).
 		Validate(data.Variation, "Variation").Required()
 
 	return v.Error(ctx)
@@ -308,12 +340,7 @@ func (s *ValueService) UpdateValue(ctx context.Context, params UpdateValueParams
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	if err := s.validateUpdateValue(ctx, params); err != nil {
-		return NewValueInfo{}, err
-	}
-
-	err = s.validationService.canEditValueInternal(ctx, serviceVersion, featureVersion, key, value, params.Variation)
-	if err != nil {
+	if err := s.validateUpdateValue(ctx, params, serviceVersion, featureVersion, key, value); err != nil {
 		return NewValueInfo{}, err
 	}
 

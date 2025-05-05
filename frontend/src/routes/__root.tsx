@@ -10,7 +10,7 @@ import { isServer, QueryClient } from '@tanstack/react-query';
 import { AuthProvider, getAccessToken, getRefreshToken, refreshFn, setRequestAccessToken } from '~/auth';
 import { useState } from 'react';
 import { ChangesetProvider } from '~/hooks/useChangeset';
-
+import { ThemeProvider } from '~/ThemeProvider';
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   accessToken: string | null;
@@ -50,19 +50,6 @@ export const Route = createRootRouteWithContext<{
       },
       { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
       { rel: 'icon', href: '/favicon.ico' },
-    ],
-    scripts: [
-      {
-        type: 'text/javascript',
-        children: `
-          if (typeof window !== 'undefined') {
-            document.documentElement.classList.toggle(
-              "dark",
-              localStorage.theme === "dark" ||
-                (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches),
-            );
-          }`,
-      },
     ],
   }),
   errorComponent: (props) => {
@@ -115,7 +102,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
       </body>

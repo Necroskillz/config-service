@@ -72,6 +72,52 @@ CREATE TYPE public.permission_level AS ENUM (
 );
 
 
+--
+-- Name: user_permission_kind; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.user_permission_kind AS ENUM (
+    'service',
+    'feature',
+    'key',
+    'variation'
+);
+
+
+--
+-- Name: value_type_kind; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.value_type_kind AS ENUM (
+    'string',
+    'integer',
+    'decimal',
+    'boolean',
+    'json'
+);
+
+
+--
+-- Name: value_validator_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.value_validator_type AS ENUM (
+    'required',
+    'min_length',
+    'max_length',
+    'min',
+    'max',
+    'min_decimal',
+    'max_decimal',
+    'regex',
+    'json_schema',
+    'valid_json',
+    'valid_integer',
+    'valid_float',
+    'valid_regex'
+);
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -463,6 +509,7 @@ ALTER SEQUENCE public.services_id_seq OWNED BY public.services.id;
 
 CREATE TABLE public.user_permissions (
     id bigint NOT NULL,
+    kind public.user_permission_kind NOT NULL,
     user_id bigint NOT NULL,
     service_id bigint NOT NULL,
     feature_id bigint,
@@ -531,7 +578,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 CREATE TABLE public.value_types (
     id bigint NOT NULL,
-    editor text NOT NULL,
+    kind public.value_type_kind NOT NULL,
     name text NOT NULL
 );
 
@@ -553,6 +600,40 @@ CREATE SEQUENCE public.value_types_id_seq
 --
 
 ALTER SEQUENCE public.value_types_id_seq OWNED BY public.value_types.id;
+
+
+--
+-- Name: value_validators; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.value_validators (
+    id bigint NOT NULL,
+    value_type_id bigint,
+    key_id bigint,
+    validator_type public.value_validator_type NOT NULL,
+    parameter text,
+    error_text text,
+    CONSTRAINT value_validators_check CHECK ((((value_type_id IS NOT NULL) AND (key_id IS NULL)) OR ((value_type_id IS NULL) AND (key_id IS NOT NULL))))
+);
+
+
+--
+-- Name: value_validators_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.value_validators_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: value_validators_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.value_validators_id_seq OWNED BY public.value_validators.id;
 
 
 --
@@ -787,6 +868,13 @@ ALTER TABLE ONLY public.value_types ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: value_validators id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.value_validators ALTER COLUMN id SET DEFAULT nextval('public.value_validators_id_seq'::regclass);
+
+
+--
 -- Name: variation_contexts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -956,6 +1044,14 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.value_types
     ADD CONSTRAINT value_types_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: value_validators value_validators_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.value_validators
+    ADD CONSTRAINT value_validators_pkey PRIMARY KEY (id);
 
 
 --
@@ -1296,6 +1392,22 @@ ALTER TABLE ONLY public.user_permissions
 
 ALTER TABLE ONLY public.user_permissions
     ADD CONSTRAINT user_permissions_variation_context_id_fkey FOREIGN KEY (variation_context_id) REFERENCES public.variation_contexts(id);
+
+
+--
+-- Name: value_validators value_validators_key_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.value_validators
+    ADD CONSTRAINT value_validators_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id);
+
+
+--
+-- Name: value_validators value_validators_value_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.value_validators
+    ADD CONSTRAINT value_validators_value_type_id_fkey FOREIGN KEY (value_type_id) REFERENCES public.value_types(id);
 
 
 --

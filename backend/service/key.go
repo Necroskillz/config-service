@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
+	"github.com/necroskillz/config-service/util/str"
 )
 
 type KeyService struct {
@@ -16,6 +18,7 @@ type KeyService struct {
 	currentUserAccessor     *auth.CurrentUserAccessor
 	validator               *Validator
 	coreService             *CoreService
+	valueValidatorService   *ValueValidatorService
 }
 
 func NewKeyService(
@@ -26,6 +29,7 @@ func NewKeyService(
 	currentUserAccessor *auth.CurrentUserAccessor,
 	validator *Validator,
 	coreService *CoreService,
+	valueValidatorService *ValueValidatorService,
 ) *KeyService {
 	return &KeyService{
 		unitOfWorkRunner:        unitOfWorkRunner,
@@ -35,26 +39,24 @@ func NewKeyService(
 		currentUserAccessor:     currentUserAccessor,
 		validator:               validator,
 		coreService:             coreService,
+		valueValidatorService:   valueValidatorService,
 	}
 }
 
-type EditorTypes = string
+type ValueTypeName = string
 
-const (
-	EditorTypeText    EditorTypes = "text"
-	EditorTypeBoolean EditorTypes = "boolean"
-	EditorTypeInteger EditorTypes = "integer"
-	EditorTypeDecimal EditorTypes = "decimal"
-	EditorTypeJSON    EditorTypes = "json"
-)
+type KeyItemDto struct {
+	ID            uint             `json:"id" validate:"required"`
+	Name          string           `json:"name" validate:"required"`
+	Description   *string          `json:"description"`
+	ValueTypeName string           `json:"valueTypeName" validate:"required"`
+	ValueType     db.ValueTypeKind `json:"valueType" validate:"required"`
+}
 
 type KeyDto struct {
-	ID          uint        `json:"id" validate:"required"`
-	Name        string      `json:"name" validate:"required"`
-	Description *string     `json:"description"`
-	CanEdit     bool        `json:"canEdit" validate:"required"`
-	ValueType   string      `json:"valueType" validate:"required"`
-	Editor      EditorTypes `json:"editor" validate:"required"`
+	KeyItemDto
+	CanEdit    bool           `json:"canEdit" validate:"required"`
+	Validators []ValidatorDto `json:"validators" validate:"required"`
 }
 
 func (s *KeyService) GetKey(ctx context.Context, serviceVersionID uint, featureVersionID uint, keyID uint) (KeyDto, error) {
@@ -65,18 +67,26 @@ func (s *KeyService) GetKey(ctx context.Context, serviceVersionID uint, featureV
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
+	validators, err := s.valueValidatorService.GetValueValidators(ctx, key.ID, key.ValueTypeID)
+	if err != nil {
+		return KeyDto{}, err
+	}
+
 	return KeyDto{
-		ID:          key.ID,
-		Name:        key.Name,
-		Description: key.Description,
-		ValueType:   key.ValueTypeName,
-		Editor:      key.ValueTypeEditor,
-		CanEdit:     user.GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) >= constants.PermissionAdmin,
+		KeyItemDto: KeyItemDto{
+			ID:            key.ID,
+			Name:          key.Name,
+			Description:   key.Description,
+			ValueTypeName: key.ValueTypeName,
+			ValueType:     key.ValueTypeKind,
+		},
+		CanEdit:    user.GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) >= constants.PermissionAdmin,
+		Validators: validators,
 	}, nil
 }
 
-func (s *KeyService) GetFeatureKeys(ctx context.Context, serviceVersionID uint, featureVersionID uint) ([]KeyDto, error) {
-	serviceVersion, featureVersion, err := s.coreService.GetFeatureVersion(ctx, serviceVersionID, featureVersionID)
+func (s *KeyService) GetFeatureKeys(ctx context.Context, serviceVersionID uint, featureVersionID uint) ([]KeyItemDto, error) {
+	_, _, err := s.coreService.GetFeatureVersion(ctx, serviceVersionID, featureVersionID)
 	if err != nil {
 		return nil, err
 	}
@@ -91,23 +101,18 @@ func (s *KeyService) GetFeatureKeys(ctx context.Context, serviceVersionID uint, 
 		return nil, err
 	}
 
-	result := make([]KeyDto, len(keys))
+	result := make([]KeyItemDto, len(keys))
 	for i, key := range keys {
-		result[i] = KeyDto{
-			ID:          key.ID,
-			Name:        key.Name,
-			Description: key.Description,
-			ValueType:   key.ValueTypeName,
-			Editor:      key.ValueTypeEditor,
-			CanEdit:     user.GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) >= constants.PermissionAdmin,
+		result[i] = KeyItemDto{
+			ID:            key.ID,
+			Name:          key.Name,
+			Description:   key.Description,
+			ValueTypeName: key.ValueTypeName,
+			ValueType:     key.ValueTypeKind,
 		}
 	}
 
 	return result, nil
-}
-
-func (s *KeyService) GetValueTypes(ctx context.Context) ([]db.ValueType, error) {
-	return s.queries.GetValueTypes(ctx)
 }
 
 type CreateKeyParams struct {
@@ -117,14 +122,53 @@ type CreateKeyParams struct {
 	Description      string
 	DefaultValue     string
 	ValueTypeID      uint
+	Validators       []ValidatorDto
+}
+
+func (s *KeyService) validateValidators(vc *ValidatorContext, validators []ValidatorDto) *ValidatorContext {
+	vc.
+		Validate(validators, "Validators").Required()
+
+	for i, validator := range validators {
+		prefix := fmt.Sprintf("Validators[%d]", i)
+		vc.
+			Validate(validator.ValidatorType, fmt.Sprintf("%s.ValidatorType", prefix)).Required().
+			Validate(validator.ErrorText, fmt.Sprintf("%s.ErrorText", prefix)).MaxLength(100)
+
+		pvc := vc.Validate(validator.Parameter, fmt.Sprintf("%s.Parameter", prefix))
+
+		parameterType := s.valueValidatorService.GetValidatorParameterType(validator.ValidatorType)
+		switch parameterType {
+		case "none":
+			pvc.MaxLength(0)
+		case "integer":
+			pvc.Required().MaxLength(10).ValidInteger()
+		case "float":
+			pvc.Required().MaxLength(50).ValidFloat()
+		case "regex":
+			pvc.Required().MaxLength(500).ValidRegex()
+		case "json_schema":
+			pvc.Required().MaxLength(10000).ValidJsonSchema()
+		}
+	}
+
+	return vc
 }
 
 func (s *KeyService) validateCreateKey(ctx context.Context, data CreateKeyParams, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow) error {
-	err := s.validator.
+	vc := s.validator.
 		Validate(data.Name, "Name").Required().KeyNameNotTaken(data.FeatureVersionID).
 		Validate(data.ValueTypeID, "Value Type ID").Min(1).
-		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc).
-		Error(ctx)
+		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc)
+	s.validateValidators(vc, data.Validators)
+	validatorFunc, err := s.valueValidatorService.CreateValueValidatorFunc(data.Validators)
+	if err != nil {
+		return err
+	}
+
+	vc.Validate(data.DefaultValue, "Default Value").Func(validatorFunc)
+
+	err = vc.Error(ctx)
 
 	if err != nil {
 		return err
@@ -159,12 +203,24 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 
 		keyID, err = tx.CreateKey(ctx, db.CreateKeyParams{
 			Name:             params.Name,
-			Description:      &params.Description,
+			Description:      str.ToPtr(params.Description),
 			ValueTypeID:      params.ValueTypeID,
 			FeatureVersionID: params.FeatureVersionID,
 		})
 		if err != nil {
 			return err
+		}
+
+		for _, validator := range params.Validators {
+			_, err = tx.CreateValueValidatorForKey(ctx, db.CreateValueValidatorForKeyParams{
+				KeyID:         &keyID,
+				ValidatorType: validator.ValidatorType,
+				Parameter:     str.ToPtr(validator.Parameter),
+				ErrorText:     str.ToPtr(validator.ErrorText),
+			})
+			if err != nil {
+				return err
+			}
 		}
 
 		err = tx.AddCreateKeyChange(ctx, db.AddCreateKeyChangeParams{

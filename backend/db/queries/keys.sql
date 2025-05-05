@@ -1,6 +1,6 @@
 -- name: GetKey :one
 SELECT k.*,
-    vt.editor as value_type_editor,
+    vt.kind as value_type_kind,
     vt.name as value_type_name
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
@@ -8,7 +8,7 @@ WHERE k.id = @key_id
 LIMIT 1;
 -- name: GetActiveKeysForFeatureVersion :many
 SELECT k.*,
-    vt.editor as value_type_editor,
+    vt.kind as value_type_kind,
     vt.name as value_type_name
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
@@ -69,8 +69,24 @@ WHERE name = @name
     AND feature_version_id = @feature_version_id
 LIMIT 1;
 -- name: CreateValueType :one
-INSERT INTO value_types (name, editor)
-VALUES (@name, @editor)
+INSERT INTO value_types (name, kind)
+VALUES (@name, @kind)
+RETURNING id;
+-- name: GetValueValidators :many
+SELECT *
+FROM value_validators
+WHERE value_type_id = @value_type_id OR key_id = @key_id;
+-- name: GetValueTypeValueValidators :many
+SELECT *
+FROM value_validators
+WHERE value_type_id IS NOT NULL;
+-- name: CreateValueValidatorForValueType :one
+INSERT INTO value_validators (value_type_id, validator_type, parameter, error_text)
+VALUES (@value_type_id, @validator_type, sqlc.narg('parameter'), sqlc.narg('error_text'))
+RETURNING id;
+-- name: CreateValueValidatorForKey :one
+INSERT INTO value_validators (key_id, validator_type, parameter, error_text)
+VALUES (@key_id, @validator_type, sqlc.narg('parameter'), sqlc.narg('error_text'))
 RETURNING id;
 -- name: EndKeyValidity :exec
 UPDATE keys

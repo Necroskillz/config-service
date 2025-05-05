@@ -1,0 +1,1 @@
+{"enum":["string","boolean","integer","decimal","json"],"type":"string","x-enum-varnames":["ValueTypeString","ValueTypeBoolean","ValueTypeInteger","ValueTypeDecimal","ValueTypeJSON"],"x-readme-ref-name":"service.ValueTypeName"}

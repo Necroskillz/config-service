@@ -10,13 +10,14 @@ import (
 )
 
 const createPermission = `-- name: CreatePermission :one
-INSERT INTO user_permissions (user_id, service_id, feature_id, key_id, permission, variation_context_id)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO user_permissions (user_id, kind, service_id, feature_id, key_id, permission, variation_context_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
 `
 
 type CreatePermissionParams struct {
 	UserID             uint
+	Kind               UserPermissionKind
 	ServiceID          uint
 	FeatureID          *uint
 	KeyID              *uint
@@ -27,6 +28,7 @@ type CreatePermissionParams struct {
 func (q *Queries) CreatePermission(ctx context.Context, arg CreatePermissionParams) (uint, error) {
 	row := q.db.QueryRow(ctx, createPermission,
 		arg.UserID,
+		arg.Kind,
 		arg.ServiceID,
 		arg.FeatureID,
 		arg.KeyID,

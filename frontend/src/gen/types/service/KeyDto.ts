@@ -3,7 +3,8 @@
  * Do not edit manually.
  */
 
-import type { ServiceEditorTypes } from './EditorTypes.ts'
+import type { DbValueTypeKind } from '../db/ValueTypeKind.ts'
+import type { ServiceValidatorDto } from './ValidatorDto.ts'
 
 export type ServiceKeyDto = {
   /**
@@ -15,10 +16,6 @@ export type ServiceKeyDto = {
    */
   description?: string
   /**
-   * @type string
-   */
-  editor: ServiceEditorTypes
-  /**
    * @type integer
    */
   id: number
@@ -27,7 +24,15 @@ export type ServiceKeyDto = {
    */
   name: string
   /**
+   * @type array
+   */
+  validators: ServiceValidatorDto[]
+  /**
    * @type string
    */
-  valueType: string
+  valueType: DbValueTypeKind
+  /**
+   * @type string
+   */
+  valueTypeName: string
 }

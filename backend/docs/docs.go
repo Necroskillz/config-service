@@ -367,6 +367,65 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Discard a changeset by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Discard a changeset",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Changeset ID",
+                        "name": "changeset_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
             }
         },
         "/changesets/{changeset_id}/apply": {
@@ -515,67 +574,6 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "Commit a changeset",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Changeset ID",
-                        "name": "changeset_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/changesets/{changeset_id}/discard": {
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Discard a changeset by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Discard a changeset",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1562,7 +1560,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.KeyDto"
+                                "$ref": "#/definitions/service.KeyItemDto"
                             }
                         }
                     },
@@ -2756,7 +2754,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.SelectOption"
+                                "$ref": "#/definitions/service.ValueTypeDto"
                             }
                         }
                     },
@@ -2851,6 +2849,56 @@ const docTemplate = `{
                 "ChangesetStateStashed"
             ]
         },
+        "db.ValueTypeKind": {
+            "type": "string",
+            "enum": [
+                "string",
+                "integer",
+                "decimal",
+                "boolean",
+                "json"
+            ],
+            "x-enum-varnames": [
+                "ValueTypeKindString",
+                "ValueTypeKindInteger",
+                "ValueTypeKindDecimal",
+                "ValueTypeKindBoolean",
+                "ValueTypeKindJson"
+            ]
+        },
+        "db.ValueValidatorType": {
+            "type": "string",
+            "enum": [
+                "required",
+                "min_length",
+                "max_length",
+                "min",
+                "max",
+                "min_decimal",
+                "max_decimal",
+                "regex",
+                "json_schema",
+                "valid_json",
+                "valid_integer",
+                "valid_decimal",
+                "valid_regex"
+            ],
+            "x-enum-varnames": [
+                "ValueValidatorTypeRequired",
+                "ValueValidatorTypeMinLength",
+                "ValueValidatorTypeMaxLength",
+                "ValueValidatorTypeMin",
+                "ValueValidatorTypeMax",
+                "ValueValidatorTypeMinDecimal",
+                "ValueValidatorTypeMaxDecimal",
+                "ValueValidatorTypeRegex",
+                "ValueValidatorTypeJsonSchema",
+                "ValueValidatorTypeValidJson",
+                "ValueValidatorTypeValidInteger",
+                "ValueValidatorTypeValidDecimal",
+                "ValueValidatorTypeValidRegex"
+            ]
+        },
         "echo.HTTPError": {
             "type": "object",
             "properties": {
@@ -2924,6 +2972,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
+                "validators",
                 "valueTypeId"
             ],
             "properties": {
@@ -2935,6 +2984,12 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "validators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ValidatorDto"
+                    }
                 },
                 "valueTypeId": {
                     "type": "integer"
@@ -3113,6 +3168,21 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
+                }
+            }
+        },
+        "service.AllowedValidatorDto": {
+            "type": "object",
+            "required": [
+                "parameterType",
+                "validatorType"
+            ],
+            "properties": {
+                "parameterType": {
+                    "$ref": "#/definitions/service.ValueValidatorParameterType"
+                },
+                "validatorType": {
+                    "$ref": "#/definitions/db.ValueValidatorType"
                 }
             }
         },
@@ -3298,23 +3368,6 @@ const docTemplate = `{
                 }
             }
         },
-        "service.EditorTypes": {
-            "type": "string",
-            "enum": [
-                "text",
-                "boolean",
-                "integer",
-                "decimal",
-                "json"
-            ],
-            "x-enum-varnames": [
-                "EditorTypeText",
-                "EditorTypeBoolean",
-                "EditorTypeInteger",
-                "EditorTypeDecimal",
-                "EditorTypeJSON"
-            ]
-        },
         "service.FeatureVersionDto": {
             "type": "object",
             "required": [
@@ -3369,10 +3422,11 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "canEdit",
-                "editor",
                 "id",
                 "name",
-                "valueType"
+                "validators",
+                "valueType",
+                "valueTypeName"
             ],
             "properties": {
                 "canEdit": {
@@ -3381,8 +3435,37 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "editor": {
-                    "$ref": "#/definitions/service.EditorTypes"
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "validators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ValidatorDto"
+                    }
+                },
+                "valueType": {
+                    "$ref": "#/definitions/db.ValueTypeKind"
+                },
+                "valueTypeName": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.KeyItemDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "valueType",
+                "valueTypeName"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -3391,6 +3474,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "valueType": {
+                    "$ref": "#/definitions/db.ValueTypeKind"
+                },
+                "valueTypeName": {
                     "type": "string"
                 }
             }
@@ -3514,6 +3600,94 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "service.ValidatorDto": {
+            "type": "object",
+            "required": [
+                "validatorType"
+            ],
+            "properties": {
+                "errorText": {
+                    "type": "string"
+                },
+                "parameter": {
+                    "type": "string"
+                },
+                "validatorType": {
+                    "$ref": "#/definitions/db.ValueValidatorType"
+                }
+            }
+        },
+        "service.ValidatorWithParameterTypeDto": {
+            "type": "object",
+            "required": [
+                "parameterType",
+                "validatorType"
+            ],
+            "properties": {
+                "errorText": {
+                    "type": "string"
+                },
+                "parameter": {
+                    "type": "string"
+                },
+                "parameterType": {
+                    "$ref": "#/definitions/service.ValueValidatorParameterType"
+                },
+                "validatorType": {
+                    "$ref": "#/definitions/db.ValueValidatorType"
+                }
+            }
+        },
+        "service.ValueTypeDto": {
+            "type": "object",
+            "required": [
+                "allowedValidators",
+                "id",
+                "kind",
+                "name",
+                "validators"
+            ],
+            "properties": {
+                "allowedValidators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.AllowedValidatorDto"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "$ref": "#/definitions/db.ValueTypeKind"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "validators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ValidatorWithParameterTypeDto"
+                    }
+                }
+            }
+        },
+        "service.ValueValidatorParameterType": {
+            "type": "string",
+            "enum": [
+                "none",
+                "integer",
+                "float",
+                "regex",
+                "json_schema"
+            ],
+            "x-enum-varnames": [
+                "ValueValidatorParameterTypeNone",
+                "ValueValidatorParameterTypeInteger",
+                "ValueValidatorParameterTypeFloat",
+                "ValueValidatorParameterTypeRegex",
+                "ValueValidatorParameterTypeJsonSchema"
+            ]
         },
         "service.VariationValue": {
             "type": "object",

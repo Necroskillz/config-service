@@ -46,18 +46,68 @@ func (q *Queries) CreateKey(ctx context.Context, arg CreateKeyParams) (uint, err
 }
 
 const createValueType = `-- name: CreateValueType :one
-INSERT INTO value_types (name, editor)
+INSERT INTO value_types (name, kind)
 VALUES ($1, $2)
 RETURNING id
 `
 
 type CreateValueTypeParams struct {
-	Name   string
-	Editor string
+	Name string
+	Kind ValueTypeKind
 }
 
 func (q *Queries) CreateValueType(ctx context.Context, arg CreateValueTypeParams) (uint, error) {
-	row := q.db.QueryRow(ctx, createValueType, arg.Name, arg.Editor)
+	row := q.db.QueryRow(ctx, createValueType, arg.Name, arg.Kind)
+	var id uint
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createValueValidatorForKey = `-- name: CreateValueValidatorForKey :one
+INSERT INTO value_validators (key_id, validator_type, parameter, error_text)
+VALUES ($1, $2, $3, $4)
+RETURNING id
+`
+
+type CreateValueValidatorForKeyParams struct {
+	KeyID         *uint
+	ValidatorType ValueValidatorType
+	Parameter     *string
+	ErrorText     *string
+}
+
+func (q *Queries) CreateValueValidatorForKey(ctx context.Context, arg CreateValueValidatorForKeyParams) (uint, error) {
+	row := q.db.QueryRow(ctx, createValueValidatorForKey,
+		arg.KeyID,
+		arg.ValidatorType,
+		arg.Parameter,
+		arg.ErrorText,
+	)
+	var id uint
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createValueValidatorForValueType = `-- name: CreateValueValidatorForValueType :one
+INSERT INTO value_validators (value_type_id, validator_type, parameter, error_text)
+VALUES ($1, $2, $3, $4)
+RETURNING id
+`
+
+type CreateValueValidatorForValueTypeParams struct {
+	ValueTypeID   *uint
+	ValidatorType ValueValidatorType
+	Parameter     *string
+	ErrorText     *string
+}
+
+func (q *Queries) CreateValueValidatorForValueType(ctx context.Context, arg CreateValueValidatorForValueTypeParams) (uint, error) {
+	row := q.db.QueryRow(ctx, createValueValidatorForValueType,
+		arg.ValueTypeID,
+		arg.ValidatorType,
+		arg.Parameter,
+		arg.ErrorText,
+	)
 	var id uint
 	err := row.Scan(&id)
 	return id, err
@@ -91,7 +141,7 @@ func (q *Queries) EndKeyValidity(ctx context.Context, arg EndKeyValidityParams) 
 
 const getActiveKeysForFeatureVersion = `-- name: GetActiveKeysForFeatureVersion :many
 SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id,
-    vt.editor as value_type_editor,
+    vt.kind as value_type_kind,
     vt.name as value_type_name
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
@@ -141,7 +191,7 @@ type GetActiveKeysForFeatureVersionRow struct {
 	Description      *string
 	ValueTypeID      uint
 	FeatureVersionID uint
-	ValueTypeEditor  string
+	ValueTypeKind    ValueTypeKind
 	ValueTypeName    string
 }
 
@@ -164,7 +214,7 @@ func (q *Queries) GetActiveKeysForFeatureVersion(ctx context.Context, arg GetAct
 			&i.Description,
 			&i.ValueTypeID,
 			&i.FeatureVersionID,
-			&i.ValueTypeEditor,
+			&i.ValueTypeKind,
 			&i.ValueTypeName,
 		); err != nil {
 			return nil, err
@@ -179,7 +229,7 @@ func (q *Queries) GetActiveKeysForFeatureVersion(ctx context.Context, arg GetAct
 
 const getKey = `-- name: GetKey :one
 SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id,
-    vt.editor as value_type_editor,
+    vt.kind as value_type_kind,
     vt.name as value_type_name
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
@@ -197,7 +247,7 @@ type GetKeyRow struct {
 	Description      *string
 	ValueTypeID      uint
 	FeatureVersionID uint
-	ValueTypeEditor  string
+	ValueTypeKind    ValueTypeKind
 	ValueTypeName    string
 }
 
@@ -214,7 +264,7 @@ func (q *Queries) GetKey(ctx context.Context, keyID uint) (GetKeyRow, error) {
 		&i.Description,
 		&i.ValueTypeID,
 		&i.FeatureVersionID,
-		&i.ValueTypeEditor,
+		&i.ValueTypeKind,
 		&i.ValueTypeName,
 	)
 	return i, err
@@ -240,8 +290,41 @@ func (q *Queries) GetKeyIDByName(ctx context.Context, arg GetKeyIDByNameParams) 
 	return id, err
 }
 
+const getValueTypeValueValidators = `-- name: GetValueTypeValueValidators :many
+SELECT id, value_type_id, key_id, validator_type, parameter, error_text
+FROM value_validators
+WHERE value_type_id IS NOT NULL
+`
+
+func (q *Queries) GetValueTypeValueValidators(ctx context.Context) ([]ValueValidator, error) {
+	rows, err := q.db.Query(ctx, getValueTypeValueValidators)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ValueValidator
+	for rows.Next() {
+		var i ValueValidator
+		if err := rows.Scan(
+			&i.ID,
+			&i.ValueTypeID,
+			&i.KeyID,
+			&i.ValidatorType,
+			&i.Parameter,
+			&i.ErrorText,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getValueTypes = `-- name: GetValueTypes :many
-SELECT id, editor, name
+SELECT id, kind, name
 FROM value_types
 `
 
@@ -254,7 +337,45 @@ func (q *Queries) GetValueTypes(ctx context.Context) ([]ValueType, error) {
 	var items []ValueType
 	for rows.Next() {
 		var i ValueType
-		if err := rows.Scan(&i.ID, &i.Editor, &i.Name); err != nil {
+		if err := rows.Scan(&i.ID, &i.Kind, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getValueValidators = `-- name: GetValueValidators :many
+SELECT id, value_type_id, key_id, validator_type, parameter, error_text
+FROM value_validators
+WHERE value_type_id = $1 OR key_id = $2
+`
+
+type GetValueValidatorsParams struct {
+	ValueTypeID *uint
+	KeyID       *uint
+}
+
+func (q *Queries) GetValueValidators(ctx context.Context, arg GetValueValidatorsParams) ([]ValueValidator, error) {
+	rows, err := q.db.Query(ctx, getValueValidators, arg.ValueTypeID, arg.KeyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ValueValidator
+	for rows.Next() {
+		var i ValueValidator
+		if err := rows.Scan(
+			&i.ID,
+			&i.ValueTypeID,
+			&i.KeyID,
+			&i.ValidatorType,
+			&i.Parameter,
+			&i.ErrorText,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

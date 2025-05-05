@@ -13,6 +13,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func Ptr[T any](v T) *T {
+	return &v
+}
+
 func main() {
 	cmd := exec.Command("dbmate", "down")
 	err := cmd.Run()
@@ -53,21 +57,67 @@ func main() {
 
 	serviceTypeId := MustCreate(queries.CreateServiceType(ctx, "TestServiceType"))
 	MustCreate(queries.CreateValueType(ctx, db.CreateValueTypeParams{
-		Name:   "String",
-		Editor: "text",
+		Name: "String",
+		Kind: "string",
 	}))
-	MustCreate(queries.CreateValueType(ctx, db.CreateValueTypeParams{
-		Name:   "Boolean",
-		Editor: "boolean",
+	booleanTypeId := MustCreate(queries.CreateValueType(ctx, db.CreateValueTypeParams{
+		Name: "Boolean",
+		Kind: "boolean",
 	}))
-	MustCreate(queries.CreateValueType(ctx, db.CreateValueTypeParams{
-		Name:   "Number",
-		Editor: "number",
+	integerTypeId := MustCreate(queries.CreateValueType(ctx, db.CreateValueTypeParams{
+		Name: "Integer",
+		Kind: "integer",
 	}))
-	MustCreate(queries.CreateValueType(ctx, db.CreateValueTypeParams{
-		Name:   "JSON",
-		Editor: "json",
+	decimalTypeId := MustCreate(queries.CreateValueType(ctx, db.CreateValueTypeParams{
+		Name: "Decimal",
+		Kind: "decimal",
 	}))
+	jsonTypeId := MustCreate(queries.CreateValueType(ctx, db.CreateValueTypeParams{
+		Name: "JSON",
+		Kind: "json",
+	}))
+
+	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
+		ValueTypeID:   &booleanTypeId,
+		ValidatorType: "required",
+	}))
+	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
+		ValueTypeID:   &booleanTypeId,
+		ValidatorType: "regex",
+		Parameter:     Ptr("^TRUE|FALSE$"),
+		ErrorText:     Ptr("Value must be TRUE or FALSE"),
+	}))
+
+	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
+		ValueTypeID:   &integerTypeId,
+		ValidatorType: "required",
+	}))
+	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
+		ValueTypeID:   &integerTypeId,
+		ValidatorType: "valid_integer",
+		ErrorText:     Ptr("Value must be an integer"),
+	}))
+
+	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
+		ValueTypeID:   &decimalTypeId,
+		ValidatorType: "required",
+	}))
+	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
+		ValueTypeID:   &decimalTypeId,
+		ValidatorType: "valid_float",
+		ErrorText:     Ptr("Value must be a number with optional decimal part"),
+	}))
+
+	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
+		ValueTypeID:   &jsonTypeId,
+		ValidatorType: "required",
+	}))
+	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
+		ValueTypeID:   &jsonTypeId,
+		ValidatorType: "valid_json",
+		ErrorText:     Ptr("Value must be valid JSON: {0}"),
+	}))
+
 	envPropertyId := MustCreate(queries.CreateVariationProperty(ctx, db.CreateVariationPropertyParams{
 		Name:        "env",
 		DisplayName: "Environment",
@@ -132,6 +182,7 @@ func main() {
 		FeatureID:  nil,
 		KeyID:      nil,
 		Permission: "admin",
+		Kind:       "service",
 	}))
 }
 

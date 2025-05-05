@@ -4,334 +4,475 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
+	"github.com/necroskillz/config-service/util/test"
+	"github.com/pkg/errors"
+	"gotest.tools/v3/assert"
+)
+
+const (
+	testFieldName         = "FieldName"
+	testTakenServiceName  = "TakenServiceName"
+	testTakenFeatureName  = "TakenFeatureName"
+	testTakenKeyName      = "TakenKeyName"
+	testTakenKeyFeatureID = uint(1)
+	testVariationKeyID    = uint(4)
 )
 
 type MockValidationService struct {
-	mock.Mock
+	err error
 }
 
-func (m *MockValidationService) IsServiceNameTaken(ctx context.Context, name string) (bool, error) {
-	args := m.Called(ctx, name)
-	return args.Bool(0), args.Error(1)
+func (m *MockValidationService) IsServiceNameTaken(ctx context.Context, serviceName string) (bool, error) {
+	return testTakenServiceName == serviceName, m.err
 }
 
-func (m *MockValidationService) IsFeatureNameTaken(ctx context.Context, name string) (bool, error) {
-	args := m.Called(ctx, name)
-	return args.Bool(0), args.Error(1)
+func (m *MockValidationService) IsFeatureNameTaken(ctx context.Context, featureName string) (bool, error) {
+	return testTakenFeatureName == featureName, m.err
 }
 
-func (m *MockValidationService) IsKeyNameTaken(ctx context.Context, featureVersionID uint, name string) (bool, error) {
-	args := m.Called(ctx, featureVersionID, name)
-	return args.Bool(0), args.Error(1)
+func (m *MockValidationService) IsKeyNameTaken(ctx context.Context, featureID uint, keyName string) (bool, error) {
+	return testTakenKeyFeatureID == featureID && testTakenKeyName == keyName, m.err
 }
 
-func (m *MockValidationService) DoesVariationExist(ctx context.Context, keyID uint, serviceTypeID uint, variation map[uint]string) (uint, error) {
-	args := m.Called(ctx, keyID, serviceTypeID, variation)
-	return args.Get(0).(uint), args.Error(1)
-}
-
-type ValidatorTestSuite struct {
-	suite.Suite
-	validator   *Validator
-	mockService *MockValidationService
-	ctx         context.Context
-}
-
-func (s *ValidatorTestSuite) SetupTest() {
-	s.mockService = new(MockValidationService)
-	s.validator = NewValidator(s.mockService)
-	s.ctx = context.Background()
-}
-
-func (s *ValidatorTestSuite) TestRequired() {
-	tests := []struct {
-		name        string
-		value       any
-		fieldName   string
-		expectError bool
-		errorMsg    string
-	}{
-		{
-			name:        "empty string",
-			value:       "",
-			fieldName:   "test",
-			expectError: true,
-			errorMsg:    "Field test is required",
-		},
-		{
-			name:        "non-empty string",
-			value:       "value",
-			fieldName:   "test",
-			expectError: false,
-		},
-		{
-			name:        "non-string value",
-			value:       true,
-			fieldName:   "test",
-			expectError: true,
-			errorMsg:    "invalid type for required validator bool",
-		},
-	}
-
-	for _, tt := range tests {
-		s.Run(tt.name, func() {
-			err := s.validator.Validate(tt.value, tt.fieldName).Required().Error(s.ctx)
-
-			if tt.expectError {
-				if s.Error(err) {
-					s.Equal(tt.errorMsg, err.Error())
-				}
-			} else {
-				s.NoError(err)
-			}
-		})
+func assertValidatorError(t *testing.T, err error, expectError bool, errorText string) {
+	if expectError {
+		assert.Error(t, err, errorText)
+	} else {
+		assert.NilError(t, err)
 	}
 }
 
-func (s *ValidatorTestSuite) TestServiceNameNotTaken() {
-	tests := []struct {
-		name        string
-		value       any
-		fieldName   string
-		mockReturn  bool
-		mockError   error
-		expectError bool
-		errorMsg    string
-	}{
-		{
-			name:        "name available",
-			value:       "service1",
-			fieldName:   "name",
-			mockReturn:  false,
-			mockError:   nil,
-			expectError: false,
-		},
-		{
-			name:        "name taken",
-			value:       "taken-service",
-			fieldName:   "name",
-			mockReturn:  true,
-			mockError:   nil,
-			expectError: true,
-			errorMsg:    "Service name taken-service is already taken",
-		},
-		{
-			name:        "non-string value",
-			value:       123,
-			fieldName:   "name",
-			expectError: true,
-			errorMsg:    "invalid type for service name not taken validator int",
-		},
-	}
+func TestValidator(t *testing.T) {
+	mockValidationService := &MockValidationService{}
+	validator := NewValidator(mockValidationService)
 
-	for _, tt := range tests {
-		s.Run(tt.name, func() {
-			switch v := tt.value.(type) {
-			case string:
-				s.mockService.On("IsServiceNameTaken", s.ctx, v).
-					Return(tt.mockReturn, tt.mockError).
-					Once()
-			}
+	t.Run("Required", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			expectError bool
+			errorText   string
+		}
 
-			err := s.validator.Validate(tt.value, tt.fieldName).
-				ServiceNameNotTaken().
-				Error(s.ctx)
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).Required().Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
 
-			if tt.expectError {
-				if s.Error(err) {
-					s.Equal(tt.errorMsg, err.Error())
-				}
-			} else {
-				s.NoError(err)
-			}
+		testCases := map[string]testCase{
+			"valid":                {value: "test", expectError: false},
+			"invalid empty string": {value: "", expectError: true, errorText: "Field FieldName is required"},
+			"invalid nil":          {value: nil, expectError: true, errorText: "Field FieldName is required"},
+		}
 
-			s.mockService.AssertExpectations(s.T())
-		})
-	}
-}
-
-func (s *ValidatorTestSuite) TestFeatureNameNotTaken() {
-	tests := []struct {
-		name        string
-		value       any
-		fieldName   string
-		mockReturn  bool
-		mockError   error
-		expectError bool
-		errorMsg    string
-	}{
-		{
-			name:        "name available",
-			value:       "feature1",
-			fieldName:   "name",
-			mockReturn:  false,
-			mockError:   nil,
-			expectError: false,
-		},
-		{
-			name:        "name taken",
-			value:       "taken-feature",
-			fieldName:   "name",
-			mockReturn:  true,
-			mockError:   nil,
-			expectError: true,
-			errorMsg:    "Feature name taken-feature is already taken",
-		},
-		{
-			name:        "non-string value",
-			value:       123,
-			fieldName:   "name",
-			expectError: true,
-			errorMsg:    "invalid type for feature name not taken validator int",
-		},
-	}
-
-	for _, tt := range tests {
-		s.Run(tt.name, func() {
-			switch v := tt.value.(type) {
-			case string:
-				s.mockService.On("IsFeatureNameTaken", s.ctx, v).
-					Return(tt.mockReturn, tt.mockError).
-					Once()
-			}
-
-			err := s.validator.Validate(tt.value, tt.fieldName).
-				FeatureNameNotTaken().
-				Error(s.ctx)
-
-			if tt.expectError {
-				if s.Error(err) {
-					s.Equal(tt.errorMsg, err.Error())
-				}
-			} else {
-				s.NoError(err)
-			}
-
-			s.mockService.AssertExpectations(s.T())
-		})
-	}
-}
-
-func (s *ValidatorTestSuite) TestMin() {
-	tests := []struct {
-		name        string
-		value       any
-		fieldName   string
-		min         int
-		expectError bool
-		errorMsg    string
-	}{
-		{
-			name:        "value above minimum",
-			value:       10,
-			fieldName:   "age",
-			min:         5,
-			expectError: false,
-		},
-		{
-			name:        "value equal to minimum",
-			value:       5,
-			fieldName:   "age",
-			min:         5,
-			expectError: false,
-		},
-		{
-			name:        "value below minimum",
-			value:       3,
-			fieldName:   "age",
-			min:         5,
-			expectError: true,
-			errorMsg:    "Field must be greater than or equal to 5",
-		},
-		{
-			name:        "uint value",
-			value:       uint(6),
-			fieldName:   "age",
-			min:         5,
-			expectError: false,
-		},
-		{
-			name:        "non-number value",
-			value:       "string",
-			fieldName:   "age",
-			min:         5,
-			expectError: true,
-			errorMsg:    "invalid type for min validator string",
-		},
-	}
-
-	for _, tt := range tests {
-		s.Run(tt.name, func() {
-			err := s.validator.Validate(tt.value, tt.fieldName).
-				Min(tt.min).
-				Error(s.ctx)
-
-			if tt.expectError {
-				if s.Error(err) {
-					s.Equal(tt.errorMsg, err.Error())
-				}
-			} else {
-				s.NoError(err)
-			}
-		})
-	}
-}
-
-func (s *ValidatorTestSuite) TestChainedValidation() {
-	s.Run("successful chain", func() {
-		s.mockService.On("IsServiceNameTaken", s.ctx, "valid-service").
-			Return(false, nil).
-			Once()
-
-		err := s.validator.Validate("valid-service", "name").
-			Required().
-			ServiceNameNotTaken().
-			Error(s.ctx)
-
-		s.NoError(err)
-		s.mockService.AssertExpectations(s.T())
+		test.RunCases(t, run, testCases)
 	})
 
-	s.Run("successful chain - multiple values", func() {
-		err := s.validator.Validate("val1", "name1").
-			Required().
-			Validate(2, "name2").
-			Min(1).
-			Error(s.ctx)
+	t.Run("ServiceNameNotTaken", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			expectError bool
+			errorText   string
+			setup       func(t *testing.T)
+		}
 
-		s.NoError(err)
-		s.mockService.AssertExpectations(s.T())
+		run := func(t *testing.T, tc testCase) {
+			if tc.setup != nil {
+				tc.setup(t)
+			}
+
+			err := validator.Validate(tc.value, testFieldName).ServiceNameNotTaken().Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":      {value: "test", expectError: false},
+			"invalid":    {value: testTakenServiceName, expectError: true, errorText: "Service name TakenServiceName is already taken"},
+			"wrong type": {value: 0, expectError: true, errorText: "invalid type for service name not taken validator int"},
+			"service error": {value: "test", expectError: true, errorText: "service error",
+				setup: func(t *testing.T) {
+					mockValidationService.err = errors.New("service error")
+					t.Cleanup(func() { mockValidationService.err = nil })
+				},
+			},
+		}
+
+		test.RunCases(t, run, testCases)
 	})
 
-	s.Run("failing chain - first rule", func() {
-		err := s.validator.Validate("", "name").
-			Required().
-			ServiceNameNotTaken().
-			Error(s.ctx)
+	t.Run("Min", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			min         int
+			expectError bool
+			errorText   string
+		}
 
-		s.Error(err)
-		s.Equal("Field name is required", err.Error())
-		s.mockService.AssertNotCalled(s.T(), "IsServiceNameTaken")
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).Min(tc.min).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":                   {value: 6, min: 5, expectError: false},
+			"valid same value as min": {value: 5, min: 5, expectError: false},
+			"invalid":                 {value: 0, min: 1, expectError: true, errorText: "Field FieldName must be at least 1"},
+			"valid uint":              {value: uint(6), min: 5, expectError: false},
+			"valid int64":             {value: int64(6), min: 5, expectError: false},
+			"valid uint64":            {value: uint64(6), min: 5, expectError: false},
+			"valid string":            {value: "6", min: 5, expectError: false},
+			"invalid string":          {value: "0", min: 1, expectError: true, errorText: "Field FieldName must be at least 1"},
+			"not a number string":     {value: "not a number", min: 1, expectError: true, errorText: "Field FieldName must be a valid integer"},
+			"wrong type":              {value: 6.0, min: 1, expectError: true, errorText: "type float64 cannot be converted to int64"},
+		}
+
+		test.RunCases(t, run, testCases)
 	})
 
-	s.Run("failing chain - second rule", func() {
-		s.mockService.On("IsServiceNameTaken", s.ctx, "taken-name").
-			Return(true, nil).
-			Once()
+	t.Run("FeatureNameNotTaken", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			expectError bool
+			errorText   string
+			setup       func(t *testing.T)
+		}
 
-		err := s.validator.Validate("taken-name", "name").
-			Required().
-			ServiceNameNotTaken().
-			Error(s.ctx)
+		run := func(t *testing.T, tc testCase) {
+			if tc.setup != nil {
+				tc.setup(t)
+			}
+			err := validator.Validate(tc.value, testFieldName).FeatureNameNotTaken().Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
 
-		s.Error(err)
-		s.Equal("Service name taken-name is already taken", err.Error())
-		s.mockService.AssertExpectations(s.T())
+		testCases := map[string]testCase{
+			"valid":      {value: "test", expectError: false},
+			"invalid":    {value: testTakenFeatureName, expectError: true, errorText: "Feature name TakenFeatureName is already taken"},
+			"wrong type": {value: 0, expectError: true, errorText: "invalid type for feature name not taken validator int"},
+			"service error": {value: "test", expectError: true, errorText: "service error",
+				setup: func(t *testing.T) {
+					mockValidationService.err = errors.New("service error")
+					t.Cleanup(func() { mockValidationService.err = nil })
+				},
+			},
+		}
+
+		test.RunCases(t, run, testCases)
 	})
-}
 
-func TestValidatorSuite(t *testing.T) {
-	suite.Run(t, new(ValidatorTestSuite))
+	t.Run("KeyNameNotTaken", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			featureID   uint
+			expectError bool
+			errorText   string
+			setup       func(t *testing.T)
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			if tc.setup != nil {
+				tc.setup(t)
+			}
+			err := validator.Validate(tc.value, testFieldName).KeyNameNotTaken(tc.featureID).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":      {value: "test", featureID: 2, expectError: false},
+			"invalid":    {value: testTakenKeyName, featureID: testTakenKeyFeatureID, expectError: true, errorText: "Key name TakenKeyName is already taken"},
+			"wrong type": {value: 0, featureID: 2, expectError: true, errorText: "invalid type for key name not taken validator int"},
+			"service error": {value: "test", featureID: 2, expectError: true, errorText: "service error",
+				setup: func(t *testing.T) {
+					mockValidationService.err = errors.New("service error")
+					t.Cleanup(func() { mockValidationService.err = nil })
+				},
+			},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("Max", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			max         int
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).Max(tc.max).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":               {value: 4, max: 5, expectError: false},
+			"valid same as max":   {value: 5, max: 5, expectError: false},
+			"invalid":             {value: 6, max: 5, expectError: true, errorText: "Field FieldName must be at most 5"},
+			"valid uint":          {value: uint(4), max: 5, expectError: false},
+			"valid int64":         {value: int64(4), max: 5, expectError: false},
+			"valid uint64":        {value: uint64(4), max: 5, expectError: false},
+			"valid string":        {value: "4", max: 5, expectError: false},
+			"invalid string":      {value: "6", max: 5, expectError: true, errorText: "Field FieldName must be at most 5"},
+			"not a number string": {value: "not a number", max: 5, expectError: true, errorText: "Field FieldName must be a valid integer"},
+			"wrong type":          {value: 6.0, max: 5, expectError: true, errorText: "type float64 cannot be converted to int64"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("MinFloat", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			min         float64
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).MinFloat(tc.min).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":               {value: 6.1, min: 6.0, expectError: false},
+			"valid same as min":   {value: 6.0, min: 6.0, expectError: false},
+			"invalid":             {value: 5.9, min: 6.0, expectError: true, errorText: "Field FieldName must be at least 6.000000"},
+			"valid string":        {value: "6.1", min: 6.0, expectError: false},
+			"invalid string":      {value: "5.9", min: 6.0, expectError: true, errorText: "Field FieldName must be at least 6.000000"},
+			"not a number string": {value: "not a number", min: 6.0, expectError: true, errorText: "Field FieldName must be a valid float"},
+			"wrong type":          {value: 6, min: 6.0, expectError: true, errorText: "type int cannot be converted to float64"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("MaxFloat", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			max         float64
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).MaxFloat(tc.max).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":               {value: 5.9, max: 6.0, expectError: false},
+			"valid same as max":   {value: 6.0, max: 6.0, expectError: false},
+			"invalid":             {value: 6.1, max: 6.0, expectError: true, errorText: "Field FieldName must be at most 6.000000"},
+			"valid string":        {value: "5.9", max: 6.0, expectError: false},
+			"invalid string":      {value: "6.1", max: 6.0, expectError: true, errorText: "Field FieldName must be at most 6.000000"},
+			"not a number string": {value: "not a number", max: 6.0, expectError: true, errorText: "Field FieldName must be a valid float"},
+			"wrong type":          {value: 6, max: 6.0, expectError: true, errorText: "type int cannot be converted to float64"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("MinLength", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			min         int
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).MinLength(tc.min).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":        {value: "abcde", min: 5, expectError: false},
+			"valid min":    {value: "abcde", min: 5, expectError: false},
+			"invalid":      {value: "abc", min: 5, expectError: true, errorText: "Field FieldName must be at least 5 characters"},
+			"wrong type":   {value: 123, min: 5, expectError: true, errorText: "invalid type for min length validator int"},
+			"empty string": {value: "", min: 5, expectError: false},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("MaxLength", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			max         int
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).MaxLength(tc.max).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":      {value: "abc", max: 5, expectError: false},
+			"valid max":  {value: "abcde", max: 5, expectError: false},
+			"invalid":    {value: "abcdef", max: 5, expectError: true, errorText: "Field FieldName must be less than or equal to 5 characters"},
+			"wrong type": {value: 123, max: 5, expectError: true, errorText: "invalid type for max length validator int"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("Regex", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			regex       string
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).Regex(tc.regex).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":         {value: "abc123", regex: "^[a-z0-9]+$", expectError: false},
+			"invalid":       {value: "abc-123", regex: "^[a-z0-9]+$", expectError: true, errorText: "Field FieldName must match the regex ^[a-z0-9]+$"},
+			"wrong type":    {value: 123, regex: "^[a-z0-9]+$", expectError: true, errorText: "invalid type for regex validator int"},
+			"invalid regex": {value: "abc", regex: "[", expectError: true, errorText: "error parsing regexp: missing closing ]: `[`"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("ValidJson", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).ValidJson().Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":      {value: `{"a":1}`, expectError: false},
+			"invalid":    {value: `{"a":`, expectError: true, errorText: "Field FieldName must be valid JSON"},
+			"wrong type": {value: 123, expectError: true, errorText: "invalid type for valid JSON validator int"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("ValidJsonSchema", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).ValidJsonSchema().Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		validSchema := `{"type":"object","properties":{"a":{"type":"integer"}}}`
+		invalidSchema := `{"type":"object","properties":{"a":{"type":"invalid"}}}`
+		testCases := map[string]testCase{
+			"valid":      {value: validSchema, expectError: false},
+			"invalid":    {value: invalidSchema, expectError: true, errorText: "Field FieldName must be a valid JSON schema"},
+			"wrong type": {value: 123, expectError: true, errorText: "invalid type for JSON schema validator int"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("ValidRegex", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).ValidRegex().Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":      {value: "^[a-z0-9]+$", expectError: false},
+			"invalid":    {value: "[", expectError: true, errorText: "Field FieldName must be a valid regex"},
+			"wrong type": {value: 123, expectError: true, errorText: "invalid type for regex validator int"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("JsonSchema", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			schema      string
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).JsonSchema(tc.schema).Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		validSchema := `{"type":"object","properties":{"a":{"type":"integer"}}}`
+		invalidSchema := `{"type":"object","properties":{"a":{"type":"invalid"}}}`
+		validInstance := `{"a":1}`
+		invalidInstance := `{"a":"string"}`
+		testCases := map[string]testCase{
+			"valid":          {value: validInstance, schema: validSchema, expectError: false},
+			"invalid":        {value: invalidInstance, schema: validSchema, expectError: true, errorText: "Field FieldName must match the JSON schema {\"type\":\"object\",\"properties\":{\"a\":{\"type\":\"integer\"}}}"},
+			"invalid schema": {value: validInstance, schema: invalidSchema, expectError: true, errorText: "Invalid JSON schema"},
+			"wrong type":     {value: 123, schema: validSchema, expectError: true, errorText: "invalid type for JSON schema validator int"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("ValidInteger", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).ValidInteger().Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":      {value: "123", expectError: false},
+			"invalid":    {value: "abc", expectError: true, errorText: "Field FieldName must be a valid integer"},
+			"wrong type": {value: 123, expectError: true, errorText: "invalid type for valid integer validator int"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
+
+	t.Run("ValidFloat", func(t *testing.T) {
+		type testCase struct {
+			value       any
+			expectError bool
+			errorText   string
+		}
+
+		run := func(t *testing.T, tc testCase) {
+			err := validator.Validate(tc.value, testFieldName).ValidFloat().Error(context.Background())
+			assertValidatorError(t, err, tc.expectError, tc.errorText)
+		}
+
+		testCases := map[string]testCase{
+			"valid":      {value: "123.45", expectError: false},
+			"invalid":    {value: "abc", expectError: true, errorText: "Field FieldName must be a valid float"},
+			"wrong type": {value: 123, expectError: true, errorText: "invalid type for valid float validator int"},
+		}
+
+		test.RunCases(t, run, testCases)
+	})
 }

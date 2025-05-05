@@ -5,7 +5,7 @@ import (
 
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 )
 
 func TestVariationPermission(t *testing.T) {

@@ -58,6 +58,50 @@ definitions:
     - ChangesetStateRejected
     - ChangesetStateDiscarded
     - ChangesetStateStashed
+  db.ValueTypeKind:
+    enum:
+    - string
+    - integer
+    - decimal
+    - boolean
+    - json
+    type: string
+    x-enum-varnames:
+    - ValueTypeKindString
+    - ValueTypeKindInteger
+    - ValueTypeKindDecimal
+    - ValueTypeKindBoolean
+    - ValueTypeKindJson
+  db.ValueValidatorType:
+    enum:
+    - required
+    - min_length
+    - max_length
+    - min
+    - max
+    - min_decimal
+    - max_decimal
+    - regex
+    - json_schema
+    - valid_json
+    - valid_integer
+    - valid_decimal
+    - valid_regex
+    type: string
+    x-enum-varnames:
+    - ValueValidatorTypeRequired
+    - ValueValidatorTypeMinLength
+    - ValueValidatorTypeMaxLength
+    - ValueValidatorTypeMin
+    - ValueValidatorTypeMax
+    - ValueValidatorTypeMinDecimal
+    - ValueValidatorTypeMaxDecimal
+    - ValueValidatorTypeRegex
+    - ValueValidatorTypeJsonSchema
+    - ValueValidatorTypeValidJson
+    - ValueValidatorTypeValidInteger
+    - ValueValidatorTypeValidDecimal
+    - ValueValidatorTypeValidRegex
   echo.HTTPError:
     properties:
       message: {}
@@ -111,10 +155,15 @@ definitions:
         type: string
       name:
         type: string
+      validators:
+        items:
+          $ref: '#/definitions/service.ValidatorDto'
+        type: array
       valueTypeId:
         type: integer
     required:
     - name
+    - validators
     - valueTypeId
     type: object
   handler.CreateResponse:
@@ -232,6 +281,16 @@ definitions:
     required:
     - depth
     - value
+    type: object
+  service.AllowedValidatorDto:
+    properties:
+      parameterType:
+        $ref: '#/definitions/service.ValueValidatorParameterType'
+      validatorType:
+        $ref: '#/definitions/db.ValueValidatorType'
+    required:
+    - parameterType
+    - validatorType
     type: object
   service.ChangesetAction:
     properties:
@@ -360,20 +419,6 @@ definitions:
     - userId
     - userName
     type: object
-  service.EditorTypes:
-    enum:
-    - text
-    - boolean
-    - integer
-    - decimal
-    - json
-    type: string
-    x-enum-varnames:
-    - EditorTypeText
-    - EditorTypeBoolean
-    - EditorTypeInteger
-    - EditorTypeDecimal
-    - EditorTypeJSON
   service.FeatureVersionDto:
     properties:
       description:
@@ -415,20 +460,43 @@ definitions:
         type: boolean
       description:
         type: string
-      editor:
-        $ref: '#/definitions/service.EditorTypes'
+      id:
+        type: integer
+      name:
+        type: string
+      validators:
+        items:
+          $ref: '#/definitions/service.ValidatorDto'
+        type: array
+      valueType:
+        $ref: '#/definitions/db.ValueTypeKind'
+      valueTypeName:
+        type: string
+    required:
+    - canEdit
+    - id
+    - name
+    - validators
+    - valueType
+    - valueTypeName
+    type: object
+  service.KeyItemDto:
+    properties:
+      description:
+        type: string
       id:
         type: integer
       name:
         type: string
       valueType:
+        $ref: '#/definitions/db.ValueTypeKind'
+      valueTypeName:
         type: string
     required:
-    - canEdit
-    - editor
     - id
     - name
     - valueType
+    - valueTypeName
     type: object
   service.NewValueInfo:
     properties:
@@ -513,6 +581,68 @@ definitions:
     - published
     - version
     type: object
+  service.ValidatorDto:
+    properties:
+      errorText:
+        type: string
+      parameter:
+        type: string
+      validatorType:
+        $ref: '#/definitions/db.ValueValidatorType'
+    required:
+    - validatorType
+    type: object
+  service.ValidatorWithParameterTypeDto:
+    properties:
+      errorText:
+        type: string
+      parameter:
+        type: string
+      parameterType:
+        $ref: '#/definitions/service.ValueValidatorParameterType'
+      validatorType:
+        $ref: '#/definitions/db.ValueValidatorType'
+    required:
+    - parameterType
+    - validatorType
+    type: object
+  service.ValueTypeDto:
+    properties:
+      allowedValidators:
+        items:
+          $ref: '#/definitions/service.AllowedValidatorDto'
+        type: array
+      id:
+        type: integer
+      kind:
+        $ref: '#/definitions/db.ValueTypeKind'
+      name:
+        type: string
+      validators:
+        items:
+          $ref: '#/definitions/service.ValidatorWithParameterTypeDto'
+        type: array
+    required:
+    - allowedValidators
+    - id
+    - kind
+    - name
+    - validators
+    type: object
+  service.ValueValidatorParameterType:
+    enum:
+    - none
+    - integer
+    - float
+    - regex
+    - json_schema
+    type: string
+    x-enum-varnames:
+    - ValueValidatorParameterTypeNone
+    - ValueValidatorParameterTypeInteger
+    - ValueValidatorParameterTypeFloat
+    - ValueValidatorParameterTypeRegex
+    - ValueValidatorParameterTypeJsonSchema
   service.VariationValue:
     properties:
       canEdit:
@@ -696,6 +826,44 @@ paths:
       - BearerAuth: []
       summary: Get changesets
   /changesets/{changeset_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Discard a changeset by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Discard a changeset
     get:
       consumes:
       - application/json
@@ -855,45 +1023,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Commit a changeset
-  /changesets/{changeset_id}/discard:
-    delete:
-      consumes:
-      - application/json
-      description: Discard a changeset by ID
-      parameters:
-      - description: Changeset ID
-        in: path
-        name: changeset_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - BearerAuth: []
-      summary: Discard a changeset
   /changesets/{changeset_id}/reopen:
     put:
       consumes:
@@ -1437,7 +1566,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.KeyDto'
+              $ref: '#/definitions/service.KeyItemDto'
             type: array
         "400":
           description: Bad Request
@@ -2326,7 +2455,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handler.SelectOption'
+              $ref: '#/definitions/service.ValueTypeDto'
             type: array
         "401":
           description: Unauthorized

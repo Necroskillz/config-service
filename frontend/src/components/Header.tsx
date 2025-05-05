@@ -35,7 +35,9 @@ export function Header() {
             activeOptions={{ exact: true, includeSearch: false }}
           >
             Changesets
-            {approvableCount?.count && approvableCount.count > 0 && <Badge variant="outline">{approvableCount.count}</Badge>}
+            {approvableCount?.count && approvableCount.count > 0 ? (
+              <Badge variant="outline">{approvableCount.count}</Badge>
+            ) : null}
           </Link>
         </>
       )}

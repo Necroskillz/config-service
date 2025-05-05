@@ -15,6 +15,7 @@ type Handler struct {
 	ValueService              *service.ValueService
 	VariationHierarchyService *service.VariationHierarchyService
 	CurrentUserAccessor       *auth.CurrentUserAccessor
+	ValueTypeService          *service.ValueTypeService
 }
 
 func NewHandler(
@@ -27,6 +28,7 @@ func NewHandler(
 	valueService *service.ValueService,
 	variationHierarchyService *service.VariationHierarchyService,
 	currentUserAccessor *auth.CurrentUserAccessor,
+	valueTypeService *service.ValueTypeService,
 ) *Handler {
 	return &Handler{
 		ServiceService:            serviceService,
@@ -38,5 +40,6 @@ func NewHandler(
 		ValueService:              valueService,
 		VariationHierarchyService: variationHierarchyService,
 		CurrentUserAccessor:       currentUserAccessor,
+		ValueTypeService:          valueTypeService,
 	}
 }

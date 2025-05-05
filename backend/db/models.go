@@ -276,6 +276,104 @@ func (ns NullUserPermissionKind) Value() (driver.Value, error) {
 	return string(ns.UserPermissionKind), nil
 }
 
+type ValueTypeKind string
+
+const (
+	ValueTypeKindString  ValueTypeKind = "string"
+	ValueTypeKindInteger ValueTypeKind = "integer"
+	ValueTypeKindDecimal ValueTypeKind = "decimal"
+	ValueTypeKindBoolean ValueTypeKind = "boolean"
+	ValueTypeKindJson    ValueTypeKind = "json"
+)
+
+func (e *ValueTypeKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ValueTypeKind(s)
+	case string:
+		*e = ValueTypeKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ValueTypeKind: %T", src)
+	}
+	return nil
+}
+
+type NullValueTypeKind struct {
+	ValueTypeKind ValueTypeKind
+	Valid         bool // Valid is true if ValueTypeKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullValueTypeKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.ValueTypeKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ValueTypeKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullValueTypeKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ValueTypeKind), nil
+}
+
+type ValueValidatorType string
+
+const (
+	ValueValidatorTypeRequired     ValueValidatorType = "required"
+	ValueValidatorTypeMinLength    ValueValidatorType = "min_length"
+	ValueValidatorTypeMaxLength    ValueValidatorType = "max_length"
+	ValueValidatorTypeMin          ValueValidatorType = "min"
+	ValueValidatorTypeMax          ValueValidatorType = "max"
+	ValueValidatorTypeMinDecimal   ValueValidatorType = "min_decimal"
+	ValueValidatorTypeMaxDecimal   ValueValidatorType = "max_decimal"
+	ValueValidatorTypeRegex        ValueValidatorType = "regex"
+	ValueValidatorTypeJsonSchema   ValueValidatorType = "json_schema"
+	ValueValidatorTypeValidJson    ValueValidatorType = "valid_json"
+	ValueValidatorTypeValidInteger ValueValidatorType = "valid_integer"
+	ValueValidatorTypeValidDecimal ValueValidatorType = "valid_decimal"
+	ValueValidatorTypeValidRegex   ValueValidatorType = "valid_regex"
+)
+
+func (e *ValueValidatorType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ValueValidatorType(s)
+	case string:
+		*e = ValueValidatorType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ValueValidatorType: %T", src)
+	}
+	return nil
+}
+
+type NullValueValidatorType struct {
+	ValueValidatorType ValueValidatorType
+	Valid              bool // Valid is true if ValueValidatorType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullValueValidatorType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ValueValidatorType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ValueValidatorType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullValueValidatorType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ValueValidatorType), nil
+}
+
 type Changeset struct {
 	ID        uint
 	CreatedAt time.Time
@@ -406,9 +504,18 @@ type UserPermission struct {
 }
 
 type ValueType struct {
-	ID     uint
-	Editor string
-	Name   string
+	ID   uint
+	Kind ValueTypeKind
+	Name string
+}
+
+type ValueValidator struct {
+	ID            uint
+	ValueTypeID   *uint
+	KeyID         *uint
+	ValidatorType ValueValidatorType
+	Parameter     *string
+	ErrorText     *string
 }
 
 type VariationContext struct {

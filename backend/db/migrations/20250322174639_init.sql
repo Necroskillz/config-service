@@ -25,6 +25,8 @@ CREATE TYPE changeset_change_kind AS ENUM (
 CREATE TYPE changeset_change_type AS ENUM ('create', 'update', 'delete');
 CREATE TYPE user_permission_kind AS ENUM ('service', 'feature', 'key', 'variation');
 CREATE TYPE permission_level AS ENUM ('editor', 'admin');
+CREATE TYPE value_validator_type AS ENUM ('required', 'min_length', 'max_length', 'min', 'max', 'min_decimal', 'max_decimal', 'regex', 'json_schema', 'valid_json', 'valid_integer', 'valid_decimal', 'valid_regex');
+CREATE TYPE value_type_kind AS ENUM ('string', 'integer', 'decimal', 'boolean', 'json');
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -37,7 +39,7 @@ CREATE TABLE users (
 CREATE INDEX idx_users_deleted_at ON users(deleted_at);
 CREATE TABLE value_types (
     id BIGSERIAL PRIMARY KEY,
-    editor TEXT NOT NULL,
+    kind value_type_kind NOT NULL,
     name TEXT NOT NULL
 );
 CREATE TABLE service_types (
@@ -107,6 +109,15 @@ CREATE TABLE keys (
 );
 CREATE INDEX idx_keys_valid_from ON keys(valid_from);
 CREATE INDEX idx_keys_valid_to ON keys(valid_to);
+CREATE TABLE value_validators (
+    id BIGSERIAL PRIMARY KEY,
+    value_type_id BIGINT REFERENCES value_types(id),
+    key_id BIGINT REFERENCES keys(id),
+    validator_type value_validator_type NOT NULL,
+    parameter TEXT,
+    error_text TEXT,
+    CHECK ((value_type_id IS NOT NULL AND key_id IS NULL) OR (value_type_id IS NULL AND key_id IS NOT NULL))
+);
 CREATE TABLE variation_properties (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -190,6 +201,7 @@ CREATE TABLE changeset_actions (
     comment TEXT
 );
 -- migrate:down
+DROP TABLE value_validators;
 DROP TABLE changeset_actions;
 DROP TABLE changeset_changes;
 DROP TABLE changesets;
@@ -215,3 +227,5 @@ DROP TYPE changeset_state;
 DROP TYPE changeset_action_type;
 DROP TYPE changeset_change_kind;
 DROP TYPE user_permission_kind;
+DROP TYPE value_type_kind;
+DROP TYPE value_validator_type;

@@ -188,7 +188,7 @@ func (h *Handler) ReopenChangeset(c echo.Context) error {
 // @Failure 403 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
-// @Router /changesets/{changeset_id}/discard [delete]
+// @Router /changesets/{changeset_id} [delete]
 func (h *Handler) DiscardChangeset(c echo.Context) error {
 	var changesetID uint
 	err := echo.PathParamsBinder(c).MustUint("changeset_id", &changesetID).BindError()

@@ -10,7 +10,6 @@ import {
   getServiceTypesServiceTypeIdVariationPropertiesQueryOptions,
   HandlerValueRequest,
   HandlerVariationValueSelectOption,
-  ServiceEditorTypesEnum,
   ServiceNewValueInfo,
   useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense,
@@ -27,7 +26,6 @@ import { HttpError } from '~/axios';
 import { MutationErrors } from '~/components/MutationErrors';
 import { PageTitle } from '~/components/PageTitle';
 import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter, Table } from '~/components/ui/table';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { VariationSelect } from '~/components/VariationSelect';
@@ -39,6 +37,10 @@ import { seo } from '~/utils/seo';
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 import { DropdownMenu } from '~/components/ui/dropdown-menu';
 import { EllipsisIcon } from 'lucide-react';
+import { createDefaultValue, createValueValidator } from './-components/value';
+import { ValueEditor } from './-components/ValueEditor';
+import { ValueViewer } from './-components/ValueViewer';
+import { StandardSchemaV1Issue } from '@tanstack/react-form';
 
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values')({
   component: RouteComponent,
@@ -79,7 +81,11 @@ export const Route = createFileRoute('/(keys)/services/$serviceVersionId/feature
   },
   head: ({ loaderData: [serviceVersion, featureVersion, key] }) => {
     return {
-      meta: [...seo({ title: appTitle(['Values', key.name, versionedTitle(featureVersion), versionedTitle(serviceVersion)]) })],
+      meta: [
+        ...seo({
+          title: appTitle(['Values', key.name, versionedTitle(featureVersion), versionedTitle(serviceVersion)]),
+        }),
+      ],
     };
   },
 });
@@ -153,36 +159,6 @@ function RouteComponent() {
       canEdit: true,
       rank: 0,
     };
-  }
-
-  function createValueValidator(editor: ServiceEditorTypesEnum) {
-    switch (editor) {
-      case 'text':
-        return z.string();
-      case 'integer':
-        return z.string().refine((value) => {
-          const num = Number(value);
-          return !isNaN(num) && Number.isInteger(num);
-        }, 'Value must be an integer');
-      case 'decimal':
-        return z.string().refine((value) => {
-          const num = Number(value);
-          return !isNaN(num);
-        }, 'Value must be a decimal');
-      case 'boolean':
-        return z.string().regex(/^TRUE|FALSE$/, 'Value must be TRUE or FALSE');
-      case 'json':
-        return z.string().refine((value) => {
-          try {
-            JSON.parse(value);
-            return true;
-          } catch (error) {
-            return false;
-          }
-        }, 'Value must be valid JSON');
-      default:
-        throw new Error(`Unsupported editor type: ${editor}`);
-    }
   }
 
   const updateMutation = usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId({
@@ -275,17 +251,29 @@ function RouteComponent() {
 
   const editForm = useAppForm({
     defaultValues: {
-      data: '',
+      data: createDefaultValue(key.valueType),
       variation: {},
     } as ValueFormData,
     validators: {
-      onChange: z.object({
-        data: createValueValidator(key.editor),
-        variation: z.record(z.string(), z.string()),
+      onChangeAsync: z.object({
+        data: createValueValidator(key.validators),
+        variation: z.record(z.string(), z.string()).superRefine(async (value, ctx) => {
+          const error = await editValidationFn({
+            data: editForm.state.values.data,
+            variation: {
+              ...editForm.state.values.variation,
+              ...value,
+            },
+          });
+
+          if (error) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: error,
+            });
+          }
+        }),
       }),
-      onChangeAsync: async ({ value }) => {
-        return editValidationFn(value);
-      },
     },
     onSubmit: async ({ value }) => {
       await updateMutation.mutateAsync({
@@ -311,17 +299,29 @@ function RouteComponent() {
 
   const addForm = useAppForm({
     defaultValues: {
-      data: '',
+      data: createDefaultValue(key.valueType),
       variation: {},
     } as ValueFormData,
     validators: {
-      onChange: z.object({
-        data: createValueValidator(key.editor),
-        variation: z.record(z.string(), z.string()),
+      onChangeAsync: z.object({
+        data: createValueValidator(key.validators),
+        variation: z.record(z.string(), z.string()).superRefine(async (value, ctx) => {
+          const error = await addValidationFn({
+            data: addForm.state.values.data,
+            variation: {
+              ...addForm.state.values.variation,
+              ...value,
+            },
+          });
+
+          if (error) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: error,
+            });
+          }
+        }),
       }),
-      onChangeAsync: async ({ value }) => {
-        return addValidationFn(value);
-      },
     },
     onSubmit: async ({ value }) => {
       await createMutation.mutateAsync({
@@ -354,11 +354,12 @@ function RouteComponent() {
                   children={(field) => (
                     <>
                       <field.FormControl>
-                        <Input
+                        <ValueEditor
+                          valueType={key.valueType}
                           id={`edit-${field.name}`}
                           name={field.name}
                           value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
+                          onChange={(value) => field.handleChange(value)}
                           onBlur={field.handleBlur}
                           disabled={editForm.state.isSubmitting}
                         />
@@ -367,7 +368,7 @@ function RouteComponent() {
                   )}
                 />
               ) : (
-                <>{value}</>
+                <ValueViewer valueType={key.valueType} value={value} />
               )}
             </>
           );
@@ -379,11 +380,12 @@ function RouteComponent() {
               children={(field) => (
                 <>
                   <field.FormControl>
-                    <Input
-                      id={`edit-${field.name}`}
+                    <ValueEditor
+                      valueType={key.valueType}
+                      id={`add-${field.name}`}
                       name={field.name}
                       value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
+                      onChange={(value) => field.handleChange(value)}
                       onBlur={field.handleBlur}
                       disabled={addForm.state.isSubmitting}
                     />
@@ -554,7 +556,11 @@ function RouteComponent() {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem>
-                  <Link className="w-full" to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit" params={{ serviceVersionId, featureVersionId, keyId }}>
+                  <Link
+                    className="w-full"
+                    to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit"
+                    params={{ serviceVersionId, featureVersionId, keyId }}
+                  >
                     Edit
                   </Link>
                 </DropdownMenuItem>
@@ -581,7 +587,11 @@ function RouteComponent() {
           <TableBody>
             {table.getRowModel().rows.map((row) => (
               <Fragment key={row.id}>
-                <TableRow className={cn({ 'border-b-0': editingValueId == row.original.id })}>
+                <TableRow
+                  className={cn({
+                    'border-b-0': editingValueId == row.original.id,
+                  })}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
@@ -640,6 +650,20 @@ function RouteComponent() {
   );
 }
 
-function ErrorMessage({ errors }: { errors: any[] }) {
-  return <p className={cn('text-destructive text-sm')}>{(errors[0] as any)?.data?.at(0)?.message ?? errors[0]}</p>;
+function ErrorMessage({ errors }: { errors: (Record<string, StandardSchemaV1Issue[]> | undefined)[] }) {
+  if (!errors) {
+    return null;
+  }
+
+  const errorMessages = errors.flatMap((error) => Object.values(error ?? {}).flatMap((error) => error.map((error) => error.message)));
+
+  return (
+    <div className="flex flex-col">
+      {errorMessages.map((error) => (
+        <p key={error} className={cn('text-destructive text-sm')}>
+          {error}
+        </p>
+      ))}
+    </div>
+  );
 }

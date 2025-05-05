@@ -14,7 +14,7 @@ import (
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
-// @Success 200 {array} service.KeyDto
+// @Success 200 {array} service.KeyItemDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -77,10 +77,11 @@ func (h *Handler) Key(c echo.Context) error {
 }
 
 type CreateKeyRequest struct {
-	Name         string `json:"name" validate:"required"`
-	Description  string `json:"description"`
-	DefaultValue string `json:"defaultValue"`
-	ValueTypeID  uint   `json:"valueTypeId" validate:"required"`
+	Name         string                 `json:"name" validate:"required"`
+	Description  string                 `json:"description"`
+	DefaultValue string                 `json:"defaultValue"`
+	ValueTypeID  uint                   `json:"valueTypeId" validate:"required"`
+	Validators   []service.ValidatorDto `json:"validators" validate:"required"`
 }
 
 // @Summary Create a key
@@ -119,6 +120,7 @@ func (h *Handler) CreateKey(c echo.Context) error {
 		Description:      data.Description,
 		DefaultValue:     data.DefaultValue,
 		ValueTypeID:      data.ValueTypeID,
+		Validators:       data.Validators,
 	})
 	if err != nil {
 		return ToHTTPError(err)

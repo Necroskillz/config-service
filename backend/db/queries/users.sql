@@ -23,6 +23,6 @@ INSERT INTO users (name, password, global_administrator)
 VALUES (@name, @password, @global_administrator)
 RETURNING id;
 -- name: CreatePermission :one
-INSERT INTO user_permissions (user_id, service_id, feature_id, key_id, permission, variation_context_id)
-VALUES (@user_id, @service_id, @feature_id, @key_id, @permission, @variation_context_id)
+INSERT INTO user_permissions (user_id, kind, service_id, feature_id, key_id, permission, variation_context_id)
+VALUES (@user_id, @kind, @service_id, @feature_id, @key_id, @permission, @variation_context_id)
 RETURNING id;
