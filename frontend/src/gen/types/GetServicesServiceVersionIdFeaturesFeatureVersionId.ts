@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceFeatureVersionWithPermissionDto } from './service/FeatureVersionWithPermissionDto.ts'
+import type { ServiceFeatureVersionDto } from './service/FeatureVersionDto.ts'
 
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdPathParams = {
   /**
@@ -22,7 +22,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdPathParams = {
 /**
  * @description OK
  */
-export type GetServicesServiceVersionIdFeaturesFeatureVersionId200 = ServiceFeatureVersionWithPermissionDto
+export type GetServicesServiceVersionIdFeaturesFeatureVersionId200 = ServiceFeatureVersionDto
 
 /**
  * @description Bad Request

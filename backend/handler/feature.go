@@ -13,7 +13,7 @@ import (
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
-// @Success 200 {object} []service.FeatureVersionDto
+// @Success 200 {object} []service.FeatureVersionItemDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -132,7 +132,7 @@ func (h *Handler) UpdateFeature(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
-// @Success 200 {object} service.FeatureVersionWithPermissionDto
+// @Success 200 {object} service.FeatureVersionDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError

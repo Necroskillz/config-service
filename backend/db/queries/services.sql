@@ -7,7 +7,7 @@ SELECT sv.*,
 FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
-WHERE (sv.valid_from IS NOT NULL)
+WHERE sv.valid_from IS NOT NULL
     OR (
         sv.valid_from IS NULL
         AND EXISTS (
@@ -20,12 +20,12 @@ WHERE (sv.valid_from IS NOT NULL)
             LIMIT 1
         )
     )
-ORDER BY s.name, sv.version ASC;
+ORDER BY s.name,
+    sv.version ASC;
 -- name: GetServiceVersionsForService :many
 SELECT sv.id,
     sv.version
 FROM service_versions sv
-    JOIN services s ON s.id = sv.service_id
 WHERE sv.service_id = @service_id
     AND (
         sv.valid_from IS NOT NULL
@@ -44,14 +44,37 @@ WHERE sv.service_id = @service_id
     )
 ORDER BY sv.version ASC;
 -- name: GetServiceVersion :one
+WITH last_service_versions AS (
+    SELECT sv.service_id,
+        MAX(sv.version)::int as last_version
+    FROM service_versions sv
+    WHERE sv.valid_from IS NOT NULL
+        OR (
+            sv.valid_from IS NULL
+            AND EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.type = 'create'
+                    AND csc.kind = 'service_version'
+                    AND csc.service_version_id = sv.id
+                LIMIT 1
+            )
+        )
+    GROUP BY sv.service_id
+)
 SELECT sv.*,
     s.name as service_name,
     s.description as service_description,
     s.service_type_id as service_type_id,
-    st.name as service_type_name
+    st.name as service_type_name,
+    lsv.last_version as last_version,
+    csc.changeset_id as changeset_id
 FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
+    JOIN last_service_versions lsv ON lsv.service_id = sv.service_id
+    JOIN changeset_changes csc ON csc.service_version_id = sv.id AND csc.type = 'create' AND csc.kind = 'service_version'
 WHERE sv.id = @service_version_id
 LIMIT 1;
 -- name: GetServiceTypes :many

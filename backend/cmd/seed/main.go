@@ -49,7 +49,7 @@ func main() {
 		log.Fatalf("failed to generate password: %v", err)
 	}
 
-	MustCreate(queries.CreateUser(ctx, db.CreateUserParams{
+	userId := MustCreate(queries.CreateUser(ctx, db.CreateUserParams{
 		Name:                "admin",
 		Password:            string(password),
 		GlobalAdministrator: true,
@@ -104,7 +104,7 @@ func main() {
 	}))
 	MustCreate(queries.CreateValueValidatorForValueType(ctx, db.CreateValueValidatorForValueTypeParams{
 		ValueTypeID:   &decimalTypeId,
-		ValidatorType: "valid_float",
+		ValidatorType: "valid_decimal",
 		ErrorText:     Ptr("Value must be a number with optional decimal part"),
 	}))
 
@@ -156,6 +156,17 @@ func main() {
 		Priority:            1,
 	}))
 
+	changesetId := MustCreate(queries.CreateChangeset(ctx, userId))
+	MustExec(queries.SetChangesetState(ctx, db.SetChangesetStateParams{
+		ChangesetID: changesetId,
+		State:       "applied",
+	}))
+	MustExec(queries.AddChangesetAction(ctx, db.AddChangesetActionParams{
+		ChangesetID: changesetId,
+		UserID:      userId,
+		Type:        "apply",
+	}))
+
 	serviceId := MustCreate(queries.CreateService(ctx, db.CreateServiceParams{
 		Name:          "TestService",
 		Description:   "Test Service Description",
@@ -169,6 +180,11 @@ func main() {
 		Version:   1,
 	}))
 
+	MustExec(queries.AddCreateServiceVersionChange(ctx, db.AddCreateServiceVersionChangeParams{
+		ChangesetID:      changesetId,
+		ServiceVersionID: serviceVersionId,
+	}))
+
 	MustExec(queries.StartServiceVersionValidity(ctx, db.StartServiceVersionValidityParams{
 		ServiceVersionID: serviceVersionId,
 		ValidFrom:        &validFrom,
@@ -177,7 +193,7 @@ func main() {
 	MustExec(queries.PublishServiceVersion(ctx, serviceVersionId))
 
 	MustCreate(queries.CreatePermission(ctx, db.CreatePermissionParams{
-		UserID:     1,
+		UserID:     userId,
 		ServiceID:  serviceId,
 		FeatureID:  nil,
 		KeyID:      nil,

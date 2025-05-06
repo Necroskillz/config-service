@@ -113,7 +113,7 @@ CREATE TYPE public.value_validator_type AS ENUM (
     'json_schema',
     'valid_json',
     'valid_integer',
-    'valid_float',
+    'valid_decimal',
     'valid_regex'
 );
 

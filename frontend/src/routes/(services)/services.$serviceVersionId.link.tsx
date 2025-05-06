@@ -107,12 +107,14 @@ function RouteComponent() {
                     <span className="text-lg font-semibold">{feature.name}</span>
                     <Badge>v{feature.version}</Badge>
                   </div>
-                  <Button
-                    variant="destructive"
-                    onClick={() => unlinkMutation.mutate({ service_version_id: serviceVersionId, feature_version_id: feature.id })}
-                  >
-                    Unlink
-                  </Button>
+                  {feature.canUnlink && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => unlinkMutation.mutate({ service_version_id: serviceVersionId, feature_version_id: feature.id })}
+                    >
+                      Unlink
+                    </Button>
+                  )}
                 </div>
               </ListItem>
             ))}

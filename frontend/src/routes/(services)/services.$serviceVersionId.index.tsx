@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { z } from 'zod';
 import {
   getServicesServiceVersionIdQueryOptions,
   getServicesServiceVersionIdFeaturesQueryOptions,
   getServicesServiceVersionIdVersionsQueryOptions,
   usePutServicesServiceVersionIdPublish,
+  usePostServicesServiceVersionIdVersions,
 } from '~/gen';
 import { SlimPage } from '~/components/SlimPage';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu';
@@ -50,12 +51,21 @@ function RouteComponent() {
   const { serviceVersionId } = Route.useParams();
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const { data: features } = useGetServicesServiceVersionIdFeaturesSuspense(serviceVersionId);
   const { data: allServiceVersions } = useGetServicesServiceVersionIdVersions(serviceVersionId, {
     query: {
       enabled: false,
       gcTime: 0,
+    },
+  });
+
+  const createNewVersionMutation = usePostServicesServiceVersionIdVersions({
+    mutation: {
+      onSuccess: ({ newId }) => {
+        navigate({ to: '/services/$serviceVersionId', params: { serviceVersionId: newId } });
+      },
     },
   });
 
@@ -80,7 +90,7 @@ function RouteComponent() {
       <div className="flex items-center justify-between mb-8">
         <PageTitle className="mb-0">
           {serviceVersion.name}
-          <Badge className="ml-2">
+          <Badge variant={serviceVersion.published ? 'default' : 'outline'} className="ml-2">
             v{serviceVersion.version} ({serviceVersion.published ? 'published' : 'draft'})
           </Badge>
         </PageTitle>
@@ -93,19 +103,20 @@ function RouteComponent() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Link className="w-full" to="/services/$serviceVersionId/edit" params={{ serviceVersionId }}>
-                    Edit
-                  </Link>
+                <DropdownMenuItem onClick={() => navigate({ to: '/services/$serviceVersionId/edit', params: { serviceVersionId } })}>
+                  Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link className="w-full" to="/services/$serviceVersionId/link" params={{ serviceVersionId }}>
-                    Link/Unlink features
-                  </Link>
+                <DropdownMenuItem onClick={() => navigate({ to: '/services/$serviceVersionId/link', params: { serviceVersionId } })}>
+                  Link/Unlink features
                 </DropdownMenuItem>
                 {!serviceVersion.published && (
                   <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
                     Publish
+                  </DropdownMenuItem>
+                )}
+                {serviceVersion.isLastVersion && (
+                  <DropdownMenuItem onClick={() => createNewVersionMutation.mutate({ service_version_id: serviceVersionId })}>
+                    Create new version
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -126,17 +137,20 @@ function RouteComponent() {
               </DropdownMenuTriggerLabel>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {allServiceVersions?.map((sv) => (
-                <DropdownMenuItem key={sv.id} onClick={() => console.log(sv.id)}>
-                  {sv.id === serviceVersionId ? (
+              {allServiceVersions?.map((sv) =>
+                sv.id === serviceVersionId ? (
+                  <DropdownMenuItem>
+                    <span className="text-accent-foreground font-bold">v{sv.version}</span>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    key={sv.id}
+                    onClick={() => navigate({ to: '/services/$serviceVersionId', params: { serviceVersionId: sv.id } })}
+                  >
                     <span>v{sv.version}</span>
-                  ) : (
-                    <Link to="/services/$serviceVersionId" params={{ serviceVersionId: sv.id }}>
-                      v{sv.version}
-                    </Link>
-                  )}
-                </DropdownMenuItem>
-              ))}
+                  </DropdownMenuItem>
+                )
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -421,22 +421,6 @@ definitions:
     type: object
   service.FeatureVersionDto:
     properties:
-      description:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      version:
-        type: integer
-    required:
-    - description
-    - id
-    - name
-    - version
-    type: object
-  service.FeatureVersionWithPermissionDto:
-    properties:
       canEdit:
         type: boolean
       description:
@@ -449,6 +433,25 @@ definitions:
         type: integer
     required:
     - canEdit
+    - description
+    - id
+    - name
+    - version
+    type: object
+  service.FeatureVersionItemDto:
+    properties:
+      canUnlink:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      version:
+        type: integer
+    required:
+    - canUnlink
     - description
     - id
     - name
@@ -545,6 +548,8 @@ definitions:
         type: string
       id:
         type: integer
+      isLastVersion:
+        type: boolean
       name:
         type: string
       published:
@@ -561,6 +566,7 @@ definitions:
     - canEdit
     - description
     - id
+    - isLastVersion
     - name
     - published
     - serviceId
@@ -1385,7 +1391,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.FeatureVersionDto'
+              $ref: '#/definitions/service.FeatureVersionItemDto'
             type: array
         "400":
           description: Bad Request
@@ -1474,7 +1480,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.FeatureVersionWithPermissionDto'
+            $ref: '#/definitions/service.FeatureVersionDto'
         "400":
           description: Bad Request
           schema:
@@ -2410,6 +2416,46 @@ paths:
       security:
       - BearerAuth: []
       summary: Get service versions
+    post:
+      consumes:
+      - application/json
+      description: Create service version
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create service version
   /services/name-taken/{name}:
     get:
       consumes:

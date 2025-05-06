@@ -55,6 +55,7 @@ export type { PostServicesServiceVersionIdFeaturesMutationKey } from './hooks/us
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys.ts'
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues.ts'
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
+export type { PostServicesServiceVersionIdVersionsMutationKey } from './hooks/usePostServicesServiceVersionIdVersions.ts'
 export type { PutChangesetsChangesetIdApplyMutationKey } from './hooks/usePutChangesetsChangesetIdApply.ts'
 export type { PutChangesetsChangesetIdCommitMutationKey } from './hooks/usePutChangesetsChangesetIdCommit.ts'
 export type { PutChangesetsChangesetIdReopenMutationKey } from './hooks/usePutChangesetsChangesetIdReopen.ts'
@@ -403,6 +404,17 @@ export type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutation,
 } from './types/PostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
 export type {
+  PostServicesServiceVersionIdVersionsPathParams,
+  PostServicesServiceVersionIdVersions200,
+  PostServicesServiceVersionIdVersions400,
+  PostServicesServiceVersionIdVersions401,
+  PostServicesServiceVersionIdVersions403,
+  PostServicesServiceVersionIdVersions404,
+  PostServicesServiceVersionIdVersions500,
+  PostServicesServiceVersionIdVersionsMutationResponse,
+  PostServicesServiceVersionIdVersionsMutation,
+} from './types/PostServicesServiceVersionIdVersions.ts'
+export type {
   PutChangesetsChangesetIdApplyPathParams,
   PutChangesetsChangesetIdApply204,
   PutChangesetsChangesetIdApply400,
@@ -513,7 +525,7 @@ export type { ServiceChangesetChange } from './types/service/ChangesetChange.ts'
 export type { ServiceChangesetDto } from './types/service/ChangesetDto.ts'
 export type { ServiceChangesetItemDto } from './types/service/ChangesetItemDto.ts'
 export type { ServiceFeatureVersionDto } from './types/service/FeatureVersionDto.ts'
-export type { ServiceFeatureVersionWithPermissionDto } from './types/service/FeatureVersionWithPermissionDto.ts'
+export type { ServiceFeatureVersionItemDto } from './types/service/FeatureVersionItemDto.ts'
 export type { ServiceKeyDto } from './types/service/KeyDto.ts'
 export type { ServiceKeyItemDto } from './types/service/KeyItemDto.ts'
 export type { ServiceNewValueInfo } from './types/service/NewValueInfo.ts'
@@ -807,6 +819,11 @@ export {
   postServicesServiceVersionIdFeaturesFeatureVersionIdLink,
   usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink,
 } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
+export {
+  postServicesServiceVersionIdVersionsMutationKey,
+  postServicesServiceVersionIdVersions,
+  usePostServicesServiceVersionIdVersions,
+} from './hooks/usePostServicesServiceVersionIdVersions.ts'
 export {
   putChangesetsChangesetIdApplyMutationKey,
   putChangesetsChangesetIdApply,

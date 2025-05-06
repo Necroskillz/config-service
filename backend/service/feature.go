@@ -42,40 +42,42 @@ type FeatureVersionDto struct {
 	Version     int    `json:"version" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	Name        string `json:"name" validate:"required"`
+	CanEdit     bool   `json:"canEdit" validate:"required"`
 }
 
-type FeatureVersionWithPermissionDto struct {
-	FeatureVersionDto
-	CanEdit bool `json:"canEdit" validate:"required"`
-}
-
-func (s *FeatureService) GetFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) (FeatureVersionWithPermissionDto, error) {
+func (s *FeatureService) GetFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) (FeatureVersionDto, error) {
 	_, featureVersion, err := s.coreService.GetFeatureVersion(ctx, serviceVersionID, featureVersionID)
 	if err != nil {
-		return FeatureVersionWithPermissionDto{}, err
+		return FeatureVersionDto{}, err
 	}
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	return FeatureVersionWithPermissionDto{
-		FeatureVersionDto: FeatureVersionDto{
-			ID:          featureVersion.ID,
-			Version:     featureVersion.Version,
-			Description: featureVersion.FeatureDescription,
-			Name:        featureVersion.FeatureName,
-		},
-		CanEdit: user.GetPermissionForService(featureVersion.FeatureID) >= constants.PermissionAdmin,
+	return FeatureVersionDto{
+		ID:          featureVersion.ID,
+		Version:     featureVersion.Version,
+		Description: featureVersion.FeatureDescription,
+		Name:        featureVersion.FeatureName,
+		CanEdit:     user.GetPermissionForService(featureVersion.FeatureID) >= constants.PermissionAdmin,
 	}, nil
 }
 
-func (s *FeatureService) GetServiceFeatures(ctx context.Context, serviceVersionID uint) ([]FeatureVersionDto, error) {
+type FeatureVersionItemDto struct {
+	ID          uint   `json:"id" validate:"required"`
+	Version     int    `json:"version" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Name        string `json:"name" validate:"required"`
+	CanUnlink   bool   `json:"canUnlink" validate:"required"`
+}
+
+func (s *FeatureService) GetServiceFeatures(ctx context.Context, serviceVersionID uint) ([]FeatureVersionItemDto, error) {
 	user := s.currentUserAccessor.GetUser(ctx)
 	_, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return nil, err
 	}
 
-	featureVersions, err := s.queries.GetActiveFeatureVersionsForServiceVersion(ctx, db.GetActiveFeatureVersionsForServiceVersionParams{
+	featureVersions, err := s.queries.GetFeatureVersionsForServiceVersion(ctx, db.GetFeatureVersionsForServiceVersionParams{
 		ServiceVersionID: serviceVersionID,
 		ChangesetID:      user.ChangesetID,
 	})
@@ -83,13 +85,14 @@ func (s *FeatureService) GetServiceFeatures(ctx context.Context, serviceVersionI
 		return nil, err
 	}
 
-	result := make([]FeatureVersionDto, len(featureVersions))
+	result := make([]FeatureVersionItemDto, len(featureVersions))
 	for i, featureVersion := range featureVersions {
-		result[i] = FeatureVersionDto{
+		result[i] = FeatureVersionItemDto{
 			ID:          featureVersion.ID,
 			Version:     featureVersion.Version,
 			Description: featureVersion.FeatureDescription,
 			Name:        featureVersion.FeatureName,
+			CanUnlink:   featureVersion.ChangesetID == user.ChangesetID,
 		}
 	}
 
@@ -104,7 +107,7 @@ func (s *FeatureService) GetFeatureVersionsLinkedToServiceVersion(ctx context.Co
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	featureVersions, err := s.queries.GetFeatureVersionsLinkedToServiceVersion(ctx, db.GetFeatureVersionsLinkedToServiceVersionParams{
+	featureVersions, err := s.queries.GetFeatureVersionsLinkedToServiceVersionForFeature(ctx, db.GetFeatureVersionsLinkedToServiceVersionForFeatureParams{
 		FeatureID:        featureVersion.FeatureID,
 		ServiceVersionID: serviceVersionID,
 		ChangesetID:      user.ChangesetID,
@@ -289,15 +292,27 @@ func (s *FeatureService) UpdateFeature(ctx context.Context, params UpdateFeature
 	})
 }
 
+func (s *FeatureService) validateUnlinkFeatureVersion(ctx context.Context, serviceVersion db.GetServiceVersionRow, link db.GetFeatureVersionServiceVersionLinkRow) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to unlink features for this service")
+	}
+
+	if serviceVersion.Published && link.ChangesetID != user.ChangesetID {
+		return NewServiceError(ErrorCodeInvalidOperation, "Features cannot be unlinked from a published service version")
+	}
+
+	return nil
+}
+
 func (s *FeatureService) UnlinkFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) error {
-	serviceVersion, _, linkID, err := s.coreService.GetFeatureVersionWithLinkID(ctx, serviceVersionID, featureVersionID)
+	serviceVersion, _, link, err := s.coreService.GetFeatureVersionWithLink(ctx, serviceVersionID, featureVersionID)
 	if err != nil {
 		return err
 	}
 
-	user := s.currentUserAccessor.GetUser(ctx)
-	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
-		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to unlink features for this service")
+	if err := s.validateUnlinkFeatureVersion(ctx, serviceVersion, link); err != nil {
+		return err
 	}
 
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
@@ -320,7 +335,7 @@ func (s *FeatureService) UnlinkFeatureVersion(ctx context.Context, serviceVersio
 		if change.ID == 0 {
 			if err = tx.AddDeleteFeatureVersionServiceVersionChange(ctx, db.AddDeleteFeatureVersionServiceVersionChangeParams{
 				ChangesetID:                    changesetID,
-				FeatureVersionServiceVersionID: linkID,
+				FeatureVersionServiceVersionID: link.ID,
 				ServiceVersionID:               serviceVersionID,
 				FeatureVersionID:               featureVersionID,
 			}); err != nil {
@@ -335,7 +350,7 @@ func (s *FeatureService) UnlinkFeatureVersion(ctx context.Context, serviceVersio
 				return err
 			}
 
-			if err = tx.DeleteFeatureVersionServiceVersion(ctx, linkID); err != nil {
+			if err = tx.DeleteFeatureVersionServiceVersion(ctx, link.ID); err != nil {
 				return err
 			}
 		}

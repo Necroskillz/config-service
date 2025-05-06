@@ -1155,7 +1155,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.FeatureVersionDto"
+                                "$ref": "#/definitions/service.FeatureVersionItemDto"
                             }
                         }
                     },
@@ -1412,7 +1412,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.FeatureVersionWithPermissionDto"
+                            "$ref": "#/definitions/service.FeatureVersionDto"
                         }
                     },
                     "400": {
@@ -2725,6 +2725,68 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create service version",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create service version",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service version ID",
+                        "name": "service_version_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
             }
         },
         "/value-types": {
@@ -3365,12 +3427,16 @@
         "service.FeatureVersionDto": {
             "type": "object",
             "required": [
+                "canEdit",
                 "description",
                 "id",
                 "name",
                 "version"
             ],
             "properties": {
+                "canEdit": {
+                    "type": "boolean"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -3385,17 +3451,17 @@
                 }
             }
         },
-        "service.FeatureVersionWithPermissionDto": {
+        "service.FeatureVersionItemDto": {
             "type": "object",
             "required": [
-                "canEdit",
+                "canUnlink",
                 "description",
                 "id",
                 "name",
                 "version"
             ],
             "properties": {
-                "canEdit": {
+                "canUnlink": {
                     "type": "boolean"
                 },
                 "description": {
@@ -3539,6 +3605,7 @@
                 "canEdit",
                 "description",
                 "id",
+                "isLastVersion",
                 "name",
                 "published",
                 "serviceId",
@@ -3555,6 +3622,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isLastVersion": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

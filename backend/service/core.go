@@ -20,7 +20,12 @@ func NewCoreService(queries *db.Queries, currentUserAccessor *auth.CurrentUserAc
 // TODO: Add changeset constrains to all queries
 
 func (s *CoreService) GetServiceVersion(ctx context.Context, serviceVersionID uint) (db.GetServiceVersionRow, error) {
-	serviceVersion, err := s.queries.GetServiceVersion(ctx, serviceVersionID)
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	serviceVersion, err := s.queries.GetServiceVersion(ctx, db.GetServiceVersionParams{
+		ServiceVersionID: serviceVersionID,
+		ChangesetID:      user.ChangesetID,
+	})
 	if err != nil {
 		return serviceVersion, NewDbError(err, "ServiceVersion")
 	}
@@ -28,39 +33,36 @@ func (s *CoreService) GetServiceVersion(ctx context.Context, serviceVersionID ui
 	return serviceVersion, nil
 }
 
-func (s *CoreService) GetFeatureVersionWithLinkID(ctx context.Context, serviceVersionID uint, featureVersionID uint) (db.GetServiceVersionRow, db.GetFeatureVersionRow, uint, error) {
+func (s *CoreService) GetFeatureVersionWithLink(ctx context.Context, serviceVersionID uint, featureVersionID uint) (db.GetServiceVersionRow, db.GetFeatureVersionRow, db.GetFeatureVersionServiceVersionLinkRow, error) {
 	var serviceVersion db.GetServiceVersionRow
 	var featureVersion db.GetFeatureVersionRow
+	var link db.GetFeatureVersionServiceVersionLinkRow
 	user := s.currentUserAccessor.GetUser(ctx)
 
 	serviceVersion, err := s.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
-		return serviceVersion, featureVersion, 0, err
+		return serviceVersion, featureVersion, link, err
 	}
 
 	featureVersion, err = s.queries.GetFeatureVersion(ctx, featureVersionID)
 	if err != nil {
-		return serviceVersion, featureVersion, 0, NewDbError(err, "FeatureVersion")
+		return serviceVersion, featureVersion, link, NewDbError(err, "FeatureVersion")
 	}
 
-	linkID, err := s.queries.GetFeatureVersionServiceVersionLinkID(ctx, db.GetFeatureVersionServiceVersionLinkIDParams{
+	link, err = s.queries.GetFeatureVersionServiceVersionLink(ctx, db.GetFeatureVersionServiceVersionLinkParams{
 		FeatureVersionID: featureVersion.ID,
 		ServiceVersionID: serviceVersion.ID,
 		ChangesetID:      user.ChangesetID,
 	})
 	if err != nil {
-		return serviceVersion, featureVersion, 0, NewDbError(err, "FeatureVersionServiceVersion link")
+		return serviceVersion, featureVersion, link, NewDbError(err, "FeatureVersionServiceVersion link")
 	}
 
-	if linkID == 0 {
-		return serviceVersion, featureVersion, 0, NewServiceError(ErrorCodeRecordNotFound, fmt.Sprintf("Feature version %d is not linked to service version %d", featureVersion.ID, serviceVersion.ID))
-	}
-
-	return serviceVersion, featureVersion, linkID, nil
+	return serviceVersion, featureVersion, link, nil
 }
 
 func (s *CoreService) GetFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) (db.GetServiceVersionRow, db.GetFeatureVersionRow, error) {
-	serviceVersion, featureVersion, _, err := s.GetFeatureVersionWithLinkID(ctx, serviceVersionID, featureVersionID)
+	serviceVersion, featureVersion, _, err := s.GetFeatureVersionWithLink(ctx, serviceVersionID, featureVersionID)
 	if err != nil {
 		return serviceVersion, featureVersion, err
 	}

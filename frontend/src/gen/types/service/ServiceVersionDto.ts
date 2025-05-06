@@ -17,6 +17,10 @@ export type ServiceServiceVersionDto = {
    */
   id: number
   /**
+   * @type boolean
+   */
+  isLastVersion: boolean
+  /**
    * @type string
    */
   name: string

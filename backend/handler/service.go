@@ -189,6 +189,34 @@ func (h *Handler) ServiceVersions(c echo.Context) error {
 	return c.JSON(http.StatusOK, serviceVersions)
 }
 
+// @Summary Create service version
+// @Description Create service version
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Success 200 {object} CreateResponse
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/versions [post]
+func (h *Handler) CreateServiceVersion(c echo.Context) error {
+	var serviceVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	serviceVersionID, err = h.ServiceService.CreateServiceVersion(c.Request().Context(), serviceVersionID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, NewCreateResponse(serviceVersionID))
+}
+
 // @Summary Check if service name is taken
 // @Description Check if service name is taken
 // @Accept json

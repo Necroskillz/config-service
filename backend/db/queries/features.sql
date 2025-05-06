@@ -11,15 +11,17 @@ LIMIT 1;
 SELECT id
 FROM features
 WHERE name = @name;
--- name: GetActiveFeatureVersionsForServiceVersion :many
+-- name: GetFeatureVersionsForServiceVersion :many
 SELECT fv.id,
     fv.feature_id,
     fv.version,
     f.name as feature_name,
-    f.description as feature_description
+    f.description as feature_description,
+    csc.changeset_id
 FROM feature_version_service_versions fvsv
     JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
     JOIN features f ON f.id = fv.feature_id
+    JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id AND csc.type = 'create' AND csc.kind = 'feature_version_service_version'
 WHERE fvsv.service_version_id = @service_version_id
     AND (
         (
@@ -49,7 +51,7 @@ WHERE fvsv.service_version_id = @service_version_id
         )
     )
 ORDER BY f.name;
--- name: GetFeatureVersionsLinkedToServiceVersion :many
+-- name: GetFeatureVersionsLinkedToServiceVersionForFeature :many
 SELECT fv.id,
     fv.version
 FROM feature_version_service_versions fvsv
@@ -152,9 +154,10 @@ WHERE f.service_id = @service_id
     )
 ORDER BY f.name,
     fv.version;
--- name: GetFeatureVersionServiceVersionLinkID :one
-SELECT fvsv.id
+-- name: GetFeatureVersionServiceVersionLink :one
+SELECT fvsv.id, csc.changeset_id
 FROM feature_version_service_versions fvsv
+    JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id AND csc.type = 'create' AND csc.kind = 'feature_version_service_version'
 WHERE fvsv.feature_version_id = @feature_version_id
     AND fvsv.service_version_id = @service_version_id
     AND (

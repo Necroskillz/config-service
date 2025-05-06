@@ -47,10 +47,11 @@ type ServiceVersionDto struct {
 	CanEdit         bool   `json:"canEdit" validate:"required"`
 	ServiceTypeID   uint   `json:"serviceTypeId" validate:"required"`
 	ServiceTypeName string `json:"serviceTypeName" validate:"required"`
+	IsLastVersion   bool   `json:"isLastVersion" validate:"required"`
 }
 
 func (s *ServiceService) GetServiceVersion(ctx context.Context, id uint) (ServiceVersionDto, error) {
-	serviceVersion, err := s.queries.GetServiceVersion(ctx, id)
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, id)
 	if err != nil {
 		return ServiceVersionDto{}, err
 	}
@@ -67,6 +68,7 @@ func (s *ServiceService) GetServiceVersion(ctx context.Context, id uint) (Servic
 		CanEdit:         user.GetPermissionForService(serviceVersion.ServiceID) >= constants.PermissionAdmin,
 		ServiceTypeID:   serviceVersion.ServiceTypeID,
 		ServiceTypeName: serviceVersion.ServiceTypeName,
+		IsLastVersion:   serviceVersion.LastVersion == serviceVersion.Version,
 	}, nil
 }
 
@@ -137,6 +139,8 @@ func (s *ServiceService) GetServices(ctx context.Context) ([]ServiceDto, error) 
 					Version:   serviceVersion.Version,
 				})
 			}
+
+			services[serviceVersion.ServiceID] = service
 		} else {
 			services[serviceVersion.ServiceID] = ServiceDto{
 				Name:        serviceVersion.ServiceName,
@@ -283,6 +287,86 @@ func (s *ServiceService) UpdateService(ctx context.Context, data UpdateServicePa
 		ServiceID:   serviceVersion.ServiceID,
 		Description: data.Description,
 	})
+}
+
+func (s *ServiceService) validateCreateServiceVersion(serviceVersion db.GetServiceVersionRow, user *auth.User) error {
+	if serviceVersion.LastVersion != serviceVersion.Version {
+		return NewServiceError(ErrorCodeInvalidOperation, "New service version can only be created from the latest version")
+	}
+
+	if user.GetPermissionForService(serviceVersion.ServiceID) < constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create a new service version")
+	}
+
+	return nil
+}
+
+func (s *ServiceService) CreateServiceVersion(ctx context.Context, serviceVersionID uint) (uint, error) {
+	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
+	if err != nil {
+		return 0, err
+	}
+
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	if err := s.validateCreateServiceVersion(serviceVersion, user); err != nil {
+		return 0, err
+	}
+
+	var serviceVersionId uint
+
+	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		changesetID, err := s.changesetService.EnsureChangesetForUser(ctx)
+		if err != nil {
+			return err
+		}
+
+		serviceVersionId, err = tx.CreateServiceVersion(ctx, db.CreateServiceVersionParams{
+			ServiceID: serviceVersion.ServiceID,
+			Version:   serviceVersion.Version + 1,
+		})
+		if err != nil {
+			return err
+		}
+
+		tx.AddCreateServiceVersionChange(ctx, db.AddCreateServiceVersionChangeParams{
+			ChangesetID:      changesetID,
+			ServiceVersionID: serviceVersionId,
+		})
+
+		featureVersions, err := tx.GetFeatureVersionsForServiceVersion(ctx, db.GetFeatureVersionsForServiceVersionParams{
+			ServiceVersionID: serviceVersionID,
+			ChangesetID:      user.ChangesetID,
+		})
+		if err != nil {
+			return err
+		}
+
+		for _, featureVersion := range featureVersions {
+			linkId, err := tx.CreateFeatureVersionServiceVersion(ctx, db.CreateFeatureVersionServiceVersionParams{
+				FeatureVersionID: featureVersion.ID,
+				ServiceVersionID: serviceVersionId,
+			})
+			if err != nil {
+				return err
+			}
+
+			tx.AddCreateFeatureVersionServiceVersionChange(ctx, db.AddCreateFeatureVersionServiceVersionChangeParams{
+				ChangesetID:                    changesetID,
+				FeatureVersionID:               featureVersion.ID,
+				ServiceVersionID:               serviceVersionId,
+				FeatureVersionServiceVersionID: linkId,
+			})
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	return serviceVersionId, nil
 }
 
 func (s *ServiceService) PublishServiceVersion(ctx context.Context, serviceVersionID uint) error {

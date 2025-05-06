@@ -1161,7 +1161,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.FeatureVersionDto"
+                                "$ref": "#/definitions/service.FeatureVersionItemDto"
                             }
                         }
                     },
@@ -1418,7 +1418,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.FeatureVersionWithPermissionDto"
+                            "$ref": "#/definitions/service.FeatureVersionDto"
                         }
                     },
                     "400": {
@@ -2731,6 +2731,68 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create service version",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create service version",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service version ID",
+                        "name": "service_version_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
             }
         },
         "/value-types": {
@@ -3371,12 +3433,16 @@ const docTemplate = `{
         "service.FeatureVersionDto": {
             "type": "object",
             "required": [
+                "canEdit",
                 "description",
                 "id",
                 "name",
                 "version"
             ],
             "properties": {
+                "canEdit": {
+                    "type": "boolean"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -3391,17 +3457,17 @@ const docTemplate = `{
                 }
             }
         },
-        "service.FeatureVersionWithPermissionDto": {
+        "service.FeatureVersionItemDto": {
             "type": "object",
             "required": [
-                "canEdit",
+                "canUnlink",
                 "description",
                 "id",
                 "name",
                 "version"
             ],
             "properties": {
-                "canEdit": {
+                "canUnlink": {
                     "type": "boolean"
                 },
                 "description": {
@@ -3545,6 +3611,7 @@ const docTemplate = `{
                 "canEdit",
                 "description",
                 "id",
+                "isLastVersion",
                 "name",
                 "published",
                 "serviceId",
@@ -3561,6 +3628,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isLastVersion": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

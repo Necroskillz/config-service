@@ -3,6 +3,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react';
 
 import { cn } from '~/lib/utils';
+import { Link, LinkComponentProps, useNavigate } from '@tanstack/react-router';
 
 function DropdownMenu({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -17,7 +18,11 @@ function DropdownMenuTrigger({ ...props }: React.ComponentProps<typeof DropdownM
 }
 
 function DropdownMenuTriggerLabel({ children, className, ...props }: React.ComponentProps<'div'>) {
-  return <div className={cn('cursor-pointer', className)} {...props}>{children}</div>;
+  return (
+    <div className={cn('cursor-pointer', className)} {...props}>
+      {children}
+    </div>
+  );
 }
 
 function DropdownMenuContent({ className, sideOffset = 4, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {

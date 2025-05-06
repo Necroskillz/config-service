@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { z } from 'zod';
 import { SlimPage } from '~/components/SlimPage';
 import {
@@ -58,6 +58,7 @@ export const Route = createFileRoute('/(features)/services/$serviceVersionId/fea
 function RouteComponent() {
   const { serviceVersionId, featureVersionId } = Route.useParams();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: featureVersion } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense(serviceVersionId, featureVersionId);
   const { data: keys } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysSuspense(serviceVersionId, featureVersionId);
   const { data: allFeatureVersions } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdVersions(serviceVersionId, featureVersionId, {
@@ -82,23 +83,28 @@ function RouteComponent() {
           <Badge className="ml-2">v{featureVersion.version}</Badge>
         </PageTitle>
         <div className="flex items-center">
-            {featureVersion.canEdit && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <EllipsisIcon className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>
-                    <Link className="w-full" to="/services/$serviceVersionId/features/$featureVersionId/edit" params={{ serviceVersionId, featureVersionId }}>
-                      Edit
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+          {featureVersion.canEdit && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <EllipsisIcon className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigate({
+                      to: '/services/$serviceVersionId/features/$featureVersionId/edit',
+                      params: { serviceVersionId, featureVersionId },
+                    })
+                  }
+                >
+                  Edit
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-row gap-2 items-center">
@@ -111,20 +117,25 @@ function RouteComponent() {
               </DropdownMenuTriggerLabel>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {allFeatureVersions?.map((fv) => (
-                <DropdownMenuItem key={fv.id}>
-                  {fv.id === featureVersionId ? (
-                    <span>v{fv.version}</span>
-                  ) : (
-                    <Link
-                      to="/services/$serviceVersionId/features/$featureVersionId"
-                      params={{ serviceVersionId, featureVersionId: fv.id }}
-                    >
-                      v{fv.version}
-                    </Link>
-                  )}
-                </DropdownMenuItem>
-              ))}
+              {allFeatureVersions?.map((fv) =>
+                fv.id === featureVersionId ? (
+                  <DropdownMenuItem key={fv.id}>
+                    <span className="text-accent-foreground font-bold">v{fv.version}</span>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    key={fv.id}
+                    onClick={() =>
+                      navigate({
+                        to: '/services/$serviceVersionId/features/$featureVersionId',
+                        params: { serviceVersionId, featureVersionId: fv.id },
+                      })
+                    }
+                  >
+                    v{fv.version}
+                  </DropdownMenuItem>
+                )
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
