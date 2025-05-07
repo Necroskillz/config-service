@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -18,16 +19,22 @@ func Ptr[T any](v T) *T {
 }
 
 func main() {
-	cmd := exec.Command("dbmate", "down")
-	err := cmd.Run()
-	if err != nil {
-		log.Fatalf("failed to run dbmate down: %v", err)
+	for {
+		cmd := exec.Command("dbmate", "down")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			if strings.Contains(string(out), "can't rollback: no migrations have been applied") {
+				break
+			}
+
+			log.Fatalf("failed to run dbmate down: %v %s", err, string(out))
+		}
 	}
 
-	cmd = exec.Command("dbmate", "up")
-	err = cmd.Run()
+	cmd := exec.Command("dbmate", "up")
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatalf("failed to run dbmate up: %v", err)
+		log.Fatalf("failed to run dbmate up: %v %s", err, string(out))
 	}
 
 	if err := godotenv.Load(); err != nil {

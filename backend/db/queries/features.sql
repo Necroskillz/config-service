@@ -17,39 +17,15 @@ SELECT fv.id,
     fv.version,
     f.name as feature_name,
     f.description as feature_description,
-    csc.changeset_id
+    csc.changeset_id as linked_in_changeset_id
 FROM feature_version_service_versions fvsv
     JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
     JOIN features f ON f.id = fv.feature_id
-    JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id AND csc.type = 'create' AND csc.kind = 'feature_version_service_version'
+    JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id
+    AND csc.type = 'create'
+    AND csc.kind = 'feature_version_service_version'
 WHERE fvsv.service_version_id = @service_version_id
-    AND (
-        (
-            fvsv.valid_from IS NOT NULL
-            AND fvsv.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version_service_version'
-                    AND csc.type = 'delete'
-                    AND csc.feature_version_service_version_id = fvsv.id
-                LIMIT 1
-            )
-        )
-        OR (
-            fvsv.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version_service_version'
-                    AND csc.type = 'create'
-                    AND csc.feature_version_service_version_id = fvsv.id
-                LIMIT 1
-            )
-        )
-    )
+    AND is_link_valid_in_changeset(fvsv, @changeset_id)
 ORDER BY f.name;
 -- name: GetFeatureVersionsLinkedToServiceVersionForFeature :many
 SELECT fv.id,
@@ -59,32 +35,7 @@ FROM feature_version_service_versions fvsv
     JOIN features f ON f.id = fv.feature_id
 WHERE fv.feature_id = @feature_id
     AND fvsv.service_version_id = @service_version_id
-    AND (
-        (
-            fvsv.valid_from IS NOT NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version_service_version'
-                    AND csc.type = 'delete'
-                    AND csc.feature_version_service_version_id = fvsv.id
-                LIMIT 1
-            )
-        )
-        OR (
-            fvsv.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version_service_version'
-                    AND csc.type = 'create'
-                    AND csc.feature_version_service_version_id = fvsv.id
-                LIMIT 1
-            )
-        )
-    )
+    AND is_link_valid_in_changeset(fvsv, @changeset_id)
 ORDER BY fv.version;
 -- name: GetFeatureVersionsLinkableToServiceVersion :many
 SELECT fv.id,
@@ -94,98 +45,26 @@ SELECT fv.id,
 FROM feature_versions fv
     JOIN features f ON f.id = fv.feature_id
 WHERE f.service_id = @service_id
-    AND (
-        (
-            fv.valid_from IS NOT NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version'
-                    AND csc.type = 'delete'
-                    AND csc.feature_version_id = fv.id
-                LIMIT 1
-            )
-        )
-        OR (
-            fv.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version'
-                    AND csc.type = 'create'
-                    AND csc.feature_version_id = fv.id
-                LIMIT 1
-            )
-        )
-    )
+    AND is_feature_version_valid_in_changeset(fv, @changeset_id)
     AND NOT EXISTS (
         SELECT 1
         FROM feature_version_service_versions fvsv
         WHERE fvsv.feature_version_id = fv.id
             AND fvsv.service_version_id = @service_version_id
-            AND (
-                (
-                    fvsv.valid_from IS NOT NULL
-                    AND NOT EXISTS (
-                        SELECT csc.id
-                        FROM changeset_changes csc
-                        WHERE csc.changeset_id = @changeset_id
-                            AND csc.kind = 'feature_version_service_version'
-                            AND csc.type = 'delete'
-                            AND csc.feature_version_service_version_id = fvsv.id
-                        LIMIT 1
-                    )
-                )
-                OR (
-                    fvsv.valid_from IS NULL
-                    AND EXISTS (
-                        SELECT csc.id
-                        FROM changeset_changes csc
-                        WHERE csc.changeset_id = @changeset_id
-                            AND csc.kind = 'feature_version_service_version'
-                            AND csc.type = 'create'
-                            AND csc.feature_version_service_version_id = fvsv.id
-                        LIMIT 1
-                    )
-                )
-            )
+            AND is_link_valid_in_changeset(fvsv, @changeset_id)
     )
 ORDER BY f.name,
     fv.version;
 -- name: GetFeatureVersionServiceVersionLink :one
-SELECT fvsv.id, csc.changeset_id
+SELECT fvsv.id,
+    csc.changeset_id as created_in_changeset_id
 FROM feature_version_service_versions fvsv
-    JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id AND csc.type = 'create' AND csc.kind = 'feature_version_service_version'
+    JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id
+    AND csc.type = 'create'
+    AND csc.kind = 'feature_version_service_version'
 WHERE fvsv.feature_version_id = @feature_version_id
     AND fvsv.service_version_id = @service_version_id
-    AND (
-        (
-            fvsv.valid_from IS NOT NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version_service_version'
-                    AND csc.type = 'delete'
-                    AND csc.feature_version_service_version_id = fvsv.id
-                LIMIT 1
-            )
-        )
-        OR (
-            fvsv.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version_service_version'
-                    AND csc.type = 'create'
-                    AND csc.feature_version_service_version_id = fvsv.id
-                LIMIT 1
-            )
-        )
-    );
+    AND is_link_valid_in_changeset(fvsv, @changeset_id);
 -- name: IsFeatureLinkedToServiceVersion :one
 SELECT EXISTS (
         SELECT 1
@@ -193,32 +72,7 @@ SELECT EXISTS (
             JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
         WHERE fv.feature_id = @feature_id
             AND fvsv.service_version_id = @service_version_id
-            AND (
-                (
-                    fvsv.valid_from IS NOT NULL
-                    AND NOT EXISTS (
-                        SELECT csc.id
-                        FROM changeset_changes csc
-                        WHERE csc.changeset_id = @changeset_id
-                            AND csc.kind = 'feature_version_service_version'
-                            AND csc.type = 'delete'
-                            AND csc.feature_version_service_version_id = fvsv.id
-                        LIMIT 1
-                    )
-                )
-                OR (
-                    fvsv.valid_from IS NULL
-                    AND EXISTS (
-                        SELECT csc.id
-                        FROM changeset_changes csc
-                        WHERE csc.changeset_id = @changeset_id
-                            AND csc.kind = 'feature_version_service_version'
-                            AND csc.type = 'create'
-                            AND csc.feature_version_service_version_id = fvsv.id
-                        LIMIT 1
-                    )
-                )
-            )
+            AND is_link_valid_in_changeset(fvsv, @changeset_id)
     );
 -- name: CreateFeature :one
 INSERT INTO features (name, description, service_id)

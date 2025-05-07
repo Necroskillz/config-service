@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strings"
 
@@ -369,7 +370,7 @@ func (s *ServiceService) CreateServiceVersion(ctx context.Context, serviceVersio
 	return serviceVersionId, nil
 }
 
-func (s *ServiceService) PublishServiceVersion(ctx context.Context, serviceVersionID uint) error {
+func (s *ServiceService) validatePublishServiceVersion(ctx context.Context, serviceVersionID uint) error {
 	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -383,6 +384,26 @@ func (s *ServiceService) PublishServiceVersion(ctx context.Context, serviceVersi
 
 	if serviceVersion.Published {
 		return NewServiceError(ErrorCodeInvalidOperation, "This service version is already published")
+	}
+
+	changesCount, err := s.queries.GetRelatedServiceVersionChangesCount(ctx, db.GetRelatedServiceVersionChangesCountParams{
+		ServiceVersionID: serviceVersionID,
+		ChangesetID:      user.ChangesetID,
+	})
+	if err != nil {
+		return err
+	}
+
+	if changesCount > 0 {
+		return NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Your current changeset contains %d changes related to this service version. Please apply them before publishing.", changesCount))
+	}
+
+	return nil
+}
+
+func (s *ServiceService) PublishServiceVersion(ctx context.Context, serviceVersionID uint) error {
+	if err := s.validatePublishServiceVersion(ctx, serviceVersionID); err != nil {
+		return err
 	}
 
 	return s.queries.PublishServiceVersion(ctx, serviceVersionID)

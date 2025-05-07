@@ -155,19 +155,7 @@ WITH last_service_versions AS (
     SELECT sv.service_id,
         MAX(sv.version)::int as last_version
     FROM service_versions sv
-    WHERE sv.valid_from IS NOT NULL
-        OR (
-            sv.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = $2
-                    AND csc.type = 'create'
-                    AND csc.kind = 'service_version'
-                    AND csc.service_version_id = sv.id
-                LIMIT 1
-            )
-        )
+    WHERE is_service_version_valid_in_changeset(sv, $2)
     GROUP BY sv.service_id
 )
 SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
@@ -181,7 +169,9 @@ FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
     JOIN last_service_versions lsv ON lsv.service_id = sv.service_id
-    JOIN changeset_changes csc ON csc.service_version_id = sv.id AND csc.type = 'create' AND csc.kind = 'service_version'
+    JOIN changeset_changes csc ON csc.service_version_id = sv.id
+    AND csc.type = 'create'
+    AND csc.kind = 'service_version'
 WHERE sv.id = $1
 LIMIT 1
 `
@@ -239,19 +229,7 @@ SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.servi
 FROM service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
-WHERE sv.valid_from IS NOT NULL
-    OR (
-        sv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = $1
-                AND csc.type = 'create'
-                AND csc.kind = 'service_version'
-                AND csc.service_version_id = sv.id
-            LIMIT 1
-        )
-    )
+WHERE is_service_version_valid_in_changeset(sv, $1)
 ORDER BY s.name,
     sv.version ASC
 `
@@ -309,21 +287,7 @@ SELECT sv.id,
     sv.version
 FROM service_versions sv
 WHERE sv.service_id = $1
-    AND (
-        sv.valid_from IS NOT NULL
-        OR (
-            sv.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = $2
-                    AND csc.type = 'create'
-                    AND csc.kind = 'service_version'
-                    AND csc.service_version_id = sv.id
-                LIMIT 1
-            )
-        )
-    )
+    AND is_service_version_valid_in_changeset(sv, $2)
 ORDER BY sv.version ASC
 `
 

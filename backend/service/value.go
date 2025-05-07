@@ -67,7 +67,7 @@ func (s *ValueService) GetKeyValues(ctx context.Context, serviceVersionID uint, 
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	values, err := s.queries.GetActiveVariationValuesForKey(ctx, db.GetActiveVariationValuesForKeyParams{
+	values, err := s.queries.GetVariationValuesForKey(ctx, db.GetVariationValuesForKeyParams{
 		KeyID:       keyID,
 		ChangesetID: user.ChangesetID,
 	})

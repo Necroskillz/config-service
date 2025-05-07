@@ -123,6 +123,260 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: feature_versions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.feature_versions (
+    id bigint NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    valid_from timestamp with time zone,
+    valid_to timestamp with time zone,
+    version integer NOT NULL,
+    feature_id bigint NOT NULL
+);
+
+
+--
+-- Name: is_feature_version_valid_in_changeset(public.feature_versions, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_feature_version_valid_in_changeset(fv public.feature_versions, changeset_id bigint) RETURNS boolean
+    LANGUAGE sql IMMUTABLE
+    AS $$
+SELECT (
+        (
+            fv.valid_from IS NOT NULL
+            AND fv.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'feature_version'
+                    AND csc.type = 'delete'
+                    AND csc.feature_version_id = fv.id
+                LIMIT 1
+            )
+        )
+    )
+    OR (
+        fv.valid_from IS NULL
+        AND EXISTS (
+            SELECT csc.id
+            FROM changeset_changes csc
+            WHERE csc.changeset_id = @changeset_id
+                AND csc.type = 'create'
+                AND csc.kind = 'feature_version'
+                AND csc.feature_version_id = fv.id
+            LIMIT 1
+        )
+    ) $$;
+
+
+--
+-- Name: keys; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.keys (
+    id bigint NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    valid_from timestamp with time zone,
+    valid_to timestamp with time zone,
+    name text NOT NULL,
+    description text,
+    value_type_id bigint NOT NULL,
+    feature_version_id bigint NOT NULL
+);
+
+
+--
+-- Name: is_key_valid_in_changeset(public.keys, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_key_valid_in_changeset(k public.keys, changeset_id bigint) RETURNS boolean
+    LANGUAGE sql IMMUTABLE
+    AS $$
+SELECT (
+        (
+            k.valid_from IS NOT NULL
+            AND k.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'key'
+                    AND csc.type = 'delete'
+                    AND csc.key_id = k.id
+                LIMIT 1
+            )
+        )
+    )
+    OR (
+        k.valid_from IS NULL
+        AND EXISTS (
+            SELECT csc.id
+            FROM changeset_changes csc
+            WHERE csc.changeset_id = @changeset_id
+                AND csc.type = 'create'
+                AND csc.kind = 'key'
+                AND csc.key_id = k.id
+            LIMIT 1
+        )
+    ) $$;
+
+
+--
+-- Name: feature_version_service_versions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.feature_version_service_versions (
+    id bigint NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    valid_from timestamp with time zone,
+    valid_to timestamp with time zone,
+    feature_version_id bigint NOT NULL,
+    service_version_id bigint NOT NULL
+);
+
+
+--
+-- Name: is_link_valid_in_changeset(public.feature_version_service_versions, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_link_valid_in_changeset(fvsv public.feature_version_service_versions, changeset_id bigint) RETURNS boolean
+    LANGUAGE sql IMMUTABLE
+    AS $$
+SELECT (
+        (
+            fvsv.valid_from IS NOT NULL
+            AND fvsv.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'feature_version_service_version'
+                    AND csc.type = 'delete'
+                    AND csc.feature_version_service_version_id = fvsv.id
+                LIMIT 1
+            )
+        )
+    )
+    OR (
+        fvsv.valid_from IS NULL
+        AND EXISTS (
+            SELECT csc.id
+            FROM changeset_changes csc
+            WHERE csc.changeset_id = @changeset_id
+                AND csc.type = 'create'
+                AND csc.kind = 'feature_version_service_version'
+                AND csc.feature_version_service_version_id = fvsv.id
+            LIMIT 1
+        )
+    ) $$;
+
+
+--
+-- Name: service_versions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.service_versions (
+    id bigint NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    valid_from timestamp with time zone,
+    valid_to timestamp with time zone,
+    service_id bigint NOT NULL,
+    version integer NOT NULL,
+    published boolean DEFAULT false NOT NULL
+);
+
+
+--
+-- Name: is_service_version_valid_in_changeset(public.service_versions, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_service_version_valid_in_changeset(sv public.service_versions, changeset_id bigint) RETURNS boolean
+    LANGUAGE sql IMMUTABLE
+    AS $$
+SELECT (
+        (
+            sv.valid_from IS NOT NULL
+            AND sv.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'service_version'
+                    AND csc.type = 'delete'
+                    AND csc.service_version_id = sv.id
+                LIMIT 1
+            )
+        )
+    )
+    OR (
+        sv.valid_from IS NULL
+        AND EXISTS (
+            SELECT csc.id
+            FROM changeset_changes csc
+            WHERE csc.changeset_id = @changeset_id
+                AND csc.type = 'create'
+                AND csc.kind = 'service_version'
+                AND csc.service_version_id = sv.id
+            LIMIT 1
+        )
+    ) $$;
+
+
+--
+-- Name: variation_values; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.variation_values (
+    id bigint NOT NULL,
+    valid_from timestamp with time zone,
+    valid_to timestamp with time zone,
+    key_id bigint NOT NULL,
+    variation_context_id bigint NOT NULL,
+    data text NOT NULL
+);
+
+
+--
+-- Name: is_variation_value_valid_in_changeset(public.variation_values, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_variation_value_valid_in_changeset(vv public.variation_values, changeset_id bigint) RETURNS boolean
+    LANGUAGE sql IMMUTABLE
+    AS $$
+SELECT (
+        (
+            vv.valid_from IS NOT NULL
+            AND vv.valid_to IS NULL
+            AND NOT EXISTS (
+                SELECT csc.id
+                FROM changeset_changes csc
+                WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'variation_value'
+                    AND csc.old_variation_value_id = vv.id
+                LIMIT 1
+            )
+        )
+    )
+    OR (
+        vv.valid_from IS NULL
+        AND EXISTS (
+            SELECT csc.id
+            FROM changeset_changes csc
+            WHERE csc.changeset_id = @changeset_id
+                    AND csc.kind = 'variation_value'
+                AND csc.new_variation_value_id = vv.id
+            LIMIT 1
+        )
+    ) $$;
+
+
+--
 -- Name: changeset_actions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -228,20 +482,6 @@ ALTER SEQUENCE public.changesets_id_seq OWNED BY public.changesets.id;
 
 
 --
--- Name: feature_version_service_versions; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.feature_version_service_versions (
-    id bigint NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    valid_from timestamp with time zone,
-    valid_to timestamp with time zone,
-    feature_version_id bigint NOT NULL,
-    service_version_id bigint NOT NULL
-);
-
-
---
 -- Name: feature_version_service_versions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -258,21 +498,6 @@ CREATE SEQUENCE public.feature_version_service_versions_id_seq
 --
 
 ALTER SEQUENCE public.feature_version_service_versions_id_seq OWNED BY public.feature_version_service_versions.id;
-
-
---
--- Name: feature_versions; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.feature_versions (
-    id bigint NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    valid_from timestamp with time zone,
-    valid_to timestamp with time zone,
-    version integer NOT NULL,
-    feature_id bigint NOT NULL
-);
 
 
 --
@@ -325,23 +550,6 @@ CREATE SEQUENCE public.features_id_seq
 --
 
 ALTER SEQUENCE public.features_id_seq OWNED BY public.features.id;
-
-
---
--- Name: keys; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.keys (
-    id bigint NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    valid_from timestamp with time zone,
-    valid_to timestamp with time zone,
-    name text NOT NULL,
-    description text,
-    value_type_id bigint NOT NULL,
-    feature_version_id bigint NOT NULL
-);
 
 
 --
@@ -433,22 +641,6 @@ CREATE SEQUENCE public.service_types_id_seq
 --
 
 ALTER SEQUENCE public.service_types_id_seq OWNED BY public.service_types.id;
-
-
---
--- Name: service_versions; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.service_versions (
-    id bigint NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    valid_from timestamp with time zone,
-    valid_to timestamp with time zone,
-    service_id bigint NOT NULL,
-    version integer NOT NULL,
-    published boolean DEFAULT false NOT NULL
-);
 
 
 --
@@ -734,20 +926,6 @@ CREATE SEQUENCE public.variation_property_values_id_seq
 --
 
 ALTER SEQUENCE public.variation_property_values_id_seq OWNED BY public.variation_property_values.id;
-
-
---
--- Name: variation_values; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.variation_values (
-    id bigint NOT NULL,
-    valid_from timestamp with time zone,
-    valid_to timestamp with time zone,
-    key_id bigint NOT NULL,
-    variation_context_id bigint NOT NULL,
-    data text NOT NULL
-);
 
 
 --
@@ -1468,4 +1646,7 @@ ALTER TABLE ONLY public.variation_values
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
-    ('20250322174639');
+    ('0001'),
+    ('0002'),
+    ('0003'),
+    ('0004');

@@ -93,7 +93,7 @@ func (s *KeyService) GetFeatureKeys(ctx context.Context, serviceVersionID uint, 
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	keys, err := s.queries.GetActiveKeysForFeatureVersion(ctx, db.GetActiveKeysForFeatureVersionParams{
+	keys, err := s.queries.GetKeysForFeatureVersion(ctx, db.GetKeysForFeatureVersionParams{
 		FeatureVersionID: featureVersionID,
 		ChangesetID:      user.ChangesetID,
 	})

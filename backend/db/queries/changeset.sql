@@ -77,6 +77,11 @@ FROM changesets
 WHERE user_id = @user_id
     AND state = 'open'
 LIMIT 1;
+-- name: GetRelatedServiceVersionChangesCount :one
+SELECT COUNT(*)::integer
+FROM changeset_changes csc
+WHERE csc.service_version_id = @service_version_id
+    AND csc.changeset_id = @changeset_id;
 -- name: GetChangeset :one
 SELECT cs.id,
     cs.state,

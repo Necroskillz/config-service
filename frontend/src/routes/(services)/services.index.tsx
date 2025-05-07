@@ -35,8 +35,8 @@ export function ServicesRouteComponent() {
                 {service.name}
               </Link>
               {service.versions.map((version) => (
-                <Link to="/services/$serviceVersionId" params={{ serviceVersionId: version.id }}>
-                  <Badge variant={version.published ? 'default' : 'secondary'} className="ml-2" key={version.id}>
+                <Link key={version.id} to="/services/$serviceVersionId" params={{ serviceVersionId: version.id }}>
+                  <Badge variant={version.published ? 'default' : 'secondary'} className="ml-2">
                     v{version.version} ({version.published ? 'published' : 'draft'})
                   </Badge>
                 </Link>

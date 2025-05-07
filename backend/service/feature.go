@@ -92,7 +92,7 @@ func (s *FeatureService) GetServiceFeatures(ctx context.Context, serviceVersionI
 			Version:     featureVersion.Version,
 			Description: featureVersion.FeatureDescription,
 			Name:        featureVersion.FeatureName,
-			CanUnlink:   featureVersion.ChangesetID == user.ChangesetID,
+			CanUnlink:   featureVersion.LinkedInChangesetID == user.ChangesetID,
 		}
 	}
 
@@ -298,7 +298,7 @@ func (s *FeatureService) validateUnlinkFeatureVersion(ctx context.Context, servi
 		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to unlink features for this service")
 	}
 
-	if serviceVersion.Published && link.ChangesetID != user.ChangesetID {
+	if serviceVersion.Published && link.CreatedInChangesetID != user.ChangesetID {
 		return NewServiceError(ErrorCodeInvalidOperation, "Features cannot be unlinked from a published service version")
 	}
 

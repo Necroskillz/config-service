@@ -86,7 +86,7 @@ func (s *ValidationService) DoesVariationExist(ctx context.Context, keyID uint, 
 		return 0, err
 	}
 
-	valueID, err := s.queries.GetActiveVariationValueIDByVariationContextID(ctx, db.GetActiveVariationValueIDByVariationContextIDParams{
+	valueID, err := s.queries.GetVariationValueIDByVariationContextID(ctx, db.GetVariationValueIDByVariationContextIDParams{
 		VariationContextID: variationContextID,
 		KeyID:              keyID,
 		ChangesetID:        s.currentUserAccessor.GetUser(ctx).ChangesetID,

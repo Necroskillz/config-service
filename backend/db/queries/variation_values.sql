@@ -14,65 +14,17 @@ WHERE id = @variation_value_id;
 SELECT *
 FROM variation_values
 WHERE id = @variation_value_id;
--- name: GetActiveVariationValuesForKey :many
+-- name: GetVariationValuesForKey :many
 SELECT vv.*
 FROM variation_values vv
 WHERE vv.key_id = @key_id
-    AND (
-        (
-            vv.valid_from IS NOT NULL
-            AND vv.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'variation_value'
-                    AND csc.old_variation_value_id = vv.id
-                LIMIT 1
-            )
-        )
-        OR (
-            vv.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'variation_value'
-                    AND csc.new_variation_value_id = vv.id
-                LIMIT 1
-            )
-        )
-    );
--- name: GetActiveVariationValueIDByVariationContextID :one
+    AND is_variation_value_valid_in_changeset(vv, @changeset_id);
+-- name: GetVariationValueIDByVariationContextID :one
 SELECT id
 FROM variation_values vv
 WHERE vv.key_id = @key_id
     AND vv.variation_context_id = @variation_context_id
-    AND (
-        (
-            vv.valid_from IS NOT NULL
-            AND vv.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'variation_value'
-                    AND csc.old_variation_value_id = vv.id
-                LIMIT 1
-            )
-        )
-        OR (
-            vv.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'variation_value'
-                    AND csc.new_variation_value_id = vv.id
-                LIMIT 1
-            )
-        )
-    )
+    AND is_variation_value_valid_in_changeset(vv, @changeset_id)
 LIMIT 1;
 -- name: EndValueValidity :exec
 UPDATE variation_values

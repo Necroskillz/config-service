@@ -6,40 +6,14 @@ FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
 WHERE k.id = @key_id
 LIMIT 1;
--- name: GetActiveKeysForFeatureVersion :many
+-- name: GetKeysForFeatureVersion :many
 SELECT k.*,
     vt.kind as value_type_kind,
     vt.name as value_type_name
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
 WHERE k.feature_version_id = @feature_version_id
-    AND (
-        (
-            k.valid_from IS NOT NULL
-            AND k.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'key'
-                    AND csc.type = 'delete'
-                    AND csc.key_id = k.id
-                LIMIT 1
-            )
-        )
-        OR (
-            k.valid_from IS NULL
-            AND EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'key'
-                    AND csc.type = 'create'
-                    AND csc.key_id = k.id
-                LIMIT 1
-            )
-        )
-    )
+    AND is_key_valid_in_changeset(k, @changeset_id)
 ORDER BY k.name;
 -- name: GetValueTypes :many
 SELECT *
@@ -75,18 +49,34 @@ RETURNING id;
 -- name: GetValueValidators :many
 SELECT *
 FROM value_validators
-WHERE value_type_id = @value_type_id OR key_id = @key_id;
+WHERE value_type_id = @value_type_id
+    OR key_id = @key_id;
 -- name: GetValueTypeValueValidators :many
 SELECT *
 FROM value_validators
 WHERE value_type_id IS NOT NULL;
 -- name: CreateValueValidatorForValueType :one
-INSERT INTO value_validators (value_type_id, validator_type, parameter, error_text)
-VALUES (@value_type_id, @validator_type, sqlc.narg('parameter'), sqlc.narg('error_text'))
+INSERT INTO value_validators (
+        value_type_id,
+        validator_type,
+        parameter,
+        error_text
+    )
+VALUES (
+        @value_type_id,
+        @validator_type,
+        sqlc.narg('parameter'),
+        sqlc.narg('error_text')
+    )
 RETURNING id;
 -- name: CreateValueValidatorForKey :one
 INSERT INTO value_validators (key_id, validator_type, parameter, error_text)
-VALUES (@key_id, @validator_type, sqlc.narg('parameter'), sqlc.narg('error_text'))
+VALUES (
+        @key_id,
+        @validator_type,
+        sqlc.narg('parameter'),
+        sqlc.narg('error_text')
+    )
 RETURNING id;
 -- name: EndKeyValidity :exec
 UPDATE keys

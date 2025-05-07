@@ -795,6 +795,25 @@ func (q *Queries) GetOpenChangesetIDForUser(ctx context.Context, userID uint) (u
 	return id, err
 }
 
+const getRelatedServiceVersionChangesCount = `-- name: GetRelatedServiceVersionChangesCount :one
+SELECT COUNT(*)::integer
+FROM changeset_changes csc
+WHERE csc.service_version_id = $1
+    AND csc.changeset_id = $2
+`
+
+type GetRelatedServiceVersionChangesCountParams struct {
+	ServiceVersionID uint
+	ChangesetID      uint
+}
+
+func (q *Queries) GetRelatedServiceVersionChangesCount(ctx context.Context, arg GetRelatedServiceVersionChangesCountParams) (int, error) {
+	row := q.db.QueryRow(ctx, getRelatedServiceVersionChangesCount, arg.ServiceVersionID, arg.ChangesetID)
+	var column_1 int
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const setChangesetState = `-- name: SetChangesetState :exec
 UPDATE changesets
 SET state = $1
