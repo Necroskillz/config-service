@@ -55,6 +55,7 @@ export type { PostServicesServiceVersionIdFeaturesMutationKey } from './hooks/us
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys.ts'
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues.ts'
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
+export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdVersionsMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdVersions.ts'
 export type { PostServicesServiceVersionIdVersionsMutationKey } from './hooks/usePostServicesServiceVersionIdVersions.ts'
 export type { PutChangesetsChangesetIdApplyMutationKey } from './hooks/usePutChangesetsChangesetIdApply.ts'
 export type { PutChangesetsChangesetIdCommitMutationKey } from './hooks/usePutChangesetsChangesetIdCommit.ts'
@@ -404,6 +405,17 @@ export type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutation,
 } from './types/PostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
 export type {
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersionsPathParams,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions200,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions400,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions401,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions403,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions404,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions500,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersionsMutationResponse,
+  PostServicesServiceVersionIdFeaturesFeatureVersionIdVersionsMutation,
+} from './types/PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions.ts'
+export type {
   PostServicesServiceVersionIdVersionsPathParams,
   PostServicesServiceVersionIdVersions200,
   PostServicesServiceVersionIdVersions400,
@@ -526,6 +538,7 @@ export type { ServiceChangesetDto } from './types/service/ChangesetDto.ts'
 export type { ServiceChangesetItemDto } from './types/service/ChangesetItemDto.ts'
 export type { ServiceFeatureVersionDto } from './types/service/FeatureVersionDto.ts'
 export type { ServiceFeatureVersionItemDto } from './types/service/FeatureVersionItemDto.ts'
+export type { ServiceFeatureVersionLinkDto } from './types/service/FeatureVersionLinkDto.ts'
 export type { ServiceKeyDto } from './types/service/KeyDto.ts'
 export type { ServiceKeyItemDto } from './types/service/KeyItemDto.ts'
 export type { ServiceNewValueInfo } from './types/service/NewValueInfo.ts'
@@ -533,12 +546,12 @@ export type { ServicePaginatedResultServiceChangesetItemDto } from './types/serv
 export type { ServiceServiceDto } from './types/service/ServiceDto.ts'
 export type { ServiceServiceVersionDto } from './types/service/ServiceVersionDto.ts'
 export type { ServiceServiceVersionInfoDto } from './types/service/ServiceVersionInfoDto.ts'
+export type { ServiceServiceVersionLinkDto } from './types/service/ServiceVersionLinkDto.ts'
 export type { ServiceValidatorDto } from './types/service/ValidatorDto.ts'
 export type { ServiceValidatorWithParameterTypeDto } from './types/service/ValidatorWithParameterTypeDto.ts'
 export type { ServiceValueTypeDto } from './types/service/ValueTypeDto.ts'
 export type { ServiceValueValidatorParameterTypeEnum, ServiceValueValidatorParameterType } from './types/service/ValueValidatorParameterType.ts'
 export type { ServiceVariationValue } from './types/service/VariationValue.ts'
-export type { ServiceVersionLinkDto } from './types/service/VersionLinkDto.ts'
 export { deleteChangesetsChangesetIdMutationKey, deleteChangesetsChangesetId, useDeleteChangesetsChangesetId } from './hooks/useDeleteChangesetsChangesetId.ts'
 export {
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey,
@@ -819,6 +832,11 @@ export {
   postServicesServiceVersionIdFeaturesFeatureVersionIdLink,
   usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink,
 } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
+export {
+  postServicesServiceVersionIdFeaturesFeatureVersionIdVersionsMutationKey,
+  postServicesServiceVersionIdFeaturesFeatureVersionIdVersions,
+  usePostServicesServiceVersionIdFeaturesFeatureVersionIdVersions,
+} from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdVersions.ts'
 export {
   postServicesServiceVersionIdVersionsMutationKey,
   postServicesServiceVersionIdVersions,

@@ -84,7 +84,7 @@ CREATE INDEX idx_keys_valid_to ON keys(valid_to);
 CREATE TABLE value_validators (
     id BIGSERIAL PRIMARY KEY,
     value_type_id BIGINT REFERENCES value_types(id),
-    key_id BIGINT REFERENCES keys(id),
+    key_id BIGINT REFERENCES keys(id) ON DELETE CASCADE,
     validator_type value_validator_type NOT NULL,
     parameter TEXT,
     error_text TEXT,

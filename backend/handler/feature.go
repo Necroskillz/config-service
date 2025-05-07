@@ -188,7 +188,7 @@ func (h *Handler) IsFeatureNameTaken(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
-// @Success 200 {object} []service.VersionLinkDto
+// @Success 200 {object} []service.FeatureVersionLinkDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -202,7 +202,7 @@ func (h *Handler) FeatureVersions(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	featureVersions, err := h.FeatureService.GetFeatureVersionsLinkedToServiceVersion(c.Request().Context(), featureVersionID, serviceVersionID)
+	featureVersions, err := h.FeatureService.GetVersionsOfFeatureForServiceVersion(c.Request().Context(), featureVersionID, serviceVersionID)
 	if err != nil {
 		return ToHTTPError(err)
 	}
@@ -294,4 +294,37 @@ func (h *Handler) LinkFeatureVersion(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+// @Summary Create feature version
+// @Description Create feature version
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param feature_version_id path int true "Feature version ID"
+// @Success 200 {object} CreateResponse
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/{feature_version_id}/versions [post]
+func (h *Handler) CreateFeatureVersion(c echo.Context) error {
+	var serviceVersionID uint
+	var featureVersionID uint
+	err := echo.PathParamsBinder(c).MustUint("service_version_id", &serviceVersionID).MustUint("feature_version_id", &featureVersionID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	newId, err := h.FeatureService.CreateFeatureVersion(c.Request().Context(), service.CreateFeatureVersionParams{
+		ServiceVersionID: serviceVersionID,
+		FeatureVersionID: featureVersionID,
+	})
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, NewCreateResponse(newId))
 }

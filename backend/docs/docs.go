@@ -2580,7 +2580,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.VersionLinkDto"
+                                "$ref": "#/definitions/service.FeatureVersionLinkDto"
                             }
                         }
                     },
@@ -2592,6 +2592,75 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create feature version",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create feature version",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service version ID",
+                        "name": "service_version_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Feature version ID",
+                        "name": "feature_version_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -2702,7 +2771,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.VersionLinkDto"
+                                "$ref": "#/definitions/service.ServiceVersionLinkDto"
                             }
                         }
                     },
@@ -3436,6 +3505,7 @@ const docTemplate = `{
                 "canEdit",
                 "description",
                 "id",
+                "isLastVersion",
                 "name",
                 "version"
             ],
@@ -3448,6 +3518,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isLastVersion": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -3478,6 +3551,25 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.FeatureVersionLinkDto": {
+            "type": "object",
+            "required": [
+                "featureVersionId",
+                "serviceVersionId",
+                "version"
+            ],
+            "properties": {
+                "featureVersionId": {
+                    "type": "integer"
+                },
+                "serviceVersionId": {
+                    "type": "integer"
                 },
                 "version": {
                     "type": "integer"
@@ -3671,6 +3763,21 @@ const docTemplate = `{
                 }
             }
         },
+        "service.ServiceVersionLinkDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "version"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
         "service.ValidatorDto": {
             "type": "object",
             "required": [
@@ -3793,21 +3900,6 @@ const docTemplate = `{
                     "additionalProperties": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "service.VersionLinkDto": {
-            "type": "object",
-            "required": [
-                "id",
-                "version"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "version": {
-                    "type": "integer"
                 }
             }
         }

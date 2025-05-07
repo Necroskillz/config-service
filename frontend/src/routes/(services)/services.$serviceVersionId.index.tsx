@@ -6,6 +6,7 @@ import {
   getServicesServiceVersionIdVersionsQueryOptions,
   usePutServicesServiceVersionIdPublish,
   usePostServicesServiceVersionIdVersions,
+  getServicesServiceVersionIdQueryKey,
 } from '~/gen';
 import { SlimPage } from '~/components/SlimPage';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu';
@@ -21,6 +22,7 @@ import { useGetServicesServiceVersionIdFeaturesSuspense } from '~/gen/hooks/useG
 import { useGetServicesServiceVersionIdVersions } from '~/gen/hooks/useGetServicesServiceVersionIdVersions';
 import { seo, appTitle, versionedTitle } from '~/utils/seo';
 import { MutationErrors } from '~/components/MutationErrors';
+import { useChangeset } from '~/hooks/useChangeset';
 
 export const Route = createFileRoute('/(services)/services/$serviceVersionId/')({
   component: RouteComponent,
@@ -52,6 +54,7 @@ function RouteComponent() {
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { refresh } = useChangeset();
   const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const { data: features } = useGetServicesServiceVersionIdFeaturesSuspense(serviceVersionId);
   const { data: allServiceVersions } = useGetServicesServiceVersionIdVersions(serviceVersionId, {
@@ -64,6 +67,7 @@ function RouteComponent() {
   const createNewVersionMutation = usePostServicesServiceVersionIdVersions({
     mutation: {
       onSuccess: ({ newId }) => {
+        refresh();
         navigate({ to: '/services/$serviceVersionId', params: { serviceVersionId: newId } });
       },
     },
@@ -72,7 +76,7 @@ function RouteComponent() {
   const publishMutation = usePutServicesServiceVersionIdPublish({
     mutation: {
       onSuccess: () => {
-        queryClient.refetchQueries({ queryKey: getServicesServiceVersionIdQueryOptions(serviceVersionId).queryKey });
+        queryClient.refetchQueries({ queryKey: getServicesServiceVersionIdQueryKey(serviceVersionId) });
       },
     },
   });
@@ -126,7 +130,7 @@ function RouteComponent() {
       </div>
 
       <div className="flex flex-col gap-4">
-        <MutationErrors mutations={[publishMutation]} />
+        <MutationErrors mutations={[publishMutation, createNewVersionMutation]} />
         <div className="flex flex-row gap-2 items-center">
           <span>Version</span>
           <DropdownMenu>
@@ -156,10 +160,11 @@ function RouteComponent() {
         </div>
         <div className="text-muted-foreground">{serviceVersion.description}</div>
         <List>
-          {features.map((featureVersion) => (
-            <ListItem key={featureVersion.id}>
-              <h2 className="text-lg font-bold">
-                <Link
+          {features.length ? (
+            features.map((featureVersion) => (
+              <ListItem key={featureVersion.id}>
+                <h2 className="text-lg font-bold">
+                  <Link
                   to="/services/$serviceVersionId/features/$featureVersionId"
                   params={{ serviceVersionId: serviceVersionId, featureVersionId: featureVersion.id }}
                 >
@@ -167,8 +172,13 @@ function RouteComponent() {
                 </Link>
                 <Badge className="ml-2">v{featureVersion.version}</Badge>
               </h2>
+              </ListItem>
+            ))
+          ) : (
+            <ListItem>
+              No features
             </ListItem>
-          ))}
+          )}
         </List>
         {serviceVersion.canEdit && (
           <div>

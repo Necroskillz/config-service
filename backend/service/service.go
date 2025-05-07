@@ -73,7 +73,12 @@ func (s *ServiceService) GetServiceVersion(ctx context.Context, id uint) (Servic
 	}, nil
 }
 
-func (s *ServiceService) GetServiceVersionsForServiceVersion(ctx context.Context, serviceVersionID uint) ([]VersionLinkDto, error) {
+type ServiceVersionLinkDto struct {
+	ID      uint `json:"id" validate:"required"`
+	Version int  `json:"version" validate:"required"`
+}
+
+func (s *ServiceService) GetServiceVersionsForServiceVersion(ctx context.Context, serviceVersionID uint) ([]ServiceVersionLinkDto, error) {
 	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return nil, err
@@ -89,9 +94,9 @@ func (s *ServiceService) GetServiceVersionsForServiceVersion(ctx context.Context
 		return nil, err
 	}
 
-	result := make([]VersionLinkDto, len(serviceVersions))
+	result := make([]ServiceVersionLinkDto, len(serviceVersions))
 	for i, serviceVersion := range serviceVersions {
-		result[i] = VersionLinkDto{
+		result[i] = ServiceVersionLinkDto{
 			ID:      serviceVersion.ID,
 			Version: serviceVersion.Version,
 		}
@@ -331,8 +336,9 @@ func (s *ServiceService) CreateServiceVersion(ctx context.Context, serviceVersio
 		}
 
 		tx.AddCreateServiceVersionChange(ctx, db.AddCreateServiceVersionChangeParams{
-			ChangesetID:      changesetID,
-			ServiceVersionID: serviceVersionId,
+			ChangesetID:              changesetID,
+			ServiceVersionID:         serviceVersionId,
+			PreviousServiceVersionID: &serviceVersion.ID,
 		})
 
 		featureVersions, err := tx.GetFeatureVersionsForServiceVersion(ctx, db.GetFeatureVersionsForServiceVersionParams{

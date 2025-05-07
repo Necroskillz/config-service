@@ -69,11 +69,6 @@ var (
 	ErrUnknownError       = NewSentinelServiceError(ErrorCodeUnknownError)
 )
 
-type VersionLinkDto struct {
-	ID      uint `json:"id" validate:"required"`
-	Version int  `json:"version" validate:"required"`
-}
-
 type PaginatedResult[T any] struct {
 	Items      []T `json:"items" validate:"required"`
 	TotalCount int `json:"totalCount" validate:"required"`

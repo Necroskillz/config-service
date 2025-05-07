@@ -44,7 +44,10 @@ func (s *CoreService) GetFeatureVersionWithLink(ctx context.Context, serviceVers
 		return serviceVersion, featureVersion, link, err
 	}
 
-	featureVersion, err = s.queries.GetFeatureVersion(ctx, featureVersionID)
+	featureVersion, err = s.queries.GetFeatureVersion(ctx, db.GetFeatureVersionParams{
+		FeatureVersionID: featureVersionID,
+		ChangesetID:      user.ChangesetID,
+	})
 	if err != nil {
 		return serviceVersion, featureVersion, link, NewDbError(err, "FeatureVersion")
 	}
@@ -55,7 +58,7 @@ func (s *CoreService) GetFeatureVersionWithLink(ctx context.Context, serviceVers
 		ChangesetID:      user.ChangesetID,
 	})
 	if err != nil {
-		return serviceVersion, featureVersion, link, NewDbError(err, "FeatureVersionServiceVersion link")
+		return serviceVersion, featureVersion, link, NewDbError(err, "FeatureVersionServiceVersion")
 	}
 
 	return serviceVersion, featureVersion, link, nil

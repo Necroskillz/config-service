@@ -167,7 +167,7 @@ func (h *Handler) Service(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
-// @Success 200 {object} []service.VersionLinkDto
+// @Success 200 {object} []service.ServiceVersionLinkDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError

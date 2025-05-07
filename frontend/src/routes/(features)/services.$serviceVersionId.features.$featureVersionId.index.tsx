@@ -9,6 +9,8 @@ import {
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysSuspense,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdVersions,
+  useGetServicesServiceVersionIdSuspense,
+  usePostServicesServiceVersionIdFeaturesFeatureVersionIdVersions,
 } from '~/gen';
 import { useQueryClient } from '@tanstack/react-query';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu';
@@ -21,6 +23,8 @@ import { DropdownMenuTriggerLabel } from '~/components/ui/dropdown-menu';
 import { seo } from '~/utils/seo';
 import { appTitle } from '~/utils/seo';
 import { versionedTitle } from '~/utils/seo';
+import { MutationErrors } from '~/components/MutationErrors';
+import { useChangeset } from '~/hooks/useChangeset';
 
 const ParamsSchema = z.object({
   serviceVersionId: z.coerce.number(),
@@ -59,12 +63,26 @@ function RouteComponent() {
   const { serviceVersionId, featureVersionId } = Route.useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { refresh } = useChangeset();
+  const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const { data: featureVersion } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense(serviceVersionId, featureVersionId);
   const { data: keys } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysSuspense(serviceVersionId, featureVersionId);
   const { data: allFeatureVersions } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdVersions(serviceVersionId, featureVersionId, {
     query: {
       enabled: false,
       gcTime: 0,
+    },
+  });
+
+  const createNewVersionMutation = usePostServicesServiceVersionIdFeaturesFeatureVersionIdVersions({
+    mutation: {
+      onSuccess: ({ newId }) => {
+        refresh();
+        navigate({
+          to: '/services/$serviceVersionId/features/$featureVersionId',
+          params: { serviceVersionId, featureVersionId: newId },
+        });
+      },
     },
   });
 
@@ -75,6 +93,7 @@ function RouteComponent() {
       gcTime: 0,
     });
   }
+
   return (
     <SlimPage>
       <div className="flex items-center justify-between mb-8">
@@ -101,12 +120,22 @@ function RouteComponent() {
                 >
                   Edit
                 </DropdownMenuItem>
+                {!serviceVersion.published && featureVersion.isLastVersion && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      createNewVersionMutation.mutate({ service_version_id: serviceVersionId, feature_version_id: featureVersionId })
+                    }
+                  >
+                    Create new version
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
         </div>
       </div>
       <div className="flex flex-col gap-4">
+        <MutationErrors mutations={[createNewVersionMutation]} />
         <div className="flex flex-row gap-2 items-center">
           <span>Version</span>
           <DropdownMenu>
@@ -118,17 +147,17 @@ function RouteComponent() {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {allFeatureVersions?.map((fv) =>
-                fv.id === featureVersionId ? (
-                  <DropdownMenuItem key={fv.id}>
+                fv.featureVersionId === featureVersionId ? (
+                  <DropdownMenuItem key={fv.featureVersionId}>
                     <span className="text-accent-foreground font-bold">v{fv.version}</span>
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem
-                    key={fv.id}
+                    key={fv.featureVersionId}
                     onClick={() =>
                       navigate({
                         to: '/services/$serviceVersionId/features/$featureVersionId',
-                        params: { serviceVersionId, featureVersionId: fv.id },
+                        params: { serviceVersionId: fv.serviceVersionId, featureVersionId: fv.featureVersionId },
                       })
                     }
                   >
@@ -141,18 +170,24 @@ function RouteComponent() {
         </div>
         <div className="text-muted-foreground">{featureVersion.description}</div>
         <List>
-          {keys.map((key) => (
-            <ListItem key={key.id}>
-              <h2 className="text-lg font-bold">
-                <Link
+          {keys.length ? (
+            keys.map((key) => (
+              <ListItem key={key.id}>
+                <h2 className="text-lg font-bold">
+                  <Link
                   to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values"
                   params={{ serviceVersionId, featureVersionId, keyId: key.id }}
                 >
                   {key.name}
                 </Link>
               </h2>
+              </ListItem>
+            ))
+          ) : (
+            <ListItem>
+                No keys
             </ListItem>
-          ))}
+          )}
         </List>
         {featureVersion.canEdit && (
           <div>

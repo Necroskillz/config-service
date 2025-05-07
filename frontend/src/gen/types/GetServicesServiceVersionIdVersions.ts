@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceVersionLinkDto } from './service/VersionLinkDto.ts'
+import type { ServiceServiceVersionLinkDto } from './service/ServiceVersionLinkDto.ts'
 
 export type GetServicesServiceVersionIdVersionsPathParams = {
   /**
@@ -17,7 +17,7 @@ export type GetServicesServiceVersionIdVersionsPathParams = {
 /**
  * @description OK
  */
-export type GetServicesServiceVersionIdVersions200 = ServiceVersionLinkDto[]
+export type GetServicesServiceVersionIdVersions200 = ServiceServiceVersionLinkDto[]
 
 /**
  * @description Bad Request

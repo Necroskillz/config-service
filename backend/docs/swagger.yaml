@@ -427,6 +427,8 @@ definitions:
         type: string
       id:
         type: integer
+      isLastVersion:
+        type: boolean
       name:
         type: string
       version:
@@ -435,6 +437,7 @@ definitions:
     - canEdit
     - description
     - id
+    - isLastVersion
     - name
     - version
     type: object
@@ -455,6 +458,19 @@ definitions:
     - description
     - id
     - name
+    - version
+    type: object
+  service.FeatureVersionLinkDto:
+    properties:
+      featureVersionId:
+        type: integer
+      serviceVersionId:
+        type: integer
+      version:
+        type: integer
+    required:
+    - featureVersionId
+    - serviceVersionId
     - version
     type: object
   service.KeyDto:
@@ -587,6 +603,16 @@ definitions:
     - published
     - version
     type: object
+  service.ServiceVersionLinkDto:
+    properties:
+      id:
+        type: integer
+      version:
+        type: integer
+    required:
+    - id
+    - version
+    type: object
   service.ValidatorDto:
     properties:
       errorText:
@@ -674,16 +700,6 @@ definitions:
     - order
     - rank
     - variation
-    type: object
-  service.VersionLinkDto:
-    properties:
-      id:
-        type: integer
-      version:
-        type: integer
-    required:
-    - id
-    - version
     type: object
 host: localhost:1323
 info:
@@ -2240,7 +2256,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.VersionLinkDto'
+              $ref: '#/definitions/service.FeatureVersionLinkDto'
             type: array
         "400":
           description: Bad Request
@@ -2261,6 +2277,51 @@ paths:
       security:
       - BearerAuth: []
       summary: Get feature versions
+    post:
+      consumes:
+      - application/json
+      description: Create feature version
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create feature version
   /services/{service_version_id}/features/linkable:
     get:
       consumes:
@@ -2395,7 +2456,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.VersionLinkDto'
+              $ref: '#/definitions/service.ServiceVersionLinkDto'
             type: array
         "400":
           description: Bad Request

@@ -100,10 +100,11 @@ function RouteComponent() {
           <h2 className="text-lg font-semibold">Linked features</h2>
           <MutationErrors mutations={[unlinkMutation]} />
           <List>
-            {features.map((feature) => (
-              <ListItem key={feature.id}>
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div className="flex flex-row gap-2 items-center">
+            {features.length ? (
+              features.map((feature) => (
+                <ListItem key={feature.id}>
+                  <div className="flex flex-row gap-2 items-center justify-between">
+                    <div className="flex flex-row gap-2 items-center">
                     <span className="text-lg font-semibold">{feature.name}</span>
                     <Badge>v{feature.version}</Badge>
                   </div>
@@ -116,12 +117,18 @@ function RouteComponent() {
                     </Button>
                   )}
                 </div>
+                </ListItem>
+              ))
+            ) : (
+              <ListItem>
+                No linked features
               </ListItem>
-            ))}
+            )}
           </List>
         </div>
         <div className="flex flex-col gap-4 w-1/2">
           <h2 className="text-lg font-semibold">Link feature</h2>
+          <MutationErrors mutations={[linkMutation]} />
           <form.AppForm>
             <form
               className="flex flex-col gap-2"

@@ -142,15 +142,29 @@ func (q *Queries) GetFeatureIDByName(ctx context.Context, name string) (uint, er
 }
 
 const getFeatureVersion = `-- name: GetFeatureVersion :one
+WITH last_feature_versions AS (
+    SELECT fv.feature_id,
+        MAX(fv.version)::int as last_version
+    FROM feature_versions fv
+    WHERE is_feature_version_valid_in_changeset(fv, $2)
+    GROUP BY fv.feature_id
+)
 SELECT fv.id, fv.created_at, fv.updated_at, fv.valid_from, fv.valid_to, fv.version, fv.feature_id,
     f.name as feature_name,
     f.description as feature_description,
-    f.service_id
+    f.service_id,
+    lfv.last_version as last_version
 FROM feature_versions fv
     JOIN features f ON f.id = fv.feature_id
+    JOIN last_feature_versions lfv ON lfv.feature_id = fv.feature_id
 WHERE fv.id = $1
 LIMIT 1
 `
+
+type GetFeatureVersionParams struct {
+	FeatureVersionID uint
+	ChangesetID      uint
+}
 
 type GetFeatureVersionRow struct {
 	ID                 uint
@@ -163,10 +177,11 @@ type GetFeatureVersionRow struct {
 	FeatureName        string
 	FeatureDescription string
 	ServiceID          uint
+	LastVersion        int
 }
 
-func (q *Queries) GetFeatureVersion(ctx context.Context, featureVersionID uint) (GetFeatureVersionRow, error) {
-	row := q.db.QueryRow(ctx, getFeatureVersion, featureVersionID)
+func (q *Queries) GetFeatureVersion(ctx context.Context, arg GetFeatureVersionParams) (GetFeatureVersionRow, error) {
+	row := q.db.QueryRow(ctx, getFeatureVersion, arg.FeatureVersionID, arg.ChangesetID)
 	var i GetFeatureVersionRow
 	err := row.Scan(
 		&i.ID,
@@ -179,6 +194,7 @@ func (q *Queries) GetFeatureVersion(ctx context.Context, featureVersionID uint) 
 		&i.FeatureName,
 		&i.FeatureDescription,
 		&i.ServiceID,
+		&i.LastVersion,
 	)
 	return i, err
 }
@@ -211,6 +227,109 @@ func (q *Queries) GetFeatureVersionServiceVersionLink(ctx context.Context, arg G
 	var i GetFeatureVersionServiceVersionLinkRow
 	err := row.Scan(&i.ID, &i.CreatedInChangesetID)
 	return i, err
+}
+
+const getFeatureVersionValidatorData = `-- name: GetFeatureVersionValidatorData :many
+SELECT k.id as key_id,
+    v.validator_type,
+    v.parameter,
+    v.error_text
+FROM value_validators v
+    JOIN keys k ON k.id = v.key_id
+WHERE k.feature_version_id = $1
+    AND is_key_valid_in_changeset(k, $2)
+`
+
+type GetFeatureVersionValidatorDataParams struct {
+	FeatureVersionID uint
+	ChangesetID      uint
+}
+
+type GetFeatureVersionValidatorDataRow struct {
+	KeyID         uint
+	ValidatorType ValueValidatorType
+	Parameter     *string
+	ErrorText     *string
+}
+
+func (q *Queries) GetFeatureVersionValidatorData(ctx context.Context, arg GetFeatureVersionValidatorDataParams) ([]GetFeatureVersionValidatorDataRow, error) {
+	rows, err := q.db.Query(ctx, getFeatureVersionValidatorData, arg.FeatureVersionID, arg.ChangesetID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFeatureVersionValidatorDataRow
+	for rows.Next() {
+		var i GetFeatureVersionValidatorDataRow
+		if err := rows.Scan(
+			&i.KeyID,
+			&i.ValidatorType,
+			&i.Parameter,
+			&i.ErrorText,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFeatureVersionValuesData = `-- name: GetFeatureVersionValuesData :many
+SELECT vv.data,
+    vv.variation_context_id,
+    k.id as key_id,
+    k.name as key_name,
+    k.value_type_id as key_value_type_id,
+    k.description as key_description
+FROM variation_values vv
+    JOIN keys k ON k.id = vv.key_id
+WHERE k.feature_version_id = $1
+    AND is_key_valid_in_changeset(k, $2)
+    AND is_variation_value_valid_in_changeset(vv, $2)
+`
+
+type GetFeatureVersionValuesDataParams struct {
+	FeatureVersionID uint
+	ChangesetID      uint
+}
+
+type GetFeatureVersionValuesDataRow struct {
+	Data               string
+	VariationContextID uint
+	KeyID              uint
+	KeyName            string
+	KeyValueTypeID     uint
+	KeyDescription     *string
+}
+
+func (q *Queries) GetFeatureVersionValuesData(ctx context.Context, arg GetFeatureVersionValuesDataParams) ([]GetFeatureVersionValuesDataRow, error) {
+	rows, err := q.db.Query(ctx, getFeatureVersionValuesData, arg.FeatureVersionID, arg.ChangesetID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFeatureVersionValuesDataRow
+	for rows.Next() {
+		var i GetFeatureVersionValuesDataRow
+		if err := rows.Scan(
+			&i.Data,
+			&i.VariationContextID,
+			&i.KeyID,
+			&i.KeyName,
+			&i.KeyValueTypeID,
+			&i.KeyDescription,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getFeatureVersionsForServiceVersion = `-- name: GetFeatureVersionsForServiceVersion :many
@@ -283,10 +402,11 @@ WHERE f.service_id = $1
     AND is_feature_version_valid_in_changeset(fv, $2)
     AND NOT EXISTS (
         SELECT 1
-        FROM feature_version_service_versions fvsv
-        WHERE fvsv.feature_version_id = fv.id
-            AND fvsv.service_version_id = $3
-            AND is_link_valid_in_changeset(fvsv, $2)
+        FROM feature_version_service_versions ifvsv
+            JOIN feature_versions ifv ON ifv.id = ifvsv.feature_version_id
+        WHERE ifv.feature_id = f.id
+            AND ifvsv.service_version_id = $3
+            AND is_link_valid_in_changeset(ifvsv, $2)
     )
 ORDER BY f.name,
     fv.version
@@ -330,39 +450,45 @@ func (q *Queries) GetFeatureVersionsLinkableToServiceVersion(ctx context.Context
 	return items, nil
 }
 
-const getFeatureVersionsLinkedToServiceVersionForFeature = `-- name: GetFeatureVersionsLinkedToServiceVersionForFeature :many
+const getVersionsOfFeatureForServiceVersion = `-- name: GetVersionsOfFeatureForServiceVersion :many
+WITH latest_links AS (
+    SELECT fvsv.feature_version_id,
+        MAX(fvsv.service_version_id)::bigint as service_version_id
+    FROM feature_version_service_versions fvsv
+    WHERE is_link_valid_in_changeset(fvsv, $2)
+    GROUP BY fvsv.feature_version_id
+)
 SELECT fv.id,
-    fv.version
-FROM feature_version_service_versions fvsv
-    JOIN feature_versions fv ON fvsv.feature_version_id = fv.id
-    JOIN features f ON f.id = fv.feature_id
+    fv.version,
+    ll.service_version_id as service_version_id
+FROM feature_versions fv
+    JOIN latest_links ll ON ll.feature_version_id = fv.id
 WHERE fv.feature_id = $1
-    AND fvsv.service_version_id = $2
-    AND is_link_valid_in_changeset(fvsv, $3)
+    AND is_feature_version_valid_in_changeset(fv, $2)
 ORDER BY fv.version
 `
 
-type GetFeatureVersionsLinkedToServiceVersionForFeatureParams struct {
-	FeatureID        uint
+type GetVersionsOfFeatureForServiceVersionParams struct {
+	FeatureID   uint
+	ChangesetID uint
+}
+
+type GetVersionsOfFeatureForServiceVersionRow struct {
+	ID               uint
+	Version          int
 	ServiceVersionID uint
-	ChangesetID      uint
 }
 
-type GetFeatureVersionsLinkedToServiceVersionForFeatureRow struct {
-	ID      uint
-	Version int
-}
-
-func (q *Queries) GetFeatureVersionsLinkedToServiceVersionForFeature(ctx context.Context, arg GetFeatureVersionsLinkedToServiceVersionForFeatureParams) ([]GetFeatureVersionsLinkedToServiceVersionForFeatureRow, error) {
-	rows, err := q.db.Query(ctx, getFeatureVersionsLinkedToServiceVersionForFeature, arg.FeatureID, arg.ServiceVersionID, arg.ChangesetID)
+func (q *Queries) GetVersionsOfFeatureForServiceVersion(ctx context.Context, arg GetVersionsOfFeatureForServiceVersionParams) ([]GetVersionsOfFeatureForServiceVersionRow, error) {
+	rows, err := q.db.Query(ctx, getVersionsOfFeatureForServiceVersion, arg.FeatureID, arg.ChangesetID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetFeatureVersionsLinkedToServiceVersionForFeatureRow
+	var items []GetVersionsOfFeatureForServiceVersionRow
 	for rows.Next() {
-		var i GetFeatureVersionsLinkedToServiceVersionForFeatureRow
-		if err := rows.Scan(&i.ID, &i.Version); err != nil {
+		var i GetVersionsOfFeatureForServiceVersionRow
+		if err := rows.Scan(&i.ID, &i.Version, &i.ServiceVersionID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
