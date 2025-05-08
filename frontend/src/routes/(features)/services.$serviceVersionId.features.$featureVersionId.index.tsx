@@ -110,16 +110,9 @@ function RouteComponent() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() =>
-                    navigate({
-                      to: '/services/$serviceVersionId/features/$featureVersionId/edit',
-                      params: { serviceVersionId, featureVersionId },
-                    })
-                  }
-                >
-                  Edit
-                </DropdownMenuItem>
+                <Link to="/services/$serviceVersionId/features/$featureVersionId/edit" params={{ serviceVersionId, featureVersionId }}>
+                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                </Link>
                 {!serviceVersion.published && featureVersion.isLastVersion && (
                   <DropdownMenuItem
                     onClick={() =>
@@ -152,17 +145,13 @@ function RouteComponent() {
                     <span className="text-accent-foreground font-bold">v{fv.version}</span>
                   </DropdownMenuItem>
                 ) : (
-                  <DropdownMenuItem
+                  <Link
                     key={fv.featureVersionId}
-                    onClick={() =>
-                      navigate({
-                        to: '/services/$serviceVersionId/features/$featureVersionId',
-                        params: { serviceVersionId: fv.serviceVersionId, featureVersionId: fv.featureVersionId },
-                      })
-                    }
+                    to="/services/$serviceVersionId/features/$featureVersionId"
+                    params={{ serviceVersionId: fv.serviceVersionId, featureVersionId: fv.featureVersionId }}
                   >
-                    v{fv.version}
-                  </DropdownMenuItem>
+                    <DropdownMenuItem>v{fv.version}</DropdownMenuItem>
+                  </Link>
                 )
               )}
             </DropdownMenuContent>
@@ -175,18 +164,16 @@ function RouteComponent() {
               <ListItem key={key.id}>
                 <h2 className="text-lg font-bold">
                   <Link
-                  to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values"
-                  params={{ serviceVersionId, featureVersionId, keyId: key.id }}
-                >
-                  {key.name}
-                </Link>
-              </h2>
+                    to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values"
+                    params={{ serviceVersionId, featureVersionId, keyId: key.id }}
+                  >
+                    {key.name}
+                  </Link>
+                </h2>
               </ListItem>
             ))
           ) : (
-            <ListItem>
-                No keys
-            </ListItem>
+            <ListItem>No keys</ListItem>
           )}
         </List>
         {featureVersion.canEdit && (

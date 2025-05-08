@@ -192,15 +192,20 @@ function createJsonSchemaValidatorRefiner(): ValidatorRefiner {
           return true;
         }
 
-        const o = JSON.parse(value);
-        const result = validator.validate(schema, o);
-        if (result.valid) {
+        try {
+          const o = JSON.parse(value);
+          const result = validator.validate(o, schema);
+          if (result.valid) {
+            return true;
+          }
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: (errorText || 'Value must match the JSON schema: {0}').replace('{0}', result.errors.map((e) => e.message).join(', ')),
+          });
+        } catch (error: any) {
+          // This is validated by valid_json validator
           return true;
         }
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: (errorText || 'Value must match the JSON schema: {0}').replace('{0}', result.errors.map((e) => e.message).join(', ')),
-        });
       });
     };
   };

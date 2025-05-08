@@ -107,12 +107,12 @@ function RouteComponent() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => navigate({ to: '/services/$serviceVersionId/edit', params: { serviceVersionId } })}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: '/services/$serviceVersionId/link', params: { serviceVersionId } })}>
-                  Link/Unlink features
-                </DropdownMenuItem>
+                <Link to="/services/$serviceVersionId/edit" params={{ serviceVersionId }}>
+                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                </Link>
+                <Link to="/services/$serviceVersionId/link" params={{ serviceVersionId }}>
+                  <DropdownMenuItem>Link/Unlink features</DropdownMenuItem>
+                </Link>
                 {!serviceVersion.published && (
                   <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
                     Publish
@@ -147,12 +147,11 @@ function RouteComponent() {
                     <span className="text-accent-foreground font-bold">v{sv.version}</span>
                   </DropdownMenuItem>
                 ) : (
-                  <DropdownMenuItem
-                    key={sv.id}
-                    onClick={() => navigate({ to: '/services/$serviceVersionId', params: { serviceVersionId: sv.id } })}
-                  >
-                    <span>v{sv.version}</span>
-                  </DropdownMenuItem>
+                  <Link key={sv.id} to="/services/$serviceVersionId" params={{ serviceVersionId: sv.id }}>
+                    <DropdownMenuItem>
+                      <span>v{sv.version}</span>
+                    </DropdownMenuItem>
+                  </Link>
                 )
               )}
             </DropdownMenuContent>
@@ -165,19 +164,17 @@ function RouteComponent() {
               <ListItem key={featureVersion.id}>
                 <h2 className="text-lg font-bold">
                   <Link
-                  to="/services/$serviceVersionId/features/$featureVersionId"
-                  params={{ serviceVersionId: serviceVersionId, featureVersionId: featureVersion.id }}
-                >
-                  {featureVersion.name}
-                </Link>
-                <Badge className="ml-2">v{featureVersion.version}</Badge>
-              </h2>
+                    to="/services/$serviceVersionId/features/$featureVersionId"
+                    params={{ serviceVersionId: serviceVersionId, featureVersionId: featureVersion.id }}
+                  >
+                    {featureVersion.name}
+                  </Link>
+                  <Badge className="ml-2">v{featureVersion.version}</Badge>
+                </h2>
               </ListItem>
             ))
           ) : (
-            <ListItem>
-              No features
-            </ListItem>
+            <ListItem>No features</ListItem>
           )}
         </List>
         {serviceVersion.canEdit && (
