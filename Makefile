@@ -17,4 +17,8 @@ test:
 
 build:
 	cd backend && make build
-	cd frontend && pnpm build 
+	cd frontend && pnpm build
+
+install:
+	cd frontend && pnpm install
+	cd backend && go mod tidy

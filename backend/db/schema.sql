@@ -1577,7 +1577,7 @@ ALTER TABLE ONLY public.user_permissions
 --
 
 ALTER TABLE ONLY public.value_validators
-    ADD CONSTRAINT value_validators_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id);
+    ADD CONSTRAINT value_validators_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id) ON DELETE CASCADE;
 
 
 --
