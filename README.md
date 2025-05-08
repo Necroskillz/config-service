@@ -23,15 +23,20 @@ Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
 
 to install dependencies:
 ```
-scoop install go postgresql dbmate fnm
-go install air sqlc swag
+scoop install go postgresql dbmate fnm make
+go install github.com/air-verse/air@latest
+go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+go install github.com/swaggo/swag/cmd/swag@latest
 ```
 
 - **Go**: Backend language
-- **air**: Live reload for Go
 - **PostgreSQL**: Database
-- **sqlc**: SQL to Go code generator
+- **db-mate**: Database migration runner
 - **fnm**: Node.js version manager (or you can install node directly or with some other version manager)
+- **make**: Script runner
+- **air**: Live reload for Go
+- **sqlc**: SQL to Go code generator
+- **swag**: OpenAPI doc and schema generator
 
 ### Node.js Setup (with fnm)
 
@@ -91,6 +96,8 @@ Or from the command line:
 make dev-backend
 make dev-frontend
 ```
+
+Frontend will start at http://localhost:3000. Use username `admin`, password `admin` to login.
 
 ## Regenerating Code
 
