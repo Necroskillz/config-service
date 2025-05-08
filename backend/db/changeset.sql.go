@@ -249,6 +249,42 @@ func (q *Queries) AddDeleteFeatureVersionServiceVersionChange(ctx context.Contex
 	return err
 }
 
+const addDeleteKeyChange = `-- name: AddDeleteKeyChange :exec
+INSERT INTO changeset_changes (
+        changeset_id,
+        key_id,
+        feature_version_id,
+        service_version_id,
+        type,
+        kind
+    )
+VALUES (
+        $1,
+        $2::bigint,
+        $3::bigint,
+        $4::bigint,
+        'delete',
+        'key'
+    )
+`
+
+type AddDeleteKeyChangeParams struct {
+	ChangesetID      uint
+	KeyID            uint
+	FeatureVersionID uint
+	ServiceVersionID uint
+}
+
+func (q *Queries) AddDeleteKeyChange(ctx context.Context, arg AddDeleteKeyChangeParams) error {
+	_, err := q.db.Exec(ctx, addDeleteKeyChange,
+		arg.ChangesetID,
+		arg.KeyID,
+		arg.FeatureVersionID,
+		arg.ServiceVersionID,
+	)
+	return err
+}
+
 const addDeleteVariationValueChange = `-- name: AddDeleteVariationValueChange :exec
 INSERT INTO changeset_changes (
         changeset_id,
@@ -420,6 +456,45 @@ func (q *Queries) GetChangeForFeatureVersionServiceVersion(ctx context.Context, 
 	row := q.db.QueryRow(ctx, getChangeForFeatureVersionServiceVersion, arg.ChangesetID, arg.ServiceVersionID, arg.FeatureVersionID)
 	var i GetChangeForFeatureVersionServiceVersionRow
 	err := row.Scan(&i.ID, &i.Type, &i.FeatureVersionServiceVersionID)
+	return i, err
+}
+
+const getChangeForKey = `-- name: GetChangeForKey :one
+SELECT csc.id,
+    csc.type,
+    csc.key_id,
+    csc.feature_version_id,
+    csc.service_version_id
+FROM changeset_changes csc
+WHERE csc.changeset_id = $1
+    AND csc.kind = 'key'
+    AND csc.key_id = $2::bigint
+LIMIT 1
+`
+
+type GetChangeForKeyParams struct {
+	ChangesetID uint
+	KeyID       uint
+}
+
+type GetChangeForKeyRow struct {
+	ID               uint
+	Type             ChangesetChangeType
+	KeyID            *uint
+	FeatureVersionID *uint
+	ServiceVersionID uint
+}
+
+func (q *Queries) GetChangeForKey(ctx context.Context, arg GetChangeForKeyParams) (GetChangeForKeyRow, error) {
+	row := q.db.QueryRow(ctx, getChangeForKey, arg.ChangesetID, arg.KeyID)
+	var i GetChangeForKeyRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.KeyID,
+		&i.FeatureVersionID,
+		&i.ServiceVersionID,
+	)
 	return i, err
 }
 
@@ -793,6 +868,49 @@ func (q *Queries) GetOpenChangesetIDForUser(ctx context.Context, userID uint) (u
 	var id uint
 	err := row.Scan(&id)
 	return id, err
+}
+
+const getRelatedFeatureVersionChangesCount = `-- name: GetRelatedFeatureVersionChangesCount :one
+SELECT COUNT(*)::integer
+FROM changeset_changes csc
+WHERE csc.feature_version_id = $1::bigint
+    AND csc.changeset_id = $2
+    AND (
+        csc.kind = 'feature_version'
+        OR csc.kind = 'key'
+        OR csc.kind = 'variation_value'
+    )
+`
+
+type GetRelatedFeatureVersionChangesCountParams struct {
+	FeatureVersionID uint
+	ChangesetID      uint
+}
+
+func (q *Queries) GetRelatedFeatureVersionChangesCount(ctx context.Context, arg GetRelatedFeatureVersionChangesCountParams) (int, error) {
+	row := q.db.QueryRow(ctx, getRelatedFeatureVersionChangesCount, arg.FeatureVersionID, arg.ChangesetID)
+	var column_1 int
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const getRelatedKeyChangesCount = `-- name: GetRelatedKeyChangesCount :one
+SELECT COUNT(*)::integer
+FROM changeset_changes csc
+WHERE csc.key_id = $1::bigint
+    AND csc.changeset_id = $2
+`
+
+type GetRelatedKeyChangesCountParams struct {
+	KeyID       uint
+	ChangesetID uint
+}
+
+func (q *Queries) GetRelatedKeyChangesCount(ctx context.Context, arg GetRelatedKeyChangesCountParams) (int, error) {
+	row := q.db.QueryRow(ctx, getRelatedKeyChangesCount, arg.KeyID, arg.ChangesetID)
+	var column_1 int
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const getRelatedServiceVersionChangesCount = `-- name: GetRelatedServiceVersionChangesCount :one

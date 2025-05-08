@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
@@ -308,4 +310,87 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 	}
 
 	return nil
+}
+
+func (s *KeyService) validateDeleteKey(ctx context.Context, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow, key db.GetKeyRow) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForService(serviceVersion.ServiceID) < constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to delete keys for this service")
+	}
+
+	if key.ValidFrom != nil {
+		changesCount, err := s.queries.GetRelatedKeyChangesCount(ctx, db.GetRelatedKeyChangesCountParams{
+			KeyID:       key.ID,
+			ChangesetID: user.ChangesetID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if changesCount > 0 {
+			return NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Your current changeset contains %d changes related to this key. Please apply or discard them before deleting.", changesCount))
+		}
+
+		if featureVersion.LinkedToPublishedServiceVersion {
+			return NewServiceError(ErrorCodePermissionDenied, "You cannot delete a key for a feature version that is linked to a published service version")
+		}
+	}
+
+	return nil
+}
+
+func (s *KeyService) DeleteKey(ctx context.Context, serviceVersionID uint, featureVersionID uint, keyID uint) error {
+	serviceVersion, featureVersion, key, err := s.coreService.GetKey(ctx, serviceVersionID, featureVersionID, keyID)
+	if err != nil {
+		return err
+	}
+
+	err = s.validateDeleteKey(ctx, serviceVersion, featureVersion, key)
+	if err != nil {
+		return err
+	}
+
+	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		changesetID, err := s.changesetService.EnsureChangesetForUser(ctx)
+		if err != nil {
+			return err
+		}
+
+		change, err := tx.GetChangeForKey(ctx, db.GetChangeForKeyParams{
+			ChangesetID: changesetID,
+			KeyID:       key.ID,
+		})
+		if err != nil {
+			if !errors.Is(err, pgx.ErrNoRows) {
+				return err
+			}
+		}
+
+		if change.ID == 0 {
+			if err = tx.AddDeleteKeyChange(ctx, db.AddDeleteKeyChangeParams{
+				ChangesetID:      changesetID,
+				KeyID:            key.ID,
+				FeatureVersionID: featureVersionID,
+				ServiceVersionID: serviceVersionID,
+			}); err != nil {
+				return err
+			}
+		} else {
+			if change.Type == db.ChangesetChangeTypeDelete {
+				return NewServiceError(ErrorCodeInvalidOperation, "Cannot delete a already deleted key")
+			}
+
+			if err = tx.DeleteKey(ctx, key.ID); err != nil {
+				return err
+			}
+
+			if change.Type == db.ChangesetChangeTypeUpdate {
+				panic("not implemented")
+			}
+		}
+
+		return nil
+	})
+
+	return err
 }

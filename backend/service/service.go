@@ -401,7 +401,7 @@ func (s *ServiceService) validatePublishServiceVersion(ctx context.Context, serv
 	}
 
 	if changesCount > 0 {
-		return NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Your current changeset contains %d changes related to this service version. Please apply them before publishing.", changesCount))
+		return NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Your current changeset contains %d changes related to this service version. Please apply or discard them before publishing.", changesCount))
 	}
 
 	return nil

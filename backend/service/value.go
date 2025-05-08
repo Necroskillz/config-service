@@ -245,6 +245,11 @@ func (s *ValueService) DeleteValue(ctx context.Context, params DeleteValueParams
 	}
 
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		changesetID, err := s.changesetService.EnsureChangesetForUser(ctx)
+		if err != nil {
+			return err
+		}
+
 		// existing change
 		variationValueChange, err := s.queries.GetChangeForVariationValue(ctx, db.GetChangeForVariationValueParams{
 			ChangesetID:      user.ChangesetID,
@@ -256,20 +261,14 @@ func (s *ValueService) DeleteValue(ctx context.Context, params DeleteValueParams
 			}
 		}
 
-		changesetID, err := s.changesetService.EnsureChangesetForUser(ctx)
-		if err != nil {
-			return err
-		}
-
 		if variationValueChange.ID == 0 {
-			err = tx.AddDeleteVariationValueChange(ctx, db.AddDeleteVariationValueChangeParams{
+			if err = tx.AddDeleteVariationValueChange(ctx, db.AddDeleteVariationValueChangeParams{
 				ChangesetID:         changesetID,
 				FeatureVersionID:    params.FeatureVersionID,
 				KeyID:               params.KeyID,
 				ServiceVersionID:    params.ServiceVersionID,
 				OldVariationValueID: params.ValueID,
-			})
-			if err != nil {
+			}); err != nil {
 				return err
 			}
 		} else {
@@ -277,25 +276,18 @@ func (s *ValueService) DeleteValue(ctx context.Context, params DeleteValueParams
 				return NewServiceError(ErrorCodeInvalidOperation, "Cannot delete a already deleted value")
 			}
 
-			err = tx.DeleteChange(ctx, variationValueChange.ID)
-			if err != nil {
+			if err = tx.DeleteVariationValue(ctx, *variationValueChange.NewVariationValueID); err != nil {
 				return err
 			}
 
-			if variationValueChange.Type == db.ChangesetChangeTypeCreate {
-				err = tx.DeleteVariationValue(ctx, *variationValueChange.NewVariationValueID)
-				if err != nil {
-					return err
-				}
-			} else if variationValueChange.Type == db.ChangesetChangeTypeUpdate {
-				err = tx.AddDeleteVariationValueChange(ctx, db.AddDeleteVariationValueChangeParams{
+			if variationValueChange.Type == db.ChangesetChangeTypeUpdate {
+				if err = tx.AddDeleteVariationValueChange(ctx, db.AddDeleteVariationValueChangeParams{
 					ChangesetID:         changesetID,
 					FeatureVersionID:    params.FeatureVersionID,
 					KeyID:               params.KeyID,
 					ServiceVersionID:    params.ServiceVersionID,
 					OldVariationValueID: *variationValueChange.OldVariationValueID,
-				})
-				if err != nil {
+				}); err != nil {
 					return err
 				}
 			}

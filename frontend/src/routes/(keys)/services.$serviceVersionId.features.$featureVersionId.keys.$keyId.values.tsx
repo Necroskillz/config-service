@@ -20,6 +20,7 @@ import {
   usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
   ServiceVariationValue,
   getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
+  useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
 } from '~/gen';
 import { ColumnDef, useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import { HttpError } from '~/axios';
@@ -41,7 +42,7 @@ import { createDefaultValue, createValueValidator } from './-components/value';
 import { ValueEditor } from './-components/ValueEditor';
 import { ValueViewer } from './-components/ValueViewer';
 import { StandardSchemaV1Issue } from '@tanstack/react-form';
-
+import { useNavigate } from '@tanstack/react-router';
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values')({
   component: RouteComponent,
   params: {
@@ -98,6 +99,7 @@ export type ValueFormData = {
 function RouteComponent() {
   const { serviceVersionId, featureVersionId, keyId } = Route.useParams();
   const { refresh } = useChangeset();
+  const navigate = useNavigate();
   const { data: key } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense(serviceVersionId, featureVersionId, keyId);
   const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const { data: values } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesSuspense(
@@ -192,6 +194,15 @@ function RouteComponent() {
       onSuccess: (_, variables) => {
         setData((old) => old.filter((item) => item.id !== variables.value_id));
         refresh();
+      },
+    },
+  });
+
+  const deleteKeyMutation = useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId({
+    mutation: {
+      onSuccess: () => {
+        refresh();
+        navigate({ to: '/services/$serviceVersionId/features/$featureVersionId', params: { serviceVersionId, featureVersionId } });
       },
     },
   });
@@ -555,14 +566,20 @@ function RouteComponent() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Link
-                    className="w-full"
-                    to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit"
-                    params={{ serviceVersionId, featureVersionId, keyId }}
-                  >
-                    Edit
-                  </Link>
+                <Link
+                  className="w-full"
+                  to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit"
+                  params={{ serviceVersionId, featureVersionId, keyId }}
+                >
+                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                </Link>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() =>
+                    deleteKeyMutation.mutate({ service_version_id: serviceVersionId, feature_version_id: featureVersionId, key_id: keyId })
+                  }
+                >
+                  Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -571,7 +588,7 @@ function RouteComponent() {
       </div>
       <div className="flex flex-col gap-4">
         {key.description && <p className="text-muted-foreground">{key.description}</p>}
-        <MutationErrors mutations={[createMutation, updateMutation, deleteMutation]} />
+        <MutationErrors mutations={[createMutation, updateMutation, deleteMutation, deleteKeyMutation]} />
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

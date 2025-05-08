@@ -173,6 +173,7 @@ FROM service_versions sv
     AND csc.type = 'create'
     AND csc.kind = 'service_version'
 WHERE sv.id = $1
+    AND is_service_version_valid_in_changeset(sv, $2)
 LIMIT 1
 `
 

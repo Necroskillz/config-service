@@ -40,6 +40,7 @@ FROM service_versions sv
     AND csc.type = 'create'
     AND csc.kind = 'service_version'
 WHERE sv.id = @service_version_id
+    AND is_service_version_valid_in_changeset(sv, @changeset_id)
 LIMIT 1;
 -- name: GetServiceTypes :many
 SELECT *

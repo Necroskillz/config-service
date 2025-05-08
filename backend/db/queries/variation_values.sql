@@ -11,9 +11,11 @@ SET data = @data,
     variation_context_id = @variation_context_id
 WHERE id = @variation_value_id;
 -- name: GetVariationValue :one
-SELECT *
-FROM variation_values
-WHERE id = @variation_value_id;
+SELECT vv.*
+FROM variation_values vv
+WHERE vv.id = @variation_value_id
+    AND is_variation_value_valid_in_changeset(vv, @changeset_id)
+LIMIT 1;
 -- name: GetVariationValuesForKey :many
 SELECT vv.*
 FROM variation_values vv

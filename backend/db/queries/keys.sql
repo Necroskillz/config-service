@@ -5,6 +5,7 @@ SELECT k.*,
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
 WHERE k.id = @key_id
+    AND is_key_valid_in_changeset(k, @changeset_id)
 LIMIT 1;
 -- name: GetKeysForFeatureVersion :many
 SELECT k.*,

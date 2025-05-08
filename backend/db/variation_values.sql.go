@@ -56,13 +56,20 @@ func (q *Queries) EndValueValidity(ctx context.Context, arg EndValueValidityPara
 }
 
 const getVariationValue = `-- name: GetVariationValue :one
-SELECT id, valid_from, valid_to, key_id, variation_context_id, data
-FROM variation_values
-WHERE id = $1
+SELECT vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
+FROM variation_values vv
+WHERE vv.id = $1
+    AND is_variation_value_valid_in_changeset(vv, $2)
+LIMIT 1
 `
 
-func (q *Queries) GetVariationValue(ctx context.Context, variationValueID uint) (VariationValue, error) {
-	row := q.db.QueryRow(ctx, getVariationValue, variationValueID)
+type GetVariationValueParams struct {
+	VariationValueID uint
+	ChangesetID      uint
+}
+
+func (q *Queries) GetVariationValue(ctx context.Context, arg GetVariationValueParams) (VariationValue, error) {
+	row := q.db.QueryRow(ctx, getVariationValue, arg.VariationValueID, arg.ChangesetID)
 	var i VariationValue
 	err := row.Scan(
 		&i.ID,

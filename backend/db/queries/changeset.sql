@@ -82,6 +82,21 @@ SELECT COUNT(*)::integer
 FROM changeset_changes csc
 WHERE csc.service_version_id = @service_version_id
     AND csc.changeset_id = @changeset_id;
+-- name: GetRelatedFeatureVersionChangesCount :one
+SELECT COUNT(*)::integer
+FROM changeset_changes csc
+WHERE csc.feature_version_id = @feature_version_id::bigint
+    AND csc.changeset_id = @changeset_id
+    AND (
+        csc.kind = 'feature_version'
+        OR csc.kind = 'key'
+        OR csc.kind = 'variation_value'
+    );
+-- name: GetRelatedKeyChangesCount :one
+SELECT COUNT(*)::integer
+FROM changeset_changes csc
+WHERE csc.key_id = @key_id::bigint
+    AND csc.changeset_id = @changeset_id;
 -- name: GetChangeset :one
 SELECT cs.id,
     cs.state,
@@ -176,6 +191,17 @@ WHERE NOT EXISTS (
                 FROM user_service_permissions
             )
     );
+-- name: GetChangeForKey :one
+SELECT csc.id,
+    csc.type,
+    csc.key_id,
+    csc.feature_version_id,
+    csc.service_version_id
+FROM changeset_changes csc
+WHERE csc.changeset_id = @changeset_id
+    AND csc.kind = 'key'
+    AND csc.key_id = @key_id::bigint
+LIMIT 1;
 -- name: GetChangeForVariationValue :one
 SELECT csc.id,
     csc.type,
@@ -287,6 +313,23 @@ VALUES (
         @feature_version_id::bigint,
         @service_version_id::bigint,
         'create',
+        'key'
+    );
+-- name: AddDeleteKeyChange :exec
+INSERT INTO changeset_changes (
+        changeset_id,
+        key_id,
+        feature_version_id,
+        service_version_id,
+        type,
+        kind
+    )
+VALUES (
+        @changeset_id,
+        @key_id::bigint,
+        @feature_version_id::bigint,
+        @service_version_id::bigint,
+        'delete',
         'key'
     );
 -- name: AddCreateVariationValueChange :exec

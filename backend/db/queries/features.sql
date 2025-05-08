@@ -5,16 +5,29 @@ WITH last_feature_versions AS (
     FROM feature_versions fv
     WHERE is_feature_version_valid_in_changeset(fv, @changeset_id)
     GROUP BY fv.feature_id
+),
+links AS (
+    SELECT fvsv.feature_version_id,
+        BOOL_OR(sv.published) as published,
+        COUNT(*) as link_count
+    FROM feature_version_service_versions fvsv
+        JOIN service_versions sv ON sv.id = fvsv.service_version_id
+    WHERE is_link_valid_in_changeset(fvsv, @changeset_id)
+    GROUP BY fvsv.feature_version_id
 )
 SELECT fv.*,
     f.name as feature_name,
     f.description as feature_description,
     f.service_id,
-    lfv.last_version as last_version
+    lfv.last_version as last_version,
+    l.published as linked_to_published_service_version,
+    l.link_count as service_version_link_count
 FROM feature_versions fv
     JOIN features f ON f.id = fv.feature_id
     JOIN last_feature_versions lfv ON lfv.feature_id = fv.feature_id
+    JOIN links l ON l.feature_version_id = fv.id
 WHERE fv.id = @feature_version_id
+    AND is_feature_version_valid_in_changeset(fv, @changeset_id)
 LIMIT 1;
 -- name: GetFeatureIDByName :one
 SELECT id

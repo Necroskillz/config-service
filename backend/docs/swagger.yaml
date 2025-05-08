@@ -1661,6 +1661,54 @@ paths:
       - BearerAuth: []
       summary: Create a key
   /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a key
+      parameters:
+      - description: Service version ID
+        in: path
+        name: service_version_id
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: path
+        name: feature_version_id
+        required: true
+        type: integer
+      - description: Key ID
+        in: path
+        name: key_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Delete a key
     get:
       consumes:
       - application/json

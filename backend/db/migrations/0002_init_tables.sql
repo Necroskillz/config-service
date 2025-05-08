@@ -117,7 +117,7 @@ CREATE TABLE variation_values (
     id BIGSERIAL PRIMARY KEY,
     valid_from TIMESTAMP WITH TIME ZONE,
     valid_to TIMESTAMP WITH TIME ZONE,
-    key_id BIGINT NOT NULL REFERENCES keys(id),
+    key_id BIGINT NOT NULL REFERENCES keys(id) ON DELETE CASCADE,
     variation_context_id BIGINT NOT NULL REFERENCES variation_contexts(id),
     data TEXT NOT NULL
 );
@@ -154,13 +154,13 @@ CREATE TABLE changeset_changes (
     changeset_id BIGINT NOT NULL REFERENCES changesets(id),
     type changeset_change_type NOT NULL,
     kind changeset_change_kind NOT NULL,
-    feature_version_id BIGINT REFERENCES feature_versions(id),
+    feature_version_id BIGINT REFERENCES feature_versions(id) ON DELETE CASCADE,
     previous_feature_version_id BIGINT REFERENCES feature_versions(id),
-    service_version_id BIGINT NOT NULL REFERENCES service_versions(id),
+    service_version_id BIGINT NOT NULL REFERENCES service_versions(id) ON DELETE CASCADE,
     previous_service_version_id BIGINT REFERENCES service_versions(id),
-    feature_version_service_version_id BIGINT REFERENCES feature_version_service_versions(id),
-    key_id BIGINT REFERENCES keys(id),
-    new_variation_value_id BIGINT REFERENCES variation_values(id),
+    feature_version_service_version_id BIGINT REFERENCES feature_version_service_versions(id) ON DELETE CASCADE,
+    key_id BIGINT REFERENCES keys(id) ON DELETE CASCADE,
+    new_variation_value_id BIGINT REFERENCES variation_values(id) ON DELETE CASCADE,
     old_variation_value_id BIGINT REFERENCES variation_values(id)
 );
 CREATE INDEX idx_changeset_changes_kind ON changeset_changes(kind);

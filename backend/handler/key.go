@@ -182,6 +182,43 @@ func (h *Handler) UpdateKey(c echo.Context) error {
 	return c.JSON(http.StatusOK, NewCreateResponse(keyID))
 }
 
+// @Summary Delete a key
+// @Description Delete a key
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param service_version_id path int true "Service version ID"
+// @Param feature_version_id path int true "Feature version ID"
+// @Param key_id path int true "Key ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /services/{service_version_id}/features/{feature_version_id}/keys/{key_id} [delete]
+func (h *Handler) DeleteKey(c echo.Context) error {
+	var serviceVersionID uint
+	var featureVersionID uint
+	var keyID uint
+
+	err := echo.PathParamsBinder(c).
+		MustUint("service_version_id", &serviceVersionID).
+		MustUint("feature_version_id", &featureVersionID).
+		MustUint("key_id", &keyID).
+		BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.KeyService.DeleteKey(c.Request().Context(), serviceVersionID, featureVersionID, keyID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 // @Summary Check if key name is taken
 // @Description Check if key name is taken
 // @Accept json

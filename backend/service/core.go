@@ -77,13 +77,16 @@ func (s *CoreService) GetKey(ctx context.Context, serviceVersionID uint, feature
 	var serviceVersion db.GetServiceVersionRow
 	var featureVersion db.GetFeatureVersionRow
 	var key db.GetKeyRow
-
+	user := s.currentUserAccessor.GetUser(ctx)
 	serviceVersion, featureVersion, err := s.GetFeatureVersion(ctx, serviceVersionID, featureVersionID)
 	if err != nil {
 		return serviceVersion, featureVersion, key, err
 	}
 
-	key, err = s.queries.GetKey(ctx, keyID)
+	key, err = s.queries.GetKey(ctx, db.GetKeyParams{
+		KeyID:       keyID,
+		ChangesetID: user.ChangesetID,
+	})
 	if err != nil {
 		return serviceVersion, featureVersion, key, NewDbError(err, "Key")
 	}
@@ -100,13 +103,17 @@ func (s *CoreService) GetVariationValue(ctx context.Context, serviceVersionID ui
 	var featureVersion db.GetFeatureVersionRow
 	var key db.GetKeyRow
 	var variationValue db.VariationValue
+	user := s.currentUserAccessor.GetUser(ctx)
 
 	serviceVersion, featureVersion, key, err := s.GetKey(ctx, serviceVersionID, featureVersionID, keyID)
 	if err != nil {
 		return serviceVersion, featureVersion, key, variationValue, err
 	}
 
-	variationValue, err = s.queries.GetVariationValue(ctx, variationValueID)
+	variationValue, err = s.queries.GetVariationValue(ctx, db.GetVariationValueParams{
+		VariationValueID: variationValueID,
+		ChangesetID:      user.ChangesetID,
+	})
 	if err != nil {
 		return serviceVersion, featureVersion, key, variationValue, NewDbError(err, "VariationValue")
 	}

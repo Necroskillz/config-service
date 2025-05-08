@@ -354,10 +354,6 @@ func (s *FeatureService) UnlinkFeatureVersion(ctx context.Context, serviceVersio
 				return NewServiceError(ErrorCodeInvalidOperation, "Feature version already has an unlink change in the current changeset")
 			}
 
-			if err = tx.DeleteChange(ctx, change.ID); err != nil {
-				return err
-			}
-
 			if err = tx.DeleteFeatureVersionServiceVersion(ctx, link.ID); err != nil {
 				return err
 			}

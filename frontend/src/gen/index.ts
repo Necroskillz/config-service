@@ -1,4 +1,5 @@
 export type { DeleteChangesetsChangesetIdMutationKey } from './hooks/useDeleteChangesetsChangesetId.ts'
+export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
 export type { GetAuthUserQueryKey } from './hooks/useGetAuthUser.ts'
@@ -83,6 +84,17 @@ export type {
   DeleteChangesetsChangesetIdMutationResponse,
   DeleteChangesetsChangesetIdMutation,
 } from './types/DeleteChangesetsChangesetId.ts'
+export type {
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId204,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId404,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationResponse,
+  DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutation,
+} from './types/DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId204,
@@ -553,6 +565,11 @@ export type { ServiceValueTypeDto } from './types/service/ValueTypeDto.ts'
 export type { ServiceValueValidatorParameterTypeEnum, ServiceValueValidatorParameterType } from './types/service/ValueValidatorParameterType.ts'
 export type { ServiceVariationValue } from './types/service/VariationValue.ts'
 export { deleteChangesetsChangesetIdMutationKey, deleteChangesetsChangesetId, useDeleteChangesetsChangesetId } from './hooks/useDeleteChangesetsChangesetId.ts'
+export {
+  deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey,
+  deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
+  useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
+} from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export {
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey,
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,

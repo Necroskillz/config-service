@@ -161,8 +161,14 @@ SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.des
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
 WHERE k.id = $1
+    AND is_key_valid_in_changeset(k, $2)
 LIMIT 1
 `
+
+type GetKeyParams struct {
+	KeyID       uint
+	ChangesetID uint
+}
 
 type GetKeyRow struct {
 	ID               uint
@@ -178,8 +184,8 @@ type GetKeyRow struct {
 	ValueTypeName    string
 }
 
-func (q *Queries) GetKey(ctx context.Context, keyID uint) (GetKeyRow, error) {
-	row := q.db.QueryRow(ctx, getKey, keyID)
+func (q *Queries) GetKey(ctx context.Context, arg GetKeyParams) (GetKeyRow, error) {
+	row := q.db.QueryRow(ctx, getKey, arg.KeyID, arg.ChangesetID)
 	var i GetKeyRow
 	err := row.Scan(
 		&i.ID,

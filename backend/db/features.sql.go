@@ -148,16 +148,29 @@ WITH last_feature_versions AS (
     FROM feature_versions fv
     WHERE is_feature_version_valid_in_changeset(fv, $2)
     GROUP BY fv.feature_id
+),
+links AS (
+    SELECT fvsv.feature_version_id,
+        BOOL_OR(sv.published) as published,
+        COUNT(*) as link_count
+    FROM feature_version_service_versions fvsv
+        JOIN service_versions sv ON sv.id = fvsv.service_version_id
+    WHERE is_link_valid_in_changeset(fvsv, $2)
+    GROUP BY fvsv.feature_version_id
 )
 SELECT fv.id, fv.created_at, fv.updated_at, fv.valid_from, fv.valid_to, fv.version, fv.feature_id,
     f.name as feature_name,
     f.description as feature_description,
     f.service_id,
-    lfv.last_version as last_version
+    lfv.last_version as last_version,
+    l.published as linked_to_published_service_version,
+    l.link_count as service_version_link_count
 FROM feature_versions fv
     JOIN features f ON f.id = fv.feature_id
     JOIN last_feature_versions lfv ON lfv.feature_id = fv.feature_id
+    JOIN links l ON l.feature_version_id = fv.id
 WHERE fv.id = $1
+    AND is_feature_version_valid_in_changeset(fv, $2)
 LIMIT 1
 `
 
@@ -167,17 +180,19 @@ type GetFeatureVersionParams struct {
 }
 
 type GetFeatureVersionRow struct {
-	ID                 uint
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
-	ValidFrom          *time.Time
-	ValidTo            *time.Time
-	Version            int
-	FeatureID          uint
-	FeatureName        string
-	FeatureDescription string
-	ServiceID          uint
-	LastVersion        int
+	ID                              uint
+	CreatedAt                       time.Time
+	UpdatedAt                       time.Time
+	ValidFrom                       *time.Time
+	ValidTo                         *time.Time
+	Version                         int
+	FeatureID                       uint
+	FeatureName                     string
+	FeatureDescription              string
+	ServiceID                       uint
+	LastVersion                     int
+	LinkedToPublishedServiceVersion bool
+	ServiceVersionLinkCount         int64
 }
 
 func (q *Queries) GetFeatureVersion(ctx context.Context, arg GetFeatureVersionParams) (GetFeatureVersionRow, error) {
@@ -195,6 +210,8 @@ func (q *Queries) GetFeatureVersion(ctx context.Context, arg GetFeatureVersionPa
 		&i.FeatureDescription,
 		&i.ServiceID,
 		&i.LastVersion,
+		&i.LinkedToPublishedServiceVersion,
+		&i.ServiceVersionLinkCount,
 	)
 	return i, err
 }
