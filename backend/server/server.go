@@ -79,7 +79,7 @@ func (s *Server) Start() error {
 	serviceService := service.NewServiceService(queries, unitOfWorkRunner, changesetService, currentUserAccessor, validator, coreService)
 	userService := service.NewUserService(queries, variationContextService)
 	featureService := service.NewFeatureService(unitOfWorkRunner, queries, changesetService, currentUserAccessor, validator, coreService)
-	keyService := service.NewKeyService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService)
+	keyService := service.NewKeyService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService, variationHierarchyService)
 	valueService := service.NewValueService(unitOfWorkRunner, variationContextService, variationHierarchyService, queries, changesetService, currentUserAccessor, validator, coreService, validationService, valueValidatorService)
 
 	e.Use(echoMiddleware.Logger())

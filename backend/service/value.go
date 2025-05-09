@@ -124,7 +124,7 @@ type CreateValueParams struct {
 }
 
 func (s *ValueService) valueDataValidator(ctx context.Context, valueTypeID uint, keyID uint) (ValidatorFunc, error) {
-	valueValidators, err := s.valueValidatorService.GetValueValidators(ctx, keyID, valueTypeID)
+	valueValidators, err := s.valueValidatorService.GetValueValidators(ctx, &keyID, &valueTypeID)
 	if err != nil {
 		return nil, err
 	}
@@ -272,10 +272,6 @@ func (s *ValueService) DeleteValue(ctx context.Context, params DeleteValueParams
 				return err
 			}
 		} else {
-			if variationValueChange.Type == db.ChangesetChangeTypeDelete {
-				return NewServiceError(ErrorCodeInvalidOperation, "Cannot delete a already deleted value")
-			}
-
 			if err = tx.DeleteVariationValue(ctx, *variationValueChange.NewVariationValueID); err != nil {
 				return err
 			}

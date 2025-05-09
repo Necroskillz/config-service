@@ -23,3 +23,29 @@ func (h *Handler) GetValueTypes(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, valueTypes)
 }
+
+// @Summary Get value type
+// @Description Get a value type by ID
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param value_type_id path uint true "Value type ID"
+// @Success 200 {object} service.ValueTypeDto
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /value-types/{value_type_id} [get]
+func (h *Handler) GetValueType(c echo.Context) error {
+	var id uint
+	err := echo.PathParamsBinder(c).MustUint("value_type_id", &id).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	valueType, err := h.ValueTypeService.GetValueType(c.Request().Context(), id)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, valueType)
+}

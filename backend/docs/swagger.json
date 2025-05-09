@@ -1853,11 +1853,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.CreateResponse"
-                        }
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -2970,6 +2967,58 @@
                     }
                 }
             }
+        },
+        "/value-types/{value_type_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a value type by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get value type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Value type ID",
+                        "name": "value_type_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.ValueTypeDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -3186,7 +3235,7 @@
                 "validators": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/service.ValidatorDto"
+                        "$ref": "#/definitions/handler.ValidatorRequest"
                     }
                 },
                 "valueTypeId": {
@@ -3293,9 +3342,18 @@
         },
         "handler.UpdateKeyRequest": {
             "type": "object",
+            "required": [
+                "validators"
+            ],
             "properties": {
                 "description": {
                     "type": "string"
+                },
+                "validators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.ValidatorRequest"
+                    }
                 }
             }
         },
@@ -3307,6 +3365,23 @@
             "properties": {
                 "description": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.ValidatorRequest": {
+            "type": "object",
+            "required": [
+                "validatorType"
+            ],
+            "properties": {
+                "errorText": {
+                    "type": "string"
+                },
+                "parameter": {
+                    "type": "string"
+                },
+                "validatorType": {
+                    "$ref": "#/definitions/db.ValueValidatorType"
                 }
             }
         },
@@ -3647,10 +3722,12 @@
             "type": "object",
             "required": [
                 "canEdit",
+                "description",
                 "id",
                 "name",
                 "validators",
                 "valueType",
+                "valueTypeId",
                 "valueTypeName"
             ],
             "properties": {
@@ -3675,6 +3752,9 @@
                 "valueType": {
                     "$ref": "#/definitions/db.ValueTypeKind"
                 },
+                "valueTypeId": {
+                    "type": "integer"
+                },
                 "valueTypeName": {
                     "type": "string"
                 }
@@ -3683,9 +3763,11 @@
         "service.KeyItemDto": {
             "type": "object",
             "required": [
+                "description",
                 "id",
                 "name",
                 "valueType",
+                "valueTypeId",
                 "valueTypeName"
             ],
             "properties": {
@@ -3700,6 +3782,9 @@
                 },
                 "valueType": {
                     "$ref": "#/definitions/db.ValueTypeKind"
+                },
+                "valueTypeId": {
+                    "type": "integer"
                 },
                 "valueTypeName": {
                     "type": "string"
@@ -3848,11 +3933,17 @@
         "service.ValidatorDto": {
             "type": "object",
             "required": [
+                "errorText",
+                "isBuiltIn",
+                "parameter",
                 "validatorType"
             ],
             "properties": {
                 "errorText": {
                     "type": "string"
+                },
+                "isBuiltIn": {
+                    "type": "boolean"
                 },
                 "parameter": {
                     "type": "string"
@@ -3865,12 +3956,18 @@
         "service.ValidatorWithParameterTypeDto": {
             "type": "object",
             "required": [
+                "errorText",
+                "isBuiltIn",
+                "parameter",
                 "parameterType",
                 "validatorType"
             ],
             "properties": {
                 "errorText": {
                     "type": "string"
+                },
+                "isBuiltIn": {
+                    "type": "boolean"
                 },
                 "parameter": {
                     "type": "string"

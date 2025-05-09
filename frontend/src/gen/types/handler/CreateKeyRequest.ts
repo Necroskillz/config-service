@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { ServiceValidatorDto } from '../service/ValidatorDto.ts'
+import type { HandlerValidatorRequest } from './ValidatorRequest.ts'
 
 export type HandlerCreateKeyRequest = {
   /**
@@ -21,7 +21,7 @@ export type HandlerCreateKeyRequest = {
   /**
    * @type array
    */
-  validators: ServiceValidatorDto[]
+  validators: HandlerValidatorRequest[]
   /**
    * @type integer
    */

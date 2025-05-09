@@ -9,7 +9,7 @@ import {
   getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
   getServicesServiceVersionIdQueryOptions,
   getValueTypesQueryOptions,
-  ServiceValidatorDto,
+  HandlerValidatorRequest,
   ServiceValueTypeDto,
   ServiceValueValidatorParameterType,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
@@ -28,12 +28,11 @@ import { appTitle } from '~/utils/seo';
 import { seo } from '~/utils/seo';
 import { useChangeset } from '~/hooks/useChangeset';
 import { ValueEditor } from './-components/ValueEditor';
-import { createDefaultValue, createValueValidator } from './-components/value';
+import { createDefaultValue, createValueValidator, ValueValidatorDef } from './-components/value';
 import { ValidatorParameterEditor } from './-components/ValidatorParameterEditor';
 import { Label } from '~/components/ui/label';
-import { Validator } from 'jsonschema';
-
-type ValueTypeValidator = ServiceValidatorDto;
+import { ValueValidatorReadonlyDisplay } from './-components/ValueValidatorReadonlyDisplay';
+import { createParameterValidator } from './-components/value-validator';
 
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create')({
   component: RouteComponent,
@@ -94,86 +93,6 @@ function RouteComponent() {
     }, {} as Record<DbValueValidatorType, ServiceValueValidatorParameterType>);
   }, [selectedValueType]);
 
-  function createParameterValidator(parameterType: ServiceValueValidatorParameterType): z.ZodType<string | undefined> {
-    switch (parameterType) {
-      case 'none':
-        return z.string().max(0, 'Parameter is must not be specified').transform((value) => value || undefined);
-      case 'integer':
-        return z
-          .string()
-          .min(1, 'Parameter is required')
-          .regex(/^\d+$/, 'Parameter must be a valid integer')
-          .refine((value) => !isNaN(parseInt(value)), 'Parameter must be a valid integer');
-      case 'float':
-        return z
-          .string()
-          .min(1, 'Parameter is required')
-          .regex(/^\d+(\.\d+)?$/, 'Parameter must be a number with an optional decimal part')
-          .refine((value) => !isNaN(parseFloat(value)), 'Parameter must be a valid number with an optional decimal part');
-      case 'regex':
-        return z
-          .string()
-          .min(1, 'Parameter is required')
-          .refine((value) => {
-            try {
-              new RegExp(value);
-              return true;
-            } catch (error) {
-              return false;
-            }
-          }, 'Must be a valid regex');
-      case 'json_schema':
-        return z.string().superRefine((value, ctx) => {
-          try {
-            const schema = JSON.parse(value);
-            const validator = new Validator();
-            validator.addSchema(schema);
-          } catch (error: any) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `Must be a valid JSON schema: ${error.message}`,
-            });
-          }
-        });
-      default:
-        throw new Error(`Unknown parameter type: ${parameterType}`);
-    }
-  }
-
-  function createValidator(valueType: ServiceValueTypeDto, validators: ValueTypeValidator[]) {
-    return z.object({
-      name: z.string().min(1, 'Name is required'),
-      description: z.string(),
-      valueTypeId: z.number().min(1, 'Value type is required'),
-      defaultValue: createValueValidator((valueType.validators as ValueTypeValidator[]).concat(validators)),
-      validators: z.array(
-        z.object({
-          validatorType: z.nativeEnum(dbValueValidatorType),
-          parameter: z.string(),
-          errorText: z.string(),
-        })
-      ),
-    });
-  }
-
-  function updateFormValidator() {
-    const validators: ValueTypeValidator[] = [];
-
-    form.state.values.validators.forEach((validator, index) => {
-      if (form.getFieldMeta(`validators[${index}].parameter`)!.isValid) {
-        validators.push(validator);
-      }
-    });
-
-    form.update({
-      validators: {
-        onChange: createValidator(selectedValueType, validators),
-      },
-    });
-
-    form.validateSync('change');
-  }
-
   function addValidator(validatorType: DbValueValidatorType) {
     form.setFieldValue('validators', [
       ...form.state.values.validators,
@@ -189,16 +108,13 @@ function RouteComponent() {
   }
 
   function removeValidator(index: number) {
-    const validator = form.state.values.validators[index];
-    form.setFieldValue(
-      'validators',
-      form.state.values.validators.filter((_, i) => i !== index)
-    );
+    const newValidators = form.state.values.validators.filter((_, i) => i !== index);
+    form.setFieldValue('validators', newValidators);
 
-    setAvailableValidators((old) => [
-      ...old,
-      { validatorType: validator.validatorType, parameterType: validatorParameterTypes[validator.validatorType] },
-    ]);
+    setAvailableValidators(
+      selectedValueType.allowedValidators.filter((v) => !newValidators.some((v2) => v2.validatorType === v.validatorType))
+    );
+    setSelectedValidator(null);
   }
 
   function setValueType(id: number) {
@@ -214,25 +130,70 @@ function RouteComponent() {
     form.setFieldValue('validators', []);
   }
 
-  useEffect(() => {
-    updateFormValidator();
-  }, [selectedValueType, availableValidators]);
-
   const form = useAppForm({
     defaultValues: {
       name: '',
       description: '',
       valueTypeId: selectedValueType.id,
       defaultValue: createDefaultValue(selectedValueType.kind),
-      validators: [] as ValueTypeValidator[],
+      validators: [] as HandlerValidatorRequest[],
     },
     validators: {
-      onChange: createValidator(selectedValueType, []),
+      onChange: z
+        .object({
+          name: z.string().min(1, 'Name is required'),
+          description: z.string(),
+          valueTypeId: z.number().min(1, 'Value type is required'),
+          defaultValue: z.string(),
+          validators: z.array(
+            z.object({
+              validatorType: z.nativeEnum(dbValueValidatorType),
+              parameter: z.string(),
+              errorText: z.string(),
+            })
+          ),
+        })
+        .superRefine((value, ctx) => {
+          const validValidators = [] as HandlerValidatorRequest[];
+
+          value.validators.forEach((validator, i) => {
+            const parameterValidator = createParameterValidator(validatorParameterTypes[validator.validatorType]);
+            const result = parameterValidator.safeParse(validator.parameter);
+
+            if (!result.success) {
+              result.error.errors.forEach((error) => {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: error.message,
+                  path: ['validators', i, 'parameter'],
+                });
+              });
+            } else {
+              validValidators.push(validator);
+            }
+          });
+
+          const validator = createValueValidator((selectedValueType.validators as ValueValidatorDef[]).concat(validValidators));
+          const result = validator.safeParse(value.defaultValue);
+          if (!result.success) {
+            result.error.errors.forEach((error) => {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: error.message,
+                path: ['defaultValue'],
+              });
+            });
+          }
+        }),
     },
     onSubmit: async ({ value }) => {
       await mutation.mutateAsync({ service_version_id: serviceVersionId, feature_version_id: featureVersionId, data: value });
     },
   });
+
+  useEffect(() => {
+    form.validateSync('change');
+  }, [selectedValueType, availableValidators]);
 
   return (
     <SlimPage>
@@ -360,26 +321,7 @@ function RouteComponent() {
           <h2 className="text-lg font-semibold">Validators</h2>
           <div className="flex flex-col gap-8 w-full">
             {selectedValueType.validators.map((validator) => (
-              <div key={validator.validatorType} className="flex flex-row gap-4 w-full">
-                <div className="flex flex-3/12 flex-col gap-2">
-                  <Label>Validator</Label>
-                  <span className="text-lg">{validator.validatorType}</span>
-                </div>
-                <div className="flex flex-1/3 flex-col gap-2">
-                  <Label>Parameter</Label>
-                  <ValidatorParameterEditor parameterType={validator.parameterType} parameter={validator.parameter} disabled={true} />
-                </div>
-                <div className="flex flex-1/3 flex-col gap-2">
-                  <Label>Error Text</Label>
-                  <Input type="text" value={validator.errorText} disabled />
-                </div>
-                <div className="flex flex-1/12 flex-col gap-2">
-                  <Label>&nbsp;</Label>
-                  <Button variant="destructive" disabled>
-                    Remove
-                  </Button>
-                </div>
-              </div>
+              <ValueValidatorReadonlyDisplay key={validator.validatorType} validator={validator} />
             ))}
             <form.AppField name="validators" mode="array">
               {(field) => (
@@ -393,15 +335,6 @@ function RouteComponent() {
                       <div className="flex flex-1/3 flex-col gap-2">
                         <form.AppField
                           name={`validators[${i}].parameter`}
-                          validators={{
-                            onChange: createParameterValidator(validatorParameterTypes[field.state.value[i].validatorType]),
-                            onMount: createParameterValidator(validatorParameterTypes[field.state.value[i].validatorType]),
-                          }}
-                          listeners={{
-                            onChange: () => {
-                              updateFormValidator();
-                            },
-                          }}
                           children={(subField) => (
                             <>
                               <subField.FormLabel htmlFor={subField.name}>Parameter</subField.FormLabel>
@@ -453,7 +386,7 @@ function RouteComponent() {
             {availableValidators.length > 0 && (
               <div className="flex flex-row gap-2">
                 <Label>Add Validator</Label>
-                <Select onValueChange={(value) => setSelectedValidator(value as DbValueValidatorType)}>
+                <Select value={selectedValidator ?? ''} onValueChange={(value) => setSelectedValidator(value as DbValueValidatorType)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a validator" />
                   </SelectTrigger>

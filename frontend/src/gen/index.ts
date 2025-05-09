@@ -48,6 +48,8 @@ export type { GetServiceTypesServiceTypeIdVariationPropertiesSuspenseQueryKey } 
 export type { GetServiceTypesSuspenseQueryKey } from './hooks/useGetServiceTypesSuspense.ts'
 export type { GetValueTypesQueryKey } from './hooks/useGetValueTypes.ts'
 export type { GetValueTypesSuspenseQueryKey } from './hooks/useGetValueTypesSuspense.ts'
+export type { GetValueTypesValueTypeIdQueryKey } from './hooks/useGetValueTypesValueTypeId.ts'
+export type { GetValueTypesValueTypeIdSuspenseQueryKey } from './hooks/useGetValueTypesValueTypeIdSuspense.ts'
 export type { PostAuthLoginMutationKey } from './hooks/usePostAuthLogin.ts'
 export type { PostAuthRefreshTokenMutationKey } from './hooks/usePostAuthRefreshToken.ts'
 export type { PostChangesetsChangesetIdCommentMutationKey } from './hooks/usePostChangesetsChangesetIdComment.ts'
@@ -309,6 +311,15 @@ export type {
   GetServiceTypesServiceTypeIdVariationPropertiesQuery,
 } from './types/GetServiceTypesServiceTypeIdVariationProperties.ts'
 export type { GetValueTypes200, GetValueTypes401, GetValueTypes500, GetValueTypesQueryResponse, GetValueTypesQuery } from './types/GetValueTypes.ts'
+export type {
+  GetValueTypesValueTypeIdPathParams,
+  GetValueTypesValueTypeId200,
+  GetValueTypesValueTypeId401,
+  GetValueTypesValueTypeId404,
+  GetValueTypesValueTypeId500,
+  GetValueTypesValueTypeIdQueryResponse,
+  GetValueTypesValueTypeIdQuery,
+} from './types/GetValueTypesValueTypeId.ts'
 export type { HandlerAddCommentRequest } from './types/handler/AddCommentRequest.ts'
 export type { HandlerApprovableChangesetCountResponse } from './types/handler/ApprovableChangesetCountResponse.ts'
 export type { HandlerBooleanResponse } from './types/handler/BooleanResponse.ts'
@@ -324,6 +335,7 @@ export type { HandlerTokensResponse } from './types/handler/TokensResponse.ts'
 export type { HandlerUpdateFeatureRequest } from './types/handler/UpdateFeatureRequest.ts'
 export type { HandlerUpdateKeyRequest } from './types/handler/UpdateKeyRequest.ts'
 export type { HandlerUpdateServiceRequest } from './types/handler/UpdateServiceRequest.ts'
+export type { HandlerValidatorRequest } from './types/handler/ValidatorRequest.ts'
 export type { HandlerValueRequest } from './types/handler/ValueRequest.ts'
 export type { HandlerVariationProperty } from './types/handler/VariationProperty.ts'
 export type { HandlerVariationValueSelectOption } from './types/handler/VariationValueSelectOption.ts'
@@ -509,7 +521,7 @@ export type {
 } from './types/PutServicesServiceVersionIdFeaturesFeatureVersionId.ts'
 export type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
-  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200,
+  PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId204,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId400,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId401,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId403,
@@ -821,6 +833,18 @@ export {
   getValueTypesSuspenseQueryOptions,
   useGetValueTypesSuspense,
 } from './hooks/useGetValueTypesSuspense.ts'
+export {
+  getValueTypesValueTypeIdQueryKey,
+  getValueTypesValueTypeId,
+  getValueTypesValueTypeIdQueryOptions,
+  useGetValueTypesValueTypeId,
+} from './hooks/useGetValueTypesValueTypeId.ts'
+export {
+  getValueTypesValueTypeIdSuspenseQueryKey,
+  getValueTypesValueTypeIdSuspense,
+  getValueTypesValueTypeIdSuspenseQueryOptions,
+  useGetValueTypesValueTypeIdSuspense,
+} from './hooks/useGetValueTypesValueTypeIdSuspense.ts'
 export { postAuthLoginMutationKey, postAuthLogin, usePostAuthLogin } from './hooks/usePostAuthLogin.ts'
 export { postAuthRefreshTokenMutationKey, postAuthRefreshToken, usePostAuthRefreshToken } from './hooks/usePostAuthRefreshToken.ts'
 export {

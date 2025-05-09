@@ -21,13 +21,9 @@ const (
 
 type ValidatorDto struct {
 	ValidatorType db.ValueValidatorType `json:"validatorType" validate:"required"`
-	Parameter     string                `json:"parameter,omitzero"`
-	ErrorText     string                `json:"errorText,omitzero"`
-}
-
-type ValidatorWithParameterTypeDto struct {
-	ValidatorDto
-	ParameterType ValueValidatorParameterType `json:"parameterType" validate:"required"`
+	Parameter     string                `json:"parameter" validate:"required"`
+	ErrorText     string                `json:"errorText" validate:"required"`
+	IsBuiltIn     bool                  `json:"isBuiltIn" validate:"required"`
 }
 
 type ValueValidatorService struct {
@@ -244,10 +240,10 @@ func (s *ValueValidatorService) CreateValueValidatorFunc(params []ValidatorDto) 
 	}, nil
 }
 
-func (s *ValueValidatorService) GetValueValidators(ctx context.Context, keyID uint, valueTypeID uint) ([]ValidatorDto, error) {
+func (s *ValueValidatorService) GetValueValidators(ctx context.Context, keyID *uint, valueTypeID *uint) ([]ValidatorDto, error) {
 	valueValidators, err := s.queries.GetValueValidators(ctx, db.GetValueValidatorsParams{
-		KeyID:       &keyID,
-		ValueTypeID: &valueTypeID,
+		KeyID:       keyID,
+		ValueTypeID: valueTypeID,
 	})
 	if err != nil {
 		return nil, err
@@ -259,6 +255,7 @@ func (s *ValueValidatorService) GetValueValidators(ctx context.Context, keyID ui
 			ValidatorType: validator.ValidatorType,
 			Parameter:     str.FromPtr(validator.Parameter),
 			ErrorText:     str.FromPtr(validator.ErrorText),
+			IsBuiltIn:     validator.ValueTypeID != nil,
 		}
 	}
 

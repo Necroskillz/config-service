@@ -77,7 +77,8 @@ CREATE TABLE keys (
     name TEXT NOT NULL,
     description TEXT,
     value_type_id BIGINT NOT NULL REFERENCES value_types(id),
-    feature_version_id BIGINT NOT NULL REFERENCES feature_versions(id)
+    feature_version_id BIGINT NOT NULL REFERENCES feature_versions(id),
+    validators_updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_keys_valid_from ON keys(valid_from);
 CREATE INDEX idx_keys_valid_to ON keys(valid_to);
@@ -88,7 +89,16 @@ CREATE TABLE value_validators (
     validator_type value_validator_type NOT NULL,
     parameter TEXT,
     error_text TEXT,
-    CHECK ((value_type_id IS NOT NULL AND key_id IS NULL) OR (value_type_id IS NULL AND key_id IS NOT NULL))
+    CHECK (
+        (
+            value_type_id IS NOT NULL
+            AND key_id IS NULL
+        )
+        OR (
+            value_type_id IS NULL
+            AND key_id IS NOT NULL
+        )
+    )
 );
 CREATE TABLE variation_properties (
     id BIGSERIAL PRIMARY KEY,

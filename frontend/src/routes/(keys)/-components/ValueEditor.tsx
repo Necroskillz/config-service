@@ -5,6 +5,7 @@ import { useTheme } from '~/ThemeProvider';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { formatJsonSafe } from '~/utils/json';
+import { useState } from 'react';
 
 type ValueEditorProps = {
   valueType: DbValueTypeKind;
@@ -25,11 +26,17 @@ export function ValueEditor({ valueType, ...props }: ValueEditorProps) {
   }
 
   if (valueType === 'json') {
+    const [editorValue, setEditorValue] = useState(() => formatJsonSafe(props.value));
+
     return (
       <div className="json-editor-container">
         <CodeMirror
-          value={formatJsonSafe(props.value)}
-          onChange={onChange}
+          suppressHydrationWarning
+          value={editorValue}
+          onChange={(val) => {
+            setEditorValue(val);
+            onChange(val);
+          }}
           theme={activeTheme === 'dark' ? 'dark' : 'light'}
           extensions={[json()]}
           readOnly={props.disabled}

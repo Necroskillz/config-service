@@ -43,6 +43,7 @@ import { ValueEditor } from './-components/ValueEditor';
 import { ValueViewer } from './-components/ValueViewer';
 import { StandardSchemaV1Issue } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
+import { ZodErrorMessage } from '~/components/ZodErrorMessage';
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values')({
   component: RouteComponent,
   params: {
@@ -620,7 +621,7 @@ function RouteComponent() {
                       errors.length > 0 ? (
                         <TableRow className="border-t-0">
                           <TableCell className="pt-0" colSpan={row.getVisibleCells().length}>
-                            <ErrorMessage errors={errors} />
+                            <ZodErrorMessage errors={errors} />
                           </TableCell>
                         </TableRow>
                       ) : null
@@ -646,7 +647,7 @@ function RouteComponent() {
                         errors.length > 0 ? (
                           <TableRow className="border-t-0">
                             <TableCell className="pt-0" colSpan={footerGroup.headers.length}>
-                              <ErrorMessage errors={errors} />
+                              <ZodErrorMessage errors={errors} />
                             </TableCell>
                           </TableRow>
                         ) : null
@@ -663,24 +664,6 @@ function RouteComponent() {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-function ErrorMessage({ errors }: { errors: (Record<string, StandardSchemaV1Issue[]> | undefined)[] }) {
-  if (!errors) {
-    return null;
-  }
-
-  const errorMessages = errors.flatMap((error) => Object.values(error ?? {}).flatMap((error) => error.map((error) => error.message)));
-
-  return (
-    <div className="flex flex-col">
-      {errorMessages.map((error) => (
-        <p key={error} className={cn('text-destructive text-sm')}>
-          {error}
-        </p>
-      ))}
     </div>
   );
 }

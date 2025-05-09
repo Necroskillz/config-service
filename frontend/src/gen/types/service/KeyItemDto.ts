@@ -7,9 +7,9 @@ import type { DbValueTypeKind } from '../db/ValueTypeKind.ts'
 
 export type ServiceKeyItemDto = {
   /**
-   * @type string | undefined
+   * @type string
    */
-  description?: string
+  description: string
   /**
    * @type integer
    */
@@ -22,6 +22,10 @@ export type ServiceKeyItemDto = {
    * @type string
    */
   valueType: DbValueTypeKind
+  /**
+   * @type integer
+   */
+  valueTypeId: number
   /**
    * @type string
    */

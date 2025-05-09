@@ -1,9 +1,13 @@
 -- name: GetKey :one
 SELECT k.*,
     vt.kind as value_type_kind,
-    vt.name as value_type_name
+    vt.name as value_type_name,
+    csc.changeset_id as created_in_changeset_id
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
+    JOIN changeset_changes csc ON csc.key_id = k.id
+    AND csc.type = 'create'
+    AND csc.kind = 'key'
 WHERE k.id = @key_id
     AND is_key_valid_in_changeset(k, @changeset_id)
 LIMIT 1;
@@ -19,6 +23,10 @@ ORDER BY k.name;
 -- name: GetValueTypes :many
 SELECT *
 FROM value_types;
+-- name: GetValueType :one
+SELECT *
+FROM value_types
+WHERE id = @id;
 -- name: CreateKey :one
 INSERT INTO keys (
         name,
@@ -35,7 +43,7 @@ VALUES (
 RETURNING id;
 -- name: UpdateKey :exec
 UPDATE keys
-SET description = @description
+SET description = @description, validators_updated_at = @validators_updated_at
 WHERE id = @key_id;
 -- name: GetKeyIDByName :one
 SELECT id
@@ -79,6 +87,9 @@ VALUES (
         sqlc.narg('error_text')
     )
 RETURNING id;
+-- name: DeleteValueValidator :exec
+DELETE FROM value_validators
+WHERE id = @value_validator_id;
 -- name: EndKeyValidity :exec
 UPDATE keys
 SET valid_to = @valid_to

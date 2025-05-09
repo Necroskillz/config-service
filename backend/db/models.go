@@ -436,15 +436,16 @@ type FeatureVersionServiceVersion struct {
 }
 
 type Key struct {
-	ID               uint
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	ValidFrom        *time.Time
-	ValidTo          *time.Time
-	Name             string
-	Description      *string
-	ValueTypeID      uint
-	FeatureVersionID uint
+	ID                  uint
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	ValidFrom           *time.Time
+	ValidTo             *time.Time
+	Name                string
+	Description         *string
+	ValueTypeID         uint
+	FeatureVersionID    uint
+	ValidatorsUpdatedAt time.Time
 }
 
 type Service struct {

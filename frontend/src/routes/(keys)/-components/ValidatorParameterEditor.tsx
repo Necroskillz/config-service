@@ -4,6 +4,7 @@ import { json } from '@codemirror/lang-json';
 import CodeMirror from '@uiw/react-codemirror';
 import { useTheme } from '~/ThemeProvider';
 import { formatJsonSafe } from '~/utils/json';
+import { useMemo, useState } from 'react';
 
 export function ValidatorParameterEditor({
   parameterType,
@@ -25,11 +26,17 @@ export function ValidatorParameterEditor({
   }
 
   if (parameterType === 'json_schema') {
+    const [editorValue, setEditorValue] = useState(() => formatJsonSafe(parameter));
+
     return (
       <div className="json-editor-container">
         <CodeMirror
-          value={formatJsonSafe(parameter)}
-          onChange={onChange}
+          suppressHydrationWarning
+          value={editorValue}
+          onChange={(val) => {
+            setEditorValue(val);
+            onChange?.(val);
+          }}
           onBlur={onBlur}
           theme={activeTheme === 'dark' ? 'dark' : 'light'}
           extensions={[json()]}

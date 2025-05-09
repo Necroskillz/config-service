@@ -34,7 +34,7 @@ export async function putServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   service_version_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['service_version_id'],
   feature_version_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['feature_version_id'],
   key_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['key_id'],
-  data?: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest,
+  data: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest,
   config: Partial<RequestConfig<PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest>> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -73,7 +73,7 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId<
         service_version_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['service_version_id']
         feature_version_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['feature_version_id']
         key_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['key_id']
-        data?: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest
+        data: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest
       },
       TContext
     > & { client?: QueryClient }
@@ -96,7 +96,7 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId<
       service_version_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['service_version_id']
       feature_version_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['feature_version_id']
       key_id: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams['key_id']
-      data?: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest
+      data: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest
     },
     TContext
   >(

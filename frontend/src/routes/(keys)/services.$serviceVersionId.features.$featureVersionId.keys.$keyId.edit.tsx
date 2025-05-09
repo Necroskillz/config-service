@@ -3,19 +3,25 @@ import { z } from 'zod';
 import { SlimPage } from '~/components/SlimPage';
 import { PageTitle } from '~/components/PageTitle';
 import {
+  DbValueValidatorType,
+  dbValueValidatorType,
   getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions,
-  getServicesServiceVersionIdFeaturesFeatureVersionIdKeysNameTakenName,
   getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
   getServicesServiceVersionIdQueryOptions,
   getValueTypesQueryOptions,
+  HandlerValidatorRequest,
+  HandlerVariationProperty,
+  ServiceValueValidatorParameterType,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense,
+  useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesSuspense,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
-  useGetValueTypes,
-  usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys,
+  useGetServicesServiceVersionIdSuspense,
+  useGetServiceTypesServiceTypeIdVariationPropertiesSuspense,
+  useGetValueTypesValueTypeIdSuspense,
   usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
 } from '~/gen';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '~/components/ui/select';
-import { useEffect } from 'react';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select';
+import { useEffect, useState } from 'react';
 import { MutationErrors } from '~/components/MutationErrors';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -26,6 +32,12 @@ import { appTitle } from '~/utils/seo';
 import { seo } from '~/utils/seo';
 import { useChangeset } from '~/hooks/useChangeset';
 import { Label } from '~/components/ui/label';
+import { ValidatorParameterEditor } from './-components/ValidatorParameterEditor';
+import { ValueValidatorReadonlyDisplay } from './-components/ValueValidatorReadonlyDisplay';
+import { createParameterValidator } from './-components/value-validator';
+import { createValueValidator } from './-components/value';
+import { ZodErrorMessage } from '~/components/ZodErrorMessage';
+import { Alert, AlertDescription } from '~/components/ui/alert';
 
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit')({
   component: RouteComponent,
@@ -65,8 +77,34 @@ function RouteComponent() {
   const { serviceVersionId, featureVersionId, keyId } = Route.useParams();
   const navigate = useNavigate();
   const { refresh } = useChangeset();
+  const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const { data: featureVersion } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense(serviceVersionId, featureVersionId);
   const { data: key } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense(serviceVersionId, featureVersionId, keyId);
+  const { data: valueType } = useGetValueTypesValueTypeIdSuspense(key.valueTypeId);
+  const { data: values } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesSuspense(
+    serviceVersionId,
+    featureVersionId,
+    keyId
+  );
+  const { data: properties } = useGetServiceTypesServiceTypeIdVariationPropertiesSuspense(serviceVersion.serviceTypeId, {
+    query: {
+      staleTime: Infinity,
+    },
+  });
+
+  const propertyMap = properties.reduce((acc, property) => {
+    acc[property.id] = property;
+    return acc;
+  }, {} as Record<string, HandlerVariationProperty>);
+
+  const [availableValidators, setAvailableValidators] = useState(
+    valueType.allowedValidators.filter((v) => !key.validators.some((kv) => kv.validatorType === v.validatorType))
+  );
+  const [selectedValidator, setSelectedValidator] = useState<DbValueValidatorType | null>(null);
+  const validatorParameterTypes = valueType.allowedValidators.reduce((acc, validator) => {
+    acc[validator.validatorType] = validator.parameterType;
+    return acc;
+  }, {} as Record<DbValueValidatorType, ServiceValueValidatorParameterType>);
 
   const mutation = usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId({
     mutation: {
@@ -80,13 +118,57 @@ function RouteComponent() {
     },
   });
 
+  const keyValidators = key.validators.filter((validator) => !validator.isBuiltIn) as HandlerValidatorRequest[];
+
   const form = useAppForm({
     defaultValues: {
-      description: '',
+      description: key.description,
+      validators: keyValidators,
     },
     validators: {
       onChange: z.object({
         description: z.string(),
+        validators: z.array(
+          z
+            .object({
+              validatorType: z.nativeEnum(dbValueValidatorType),
+              parameter: z.string(),
+              errorText: z.string(),
+            })
+            .superRefine((value, ctx) => {
+              const parameterValidator = createParameterValidator(validatorParameterTypes[value.validatorType]);
+              const result = parameterValidator.safeParse(value.parameter);
+              if (!result.success) {
+                result.error.errors.forEach((error) => {
+                  ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: error.message,
+                    path: ['parameter'],
+                  });
+                });
+
+                return;
+              }
+
+              const validator = createValueValidator([value]);
+
+              values.forEach((value) => {
+                const result = validator.safeParse(value.data);
+                if (!result.success) {
+                  const variation = Object.entries(value.variation);
+                  const variationString =
+                    variation.length > 0 ? variation.map(([k, v]) => `${propertyMap[k].name}: ${v}`).join(', ') : 'Default';
+
+                  result.error.errors.forEach((error) => {
+                    ctx.addIssue({
+                      code: z.ZodIssueCode.custom,
+                      message: `Value "${value.data}" for variation ${variationString} is invalid: ${error.message}`,
+                    });
+                  });
+                }
+              });
+            })
+        ),
       }),
     },
     onSubmit: async ({ value }) => {
@@ -99,12 +181,42 @@ function RouteComponent() {
     },
   });
 
+  function addValidator(validatorType: DbValueValidatorType) {
+    form.setFieldValue('validators', [
+      ...form.state.values.validators,
+      {
+        validatorType,
+        parameter: '',
+        errorText: '',
+      },
+    ]);
+
+    setAvailableValidators((old) => old.filter((validator) => validator.validatorType !== validatorType));
+    setSelectedValidator(null);
+  }
+
+  function removeValidator(index: number) {
+    const newValidators = form.state.values.validators.filter((_, i) => i !== index);
+    form.setFieldValue('validators', newValidators);
+
+    setAvailableValidators(valueType.allowedValidators.filter((v) => !newValidators.some((v2) => v2.validatorType === v.validatorType)));
+    setSelectedValidator(null);
+  }
+
+  useEffect(() => {
+    form.validateField('validators', 'change');
+  }, [availableValidators]);
+
   return (
     <SlimPage>
       <PageTitle>Update Key</PageTitle>
       <div className="text-muted-foreground mb-4">
         <p>
-          Update key {key.name} of {featureVersion?.name} v{featureVersion?.version}
+          Update key {key.name} of {featureVersion.name} v{featureVersion.version}
+        </p>
+        <p className="mt-2 text-sm">
+          <span className="font-bold">NOTE:</span> To edit validators, all values of the key must be valid for the new validators
+          and their parameters. For existing keys, make sure to not have any changes related to this key in the current changeset.
         </p>
       </div>
       <form.AppForm>
@@ -139,6 +251,96 @@ function RouteComponent() {
               </>
             )}
           />
+          <h2 className="text-lg font-semibold">Validators</h2>
+          <div className="flex flex-col gap-8 w-full">
+            {valueType.validators.map((validator) => (
+              <ValueValidatorReadonlyDisplay key={validator.validatorType} validator={validator} />
+            ))}
+            <form.AppField name="validators" mode="array">
+              {(field) => (
+                <div className="flex flex-col gap-8 w-full">
+                  {field.state.value.map((_, i) => (
+                    <div key={i} className="flex flex-row gap-4 w-full">
+                      <div className="flex flex-3/12 flex-col gap-2">
+                        <Label>Validator</Label>
+                        <span className="text-lg">{field.state.value[i].validatorType}</span>
+                      </div>
+                      <div className="flex flex-1/3 flex-col gap-2">
+                        <form.AppField
+                          name={`validators[${i}].parameter`}
+                          children={(subField) => (
+                            <>
+                              <subField.FormLabel htmlFor={subField.name}>Parameter</subField.FormLabel>
+                              <subField.FormControl>
+                                <ValidatorParameterEditor
+                                  parameterType={validatorParameterTypes[field.state.value[i].validatorType]}
+                                  parameter={subField.state.value}
+                                  onChange={(value) => subField.handleChange(value)}
+                                  onBlur={subField.handleBlur}
+                                />
+                              </subField.FormControl>
+                              <subField.FormMessage />
+                            </>
+                          )}
+                        />
+                      </div>
+                      <div className="flex flex-1/3 flex-col gap-2">
+                        <form.AppField
+                          name={`validators[${i}].errorText`}
+                          children={(subField) => (
+                            <>
+                              <subField.FormLabel htmlFor={subField.name}>Error Text</subField.FormLabel>
+                              <subField.FormControl>
+                                <Input
+                                  type="text"
+                                  id={subField.name}
+                                  name={subField.name}
+                                  value={subField.state.value}
+                                  onChange={(e) => subField.handleChange(e.target.value)}
+                                  onBlur={subField.handleBlur}
+                                />
+                              </subField.FormControl>
+                              <subField.FormMessage />
+                            </>
+                          )}
+                        />
+                      </div>
+                      <div className="flex flex-1/12 flex-col gap-2">
+                        <Label>&nbsp;</Label>
+                        <Button type="button" variant="destructive" onClick={() => removeValidator(i)}>
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  <form.Subscribe
+                    selector={(state) => [state.errors]}
+                    children={([errors]) => <ZodErrorMessage errors={errors} pathFilter={`validators.\\d+$`} />}
+                  />
+                </div>
+              )}
+            </form.AppField>
+            {availableValidators.length > 0 && (
+              <div className="flex flex-row gap-2">
+                <Label>Add Validator</Label>
+                <Select value={selectedValidator ?? ''} onValueChange={(value) => setSelectedValidator(value as DbValueValidatorType)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a validator" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableValidators.map((validator) => (
+                      <SelectItem key={validator.validatorType} value={validator.validatorType}>
+                        {validator.validatorType}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button type="button" variant="outline" onClick={() => addValidator(selectedValidator!)} disabled={!selectedValidator}>
+                  Add
+                </Button>
+              </div>
+            )}
+          </div>
           <div className="flex flex-col gap-2">
             <Label>Value Type</Label>
             <Input type="text" id="valueType" name="valueType" value={key.valueType} disabled />

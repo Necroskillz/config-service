@@ -8,13 +8,17 @@ import type { ServiceValueValidatorParameterType } from './ValueValidatorParamet
 
 export type ServiceValidatorWithParameterTypeDto = {
   /**
-   * @type string | undefined
+   * @type string
    */
-  errorText?: string
+  errorText: string
   /**
-   * @type string | undefined
+   * @type boolean
    */
-  parameter?: string
+  isBuiltIn: boolean
+  /**
+   * @type string
+   */
+  parameter: string
   /**
    * @type string
    */

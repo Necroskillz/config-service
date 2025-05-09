@@ -157,7 +157,7 @@ definitions:
         type: string
       validators:
         items:
-          $ref: '#/definitions/service.ValidatorDto'
+          $ref: '#/definitions/handler.ValidatorRequest'
         type: array
       valueTypeId:
         type: integer
@@ -234,6 +234,12 @@ definitions:
     properties:
       description:
         type: string
+      validators:
+        items:
+          $ref: '#/definitions/handler.ValidatorRequest'
+        type: array
+    required:
+    - validators
     type: object
   handler.UpdateServiceRequest:
     properties:
@@ -241,6 +247,17 @@ definitions:
         type: string
     required:
     - description
+    type: object
+  handler.ValidatorRequest:
+    properties:
+      errorText:
+        type: string
+      parameter:
+        type: string
+      validatorType:
+        $ref: '#/definitions/db.ValueValidatorType'
+    required:
+    - validatorType
     type: object
   handler.ValueRequest:
     properties:
@@ -489,14 +506,18 @@ definitions:
         type: array
       valueType:
         $ref: '#/definitions/db.ValueTypeKind'
+      valueTypeId:
+        type: integer
       valueTypeName:
         type: string
     required:
     - canEdit
+    - description
     - id
     - name
     - validators
     - valueType
+    - valueTypeId
     - valueTypeName
     type: object
   service.KeyItemDto:
@@ -509,12 +530,16 @@ definitions:
         type: string
       valueType:
         $ref: '#/definitions/db.ValueTypeKind'
+      valueTypeId:
+        type: integer
       valueTypeName:
         type: string
     required:
+    - description
     - id
     - name
     - valueType
+    - valueTypeId
     - valueTypeName
     type: object
   service.NewValueInfo:
@@ -617,17 +642,24 @@ definitions:
     properties:
       errorText:
         type: string
+      isBuiltIn:
+        type: boolean
       parameter:
         type: string
       validatorType:
         $ref: '#/definitions/db.ValueValidatorType'
     required:
+    - errorText
+    - isBuiltIn
+    - parameter
     - validatorType
     type: object
   service.ValidatorWithParameterTypeDto:
     properties:
       errorText:
         type: string
+      isBuiltIn:
+        type: boolean
       parameter:
         type: string
       parameterType:
@@ -635,6 +667,9 @@ definitions:
       validatorType:
         $ref: '#/definitions/db.ValueValidatorType'
     required:
+    - errorText
+    - isBuiltIn
+    - parameter
     - parameterType
     - validatorType
     type: object
@@ -1784,10 +1819,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.CreateResponse'
+        "204":
+          description: No Content
         "400":
           description: Bad Request
           schema:
@@ -2623,6 +2656,39 @@ paths:
       security:
       - BearerAuth: []
       summary: Get value types
+  /value-types/{value_type_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a value type by ID
+      parameters:
+      - description: Value type ID
+        in: path
+        name: value_type_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.ValueTypeDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get value type
 securityDefinitions:
   BearerAuth:
     in: header

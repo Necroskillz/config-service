@@ -1,5 +1,5 @@
 import { z, ZodType } from 'zod';
-import { DbValueTypeKind, DbValueValidatorType, ServiceValidatorDto } from '~/gen';
+import { DbValueTypeKind, DbValueValidatorType, HandlerValidatorRequest, ServiceValidatorDto } from '~/gen';
 import { Validator } from 'jsonschema';
 
 export function createDefaultValue(valueType: DbValueTypeKind) {
@@ -12,6 +12,11 @@ export function createDefaultValue(valueType: DbValueTypeKind) {
 }
 
 type ValidatorRefiner = (parameter: string | undefined, errorText: string | undefined) => (zv: ZodType<string>) => ZodType<string>;
+export type ValueValidatorDef = {
+  validatorType: DbValueValidatorType;
+  parameter?: string;
+  errorText?: string;
+};
 
 function parseIntParameter(parameterName: string, parameter: string | undefined) {
   if (!parameter) {
@@ -279,7 +284,7 @@ const valueValidators: Record<DbValueValidatorType, ValidatorRefiner> = {
   valid_regex: createValidRegexValidatorRefiner(),
 };
 
-export function createValueValidator(validators: ServiceValidatorDto[]) {
+export function createValueValidator(validators: ValueValidatorDef[]) {
   let zv: ZodType<string> = z.string();
 
   validators.forEach((validator) => {

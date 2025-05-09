@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/necroskillz/config-service/auth"
@@ -13,14 +16,15 @@ import (
 )
 
 type KeyService struct {
-	unitOfWorkRunner        db.UnitOfWorkRunner
-	variationContextService *VariationContextService
-	queries                 *db.Queries
-	changesetService        *ChangesetService
-	currentUserAccessor     *auth.CurrentUserAccessor
-	validator               *Validator
-	coreService             *CoreService
-	valueValidatorService   *ValueValidatorService
+	unitOfWorkRunner          db.UnitOfWorkRunner
+	variationContextService   *VariationContextService
+	queries                   *db.Queries
+	changesetService          *ChangesetService
+	currentUserAccessor       *auth.CurrentUserAccessor
+	validator                 *Validator
+	coreService               *CoreService
+	valueValidatorService     *ValueValidatorService
+	variationHierarchyService *VariationHierarchyService
 }
 
 func NewKeyService(
@@ -32,16 +36,18 @@ func NewKeyService(
 	validator *Validator,
 	coreService *CoreService,
 	valueValidatorService *ValueValidatorService,
+	variationHierarchyService *VariationHierarchyService,
 ) *KeyService {
 	return &KeyService{
-		unitOfWorkRunner:        unitOfWorkRunner,
-		variationContextService: variationContextService,
-		queries:                 queries,
-		changesetService:        changesetService,
-		currentUserAccessor:     currentUserAccessor,
-		validator:               validator,
-		coreService:             coreService,
-		valueValidatorService:   valueValidatorService,
+		unitOfWorkRunner:          unitOfWorkRunner,
+		variationContextService:   variationContextService,
+		queries:                   queries,
+		changesetService:          changesetService,
+		currentUserAccessor:       currentUserAccessor,
+		validator:                 validator,
+		coreService:               coreService,
+		valueValidatorService:     valueValidatorService,
+		variationHierarchyService: variationHierarchyService,
 	}
 }
 
@@ -50,9 +56,10 @@ type ValueTypeName = string
 type KeyItemDto struct {
 	ID            uint             `json:"id" validate:"required"`
 	Name          string           `json:"name" validate:"required"`
-	Description   *string          `json:"description"`
+	Description   string           `json:"description" validate:"required"`
 	ValueTypeName string           `json:"valueTypeName" validate:"required"`
 	ValueType     db.ValueTypeKind `json:"valueType" validate:"required"`
+	ValueTypeID   uint             `json:"valueTypeId" validate:"required"`
 }
 
 type KeyDto struct {
@@ -69,7 +76,7 @@ func (s *KeyService) GetKey(ctx context.Context, serviceVersionID uint, featureV
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	validators, err := s.valueValidatorService.GetValueValidators(ctx, key.ID, key.ValueTypeID)
+	validators, err := s.valueValidatorService.GetValueValidators(ctx, &key.ID, &key.ValueTypeID)
 	if err != nil {
 		return KeyDto{}, err
 	}
@@ -78,9 +85,10 @@ func (s *KeyService) GetKey(ctx context.Context, serviceVersionID uint, featureV
 		KeyItemDto: KeyItemDto{
 			ID:            key.ID,
 			Name:          key.Name,
-			Description:   key.Description,
+			Description:   str.FromPtr(key.Description),
 			ValueTypeName: key.ValueTypeName,
 			ValueType:     key.ValueTypeKind,
+			ValueTypeID:   key.ValueTypeID,
 		},
 		CanEdit:    user.GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) >= constants.PermissionAdmin,
 		Validators: validators,
@@ -108,7 +116,7 @@ func (s *KeyService) GetFeatureKeys(ctx context.Context, serviceVersionID uint, 
 		result[i] = KeyItemDto{
 			ID:            key.ID,
 			Name:          key.Name,
-			Description:   key.Description,
+			Description:   str.FromPtr(key.Description),
 			ValueTypeName: key.ValueTypeName,
 			ValueType:     key.ValueTypeKind,
 		}
@@ -158,6 +166,11 @@ func (s *KeyService) validateValidators(vc *ValidatorContext, validators []Valid
 }
 
 func (s *KeyService) validateCreateKey(ctx context.Context, data CreateKeyParams, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+	if user.GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) < constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create keys for this feature")
+	}
+
 	vc := s.validator.
 		Validate(data.Name, "Name").Required().KeyNameNotTaken(data.FeatureVersionID).
 		Validate(data.ValueTypeID, "Value Type ID").Min(1).
@@ -174,11 +187,6 @@ func (s *KeyService) validateCreateKey(ctx context.Context, data CreateKeyParams
 
 	if err != nil {
 		return err
-	}
-
-	user := s.currentUserAccessor.GetUser(ctx)
-	if user.GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) < constants.PermissionAdmin {
-		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create keys for this feature")
 	}
 
 	return nil
@@ -271,20 +279,79 @@ type UpdateKeyParams struct {
 	FeatureVersionID uint
 	KeyID            uint
 	Description      string
+	Validators       []ValidatorDto
 }
 
-func (s *KeyService) validateUpdateKey(ctx context.Context, data UpdateKeyParams, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow, key db.GetKeyRow) error {
-	err := s.validator.
-		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc).
-		Error(ctx)
+func (s *KeyService) validateUpdateKey(ctx context.Context, data UpdateKeyParams, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow, key db.GetKeyRow, hasValidatorsChanges bool) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	if user.GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) < constants.PermissionAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to update keys for this feature")
+	}
+
+	vc := s.validator.
+		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc)
+
+	if hasValidatorsChanges {
+		s.validateValidators(vc, data.Validators)
+
+		if key.CreatedInChangesetID != user.ChangesetID {
+			changesCount, err := s.queries.GetRelatedKeyChangesCount(ctx, db.GetRelatedKeyChangesCountParams{
+				KeyID:       data.KeyID,
+				ChangesetID: user.ChangesetID,
+			})
+			if err != nil {
+				return err
+			}
+
+			if changesCount > 0 {
+				return NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Your current changeset contains %d changes related to this key. Please apply or discard them before updating validators.", changesCount))
+			}
+		}
+
+		variationValues, err := s.queries.GetVariationValuesForKey(ctx, db.GetVariationValuesForKeyParams{
+			KeyID:       data.KeyID,
+			ChangesetID: user.ChangesetID,
+		})
+		if err != nil {
+			return err
+		}
+
+		variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
+		if err != nil {
+			return err
+		}
+
+		for _, variationValue := range variationValues {
+			validatorFunc, err := s.valueValidatorService.CreateValueValidatorFunc(data.Validators)
+			if err != nil {
+				return err
+			}
+
+			variationContextValues, err := s.variationContextService.GetVariationContextValues(ctx, variationValue.VariationContextID)
+			if err != nil {
+				return err
+			}
+
+			valueNameBuilder := strings.Builder{}
+			valueNameBuilder.WriteString("Value for variation: ")
+			if len(variationContextValues) > 0 {
+				for propertyID, propertyValue := range variationContextValues {
+					propertyName := variationHierarchy.GetPropertyName(propertyID)
+					valueNameBuilder.WriteString(fmt.Sprintf("%s: %s, ", propertyName, propertyValue))
+				}
+			} else {
+				valueNameBuilder.WriteString("Default")
+			}
+
+			vc.Validate(variationValue.Data, valueNameBuilder.String()).Func(validatorFunc)
+		}
+	}
+
+	err := vc.Error(ctx)
 
 	if err != nil {
 		return err
-	}
-
-	user := s.currentUserAccessor.GetUser(ctx)
-	if user.GetPermissionForKey(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID) < constants.PermissionAdmin {
-		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to update keys for this feature")
 	}
 
 	return nil
@@ -296,20 +363,71 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 		return err
 	}
 
-	err = s.validateUpdateKey(ctx, params, serviceVersion, featureVersion, key)
+	hasValidatorsChanges := false
+	var validators []db.ValueValidator
+
+	if params.Validators != nil {
+		validators, err = s.queries.GetValueValidators(ctx, db.GetValueValidatorsParams{
+			KeyID: &params.KeyID,
+		})
+		if err != nil {
+			return err
+		}
+
+		hasValidatorsChanges = slices.CompareFunc(validators, params.Validators, func(a db.ValueValidator, b ValidatorDto) int {
+			if a.ValidatorType != b.ValidatorType || str.FromPtr(a.Parameter) != b.Parameter || str.FromPtr(a.ErrorText) != b.ErrorText {
+				return 1
+			}
+
+			return 0
+		}) != 0
+	}
+
+	err = s.validateUpdateKey(ctx, params, serviceVersion, featureVersion, key, hasValidatorsChanges)
 	if err != nil {
 		return err
 	}
 
-	err = s.queries.UpdateKey(ctx, db.UpdateKeyParams{
-		KeyID:       params.KeyID,
-		Description: &params.Description,
+	validatorsUpdatedAt := key.ValidatorsUpdatedAt
+	if hasValidatorsChanges {
+		validatorsUpdatedAt = time.Now()
+	}
+
+	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		err = tx.UpdateKey(ctx, db.UpdateKeyParams{
+			KeyID:               params.KeyID,
+			Description:         str.ToPtr(params.Description),
+			ValidatorsUpdatedAt: validatorsUpdatedAt,
+		})
+		if err != nil {
+			return err
+		}
+
+		if hasValidatorsChanges {
+			for _, validator := range validators {
+				err = tx.DeleteValueValidator(ctx, validator.ID)
+				if err != nil {
+					return err
+				}
+			}
+
+			for _, validator := range params.Validators {
+				_, err = tx.CreateValueValidatorForKey(ctx, db.CreateValueValidatorForKeyParams{
+					KeyID:         &params.KeyID,
+					ValidatorType: validator.ValidatorType,
+					Parameter:     str.ToPtr(validator.Parameter),
+					ErrorText:     str.ToPtr(validator.ErrorText),
+				})
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (s *KeyService) validateDeleteKey(ctx context.Context, serviceVersion db.GetServiceVersionRow, featureVersion db.GetFeatureVersionRow, key db.GetKeyRow) error {
@@ -376,16 +494,8 @@ func (s *KeyService) DeleteKey(ctx context.Context, serviceVersionID uint, featu
 				return err
 			}
 		} else {
-			if change.Type == db.ChangesetChangeTypeDelete {
-				return NewServiceError(ErrorCodeInvalidOperation, "Cannot delete a already deleted key")
-			}
-
 			if err = tx.DeleteKey(ctx, key.ID); err != nil {
 				return err
-			}
-
-			if change.Type == db.ChangesetChangeTypeUpdate {
-				panic("not implemented")
 			}
 		}
 

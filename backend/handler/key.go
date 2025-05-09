@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/service"
 )
 
@@ -76,12 +77,32 @@ func (h *Handler) Key(c echo.Context) error {
 	return c.JSON(http.StatusOK, key)
 }
 
+type ValidatorRequest struct {
+	ValidatorType db.ValueValidatorType `json:"validatorType" validate:"required"`
+	Parameter     string                `json:"parameter"`
+	ErrorText     string                `json:"errorText"`
+}
+
+type ValidatorRequestList []ValidatorRequest
+
+func (v ValidatorRequestList) ToDto() []service.ValidatorDto {
+	validators := make([]service.ValidatorDto, len(v))
+	for i, v := range v {
+		validators[i] = service.ValidatorDto{
+			ValidatorType: v.ValidatorType,
+			Parameter:     v.Parameter,
+			ErrorText:     v.ErrorText,
+		}
+	}
+	return validators
+}
+
 type CreateKeyRequest struct {
-	Name         string                 `json:"name" validate:"required"`
-	Description  string                 `json:"description"`
-	DefaultValue string                 `json:"defaultValue"`
-	ValueTypeID  uint                   `json:"valueTypeId" validate:"required"`
-	Validators   []service.ValidatorDto `json:"validators" validate:"required"`
+	Name         string               `json:"name" validate:"required"`
+	Description  string               `json:"description"`
+	DefaultValue string               `json:"defaultValue"`
+	ValueTypeID  uint                 `json:"valueTypeId" validate:"required"`
+	Validators   ValidatorRequestList `json:"validators" validate:"required"`
 }
 
 // @Summary Create a key
@@ -120,7 +141,7 @@ func (h *Handler) CreateKey(c echo.Context) error {
 		Description:      data.Description,
 		DefaultValue:     data.DefaultValue,
 		ValueTypeID:      data.ValueTypeID,
-		Validators:       data.Validators,
+		Validators:       data.Validators.ToDto(),
 	})
 	if err != nil {
 		return ToHTTPError(err)
@@ -130,7 +151,8 @@ func (h *Handler) CreateKey(c echo.Context) error {
 }
 
 type UpdateKeyRequest struct {
-	Description string `json:"description"`
+	Description string               `json:"description"`
+	Validators  ValidatorRequestList `json:"validators" validate:"required"`
 }
 
 // @Summary Create a key
@@ -142,7 +164,7 @@ type UpdateKeyRequest struct {
 // @Param feature_version_id path int true "Feature version ID"
 // @Param key_id path int true "Key ID"
 // @Param updateKeyRequest body UpdateKeyRequest true "Update key request"
-// @Success 200 {object} CreateResponse
+// @Success 204
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
@@ -174,12 +196,13 @@ func (h *Handler) UpdateKey(c echo.Context) error {
 		FeatureVersionID: featureVersionID,
 		KeyID:            keyID,
 		Description:      data.Description,
+		Validators:       data.Validators.ToDto(),
 	})
 	if err != nil {
 		return ToHTTPError(err)
 	}
 
-	return c.JSON(http.StatusOK, NewCreateResponse(keyID))
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Delete a key

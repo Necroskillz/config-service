@@ -138,6 +138,16 @@ func (q *Queries) DeleteKey(ctx context.Context, keyID uint) error {
 	return err
 }
 
+const deleteValueValidator = `-- name: DeleteValueValidator :exec
+DELETE FROM value_validators
+WHERE id = $1
+`
+
+func (q *Queries) DeleteValueValidator(ctx context.Context, valueValidatorID uint) error {
+	_, err := q.db.Exec(ctx, deleteValueValidator, valueValidatorID)
+	return err
+}
+
 const endKeyValidity = `-- name: EndKeyValidity :exec
 UPDATE keys
 SET valid_to = $1
@@ -155,11 +165,15 @@ func (q *Queries) EndKeyValidity(ctx context.Context, arg EndKeyValidityParams) 
 }
 
 const getKey = `-- name: GetKey :one
-SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id,
+SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id, k.validators_updated_at,
     vt.kind as value_type_kind,
-    vt.name as value_type_name
+    vt.name as value_type_name,
+    csc.changeset_id as created_in_changeset_id
 FROM keys k
     JOIN value_types vt ON vt.id = k.value_type_id
+    JOIN changeset_changes csc ON csc.key_id = k.id
+    AND csc.type = 'create'
+    AND csc.kind = 'key'
 WHERE k.id = $1
     AND is_key_valid_in_changeset(k, $2)
 LIMIT 1
@@ -171,17 +185,19 @@ type GetKeyParams struct {
 }
 
 type GetKeyRow struct {
-	ID               uint
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	ValidFrom        *time.Time
-	ValidTo          *time.Time
-	Name             string
-	Description      *string
-	ValueTypeID      uint
-	FeatureVersionID uint
-	ValueTypeKind    ValueTypeKind
-	ValueTypeName    string
+	ID                   uint
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+	ValidFrom            *time.Time
+	ValidTo              *time.Time
+	Name                 string
+	Description          *string
+	ValueTypeID          uint
+	FeatureVersionID     uint
+	ValidatorsUpdatedAt  time.Time
+	ValueTypeKind        ValueTypeKind
+	ValueTypeName        string
+	CreatedInChangesetID uint
 }
 
 func (q *Queries) GetKey(ctx context.Context, arg GetKeyParams) (GetKeyRow, error) {
@@ -197,8 +213,10 @@ func (q *Queries) GetKey(ctx context.Context, arg GetKeyParams) (GetKeyRow, erro
 		&i.Description,
 		&i.ValueTypeID,
 		&i.FeatureVersionID,
+		&i.ValidatorsUpdatedAt,
 		&i.ValueTypeKind,
 		&i.ValueTypeName,
+		&i.CreatedInChangesetID,
 	)
 	return i, err
 }
@@ -224,7 +242,7 @@ func (q *Queries) GetKeyIDByName(ctx context.Context, arg GetKeyIDByNameParams) 
 }
 
 const getKeysForFeatureVersion = `-- name: GetKeysForFeatureVersion :many
-SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id,
+SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id, k.validators_updated_at,
     vt.kind as value_type_kind,
     vt.name as value_type_name
 FROM keys k
@@ -240,17 +258,18 @@ type GetKeysForFeatureVersionParams struct {
 }
 
 type GetKeysForFeatureVersionRow struct {
-	ID               uint
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	ValidFrom        *time.Time
-	ValidTo          *time.Time
-	Name             string
-	Description      *string
-	ValueTypeID      uint
-	FeatureVersionID uint
-	ValueTypeKind    ValueTypeKind
-	ValueTypeName    string
+	ID                  uint
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	ValidFrom           *time.Time
+	ValidTo             *time.Time
+	Name                string
+	Description         *string
+	ValueTypeID         uint
+	FeatureVersionID    uint
+	ValidatorsUpdatedAt time.Time
+	ValueTypeKind       ValueTypeKind
+	ValueTypeName       string
 }
 
 func (q *Queries) GetKeysForFeatureVersion(ctx context.Context, arg GetKeysForFeatureVersionParams) ([]GetKeysForFeatureVersionRow, error) {
@@ -272,6 +291,7 @@ func (q *Queries) GetKeysForFeatureVersion(ctx context.Context, arg GetKeysForFe
 			&i.Description,
 			&i.ValueTypeID,
 			&i.FeatureVersionID,
+			&i.ValidatorsUpdatedAt,
 			&i.ValueTypeKind,
 			&i.ValueTypeName,
 		); err != nil {
@@ -283,6 +303,19 @@ func (q *Queries) GetKeysForFeatureVersion(ctx context.Context, arg GetKeysForFe
 		return nil, err
 	}
 	return items, nil
+}
+
+const getValueType = `-- name: GetValueType :one
+SELECT id, kind, name
+FROM value_types
+WHERE id = $1
+`
+
+func (q *Queries) GetValueType(ctx context.Context, id uint) (ValueType, error) {
+	row := q.db.QueryRow(ctx, getValueType, id)
+	var i ValueType
+	err := row.Scan(&i.ID, &i.Kind, &i.Name)
+	return i, err
 }
 
 const getValueTypeValueValidators = `-- name: GetValueTypeValueValidators :many
@@ -400,16 +433,17 @@ func (q *Queries) StartKeyValidity(ctx context.Context, arg StartKeyValidityPara
 
 const updateKey = `-- name: UpdateKey :exec
 UPDATE keys
-SET description = $1
-WHERE id = $2
+SET description = $1, validators_updated_at = $2
+WHERE id = $3
 `
 
 type UpdateKeyParams struct {
-	Description *string
-	KeyID       uint
+	Description         *string
+	ValidatorsUpdatedAt time.Time
+	KeyID               uint
 }
 
 func (q *Queries) UpdateKey(ctx context.Context, arg UpdateKeyParams) error {
-	_, err := q.db.Exec(ctx, updateKey, arg.Description, arg.KeyID)
+	_, err := q.db.Exec(ctx, updateKey, arg.Description, arg.ValidatorsUpdatedAt, arg.KeyID)
 	return err
 }

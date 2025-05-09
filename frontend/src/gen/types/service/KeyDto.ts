@@ -12,9 +12,9 @@ export type ServiceKeyDto = {
    */
   canEdit: boolean
   /**
-   * @type string | undefined
+   * @type string
    */
-  description?: string
+  description: string
   /**
    * @type integer
    */
@@ -31,6 +31,10 @@ export type ServiceKeyDto = {
    * @type string
    */
   valueType: DbValueTypeKind
+  /**
+   * @type integer
+   */
+  valueTypeId: number
   /**
    * @type string
    */

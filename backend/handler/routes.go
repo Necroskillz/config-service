@@ -54,13 +54,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	keyGroup.PUT("", h.UpdateKey)
 	keyGroup.DELETE("", h.DeleteKey)
 
-	serviceTypeGroup := apiGroup.Group("/service-types")
-	serviceTypeGroup.GET("", h.GetServiceTypes)
-	serviceTypeGroup.GET("/:service_type_id/variation-properties", h.GetProperties)
-
-	valueTypeGroup := apiGroup.Group("/value-types")
-	valueTypeGroup.GET("", h.GetValueTypes)
-
 	valuesGroup := keyGroup.Group("/values")
 	valuesGroup.GET("", h.Values)
 	valuesGroup.POST("", h.CreateValue)
@@ -70,6 +63,14 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	valueGroup.PUT("", h.UpdateValue)
 	valueGroup.DELETE("", h.DeleteValue)
 	valueGroup.GET("/can-edit", h.CanEditValue)
+
+	serviceTypeGroup := apiGroup.Group("/service-types")
+	serviceTypeGroup.GET("", h.GetServiceTypes)
+	serviceTypeGroup.GET("/:service_type_id/variation-properties", h.GetProperties)
+
+	valueTypeGroup := apiGroup.Group("/value-types")
+	valueTypeGroup.GET("", h.GetValueTypes)
+	valueTypeGroup.GET("/:value_type_id", h.GetValueType)
 
 	changesetsGroup := apiGroup.Group("/changesets")
 	changesetsGroup.GET("", h.Changesets)

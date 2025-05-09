@@ -5,19 +5,15 @@
 
 import type { DbValueValidatorType } from '../db/ValueValidatorType.ts'
 
-export type ServiceValidatorDto = {
+export type HandlerValidatorRequest = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  errorText: string
+  errorText?: string
   /**
-   * @type boolean
+   * @type string | undefined
    */
-  isBuiltIn: boolean
-  /**
-   * @type string
-   */
-  parameter: string
+  parameter?: string
   /**
    * @type string
    */

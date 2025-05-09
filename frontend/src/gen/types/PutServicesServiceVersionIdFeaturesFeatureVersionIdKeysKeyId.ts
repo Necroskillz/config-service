@@ -4,7 +4,6 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { HandlerCreateResponse } from './handler/CreateResponse.ts'
 import type { HandlerUpdateKeyRequest } from './handler/UpdateKeyRequest.ts'
 
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams = {
@@ -26,9 +25,9 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathPara
 }
 
 /**
- * @description OK
+ * @description No Content
  */
-export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200 = HandlerCreateResponse
+export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId204 = any
 
 /**
  * @description Bad Request
@@ -60,10 +59,10 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId500 = Ec
  */
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest = HandlerUpdateKeyRequest
 
-export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationResponse = PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200
+export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationResponse = PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId204
 
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutation = {
-  Response: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200
+  Response: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId204
   Request: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationRequest
   PathParams: PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams
   Errors:

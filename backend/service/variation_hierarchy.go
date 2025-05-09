@@ -161,6 +161,10 @@ func (v *VariationHierarchy) GetPropertyId(property string) (uint, error) {
 	return propertyID, nil
 }
 
+func (v *VariationHierarchy) GetPropertyName(propertyID uint) string {
+	return v.properties[propertyID].Name
+}
+
 func (v *VariationHierarchy) VariationMapToIds(serviceTypeID uint, variation map[uint]string) ([]uint, error) {
 	ids := []uint{}
 

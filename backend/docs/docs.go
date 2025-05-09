@@ -1859,11 +1859,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.CreateResponse"
-                        }
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -2976,6 +2973,58 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/value-types/{value_type_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a value type by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get value type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Value type ID",
+                        "name": "value_type_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.ValueTypeDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -3192,7 +3241,7 @@ const docTemplate = `{
                 "validators": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/service.ValidatorDto"
+                        "$ref": "#/definitions/handler.ValidatorRequest"
                     }
                 },
                 "valueTypeId": {
@@ -3299,9 +3348,18 @@ const docTemplate = `{
         },
         "handler.UpdateKeyRequest": {
             "type": "object",
+            "required": [
+                "validators"
+            ],
             "properties": {
                 "description": {
                     "type": "string"
+                },
+                "validators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.ValidatorRequest"
+                    }
                 }
             }
         },
@@ -3313,6 +3371,23 @@ const docTemplate = `{
             "properties": {
                 "description": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.ValidatorRequest": {
+            "type": "object",
+            "required": [
+                "validatorType"
+            ],
+            "properties": {
+                "errorText": {
+                    "type": "string"
+                },
+                "parameter": {
+                    "type": "string"
+                },
+                "validatorType": {
+                    "$ref": "#/definitions/db.ValueValidatorType"
                 }
             }
         },
@@ -3653,10 +3728,12 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "canEdit",
+                "description",
                 "id",
                 "name",
                 "validators",
                 "valueType",
+                "valueTypeId",
                 "valueTypeName"
             ],
             "properties": {
@@ -3681,6 +3758,9 @@ const docTemplate = `{
                 "valueType": {
                     "$ref": "#/definitions/db.ValueTypeKind"
                 },
+                "valueTypeId": {
+                    "type": "integer"
+                },
                 "valueTypeName": {
                     "type": "string"
                 }
@@ -3689,9 +3769,11 @@ const docTemplate = `{
         "service.KeyItemDto": {
             "type": "object",
             "required": [
+                "description",
                 "id",
                 "name",
                 "valueType",
+                "valueTypeId",
                 "valueTypeName"
             ],
             "properties": {
@@ -3706,6 +3788,9 @@ const docTemplate = `{
                 },
                 "valueType": {
                     "$ref": "#/definitions/db.ValueTypeKind"
+                },
+                "valueTypeId": {
+                    "type": "integer"
                 },
                 "valueTypeName": {
                     "type": "string"
@@ -3854,11 +3939,17 @@ const docTemplate = `{
         "service.ValidatorDto": {
             "type": "object",
             "required": [
+                "errorText",
+                "isBuiltIn",
+                "parameter",
                 "validatorType"
             ],
             "properties": {
                 "errorText": {
                     "type": "string"
+                },
+                "isBuiltIn": {
+                    "type": "boolean"
                 },
                 "parameter": {
                     "type": "string"
@@ -3871,12 +3962,18 @@ const docTemplate = `{
         "service.ValidatorWithParameterTypeDto": {
             "type": "object",
             "required": [
+                "errorText",
+                "isBuiltIn",
+                "parameter",
                 "parameterType",
                 "validatorType"
             ],
             "properties": {
                 "errorText": {
                     "type": "string"
+                },
+                "isBuiltIn": {
+                    "type": "boolean"
                 },
                 "parameter": {
                     "type": "string"

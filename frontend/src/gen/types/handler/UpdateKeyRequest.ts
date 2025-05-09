@@ -3,9 +3,15 @@
  * Do not edit manually.
  */
 
+import type { HandlerValidatorRequest } from './ValidatorRequest.ts'
+
 export type HandlerUpdateKeyRequest = {
   /**
    * @type string | undefined
    */
   description?: string
+  /**
+   * @type array
+   */
+  validators: HandlerValidatorRequest[]
 }
