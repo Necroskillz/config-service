@@ -87,9 +87,9 @@ VALUES (
         sqlc.narg('error_text')
     )
 RETURNING id;
--- name: DeleteValueValidator :exec
+-- name: DeleteValueValidatorsForKey :exec
 DELETE FROM value_validators
-WHERE id = @value_validator_id;
+WHERE key_id = @key_id::bigint;
 -- name: EndKeyValidity :exec
 UPDATE keys
 SET valid_to = @valid_to

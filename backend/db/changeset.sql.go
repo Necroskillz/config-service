@@ -392,6 +392,16 @@ func (q *Queries) DeleteChange(ctx context.Context, changeID uint) error {
 	return err
 }
 
+const deleteChangesForChangeset = `-- name: DeleteChangesForChangeset :exec
+DELETE FROM changeset_changes
+WHERE changeset_id = $1
+`
+
+func (q *Queries) DeleteChangesForChangeset(ctx context.Context, changesetID uint) error {
+	_, err := q.db.Exec(ctx, deleteChangesForChangeset, changesetID)
+	return err
+}
+
 const getApprovableChangesetCount = `-- name: GetApprovableChangesetCount :one
 WITH changeset_services AS (
     SELECT DISTINCT cs.id,

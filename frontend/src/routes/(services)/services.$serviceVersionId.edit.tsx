@@ -10,8 +10,7 @@ import { Input } from '~/components/ui/input';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
 import { versionedTitle, seo, appTitle } from '~/utils/seo';
-import { useChangeset } from '~/hooks/useChangeset';
-
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 export const Route = createFileRoute('/(services)/services/$serviceVersionId/edit')({
   component: RouteComponent,
   params: {
@@ -64,7 +63,8 @@ function RouteComponent() {
 
   return (
     <SlimPage>
-      <PageTitle>Edit Service {serviceVersion.name}</PageTitle>
+      <Breadcrumbs path={[serviceVersion]} />
+      <PageTitle>Edit Service</PageTitle>
       <form.AppForm>
         <form
           className="flex flex-col gap-4"

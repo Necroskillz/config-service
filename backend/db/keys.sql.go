@@ -138,13 +138,13 @@ func (q *Queries) DeleteKey(ctx context.Context, keyID uint) error {
 	return err
 }
 
-const deleteValueValidator = `-- name: DeleteValueValidator :exec
+const deleteValueValidatorsForKey = `-- name: DeleteValueValidatorsForKey :exec
 DELETE FROM value_validators
-WHERE id = $1
+WHERE key_id = $1::bigint
 `
 
-func (q *Queries) DeleteValueValidator(ctx context.Context, valueValidatorID uint) error {
-	_, err := q.db.Exec(ctx, deleteValueValidator, valueValidatorID)
+func (q *Queries) DeleteValueValidatorsForKey(ctx context.Context, keyID uint) error {
+	_, err := q.db.Exec(ctx, deleteValueValidatorsForKey, keyID)
 	return err
 }
 

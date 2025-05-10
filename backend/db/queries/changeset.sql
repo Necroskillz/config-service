@@ -232,6 +232,9 @@ LIMIT 1;
 -- name: DeleteChange :exec
 DELETE FROM changeset_changes
 WHERE id = @change_id;
+-- name: DeleteChangesForChangeset :exec
+DELETE FROM changeset_changes
+WHERE changeset_id = @changeset_id;
 -- name: AddCreateServiceVersionChange :exec
 INSERT INTO changeset_changes (
         changeset_id,

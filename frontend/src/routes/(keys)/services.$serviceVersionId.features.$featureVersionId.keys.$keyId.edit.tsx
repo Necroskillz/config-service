@@ -6,9 +6,11 @@ import {
   DbValueValidatorType,
   dbValueValidatorType,
   getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions,
+  getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesQueryOptions,
   getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
   getServicesServiceVersionIdQueryOptions,
   getValueTypesQueryOptions,
+  getValueTypesValueTypeIdQueryOptions,
   HandlerValidatorRequest,
   HandlerVariationProperty,
   ServiceValueValidatorParameterType,
@@ -37,7 +39,7 @@ import { ValueValidatorReadonlyDisplay } from './-components/ValueValidatorReado
 import { createParameterValidator } from './-components/value-validator';
 import { createValueValidator } from './-components/value';
 import { ZodErrorMessage } from '~/components/ZodErrorMessage';
-import { Alert, AlertDescription } from '~/components/ui/alert';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit')({
   component: RouteComponent,
@@ -49,12 +51,30 @@ export const Route = createFileRoute('/(keys)/services/$serviceVersionId/feature
     }).parse,
   },
   loader: async ({ context, params }) => {
-    context.queryClient.ensureQueryData(getValueTypesQueryOptions());
-
     return Promise.all([
       context.queryClient.ensureQueryData(getServicesServiceVersionIdQueryOptions(params.serviceVersionId)),
       context.queryClient.ensureQueryData(
         getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions(params.serviceVersionId, params.featureVersionId)
+      ),
+      context.queryClient
+        .ensureQueryData(
+          getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions(
+            params.serviceVersionId,
+            params.featureVersionId,
+            params.keyId
+          )
+        )
+        .then(async (key) => {
+          await context.queryClient.ensureQueryData(getValueTypesValueTypeIdQueryOptions(key.valueTypeId));
+
+          return key;
+        }),
+      context.queryClient.ensureQueryData(
+        getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesQueryOptions(
+          params.serviceVersionId,
+          params.featureVersionId,
+          params.keyId
+        )
       ),
       context.queryClient.ensureQueryData(
         getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions(
@@ -209,14 +229,12 @@ function RouteComponent() {
 
   return (
     <SlimPage>
+      <Breadcrumbs path={[serviceVersion, featureVersion, key]} />
       <PageTitle>Update Key</PageTitle>
       <div className="text-muted-foreground mb-4">
-        <p>
-          Update key {key.name} of {featureVersion.name} v{featureVersion.version}
-        </p>
         <p className="mt-2 text-sm">
-          <span className="font-bold">NOTE:</span> To edit validators, all values of the key must be valid for the new validators
-          and their parameters. For existing keys, make sure to not have any changes related to this key in the current changeset.
+          <span className="font-bold">NOTE:</span> To edit validators, all values of the key must be valid for the new validators and their
+          parameters. For existing keys, make sure to not have any changes related to this key in the current changeset.
         </p>
       </div>
       <form.AppForm>

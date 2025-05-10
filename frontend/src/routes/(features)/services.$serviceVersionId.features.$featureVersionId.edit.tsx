@@ -10,6 +10,7 @@ import { Input } from '~/components/ui/input';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
 import { versionedTitle, seo, appTitle } from '~/utils/seo';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 export const Route = createFileRoute('/(features)/services/$serviceVersionId/features/$featureVersionId/edit')({
   component: RouteComponent,
@@ -68,16 +69,8 @@ function RouteComponent() {
 
   return (
     <SlimPage>
-      <PageTitle>Edit Feature {featureVersion.name}</PageTitle>
-
-      <div className="text-muted-foreground mb-4">
-        <p>
-          Feature is linked to{' '}
-          <Link className="text-accent-foreground" to="/services/$serviceVersionId" params={{ serviceVersionId }}>
-            {serviceVersion.name} v{serviceVersion.version}
-          </Link>
-        </p>
-      </div>
+      <Breadcrumbs path={[serviceVersion, featureVersion]} />
+      <PageTitle>Edit feature</PageTitle>
 
       <form.AppForm>
         <form

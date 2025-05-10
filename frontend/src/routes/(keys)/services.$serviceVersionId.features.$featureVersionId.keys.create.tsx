@@ -15,6 +15,7 @@ import {
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
   useGetValueTypesSuspense,
   usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys,
+  useGetServicesServiceVersionIdSuspense,
 } from '~/gen';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select';
 import { useEffect, useMemo, useState } from 'react';
@@ -33,7 +34,7 @@ import { ValidatorParameterEditor } from './-components/ValidatorParameterEditor
 import { Label } from '~/components/ui/label';
 import { ValueValidatorReadonlyDisplay } from './-components/ValueValidatorReadonlyDisplay';
 import { createParameterValidator } from './-components/value-validator';
-
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create')({
   component: RouteComponent,
   params: {
@@ -43,8 +44,6 @@ export const Route = createFileRoute('/(keys)/services/$serviceVersionId/feature
     }).parse,
   },
   loader: async ({ context, params }) => {
-    context.queryClient.ensureQueryData(getValueTypesQueryOptions());
-
     return Promise.all([
       context.queryClient.ensureQueryData(getServicesServiceVersionIdQueryOptions(params.serviceVersionId)),
       context.queryClient.ensureQueryData(
@@ -64,6 +63,7 @@ function RouteComponent() {
   const { serviceVersionId, featureVersionId } = Route.useParams();
   const navigate = useNavigate();
   const { refresh } = useChangeset();
+  const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
   const { data: featureVersion } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense(serviceVersionId, featureVersionId);
   const { data: valueTypes } = useGetValueTypesSuspense({
     query: {
@@ -197,12 +197,8 @@ function RouteComponent() {
 
   return (
     <SlimPage>
+      <Breadcrumbs path={[serviceVersion, featureVersion]} />
       <PageTitle>Create Key</PageTitle>
-      <div className="text-muted-foreground mb-4">
-        <p>
-          Create a new key for {featureVersion?.name} v{featureVersion?.version}
-        </p>
-      </div>
       <form.AppForm>
         <form
           className="flex flex-col gap-4"

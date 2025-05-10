@@ -25,6 +25,7 @@ import { appTitle } from '~/utils/seo';
 import { versionedTitle } from '~/utils/seo';
 import { MutationErrors } from '~/components/MutationErrors';
 import { useChangeset } from '~/hooks/useChangeset';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 const ParamsSchema = z.object({
   serviceVersionId: z.coerce.number(),
@@ -96,6 +97,7 @@ function RouteComponent() {
 
   return (
     <SlimPage>
+      <Breadcrumbs path={[serviceVersion]} />
       <div className="flex items-center justify-between mb-8">
         <PageTitle className="mb-0">
           {featureVersion.name}

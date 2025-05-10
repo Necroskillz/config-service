@@ -575,10 +575,6 @@ func (s *ChangesetService) DiscardChangeset(ctx context.Context, changesetID uin
 
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
 		for _, change := range slices.Backward(changeset.ChangesetChanges) {
-			if err := tx.DeleteChange(ctx, change.ID); err != nil {
-				return err
-			}
-
 			if change.NewVariationValueID != nil || change.OldVariationValueID != nil {
 				if change.NewVariationValueID != nil {
 					if err := tx.DeleteVariationValue(ctx, *change.NewVariationValueID); err != nil {
@@ -614,6 +610,10 @@ func (s *ChangesetService) DiscardChangeset(ctx context.Context, changesetID uin
 					}
 				}
 			}
+		}
+
+		if err := tx.DeleteChangesForChangeset(ctx, changeset.ID); err != nil {
+			return err
 		}
 
 		if err := tx.SetChangesetState(ctx, db.SetChangesetStateParams{

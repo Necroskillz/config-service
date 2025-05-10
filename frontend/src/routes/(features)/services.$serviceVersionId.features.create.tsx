@@ -15,6 +15,8 @@ import { Input } from '~/components/ui/input';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
 import { useChangeset } from '~/hooks/useChangeset';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
+
 export const Route = createFileRoute('/(features)/services/$serviceVersionId/features/create')({
   component: RouteComponent,
   params: {
@@ -68,16 +70,8 @@ function RouteComponent() {
 
   return (
     <SlimPage>
+      <Breadcrumbs path={[serviceVersion]} />
       <PageTitle>Create Feature</PageTitle>
-
-      <div className="text-muted-foreground mb-4">
-        <p>
-          Created feature will be linked to{' '}
-          <Link className="text-accent-foreground" to="/services/$serviceVersionId" params={{ serviceVersionId }}>
-            {serviceVersion.name} v{serviceVersion.version}
-          </Link>
-        </p>
-      </div>
 
       <form.AppForm>
         <form

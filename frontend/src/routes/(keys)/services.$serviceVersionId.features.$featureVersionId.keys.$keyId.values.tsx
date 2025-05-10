@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { z } from 'zod';
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import {
   getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions,
   getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd,
@@ -21,6 +21,7 @@ import {
   ServiceVariationValue,
   getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
   useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
+  useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
 } from '~/gen';
 import { ColumnDef, useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import { HttpError } from '~/axios';
@@ -41,9 +42,11 @@ import { EllipsisIcon } from 'lucide-react';
 import { createDefaultValue, createValueValidator } from './-components/value';
 import { ValueEditor } from './-components/ValueEditor';
 import { ValueViewer } from './-components/ValueViewer';
-import { StandardSchemaV1Issue } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
 import { ZodErrorMessage } from '~/components/ZodErrorMessage';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
+import { useQueryClient } from '@tanstack/react-query';
+
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values')({
   component: RouteComponent,
   params: {
@@ -101,8 +104,10 @@ function RouteComponent() {
   const { serviceVersionId, featureVersionId, keyId } = Route.useParams();
   const { refresh } = useChangeset();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: key } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense(serviceVersionId, featureVersionId, keyId);
   const { data: serviceVersion } = useGetServicesServiceVersionIdSuspense(serviceVersionId);
+  const { data: featureVersion } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense(serviceVersionId, featureVersionId);
   const { data: values } = useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesSuspense(
     serviceVersionId,
     featureVersionId,
@@ -115,6 +120,10 @@ function RouteComponent() {
   });
 
   const [data, setData] = useState<ServiceVariationValue[]>(values);
+
+  useEffect(() => {
+    setData(values);
+  }, [values]);
 
   function compareOrder(a: number[], b: number[]): number {
     const len = a.length;
@@ -151,6 +160,9 @@ function RouteComponent() {
     }
 
     setData(newData);
+    queryClient.invalidateQueries(
+      getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesQueryOptions(serviceVersionId, featureVersionId, keyId)
+    );
   }
 
   function createNewItem(info: ServiceNewValueInfo, data: HandlerValueRequest) {
@@ -556,6 +568,7 @@ function RouteComponent() {
 
   return (
     <div className="p-4">
+      <Breadcrumbs path={[serviceVersion, featureVersion]} />
       <div className="flex items-center justify-between mb-8">
         <PageTitle className="mb-0">Key {key.name}</PageTitle>
         <div className="flex items-center">

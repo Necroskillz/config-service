@@ -364,10 +364,9 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 	}
 
 	hasValidatorsChanges := false
-	var validators []db.ValueValidator
 
 	if params.Validators != nil {
-		validators, err = s.queries.GetValueValidators(ctx, db.GetValueValidatorsParams{
+		validators, err := s.queries.GetValueValidators(ctx, db.GetValueValidatorsParams{
 			KeyID: &params.KeyID,
 		})
 		if err != nil {
@@ -394,21 +393,18 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 	}
 
 	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
-		err = tx.UpdateKey(ctx, db.UpdateKeyParams{
+		if err = tx.UpdateKey(ctx, db.UpdateKeyParams{
 			KeyID:               params.KeyID,
 			Description:         str.ToPtr(params.Description),
 			ValidatorsUpdatedAt: validatorsUpdatedAt,
-		})
-		if err != nil {
+		}); err != nil {
 			return err
 		}
 
 		if hasValidatorsChanges {
-			for _, validator := range validators {
-				err = tx.DeleteValueValidator(ctx, validator.ID)
-				if err != nil {
-					return err
-				}
+			err = tx.DeleteValueValidatorsForKey(ctx, key.ID)
+			if err != nil {
+				return err
 			}
 
 			for _, validator := range params.Validators {
