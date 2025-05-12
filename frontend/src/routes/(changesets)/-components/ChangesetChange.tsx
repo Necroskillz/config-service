@@ -1,6 +1,15 @@
+import { UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { useAuth } from '~/auth';
 import { Badge } from '~/components/ui/badge';
-import { ServiceChangesetChange } from '~/gen';
+import { Button } from '~/components/ui/button';
+import {
+  getChangesetsChangesetIdQueryKey,
+  ServiceChangesetChange,
+  ServiceChangesetDto,
+  useDeleteChangesetsChangesetIdChangesChangeId,
+} from '~/gen';
+import { useChangeset } from '~/hooks/useChangeset';
 
 function getChangeTypeText(type: ServiceChangesetChange['type']) {
   switch (type) {
@@ -22,7 +31,39 @@ function Diff({ added, removed }: { added?: string; removed?: string }) {
   );
 }
 
-export function ChangesetChange({ change }: { change: ServiceChangesetChange }) {
+export function ChangesetChange({
+  changeset,
+  change,
+  onDiscard,
+}: {
+  changeset: ServiceChangesetDto;
+  change: ServiceChangesetChange;
+  onDiscard: () => void;
+}) {
+  const { user } = useAuth();
+
+  const canDiscard =
+    changeset.state === 'open' &&
+    changeset.userId === user.id &&
+    !(change.type === 'create' && change.variation != null && Object.keys(change.variation).length === 0);
+
+  return (
+    <div className="flex flex-row justify-between items-center">
+      <div>
+        <ChangesetChangeDescription change={change} />
+      </div>
+      {canDiscard && (
+        <div>
+          <Button variant="destructive" size="sm" onClick={() => onDiscard()}>
+            Discard
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChangesetChangeDescription({ change }: { change: ServiceChangesetChange }) {
   if (change.newVariationValueId || change.oldVariationValueId) {
     return <ValueChange change={change} />;
   } else if (change.keyId) {

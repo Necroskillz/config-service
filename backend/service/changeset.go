@@ -148,10 +148,12 @@ type ChangesetChange struct {
 	ServiceVersionID               uint                   `json:"serviceVersionId" validate:"required"`
 	ServiceName                    string                 `json:"serviceName" validate:"required"`
 	ServiceVersion                 int                    `json:"serviceVersion" validate:"required"`
+	ServiceID                      uint                   `json:"serviceId"`
 	PreviousServiceVersionID       *uint                  `json:"previousServiceVersionId"`
 	FeatureVersionID               *uint                  `json:"featureVersionId"`
 	FeatureName                    *string                `json:"featureName"`
 	FeatureVersion                 *int                   `json:"featureVersion"`
+	FeatureID                      *uint                  `json:"featureId"`
 	PreviousFeatureVersionID       *uint                  `json:"previousFeatureVersionId"`
 	FeatureVersionServiceVersionID *uint                  `json:"featureVersionServiceVersionId"`
 	KeyID                          *uint                  `json:"keyId"`
@@ -258,9 +260,13 @@ func (s *ChangesetService) getChangeset(ctx context.Context, changesetID uint) (
 			ServiceVersionID:               change.ServiceVersionID,
 			ServiceName:                    change.ServiceName,
 			ServiceVersion:                 change.ServiceVersion,
+			ServiceID:                      change.ServiceID,
+			PreviousServiceVersionID:       change.PreviousServiceVersionID,
 			FeatureVersionID:               change.FeatureVersionID,
 			FeatureName:                    change.FeatureName,
 			FeatureVersion:                 change.FeatureVersion,
+			FeatureID:                      change.FeatureID,
+			PreviousFeatureVersionID:       change.PreviousFeatureVersionID,
 			KeyID:                          change.KeyID,
 			KeyName:                        change.KeyName,
 			NewVariationValueID:            change.NewVariationValueID,
@@ -558,6 +564,46 @@ func (s *ChangesetService) ReopenChangeset(ctx context.Context, changesetID uint
 	})
 }
 
+func (s *ChangesetService) discardChangeEntity(ctx context.Context, tx *db.Queries, change ChangesetChange) error {
+	if change.NewVariationValueID != nil || change.OldVariationValueID != nil {
+		if change.NewVariationValueID != nil {
+			if err := tx.DeleteVariationValue(ctx, *change.NewVariationValueID); err != nil {
+				return err
+			}
+		}
+	} else if change.KeyID != nil && change.Type == db.ChangesetChangeTypeCreate {
+		if err := tx.DeleteKey(ctx, *change.KeyID); err != nil {
+			return err
+		}
+	} else if change.FeatureVersionServiceVersionID != nil && change.Type == db.ChangesetChangeTypeCreate {
+		if err := tx.DeleteFeatureVersionServiceVersion(ctx, *change.FeatureVersionServiceVersionID); err != nil {
+			return err
+		}
+	} else if change.FeatureVersionID != nil && change.Type == db.ChangesetChangeTypeCreate {
+		if err := tx.DeleteFeatureVersion(ctx, *change.FeatureVersionID); err != nil {
+			return err
+		}
+
+		if *change.FeatureVersion == 1 {
+			if err := tx.DeleteFeature(ctx, *change.FeatureID); err != nil {
+				return err
+			}
+		}
+	} else if change.Type == db.ChangesetChangeTypeCreate {
+		if err := tx.DeleteServiceVersion(ctx, change.ServiceVersionID); err != nil {
+			return err
+		}
+
+		if change.ServiceVersion == 1 {
+			if err := tx.DeleteService(ctx, change.ServiceID); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (s *ChangesetService) DiscardChangeset(ctx context.Context, changesetID uint) error {
 	user := s.currentUserAccessor.GetUser(ctx)
 	changeset, err := s.getChangeset(ctx, changesetID)
@@ -575,40 +621,8 @@ func (s *ChangesetService) DiscardChangeset(ctx context.Context, changesetID uin
 
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
 		for _, change := range slices.Backward(changeset.ChangesetChanges) {
-			if change.NewVariationValueID != nil || change.OldVariationValueID != nil {
-				if change.NewVariationValueID != nil {
-					if err := tx.DeleteVariationValue(ctx, *change.NewVariationValueID); err != nil {
-						return err
-					}
-				}
-			} else if change.KeyID != nil && change.Type == db.ChangesetChangeTypeCreate {
-				if err := tx.DeleteKey(ctx, *change.KeyID); err != nil {
-					return err
-				}
-			} else if change.FeatureVersionServiceVersionID != nil && change.Type == db.ChangesetChangeTypeCreate {
-				if err := tx.DeleteFeatureVersionServiceVersion(ctx, *change.FeatureVersionServiceVersionID); err != nil {
-					return err
-				}
-			} else if change.FeatureVersionID != nil && change.Type == db.ChangesetChangeTypeCreate {
-				if err := tx.DeleteFeatureVersion(ctx, *change.FeatureVersionID); err != nil {
-					return err
-				}
-
-				if *change.FeatureVersion == 1 {
-					if err := tx.DeleteFeature(ctx, *change.FeatureVersionID); err != nil {
-						return err
-					}
-				}
-			} else if change.Type == db.ChangesetChangeTypeCreate {
-				if err := tx.DeleteServiceVersion(ctx, change.ServiceVersionID); err != nil {
-					return err
-				}
-
-				if change.ServiceVersion == 1 {
-					if err := tx.DeleteService(ctx, change.ServiceVersionID); err != nil {
-						return err
-					}
-				}
+			if err := s.discardChangeEntity(ctx, tx, change); err != nil {
+				return err
 			}
 		}
 
@@ -628,6 +642,48 @@ func (s *ChangesetService) DiscardChangeset(ctx context.Context, changesetID uin
 			UserID:      user.ID,
 			Type:        db.ChangesetActionTypeDiscard,
 		}); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *ChangesetService) DiscardChange(ctx context.Context, changesetID uint, changeID uint) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+	changeset, err := s.getChangeset(ctx, changesetID)
+	if err != nil {
+		return err
+	}
+
+	if !changeset.IsOpen() {
+		return NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Cannot discard changeset in state %s", changeset.State))
+	}
+
+	if !changeset.BelongsTo(user.ID) {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not allowed to discard this changeset")
+	}
+
+	changeIndex := slices.IndexFunc(changeset.ChangesetChanges, func(c ChangesetChange) bool {
+		return c.ID == changeID
+	})
+
+	if changeIndex == -1 {
+		return NewServiceError(ErrorCodeRecordNotFound, "Change not found")
+	}
+
+	change := changeset.ChangesetChanges[changeIndex]
+
+	if change.Type == db.ChangesetChangeTypeCreate && change.Variation != nil && len(change.Variation) == 0 {
+		return NewServiceError(ErrorCodeInvalidOperation, "Cannot discard the default value of a key")
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		if err := tx.DeleteChange(ctx, change.ID); err != nil {
+			return err
+		}
+
+		if err := s.discardChangeEntity(ctx, tx, change); err != nil {
 			return err
 		}
 

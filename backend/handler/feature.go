@@ -122,7 +122,7 @@ func (h *Handler) UpdateFeature(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Get feature
@@ -264,7 +264,7 @@ func (h *Handler) UnlinkFeatureVersion(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Link feature version
@@ -293,7 +293,7 @@ func (h *Handler) LinkFeatureVersion(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Create feature version

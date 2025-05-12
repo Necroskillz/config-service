@@ -111,7 +111,7 @@ func (h *Handler) ApplyChangeset(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Commit a changeset
@@ -145,7 +145,7 @@ func (h *Handler) CommitChangeset(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Reopen a changeset
@@ -173,7 +173,7 @@ func (h *Handler) ReopenChangeset(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Discard a changeset
@@ -201,7 +201,37 @@ func (h *Handler) DiscardChangeset(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Discard a change
+// @Description Discard a change by ID
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param changeset_id path uint true "Changeset ID"
+// @Param change_id path uint true "Change ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets/{changeset_id}/changes/{change_id} [delete]
+func (h *Handler) DiscardChange(c echo.Context) error {
+	var changesetID uint
+	var changeID uint
+	err := echo.PathParamsBinder(c).MustUint("changeset_id", &changesetID).MustUint("change_id", &changeID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.ChangesetService.DiscardChange(c.Request().Context(), changesetID, changeID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }
 
 // @Summary Stash a changeset
@@ -229,7 +259,7 @@ func (h *Handler) StashChangeset(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 type AddCommentRequest struct {
@@ -268,7 +298,7 @@ func (h *Handler) AddComment(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 type ChangesetInfoResponse struct {

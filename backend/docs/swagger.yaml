@@ -996,6 +996,50 @@ paths:
       security:
       - BearerAuth: []
       summary: Apply a changeset
+  /changesets/{changeset_id}/changes/{change_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Discard a change by ID
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      - description: Change ID
+        in: path
+        name: change_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Discard a change
   /changesets/{changeset_id}/comment:
     post:
       consumes:

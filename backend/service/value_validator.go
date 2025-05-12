@@ -26,6 +26,15 @@ type ValidatorDto struct {
 	IsBuiltIn     bool                  `json:"isBuiltIn" validate:"required"`
 }
 
+func NewValidatorDto(validator db.ValueValidator) ValidatorDto {
+	return ValidatorDto{
+		ValidatorType: validator.ValidatorType,
+		Parameter:     str.FromPtr(validator.Parameter),
+		ErrorText:     str.FromPtr(validator.ErrorText),
+		IsBuiltIn:     validator.ValueTypeID != nil,
+	}
+}
+
 type ValueValidatorService struct {
 	allowedKeyValidators    map[db.ValueTypeKind][]db.ValueValidatorType
 	valueValidators         map[db.ValueValidatorType]ValueValidatorFunc
@@ -251,12 +260,7 @@ func (s *ValueValidatorService) GetValueValidators(ctx context.Context, keyID *u
 
 	validators := make([]ValidatorDto, len(valueValidators))
 	for i, validator := range valueValidators {
-		validators[i] = ValidatorDto{
-			ValidatorType: validator.ValidatorType,
-			Parameter:     str.FromPtr(validator.Parameter),
-			ErrorText:     str.FromPtr(validator.ErrorText),
-			IsBuiltIn:     validator.ValueTypeID != nil,
-		}
+		validators[i] = NewValidatorDto(validator)
 	}
 
 	return validators, nil

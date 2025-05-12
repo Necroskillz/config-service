@@ -86,4 +86,5 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	changesetGroup.DELETE("", h.DiscardChangeset)
 	changesetGroup.POST("/comment", h.AddComment)
 
+	changesetGroup.DELETE("/changes/:change_id", h.DiscardChange)
 }

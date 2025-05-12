@@ -33,7 +33,7 @@ CREATE TABLE features (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
-    service_id BIGINT NOT NULL REFERENCES services(id)
+    service_id BIGINT NOT NULL REFERENCES services(id) ON DELETE CASCADE
 );
 CREATE TABLE feature_versions (
     id BIGSERIAL PRIMARY KEY,
@@ -63,8 +63,8 @@ CREATE TABLE feature_version_service_versions (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     valid_from TIMESTAMP WITH TIME ZONE,
     valid_to TIMESTAMP WITH TIME ZONE,
-    feature_version_id BIGINT NOT NULL REFERENCES feature_versions(id),
-    service_version_id BIGINT NOT NULL REFERENCES service_versions(id)
+    feature_version_id BIGINT NOT NULL REFERENCES feature_versions(id) ON DELETE CASCADE,
+    service_version_id BIGINT NOT NULL REFERENCES service_versions(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_fvsv_valid_from ON feature_version_service_versions(valid_from);
 CREATE INDEX idx_fvsv_valid_to ON feature_version_service_versions(valid_to);
@@ -77,7 +77,7 @@ CREATE TABLE keys (
     name TEXT NOT NULL,
     description TEXT,
     value_type_id BIGINT NOT NULL REFERENCES value_types(id),
-    feature_version_id BIGINT NOT NULL REFERENCES feature_versions(id),
+    feature_version_id BIGINT NOT NULL REFERENCES feature_versions(id) ON DELETE CASCADE,
     validators_updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_keys_valid_from ON keys(valid_from);

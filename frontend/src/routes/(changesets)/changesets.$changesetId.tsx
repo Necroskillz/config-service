@@ -3,11 +3,19 @@ import { z } from 'zod';
 import { SlimPage } from '~/components/SlimPage';
 import { ChangesetChange } from './-components/ChangesetChange';
 import { PageTitle } from '~/components/PageTitle';
-import { getChangesetsChangesetIdQueryOptions, useGetChangesetsChangesetIdSuspense } from '~/gen';
+import {
+  getChangesetsChangesetIdQueryKey,
+  getChangesetsChangesetIdQueryOptions,
+  useDeleteChangesetsChangesetIdChangesChangeId,
+  useGetChangesetsChangesetIdSuspense,
+} from '~/gen';
 import { List, ListItem } from '~/components/List';
 import { ChangesetActions } from './-components/ChangesetActions';
 import { seo, appTitle } from '~/utils/seo';
 import { ChangesetState } from './-components/ChangesetState';
+import { useQueryClient } from '@tanstack/react-query';
+import { useChangeset } from '~/hooks/useChangeset';
+import { MutationErrors } from '~/components/MutationErrors';
 
 export const Route = createFileRoute('/(changesets)/changesets/$changesetId')({
   component: RouteComponent,
@@ -28,9 +36,19 @@ export const Route = createFileRoute('/(changesets)/changesets/$changesetId')({
 
 function RouteComponent() {
   const { changesetId } = Route.useParams();
+  const queryClient = useQueryClient();
+  const { refresh } = useChangeset();
 
   const { data: changeset } = useGetChangesetsChangesetIdSuspense(changesetId);
 
+  const discardChangeMutation = useDeleteChangesetsChangesetIdChangesChangeId({
+    mutation: {
+      onSuccess: () => {
+        queryClient.refetchQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+        refresh();
+      },
+    },
+  });
 
   return (
     <SlimPage>
@@ -40,11 +58,16 @@ function RouteComponent() {
           <span className="font-semibold">State:</span>
           <ChangesetState state={changeset.state} />
         </div>
+        <MutationErrors mutations={[discardChangeMutation]} />
         {changeset.changes.length > 0 ? (
           <List>
             {changeset.changes.map((change) => (
               <ListItem key={change.id}>
-                <ChangesetChange change={change} />
+                <ChangesetChange
+                  changeset={changeset}
+                  change={change}
+                  onDiscard={() => discardChangeMutation.mutate({ changeset_id: changeset.id, change_id: change.id })}
+                />
               </ListItem>
             ))}
           </List>

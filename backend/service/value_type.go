@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/necroskillz/config-service/db"
-	"github.com/necroskillz/config-service/util/str"
 )
 
 type ValueTypeService struct {
@@ -37,10 +36,6 @@ type ValueTypeDto struct {
 	AllowedValidators []AllowedValidatorDto           `json:"allowedValidators" validate:"required"`
 }
 
-type ParameterTypeResolver interface {
-	GetParameterType(validatorType db.ValueValidatorType) ValueValidatorParameterType
-}
-
 func (s *ValueTypeService) getBuiltInValidatorMap(ctx context.Context) (map[uint][]ValidatorWithParameterTypeDto, error) {
 	valueValidators, err := s.queries.GetValueTypeValueValidators(ctx)
 	if err != nil {
@@ -50,12 +45,7 @@ func (s *ValueTypeService) getBuiltInValidatorMap(ctx context.Context) (map[uint
 	validatorMap := make(map[uint][]ValidatorWithParameterTypeDto)
 	for _, validator := range valueValidators {
 		validatorMap[*validator.ValueTypeID] = append(validatorMap[*validator.ValueTypeID], ValidatorWithParameterTypeDto{
-			ValidatorDto: ValidatorDto{
-				ValidatorType: validator.ValidatorType,
-				Parameter:     str.FromPtr(validator.Parameter),
-				ErrorText:     str.FromPtr(validator.ErrorText),
-				IsBuiltIn:     true,
-			},
+			ValidatorDto:  NewValidatorDto(validator),
 			ParameterType: s.valueValidatorService.GetValidatorParameterType(validator.ValidatorType),
 		})
 	}

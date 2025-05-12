@@ -639,10 +639,12 @@ SELECT csc.id,
     sv.id as service_version_id,
     csc.previous_service_version_id,
     s.name as service_name,
+    s.id as service_id,
     sv.version as service_version,
     fv.id as feature_version_id,
     csc.previous_feature_version_id,
     f.name as feature_name,
+    f.id as feature_id,
     fv.version as feature_version,
     k.id as key_id,
     k.name as key_name,
@@ -672,10 +674,12 @@ type GetChangesetChangesRow struct {
 	ServiceVersionID               uint
 	PreviousServiceVersionID       *uint
 	ServiceName                    string
+	ServiceID                      uint
 	ServiceVersion                 int
 	FeatureVersionID               *uint
 	PreviousFeatureVersionID       *uint
 	FeatureName                    *string
+	FeatureID                      *uint
 	FeatureVersion                 *int
 	KeyID                          *uint
 	KeyName                        *string
@@ -703,10 +707,12 @@ func (q *Queries) GetChangesetChanges(ctx context.Context, changesetID uint) ([]
 			&i.ServiceVersionID,
 			&i.PreviousServiceVersionID,
 			&i.ServiceName,
+			&i.ServiceID,
 			&i.ServiceVersion,
 			&i.FeatureVersionID,
 			&i.PreviousFeatureVersionID,
 			&i.FeatureName,
+			&i.FeatureID,
 			&i.FeatureVersion,
 			&i.KeyID,
 			&i.KeyName,

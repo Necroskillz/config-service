@@ -1,4 +1,5 @@
 export type { DeleteChangesetsChangesetIdMutationKey } from './hooks/useDeleteChangesetsChangesetId.ts'
+export type { DeleteChangesetsChangesetIdChangesChangeIdMutationKey } from './hooks/useDeleteChangesetsChangesetIdChangesChangeId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
@@ -86,6 +87,17 @@ export type {
   DeleteChangesetsChangesetIdMutationResponse,
   DeleteChangesetsChangesetIdMutation,
 } from './types/DeleteChangesetsChangesetId.ts'
+export type {
+  DeleteChangesetsChangesetIdChangesChangeIdPathParams,
+  DeleteChangesetsChangesetIdChangesChangeId204,
+  DeleteChangesetsChangesetIdChangesChangeId400,
+  DeleteChangesetsChangesetIdChangesChangeId401,
+  DeleteChangesetsChangesetIdChangesChangeId403,
+  DeleteChangesetsChangesetIdChangesChangeId404,
+  DeleteChangesetsChangesetIdChangesChangeId500,
+  DeleteChangesetsChangesetIdChangesChangeIdMutationResponse,
+  DeleteChangesetsChangesetIdChangesChangeIdMutation,
+} from './types/DeleteChangesetsChangesetIdChangesChangeId.ts'
 export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId204,
@@ -577,6 +589,11 @@ export type { ServiceValueTypeDto } from './types/service/ValueTypeDto.ts'
 export type { ServiceValueValidatorParameterTypeEnum, ServiceValueValidatorParameterType } from './types/service/ValueValidatorParameterType.ts'
 export type { ServiceVariationValue } from './types/service/VariationValue.ts'
 export { deleteChangesetsChangesetIdMutationKey, deleteChangesetsChangesetId, useDeleteChangesetsChangesetId } from './hooks/useDeleteChangesetsChangesetId.ts'
+export {
+  deleteChangesetsChangesetIdChangesChangeIdMutationKey,
+  deleteChangesetsChangesetIdChangesChangeId,
+  useDeleteChangesetsChangesetIdChangesChangeId,
+} from './hooks/useDeleteChangesetsChangesetIdChangesChangeId.ts'
 export {
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey,
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
