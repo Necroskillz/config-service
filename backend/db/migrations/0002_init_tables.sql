@@ -42,7 +42,7 @@ CREATE TABLE feature_versions (
     valid_from TIMESTAMP WITH TIME ZONE,
     valid_to TIMESTAMP WITH TIME ZONE,
     version INTEGER NOT NULL,
-    feature_id BIGINT NOT NULL REFERENCES features(id)
+    feature_id BIGINT NOT NULL REFERENCES features(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_feature_versions_valid_from ON feature_versions(valid_from);
 CREATE INDEX idx_feature_versions_valid_to ON feature_versions(valid_to);
@@ -103,7 +103,9 @@ CREATE TABLE value_validators (
 CREATE TABLE variation_properties (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    display_name TEXT NOT NULL
+    display_name TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    archived BOOLEAN NOT NULL DEFAULT FALSE
 );
 CREATE TABLE service_type_variation_properties (
     id BIGSERIAL PRIMARY KEY,
@@ -111,13 +113,15 @@ CREATE TABLE service_type_variation_properties (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     priority INTEGER NOT NULL,
     service_type_id BIGINT NOT NULL REFERENCES service_types(id),
-    variation_property_id BIGINT NOT NULL REFERENCES variation_properties(id)
+    variation_property_id BIGINT NOT NULL REFERENCES variation_properties(id),
+    archived BOOLEAN NOT NULL DEFAULT FALSE
 );
 CREATE TABLE variation_property_values (
     id BIGSERIAL PRIMARY KEY,
     variation_property_id BIGINT NOT NULL REFERENCES variation_properties(id),
     value TEXT NOT NULL,
-    parent_id BIGINT REFERENCES variation_property_values(id)
+    parent_id BIGINT REFERENCES variation_property_values(id),
+    archived BOOLEAN NOT NULL DEFAULT FALSE
 );
 CREATE TABLE variation_contexts (
     id BIGSERIAL PRIMARY KEY,
@@ -134,8 +138,8 @@ CREATE TABLE variation_values (
 CREATE INDEX idx_variation_values_valid_from ON variation_values(valid_from);
 CREATE INDEX idx_variation_values_valid_to ON variation_values(valid_to);
 CREATE TABLE variation_context_variation_property_values (
-    variation_context_id BIGINT NOT NULL REFERENCES variation_contexts(id) ON DELETE CASCADE,
-    variation_property_value_id BIGINT NOT NULL REFERENCES variation_property_values(id),
+    variation_context_id BIGINT NOT NULL REFERENCES variation_contexts(id),
+    variation_property_value_id BIGINT NOT NULL REFERENCES variation_property_values(id) ON DELETE CASCADE,
     PRIMARY KEY (
         variation_context_id,
         variation_property_value_id

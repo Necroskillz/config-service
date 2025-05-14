@@ -7,6 +7,10 @@ import type { DbChangesetChangeType } from '../db/ChangesetChangeType.ts'
 
 export type ServiceChangesetChange = {
   /**
+   * @type integer | undefined
+   */
+  featureId?: number
+  /**
    * @type string | undefined
    */
   featureName?: string
@@ -58,6 +62,10 @@ export type ServiceChangesetChange = {
    * @type integer | undefined
    */
   previousServiceVersionId?: number
+  /**
+   * @type integer | undefined
+   */
+  serviceId?: number
   /**
    * @type string
    */

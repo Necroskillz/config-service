@@ -12,7 +12,7 @@ import (
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
-	"github.com/necroskillz/config-service/util/str"
+	"github.com/necroskillz/config-service/util/ptr"
 )
 
 type KeyService struct {
@@ -85,7 +85,7 @@ func (s *KeyService) GetKey(ctx context.Context, serviceVersionID uint, featureV
 		KeyItemDto: KeyItemDto{
 			ID:            key.ID,
 			Name:          key.Name,
-			Description:   str.FromPtr(key.Description),
+			Description:   ptr.From(key.Description),
 			ValueTypeName: key.ValueTypeName,
 			ValueType:     key.ValueTypeKind,
 			ValueTypeID:   key.ValueTypeID,
@@ -116,7 +116,7 @@ func (s *KeyService) GetFeatureKeys(ctx context.Context, serviceVersionID uint, 
 		result[i] = KeyItemDto{
 			ID:            key.ID,
 			Name:          key.Name,
-			Description:   str.FromPtr(key.Description),
+			Description:   ptr.From(key.Description),
 			ValueTypeName: key.ValueTypeName,
 			ValueType:     key.ValueTypeKind,
 		}
@@ -213,7 +213,7 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 
 		keyID, err = tx.CreateKey(ctx, db.CreateKeyParams{
 			Name:             params.Name,
-			Description:      str.ToPtr(params.Description),
+			Description:      ptr.To(params.Description, ptr.WithNilIfZero()),
 			ValueTypeID:      params.ValueTypeID,
 			FeatureVersionID: params.FeatureVersionID,
 		})
@@ -225,8 +225,8 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 			_, err = tx.CreateValueValidatorForKey(ctx, db.CreateValueValidatorForKeyParams{
 				KeyID:         &keyID,
 				ValidatorType: validator.ValidatorType,
-				Parameter:     str.ToPtr(validator.Parameter),
-				ErrorText:     str.ToPtr(validator.ErrorText),
+				Parameter:     ptr.To(validator.Parameter, ptr.WithNilIfZero()),
+				ErrorText:     ptr.To(validator.ErrorText, ptr.WithNilIfZero()),
 			})
 			if err != nil {
 				return err
@@ -337,7 +337,11 @@ func (s *KeyService) validateUpdateKey(ctx context.Context, data UpdateKeyParams
 			valueNameBuilder.WriteString("Value for variation: ")
 			if len(variationContextValues) > 0 {
 				for propertyID, propertyValue := range variationContextValues {
-					propertyName := variationHierarchy.GetPropertyName(propertyID)
+					propertyName, err := variationHierarchy.GetPropertyName(propertyID)
+					if err != nil {
+						return err
+					}
+
 					valueNameBuilder.WriteString(fmt.Sprintf("%s: %s, ", propertyName, propertyValue))
 				}
 			} else {
@@ -374,7 +378,7 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 		}
 
 		hasValidatorsChanges = slices.CompareFunc(validators, params.Validators, func(a db.ValueValidator, b ValidatorDto) int {
-			if a.ValidatorType != b.ValidatorType || str.FromPtr(a.Parameter) != b.Parameter || str.FromPtr(a.ErrorText) != b.ErrorText {
+			if a.ValidatorType != b.ValidatorType || ptr.From(a.Parameter) != b.Parameter || ptr.From(a.ErrorText) != b.ErrorText {
 				return 1
 			}
 
@@ -395,7 +399,7 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
 		if err = tx.UpdateKey(ctx, db.UpdateKeyParams{
 			KeyID:               params.KeyID,
-			Description:         str.ToPtr(params.Description),
+			Description:         ptr.To(params.Description, ptr.WithNilIfZero()),
 			ValidatorsUpdatedAt: validatorsUpdatedAt,
 		}); err != nil {
 			return err
@@ -411,8 +415,8 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 				_, err = tx.CreateValueValidatorForKey(ctx, db.CreateValueValidatorForKeyParams{
 					KeyID:         &params.KeyID,
 					ValidatorType: validator.ValidatorType,
-					Parameter:     str.ToPtr(validator.Parameter),
-					ErrorText:     str.ToPtr(validator.ErrorText),
+					Parameter:     ptr.To(validator.Parameter, ptr.WithNilIfZero()),
+					ErrorText:     ptr.To(validator.ErrorText, ptr.WithNilIfZero()),
 				})
 				if err != nil {
 					return err

@@ -51,6 +51,14 @@ export type { GetValueTypesQueryKey } from './hooks/useGetValueTypes.ts'
 export type { GetValueTypesSuspenseQueryKey } from './hooks/useGetValueTypesSuspense.ts'
 export type { GetValueTypesValueTypeIdQueryKey } from './hooks/useGetValueTypesValueTypeId.ts'
 export type { GetValueTypesValueTypeIdSuspenseQueryKey } from './hooks/useGetValueTypesValueTypeIdSuspense.ts'
+export type { GetVariationPropertiesQueryKey } from './hooks/useGetVariationProperties.ts'
+export type { GetVariationPropertiesNameTakenNameQueryKey } from './hooks/useGetVariationPropertiesNameTakenName.ts'
+export type { GetVariationPropertiesNameTakenNameSuspenseQueryKey } from './hooks/useGetVariationPropertiesNameTakenNameSuspense.ts'
+export type { GetVariationPropertiesPropertyIdQueryKey } from './hooks/useGetVariationPropertiesPropertyId.ts'
+export type { GetVariationPropertiesPropertyIdSuspenseQueryKey } from './hooks/useGetVariationPropertiesPropertyIdSuspense.ts'
+export type { GetVariationPropertiesPropertyIdValueTakenValueQueryKey } from './hooks/useGetVariationPropertiesPropertyIdValueTakenValue.ts'
+export type { GetVariationPropertiesPropertyIdValueTakenValueSuspenseQueryKey } from './hooks/useGetVariationPropertiesPropertyIdValueTakenValueSuspense.ts'
+export type { GetVariationPropertiesSuspenseQueryKey } from './hooks/useGetVariationPropertiesSuspense.ts'
 export type { PostAuthLoginMutationKey } from './hooks/usePostAuthLogin.ts'
 export type { PostAuthRefreshTokenMutationKey } from './hooks/usePostAuthRefreshToken.ts'
 export type { PostChangesetsChangesetIdCommentMutationKey } from './hooks/usePostChangesetsChangesetIdComment.ts'
@@ -61,6 +69,8 @@ export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValue
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdVersionsMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdVersions.ts'
 export type { PostServicesServiceVersionIdVersionsMutationKey } from './hooks/usePostServicesServiceVersionIdVersions.ts'
+export type { PostVariationPropertiesMutationKey } from './hooks/usePostVariationProperties.ts'
+export type { PostVariationPropertiesPropertyIdValuesMutationKey } from './hooks/usePostVariationPropertiesPropertyIdValues.ts'
 export type { PutChangesetsChangesetIdApplyMutationKey } from './hooks/usePutChangesetsChangesetIdApply.ts'
 export type { PutChangesetsChangesetIdCommitMutationKey } from './hooks/usePutChangesetsChangesetIdCommit.ts'
 export type { PutChangesetsChangesetIdReopenMutationKey } from './hooks/usePutChangesetsChangesetIdReopen.ts'
@@ -70,6 +80,7 @@ export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationKey } f
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { PutServicesServiceVersionIdPublishMutationKey } from './hooks/usePutServicesServiceVersionIdPublish.ts'
+export type { PutVariationPropertiesPropertyIdMutationKey } from './hooks/usePutVariationPropertiesPropertyId.ts'
 export type { AuthUser } from './types/auth/User.ts'
 export type { DbChangesetActionTypeEnum, DbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export type { DbChangesetChangeTypeEnum, DbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
@@ -332,6 +343,40 @@ export type {
   GetValueTypesValueTypeIdQueryResponse,
   GetValueTypesValueTypeIdQuery,
 } from './types/GetValueTypesValueTypeId.ts'
+export type {
+  GetVariationProperties200,
+  GetVariationProperties401,
+  GetVariationProperties500,
+  GetVariationPropertiesQueryResponse,
+  GetVariationPropertiesQuery,
+} from './types/GetVariationProperties.ts'
+export type {
+  GetVariationPropertiesNameTakenNamePathParams,
+  GetVariationPropertiesNameTakenName200,
+  GetVariationPropertiesNameTakenName400,
+  GetVariationPropertiesNameTakenName401,
+  GetVariationPropertiesNameTakenName500,
+  GetVariationPropertiesNameTakenNameQueryResponse,
+  GetVariationPropertiesNameTakenNameQuery,
+} from './types/GetVariationPropertiesNameTakenName.ts'
+export type {
+  GetVariationPropertiesPropertyIdPathParams,
+  GetVariationPropertiesPropertyId200,
+  GetVariationPropertiesPropertyId401,
+  GetVariationPropertiesPropertyId404,
+  GetVariationPropertiesPropertyId500,
+  GetVariationPropertiesPropertyIdQueryResponse,
+  GetVariationPropertiesPropertyIdQuery,
+} from './types/GetVariationPropertiesPropertyId.ts'
+export type {
+  GetVariationPropertiesPropertyIdValueTakenValuePathParams,
+  GetVariationPropertiesPropertyIdValueTakenValue200,
+  GetVariationPropertiesPropertyIdValueTakenValue400,
+  GetVariationPropertiesPropertyIdValueTakenValue401,
+  GetVariationPropertiesPropertyIdValueTakenValue500,
+  GetVariationPropertiesPropertyIdValueTakenValueQueryResponse,
+  GetVariationPropertiesPropertyIdValueTakenValueQuery,
+} from './types/GetVariationPropertiesPropertyIdValueTakenValue.ts'
 export type { HandlerAddCommentRequest } from './types/handler/AddCommentRequest.ts'
 export type { HandlerApprovableChangesetCountResponse } from './types/handler/ApprovableChangesetCountResponse.ts'
 export type { HandlerBooleanResponse } from './types/handler/BooleanResponse.ts'
@@ -340,6 +385,8 @@ export type { HandlerCreateFeatureRequest } from './types/handler/CreateFeatureR
 export type { HandlerCreateKeyRequest } from './types/handler/CreateKeyRequest.ts'
 export type { HandlerCreateResponse } from './types/handler/CreateResponse.ts'
 export type { HandlerCreateServiceRequest } from './types/handler/CreateServiceRequest.ts'
+export type { HandlerCreateVariationPropertyRequest } from './types/handler/CreateVariationPropertyRequest.ts'
+export type { HandlerCreateVariationPropertyValueRequest } from './types/handler/CreateVariationPropertyValueRequest.ts'
 export type { HandlerLoginRequest } from './types/handler/LoginRequest.ts'
 export type { HandlerRefreshTokenRequest } from './types/handler/RefreshTokenRequest.ts'
 export type { HandlerSelectOption } from './types/handler/SelectOption.ts'
@@ -347,6 +394,7 @@ export type { HandlerTokensResponse } from './types/handler/TokensResponse.ts'
 export type { HandlerUpdateFeatureRequest } from './types/handler/UpdateFeatureRequest.ts'
 export type { HandlerUpdateKeyRequest } from './types/handler/UpdateKeyRequest.ts'
 export type { HandlerUpdateServiceRequest } from './types/handler/UpdateServiceRequest.ts'
+export type { HandlerUpdateVariationPropertyRequest } from './types/handler/UpdateVariationPropertyRequest.ts'
 export type { HandlerValidatorRequest } from './types/handler/ValidatorRequest.ts'
 export type { HandlerValueRequest } from './types/handler/ValueRequest.ts'
 export type { HandlerVariationProperty } from './types/handler/VariationProperty.ts'
@@ -463,6 +511,28 @@ export type {
   PostServicesServiceVersionIdVersionsMutation,
 } from './types/PostServicesServiceVersionIdVersions.ts'
 export type {
+  PostVariationProperties200,
+  PostVariationProperties400,
+  PostVariationProperties401,
+  PostVariationProperties403,
+  PostVariationProperties500,
+  PostVariationPropertiesMutationRequest,
+  PostVariationPropertiesMutationResponse,
+  PostVariationPropertiesMutation,
+} from './types/PostVariationProperties.ts'
+export type {
+  PostVariationPropertiesPropertyIdValuesPathParams,
+  PostVariationPropertiesPropertyIdValues200,
+  PostVariationPropertiesPropertyIdValues400,
+  PostVariationPropertiesPropertyIdValues401,
+  PostVariationPropertiesPropertyIdValues403,
+  PostVariationPropertiesPropertyIdValues404,
+  PostVariationPropertiesPropertyIdValues500,
+  PostVariationPropertiesPropertyIdValuesMutationRequest,
+  PostVariationPropertiesPropertyIdValuesMutationResponse,
+  PostVariationPropertiesPropertyIdValuesMutation,
+} from './types/PostVariationPropertiesPropertyIdValues.ts'
+export type {
   PutChangesetsChangesetIdApplyPathParams,
   PutChangesetsChangesetIdApply204,
   PutChangesetsChangesetIdApply400,
@@ -567,6 +637,17 @@ export type {
   PutServicesServiceVersionIdPublishMutationResponse,
   PutServicesServiceVersionIdPublishMutation,
 } from './types/PutServicesServiceVersionIdPublish.ts'
+export type {
+  PutVariationPropertiesPropertyIdPathParams,
+  PutVariationPropertiesPropertyId204,
+  PutVariationPropertiesPropertyId400,
+  PutVariationPropertiesPropertyId401,
+  PutVariationPropertiesPropertyId403,
+  PutVariationPropertiesPropertyId500,
+  PutVariationPropertiesPropertyIdMutationRequest,
+  PutVariationPropertiesPropertyIdMutationResponse,
+  PutVariationPropertiesPropertyIdMutation,
+} from './types/PutVariationPropertiesPropertyId.ts'
 export type { ServiceAllowedValidatorDto } from './types/service/AllowedValidatorDto.ts'
 export type { ServiceChangesetAction } from './types/service/ChangesetAction.ts'
 export type { ServiceChangesetChange } from './types/service/ChangesetChange.ts'
@@ -587,6 +668,9 @@ export type { ServiceValidatorDto } from './types/service/ValidatorDto.ts'
 export type { ServiceValidatorWithParameterTypeDto } from './types/service/ValidatorWithParameterTypeDto.ts'
 export type { ServiceValueTypeDto } from './types/service/ValueTypeDto.ts'
 export type { ServiceValueValidatorParameterTypeEnum, ServiceValueValidatorParameterType } from './types/service/ValueValidatorParameterType.ts'
+export type { ServiceVariationPropertyDto } from './types/service/VariationPropertyDto.ts'
+export type { ServiceVariationPropertyValueDto } from './types/service/VariationPropertyValueDto.ts'
+export type { ServiceVariationPropertyWithValuesDto } from './types/service/VariationPropertyWithValuesDto.ts'
 export type { ServiceVariationValue } from './types/service/VariationValue.ts'
 export { deleteChangesetsChangesetIdMutationKey, deleteChangesetsChangesetId, useDeleteChangesetsChangesetId } from './hooks/useDeleteChangesetsChangesetId.ts'
 export {
@@ -862,6 +946,54 @@ export {
   getValueTypesValueTypeIdSuspenseQueryOptions,
   useGetValueTypesValueTypeIdSuspense,
 } from './hooks/useGetValueTypesValueTypeIdSuspense.ts'
+export {
+  getVariationPropertiesQueryKey,
+  getVariationProperties,
+  getVariationPropertiesQueryOptions,
+  useGetVariationProperties,
+} from './hooks/useGetVariationProperties.ts'
+export {
+  getVariationPropertiesNameTakenNameQueryKey,
+  getVariationPropertiesNameTakenName,
+  getVariationPropertiesNameTakenNameQueryOptions,
+  useGetVariationPropertiesNameTakenName,
+} from './hooks/useGetVariationPropertiesNameTakenName.ts'
+export {
+  getVariationPropertiesNameTakenNameSuspenseQueryKey,
+  getVariationPropertiesNameTakenNameSuspense,
+  getVariationPropertiesNameTakenNameSuspenseQueryOptions,
+  useGetVariationPropertiesNameTakenNameSuspense,
+} from './hooks/useGetVariationPropertiesNameTakenNameSuspense.ts'
+export {
+  getVariationPropertiesPropertyIdQueryKey,
+  getVariationPropertiesPropertyId,
+  getVariationPropertiesPropertyIdQueryOptions,
+  useGetVariationPropertiesPropertyId,
+} from './hooks/useGetVariationPropertiesPropertyId.ts'
+export {
+  getVariationPropertiesPropertyIdSuspenseQueryKey,
+  getVariationPropertiesPropertyIdSuspense,
+  getVariationPropertiesPropertyIdSuspenseQueryOptions,
+  useGetVariationPropertiesPropertyIdSuspense,
+} from './hooks/useGetVariationPropertiesPropertyIdSuspense.ts'
+export {
+  getVariationPropertiesPropertyIdValueTakenValueQueryKey,
+  getVariationPropertiesPropertyIdValueTakenValue,
+  getVariationPropertiesPropertyIdValueTakenValueQueryOptions,
+  useGetVariationPropertiesPropertyIdValueTakenValue,
+} from './hooks/useGetVariationPropertiesPropertyIdValueTakenValue.ts'
+export {
+  getVariationPropertiesPropertyIdValueTakenValueSuspenseQueryKey,
+  getVariationPropertiesPropertyIdValueTakenValueSuspense,
+  getVariationPropertiesPropertyIdValueTakenValueSuspenseQueryOptions,
+  useGetVariationPropertiesPropertyIdValueTakenValueSuspense,
+} from './hooks/useGetVariationPropertiesPropertyIdValueTakenValueSuspense.ts'
+export {
+  getVariationPropertiesSuspenseQueryKey,
+  getVariationPropertiesSuspense,
+  getVariationPropertiesSuspenseQueryOptions,
+  useGetVariationPropertiesSuspense,
+} from './hooks/useGetVariationPropertiesSuspense.ts'
 export { postAuthLoginMutationKey, postAuthLogin, usePostAuthLogin } from './hooks/usePostAuthLogin.ts'
 export { postAuthRefreshTokenMutationKey, postAuthRefreshToken, usePostAuthRefreshToken } from './hooks/usePostAuthRefreshToken.ts'
 export {
@@ -900,6 +1032,12 @@ export {
   postServicesServiceVersionIdVersions,
   usePostServicesServiceVersionIdVersions,
 } from './hooks/usePostServicesServiceVersionIdVersions.ts'
+export { postVariationPropertiesMutationKey, postVariationProperties, usePostVariationProperties } from './hooks/usePostVariationProperties.ts'
+export {
+  postVariationPropertiesPropertyIdValuesMutationKey,
+  postVariationPropertiesPropertyIdValues,
+  usePostVariationPropertiesPropertyIdValues,
+} from './hooks/usePostVariationPropertiesPropertyIdValues.ts'
 export {
   putChangesetsChangesetIdApplyMutationKey,
   putChangesetsChangesetIdApply,
@@ -941,6 +1079,11 @@ export {
   putServicesServiceVersionIdPublish,
   usePutServicesServiceVersionIdPublish,
 } from './hooks/usePutServicesServiceVersionIdPublish.ts'
+export {
+  putVariationPropertiesPropertyIdMutationKey,
+  putVariationPropertiesPropertyId,
+  usePutVariationPropertiesPropertyId,
+} from './hooks/usePutVariationPropertiesPropertyId.ts'
 export { dbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export { dbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export { dbChangesetState } from './types/db/ChangesetState.ts'

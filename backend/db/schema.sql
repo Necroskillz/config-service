@@ -186,7 +186,8 @@ CREATE TABLE public.keys (
     name text NOT NULL,
     description text,
     value_type_id bigint NOT NULL,
-    feature_version_id bigint NOT NULL
+    feature_version_id bigint NOT NULL,
+    validators_updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -590,7 +591,8 @@ CREATE TABLE public.service_type_variation_properties (
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     priority integer NOT NULL,
     service_type_id bigint NOT NULL,
-    variation_property_id bigint NOT NULL
+    variation_property_id bigint NOT NULL,
+    archived boolean DEFAULT false NOT NULL
 );
 
 
@@ -874,7 +876,9 @@ ALTER SEQUENCE public.variation_contexts_id_seq OWNED BY public.variation_contex
 CREATE TABLE public.variation_properties (
     id bigint NOT NULL,
     name text NOT NULL,
-    display_name text NOT NULL
+    display_name text NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    archived boolean DEFAULT false NOT NULL
 );
 
 
@@ -905,7 +909,8 @@ CREATE TABLE public.variation_property_values (
     id bigint NOT NULL,
     variation_property_id bigint NOT NULL,
     value text NOT NULL,
-    parent_id bigint
+    parent_id bigint,
+    archived boolean DEFAULT false NOT NULL
 );
 
 
@@ -1385,7 +1390,7 @@ ALTER TABLE ONLY public.changeset_changes
 --
 
 ALTER TABLE ONLY public.changeset_changes
-    ADD CONSTRAINT changeset_changes_feature_version_id_fkey FOREIGN KEY (feature_version_id) REFERENCES public.feature_versions(id);
+    ADD CONSTRAINT changeset_changes_feature_version_id_fkey FOREIGN KEY (feature_version_id) REFERENCES public.feature_versions(id) ON DELETE CASCADE;
 
 
 --
@@ -1393,7 +1398,7 @@ ALTER TABLE ONLY public.changeset_changes
 --
 
 ALTER TABLE ONLY public.changeset_changes
-    ADD CONSTRAINT changeset_changes_feature_version_service_version_id_fkey FOREIGN KEY (feature_version_service_version_id) REFERENCES public.feature_version_service_versions(id);
+    ADD CONSTRAINT changeset_changes_feature_version_service_version_id_fkey FOREIGN KEY (feature_version_service_version_id) REFERENCES public.feature_version_service_versions(id) ON DELETE CASCADE;
 
 
 --
@@ -1401,7 +1406,7 @@ ALTER TABLE ONLY public.changeset_changes
 --
 
 ALTER TABLE ONLY public.changeset_changes
-    ADD CONSTRAINT changeset_changes_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id);
+    ADD CONSTRAINT changeset_changes_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id) ON DELETE CASCADE;
 
 
 --
@@ -1409,7 +1414,7 @@ ALTER TABLE ONLY public.changeset_changes
 --
 
 ALTER TABLE ONLY public.changeset_changes
-    ADD CONSTRAINT changeset_changes_new_variation_value_id_fkey FOREIGN KEY (new_variation_value_id) REFERENCES public.variation_values(id);
+    ADD CONSTRAINT changeset_changes_new_variation_value_id_fkey FOREIGN KEY (new_variation_value_id) REFERENCES public.variation_values(id) ON DELETE CASCADE;
 
 
 --
@@ -1441,7 +1446,7 @@ ALTER TABLE ONLY public.changeset_changes
 --
 
 ALTER TABLE ONLY public.changeset_changes
-    ADD CONSTRAINT changeset_changes_service_version_id_fkey FOREIGN KEY (service_version_id) REFERENCES public.service_versions(id);
+    ADD CONSTRAINT changeset_changes_service_version_id_fkey FOREIGN KEY (service_version_id) REFERENCES public.service_versions(id) ON DELETE CASCADE;
 
 
 --
@@ -1457,7 +1462,7 @@ ALTER TABLE ONLY public.changesets
 --
 
 ALTER TABLE ONLY public.feature_version_service_versions
-    ADD CONSTRAINT feature_version_service_versions_feature_version_id_fkey FOREIGN KEY (feature_version_id) REFERENCES public.feature_versions(id);
+    ADD CONSTRAINT feature_version_service_versions_feature_version_id_fkey FOREIGN KEY (feature_version_id) REFERENCES public.feature_versions(id) ON DELETE CASCADE;
 
 
 --
@@ -1465,7 +1470,7 @@ ALTER TABLE ONLY public.feature_version_service_versions
 --
 
 ALTER TABLE ONLY public.feature_version_service_versions
-    ADD CONSTRAINT feature_version_service_versions_service_version_id_fkey FOREIGN KEY (service_version_id) REFERENCES public.service_versions(id);
+    ADD CONSTRAINT feature_version_service_versions_service_version_id_fkey FOREIGN KEY (service_version_id) REFERENCES public.service_versions(id) ON DELETE CASCADE;
 
 
 --
@@ -1473,7 +1478,7 @@ ALTER TABLE ONLY public.feature_version_service_versions
 --
 
 ALTER TABLE ONLY public.feature_versions
-    ADD CONSTRAINT feature_versions_feature_id_fkey FOREIGN KEY (feature_id) REFERENCES public.features(id);
+    ADD CONSTRAINT feature_versions_feature_id_fkey FOREIGN KEY (feature_id) REFERENCES public.features(id) ON DELETE CASCADE;
 
 
 --
@@ -1481,7 +1486,7 @@ ALTER TABLE ONLY public.feature_versions
 --
 
 ALTER TABLE ONLY public.features
-    ADD CONSTRAINT features_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.services(id);
+    ADD CONSTRAINT features_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.services(id) ON DELETE CASCADE;
 
 
 --
@@ -1489,7 +1494,7 @@ ALTER TABLE ONLY public.features
 --
 
 ALTER TABLE ONLY public.keys
-    ADD CONSTRAINT keys_feature_version_id_fkey FOREIGN KEY (feature_version_id) REFERENCES public.feature_versions(id);
+    ADD CONSTRAINT keys_feature_version_id_fkey FOREIGN KEY (feature_version_id) REFERENCES public.feature_versions(id) ON DELETE CASCADE;
 
 
 --
@@ -1593,7 +1598,7 @@ ALTER TABLE ONLY public.value_validators
 --
 
 ALTER TABLE ONLY public.variation_context_variation_property_values
-    ADD CONSTRAINT variation_context_variation_pr_variation_property_value_id_fkey FOREIGN KEY (variation_property_value_id) REFERENCES public.variation_property_values(id);
+    ADD CONSTRAINT variation_context_variation_pr_variation_property_value_id_fkey FOREIGN KEY (variation_property_value_id) REFERENCES public.variation_property_values(id) ON DELETE CASCADE;
 
 
 --
@@ -1601,7 +1606,7 @@ ALTER TABLE ONLY public.variation_context_variation_property_values
 --
 
 ALTER TABLE ONLY public.variation_context_variation_property_values
-    ADD CONSTRAINT variation_context_variation_property__variation_context_id_fkey FOREIGN KEY (variation_context_id) REFERENCES public.variation_contexts(id) ON DELETE CASCADE;
+    ADD CONSTRAINT variation_context_variation_property__variation_context_id_fkey FOREIGN KEY (variation_context_id) REFERENCES public.variation_contexts(id);
 
 
 --
@@ -1625,7 +1630,7 @@ ALTER TABLE ONLY public.variation_property_values
 --
 
 ALTER TABLE ONLY public.variation_values
-    ADD CONSTRAINT variation_values_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id);
+    ADD CONSTRAINT variation_values_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id) ON DELETE CASCADE;
 
 
 --

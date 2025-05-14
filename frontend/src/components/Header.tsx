@@ -39,6 +39,7 @@ export function Header() {
               <Badge variant="outline">{approvableCount.count}</Badge>
             ) : null}
           </Link>
+          {user.isGlobalAdmin && <Link to="/admin">Admin</Link>}
         </>
       )}
       <div className="ml-auto">{user.isAuthenticated ? <UserMenu /> : <Link to="/login">Login</Link>}</div>

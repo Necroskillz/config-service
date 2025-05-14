@@ -197,6 +197,78 @@ func (q *Queries) GetVariationContextValues(ctx context.Context, variationContex
 	return items, nil
 }
 
+const getVariationProperty = `-- name: GetVariationProperty :one
+SELECT id, name, display_name, created_at, archived
+FROM variation_properties
+WHERE id = $1
+`
+
+func (q *Queries) GetVariationProperty(ctx context.Context, id uint) (VariationProperty, error) {
+	row := q.db.QueryRow(ctx, getVariationProperty, id)
+	var i VariationProperty
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.DisplayName,
+		&i.CreatedAt,
+		&i.Archived,
+	)
+	return i, err
+}
+
+const getVariationPropertyIDByName = `-- name: GetVariationPropertyIDByName :one
+SELECT id
+FROM variation_properties
+WHERE name = $1
+`
+
+func (q *Queries) GetVariationPropertyIDByName(ctx context.Context, name string) (uint, error) {
+	row := q.db.QueryRow(ctx, getVariationPropertyIDByName, name)
+	var id uint
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getVariationPropertyValueIDByName = `-- name: GetVariationPropertyValueIDByName :one
+SELECT id
+FROM variation_property_values
+WHERE variation_property_id = $1
+    AND value = $2
+    AND NOT archived
+`
+
+type GetVariationPropertyValueIDByNameParams struct {
+	VariationPropertyID uint
+	Value               string
+}
+
+func (q *Queries) GetVariationPropertyValueIDByName(ctx context.Context, arg GetVariationPropertyValueIDByNameParams) (uint, error) {
+	row := q.db.QueryRow(ctx, getVariationPropertyValueIDByName, arg.VariationPropertyID, arg.Value)
+	var id uint
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getVariationPropertyValueIDByValue = `-- name: GetVariationPropertyValueIDByValue :one
+SELECT id
+FROM variation_property_values
+WHERE variation_property_id = $1
+    AND value = $2
+    AND NOT archived
+`
+
+type GetVariationPropertyValueIDByValueParams struct {
+	VariationPropertyID uint
+	Value               string
+}
+
+func (q *Queries) GetVariationPropertyValueIDByValue(ctx context.Context, arg GetVariationPropertyValueIDByValueParams) (uint, error) {
+	row := q.db.QueryRow(ctx, getVariationPropertyValueIDByValue, arg.VariationPropertyID, arg.Value)
+	var id uint
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getVariationPropertyValues = `-- name: GetVariationPropertyValues :many
 SELECT vpv.id,
     vpv.value,
@@ -204,14 +276,14 @@ SELECT vpv.id,
     vp.name as property_name,
     vp.display_name as property_display_name,
     vp.id as property_id
-FROM variation_property_values vpv
-    JOIN variation_properties vp ON vp.id = vpv.variation_property_id
+FROM variation_properties vp
+    LEFT JOIN variation_property_values vpv ON vpv.variation_property_id = vp.id
 ORDER BY vpv.id
 `
 
 type GetVariationPropertyValuesRow struct {
-	ID                  uint
-	Value               string
+	ID                  *uint
+	Value               *string
 	ParentID            *uint
 	PropertyName        string
 	PropertyDisplayName string
@@ -243,4 +315,20 @@ func (q *Queries) GetVariationPropertyValues(ctx context.Context) ([]GetVariatio
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateVariationProperty = `-- name: UpdateVariationProperty :exec
+UPDATE variation_properties
+SET display_name = $1
+WHERE id = $2
+`
+
+type UpdateVariationPropertyParams struct {
+	DisplayName string
+	ID          uint
+}
+
+func (q *Queries) UpdateVariationProperty(ctx context.Context, arg UpdateVariationPropertyParams) error {
+	_, err := q.db.Exec(ctx, updateVariationProperty, arg.DisplayName, arg.ID)
+	return err
 }

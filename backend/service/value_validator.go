@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/necroskillz/config-service/db"
-	"github.com/necroskillz/config-service/util/str"
+	"github.com/necroskillz/config-service/util/ptr"
 )
 
 type ValueValidatorParameterType string
@@ -29,8 +29,8 @@ type ValidatorDto struct {
 func NewValidatorDto(validator db.ValueValidator) ValidatorDto {
 	return ValidatorDto{
 		ValidatorType: validator.ValidatorType,
-		Parameter:     str.FromPtr(validator.Parameter),
-		ErrorText:     str.FromPtr(validator.ErrorText),
+		Parameter:     ptr.From(validator.Parameter),
+		ErrorText:     ptr.From(validator.ErrorText),
 		IsBuiltIn:     validator.ValueTypeID != nil,
 	}
 }

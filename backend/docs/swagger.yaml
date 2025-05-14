@@ -186,6 +186,20 @@ definitions:
     - name
     - serviceTypeId
     type: object
+  handler.CreateVariationPropertyRequest:
+    properties:
+      display_name:
+        type: string
+      name:
+        type: string
+    type: object
+  handler.CreateVariationPropertyValueRequest:
+    properties:
+      parentId:
+        type: integer
+      value:
+        type: string
+    type: object
   handler.LoginRequest:
     properties:
       password:
@@ -247,6 +261,13 @@ definitions:
         type: string
     required:
     - description
+    type: object
+  handler.UpdateVariationPropertyRequest:
+    properties:
+      displayName:
+        type: string
+    required:
+    - displayName
     type: object
   handler.ValidatorRequest:
     properties:
@@ -332,6 +353,8 @@ definitions:
     type: object
   service.ChangesetChange:
     properties:
+      featureId:
+        type: integer
       featureName:
         type: string
       featureVersion:
@@ -357,6 +380,8 @@ definitions:
       previousFeatureVersionId:
         type: integer
       previousServiceVersionId:
+        type: integer
+      serviceId:
         type: integer
       serviceName:
         type: string
@@ -710,6 +735,52 @@ definitions:
     - ValueValidatorParameterTypeFloat
     - ValueValidatorParameterTypeRegex
     - ValueValidatorParameterTypeJsonSchema
+  service.VariationPropertyDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - displayName
+    - id
+    - name
+    type: object
+  service.VariationPropertyValueDto:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/service.VariationPropertyValueDto'
+        type: array
+      id:
+        type: integer
+      value:
+        type: string
+    required:
+    - children
+    - id
+    - value
+    type: object
+  service.VariationPropertyWithValuesDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/service.VariationPropertyValueDto'
+        type: array
+    required:
+    - displayName
+    - id
+    - name
+    - values
+    type: object
   service.VariationValue:
     properties:
       canEdit:
@@ -2733,6 +2804,259 @@ paths:
       security:
       - BearerAuth: []
       summary: Get value type
+  /variation-properties:
+    get:
+      consumes:
+      - application/json
+      description: Get all variation properties
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.VariationPropertyDto'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get variation properties
+    post:
+      consumes:
+      - application/json
+      description: Create a new variation property
+      parameters:
+      - description: Variation property
+        in: body
+        name: variation_property
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateVariationPropertyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create variation property
+  /variation-properties/{property_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get variation property by ID
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.VariationPropertyWithValuesDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get variation property
+    put:
+      consumes:
+      - application/json
+      description: Update variation property
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      - description: Variation property
+        in: body
+        name: variation_property
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateVariationPropertyRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Update variation property
+  /variation-properties/{property_id}/value-taken/{value}:
+    get:
+      consumes:
+      - application/json
+      description: Check if variation property name is taken
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      - description: Variation property value
+        in: path
+        name: value
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BooleanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Check if variation property name is taken
+  /variation-properties/{property_id}/values:
+    post:
+      consumes:
+      - application/json
+      description: Create a new variation property value
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      - description: Variation property value
+        in: body
+        name: variation_property_value
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateVariationPropertyValueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create variation property value
+  /variation-properties/name-taken/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Check if variation property name is taken
+      parameters:
+      - description: Variation property name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BooleanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Check if variation property name is taken
 securityDefinitions:
   BearerAuth:
     in: header

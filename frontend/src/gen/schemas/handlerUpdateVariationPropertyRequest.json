@@ -1,0 +1,1 @@
+{"properties":{"displayName":{"type":"string"}},"required":["displayName"],"type":"object","x-readme-ref-name":"handler.UpdateVariationPropertyRequest"}

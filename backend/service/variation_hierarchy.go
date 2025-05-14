@@ -64,9 +64,13 @@ func NewVariationHierarchy(variationPropertyValues []db.GetVariationPropertyValu
 			propertyValues[propertyID] = []*VariationHierarchyValue{}
 		}
 
+		if variationPropertyValue.ID == nil {
+			continue
+		}
+
 		value := VariationHierarchyValue{
-			ID:       variationPropertyValue.ID,
-			Value:    variationPropertyValue.Value,
+			ID:       *variationPropertyValue.ID,
+			Value:    *variationPropertyValue.Value,
 			Children: []*VariationHierarchyValue{},
 		}
 
@@ -80,7 +84,7 @@ func NewVariationHierarchy(variationPropertyValues []db.GetVariationPropertyValu
 			propertyValues[propertyID] = append(propertyValues[propertyID], &value)
 		}
 
-		values[variationPropertyValue.ID] = &value
+		values[*variationPropertyValue.ID] = &value
 		variationHierarchy.lookup[propertyID][value.Value] = &value
 	}
 
@@ -151,6 +155,26 @@ func (v *VariationHierarchy) GetProperties(serviceTypeID uint) []*VariationHiera
 	return properties
 }
 
+func (v *VariationHierarchy) GetAllProperties() []*VariationHierarchyProperty {
+	properties := []*VariationHierarchyProperty{}
+
+	for _, property := range v.properties {
+		properties = append(properties, property)
+	}
+
+	return properties
+}
+
+func (v *VariationHierarchy) GetProperty(propertyID uint) (*VariationHierarchyProperty, error) {
+	property, ok := v.properties[propertyID]
+
+	if !ok {
+		return nil, NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Property with id %d not found", propertyID))
+	}
+
+	return property, nil
+}
+
 func (v *VariationHierarchy) GetPropertyId(property string) (uint, error) {
 	propertyID, ok := v.propertyLookup[property]
 
@@ -161,8 +185,14 @@ func (v *VariationHierarchy) GetPropertyId(property string) (uint, error) {
 	return propertyID, nil
 }
 
-func (v *VariationHierarchy) GetPropertyName(propertyID uint) string {
-	return v.properties[propertyID].Name
+func (v *VariationHierarchy) GetPropertyName(propertyID uint) (string, error) {
+	property, err := v.GetProperty(propertyID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return property.Name, nil
 }
 
 func (v *VariationHierarchy) VariationMapToIds(serviceTypeID uint, variation map[uint]string) ([]uint, error) {
@@ -233,12 +263,35 @@ func NewVariationHierarchyService(queries *db.Queries, cache *ristretto.Cache[st
 	return &VariationHierarchyService{queries: queries, cache: cache}
 }
 
-func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (*VariationHierarchy, error) {
-	cacheKey := "variation_hierarchy"
-	cachedVariationHierarchy, exists := s.cache.Get(cacheKey)
+type GetVariationHierarchyConfig struct {
+	ForceRefresh bool
+}
 
-	if exists {
-		return cachedVariationHierarchy.(*VariationHierarchy), nil
+type GetVariationHierarchyConfigFunc func(config *GetVariationHierarchyConfig)
+
+func WithForceRefresh() GetVariationHierarchyConfigFunc {
+	return func(config *GetVariationHierarchyConfig) {
+		config.ForceRefresh = true
+	}
+}
+
+const variationHierarchyCacheKey = "variation_hierarchy"
+
+func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context, options ...GetVariationHierarchyConfigFunc) (*VariationHierarchy, error) {
+	config := GetVariationHierarchyConfig{
+		ForceRefresh: false,
+	}
+
+	for _, fn := range options {
+		fn(&config)
+	}
+
+	if !config.ForceRefresh {
+		cachedVariationHierarchy, exists := s.cache.Get(variationHierarchyCacheKey)
+
+		if exists {
+			return cachedVariationHierarchy.(*VariationHierarchy), nil
+		}
 	}
 
 	variationPropertyValues, err := s.queries.GetVariationPropertyValues(ctx)
@@ -253,7 +306,13 @@ func (s *VariationHierarchyService) GetVariationHierarchy(ctx context.Context) (
 
 	variationHierarchy := NewVariationHierarchy(variationPropertyValues, serviceTypesProperties)
 
-	s.cache.SetWithTTL(cacheKey, variationHierarchy, int64(len(variationPropertyValues)*10+len(serviceTypesProperties)), time.Minute*10)
+	s.cache.SetWithTTL(variationHierarchyCacheKey, variationHierarchy, int64(len(variationPropertyValues)*10+len(serviceTypesProperties)), time.Minute*10)
 
 	return variationHierarchy, nil
+}
+
+func (s *VariationHierarchyService) ClearCache(ctx context.Context) error {
+	s.cache.Del(variationHierarchyCacheKey)
+
+	return nil
 }

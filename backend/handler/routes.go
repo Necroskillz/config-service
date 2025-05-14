@@ -87,4 +87,16 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	changesetGroup.POST("/comment", h.AddComment)
 
 	changesetGroup.DELETE("/changes/:change_id", h.DiscardChange)
+
+	variationPropertiesGroup := apiGroup.Group("/variation-properties")
+	variationPropertiesGroup.GET("", h.VariationProperties)
+	variationPropertiesGroup.POST("", h.CreateVariationProperty)
+	variationPropertiesGroup.GET("/name-taken/:name", h.IsVariationPropertyNameTaken)
+	variationPropertiesGroup.PUT("/:property_id", h.UpdateVariationProperty)
+
+	variationPropertyGroup := variationPropertiesGroup.Group("/:property_id")
+	variationPropertyGroup.GET("", h.VariationProperty)
+	variationPropertyGroup.PUT("", h.UpdateVariationProperty)
+	variationPropertyGroup.POST("/values", h.CreateVariationPropertyValue)
+	variationPropertyGroup.GET("/value-taken/:value", h.IsVariationPropertyValueTaken)
 }

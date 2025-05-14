@@ -70,6 +70,35 @@ func (s *ValidationService) IsKeyNameTaken(ctx context.Context, featureVersionID
 	return true, nil
 }
 
+func (s *ValidationService) IsVariationPropertyNameTaken(ctx context.Context, name string) (bool, error) {
+	_, err := s.queries.GetVariationPropertyIDByName(ctx, name)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (s *ValidationService) IsVariationPropertyValueTaken(ctx context.Context, variationPropertyID uint, value string) (bool, error) {
+	_, err := s.queries.GetVariationPropertyValueIDByValue(ctx, db.GetVariationPropertyValueIDByValueParams{
+		VariationPropertyID: variationPropertyID,
+		Value:               value,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (s *ValidationService) DoesVariationExist(ctx context.Context, keyID uint, serviceTypeID uint, variation map[uint]string) (uint, error) {
 	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
 	if err != nil {

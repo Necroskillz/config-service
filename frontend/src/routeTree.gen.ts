@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
+import { Route as adminAdminImport } from './routes/(admin)/admin'
 import { Route as servicesServicesIndexImport } from './routes/(services)/services.index'
 import { Route as changesetsChangesetsIndexImport } from './routes/(changesets)/changesets.index'
 import { Route as usersUsersUserIdImport } from './routes/(users)/users.$userId'
@@ -22,7 +23,11 @@ import { Route as changesetsChangesetsChangesetIdImport } from './routes/(change
 import { Route as servicesServicesServiceVersionIdIndexImport } from './routes/(services)/services.$serviceVersionId.index'
 import { Route as servicesServicesServiceVersionIdLinkImport } from './routes/(services)/services.$serviceVersionId.link'
 import { Route as servicesServicesServiceVersionIdEditImport } from './routes/(services)/services.$serviceVersionId.edit'
+import { Route as adminAdminvariationPropertiesVariationPropertiesImport } from './routes/(admin)/admin.(variation-properties)/variation-properties'
+import { Route as adminAdminserviceTypesServiceTypesImport } from './routes/(admin)/admin.(service-types)/service-types'
 import { Route as featuresServicesServiceVersionIdFeaturesCreateImport } from './routes/(features)/services.$serviceVersionId.features.create'
+import { Route as adminAdminvariationPropertiesVariationPropertiesCreateImport } from './routes/(admin)/admin.(variation-properties)/variation-properties.create'
+import { Route as adminAdminvariationPropertiesVariationPropertiesPropertyIdImport } from './routes/(admin)/admin.(variation-properties)/variation-properties.$propertyId'
 import { Route as featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexImport } from './routes/(features)/services.$serviceVersionId.features.$featureVersionId.index'
 import { Route as featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditImport } from './routes/(features)/services.$serviceVersionId.features.$featureVersionId.edit'
 import { Route as keysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateImport } from './routes/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.create'
@@ -40,6 +45,12 @@ const LoginRoute = LoginImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const adminAdminRoute = adminAdminImport.update({
+  id: '/(admin)/admin',
+  path: '/admin',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -101,11 +112,39 @@ const servicesServicesServiceVersionIdEditRoute =
     getParentRoute: () => rootRoute,
   } as any)
 
+const adminAdminvariationPropertiesVariationPropertiesRoute =
+  adminAdminvariationPropertiesVariationPropertiesImport.update({
+    id: '/(variation-properties)/variation-properties',
+    path: '/variation-properties',
+    getParentRoute: () => adminAdminRoute,
+  } as any)
+
+const adminAdminserviceTypesServiceTypesRoute =
+  adminAdminserviceTypesServiceTypesImport.update({
+    id: '/(service-types)/service-types',
+    path: '/service-types',
+    getParentRoute: () => adminAdminRoute,
+  } as any)
+
 const featuresServicesServiceVersionIdFeaturesCreateRoute =
   featuresServicesServiceVersionIdFeaturesCreateImport.update({
     id: '/(features)/services/$serviceVersionId/features/create',
     path: '/services/$serviceVersionId/features/create',
     getParentRoute: () => rootRoute,
+  } as any)
+
+const adminAdminvariationPropertiesVariationPropertiesCreateRoute =
+  adminAdminvariationPropertiesVariationPropertiesCreateImport.update({
+    id: '/create',
+    path: '/create',
+    getParentRoute: () => adminAdminvariationPropertiesVariationPropertiesRoute,
+  } as any)
+
+const adminAdminvariationPropertiesVariationPropertiesPropertyIdRoute =
+  adminAdminvariationPropertiesVariationPropertiesPropertyIdImport.update({
+    id: '/$propertyId',
+    path: '/$propertyId',
+    getParentRoute: () => adminAdminvariationPropertiesVariationPropertiesRoute,
   } as any)
 
 const featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute =
@@ -165,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/(admin)/admin': {
+      id: '/(admin)/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof adminAdminImport
+      parentRoute: typeof rootRoute
+    }
     '/(changesets)/changesets/$changesetId': {
       id: '/(changesets)/changesets/$changesetId'
       path: '/changesets/$changesetId'
@@ -207,6 +253,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof servicesServicesIndexImport
       parentRoute: typeof rootRoute
     }
+    '/(admin)/admin/(service-types)/service-types': {
+      id: '/(admin)/admin/(service-types)/service-types'
+      path: '/service-types'
+      fullPath: '/admin/service-types'
+      preLoaderRoute: typeof adminAdminserviceTypesServiceTypesImport
+      parentRoute: typeof adminAdminImport
+    }
+    '/(admin)/admin/(variation-properties)/variation-properties': {
+      id: '/(admin)/admin/(variation-properties)/variation-properties'
+      path: '/variation-properties'
+      fullPath: '/admin/variation-properties'
+      preLoaderRoute: typeof adminAdminvariationPropertiesVariationPropertiesImport
+      parentRoute: typeof adminAdminImport
+    }
     '/(services)/services/$serviceVersionId/edit': {
       id: '/(services)/services/$serviceVersionId/edit'
       path: '/services/$serviceVersionId/edit'
@@ -227,6 +287,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/services/$serviceVersionId'
       preLoaderRoute: typeof servicesServicesServiceVersionIdIndexImport
       parentRoute: typeof rootRoute
+    }
+    '/(admin)/admin/(variation-properties)/variation-properties/$propertyId': {
+      id: '/(admin)/admin/(variation-properties)/variation-properties/$propertyId'
+      path: '/$propertyId'
+      fullPath: '/admin/variation-properties/$propertyId'
+      preLoaderRoute: typeof adminAdminvariationPropertiesVariationPropertiesPropertyIdImport
+      parentRoute: typeof adminAdminvariationPropertiesVariationPropertiesImport
+    }
+    '/(admin)/admin/(variation-properties)/variation-properties/create': {
+      id: '/(admin)/admin/(variation-properties)/variation-properties/create'
+      path: '/create'
+      fullPath: '/admin/variation-properties/create'
+      preLoaderRoute: typeof adminAdminvariationPropertiesVariationPropertiesCreateImport
+      parentRoute: typeof adminAdminvariationPropertiesVariationPropertiesImport
     }
     '/(features)/services/$serviceVersionId/features/create': {
       id: '/(features)/services/$serviceVersionId/features/create'
@@ -275,18 +349,57 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface adminAdminvariationPropertiesVariationPropertiesRouteChildren {
+  adminAdminvariationPropertiesVariationPropertiesPropertyIdRoute: typeof adminAdminvariationPropertiesVariationPropertiesPropertyIdRoute
+  adminAdminvariationPropertiesVariationPropertiesCreateRoute: typeof adminAdminvariationPropertiesVariationPropertiesCreateRoute
+}
+
+const adminAdminvariationPropertiesVariationPropertiesRouteChildren: adminAdminvariationPropertiesVariationPropertiesRouteChildren =
+  {
+    adminAdminvariationPropertiesVariationPropertiesPropertyIdRoute:
+      adminAdminvariationPropertiesVariationPropertiesPropertyIdRoute,
+    adminAdminvariationPropertiesVariationPropertiesCreateRoute:
+      adminAdminvariationPropertiesVariationPropertiesCreateRoute,
+  }
+
+const adminAdminvariationPropertiesVariationPropertiesRouteWithChildren =
+  adminAdminvariationPropertiesVariationPropertiesRoute._addFileChildren(
+    adminAdminvariationPropertiesVariationPropertiesRouteChildren,
+  )
+
+interface adminAdminRouteChildren {
+  adminAdminserviceTypesServiceTypesRoute: typeof adminAdminserviceTypesServiceTypesRoute
+  adminAdminvariationPropertiesVariationPropertiesRoute: typeof adminAdminvariationPropertiesVariationPropertiesRouteWithChildren
+}
+
+const adminAdminRouteChildren: adminAdminRouteChildren = {
+  adminAdminserviceTypesServiceTypesRoute:
+    adminAdminserviceTypesServiceTypesRoute,
+  adminAdminvariationPropertiesVariationPropertiesRoute:
+    adminAdminvariationPropertiesVariationPropertiesRouteWithChildren,
+}
+
+const adminAdminRouteWithChildren = adminAdminRoute._addFileChildren(
+  adminAdminRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/admin': typeof adminAdminRouteWithChildren
   '/changesets/$changesetId': typeof changesetsChangesetsChangesetIdRoute
   '/changesets/empty': typeof changesetsChangesetsEmptyRoute
   '/services/create': typeof servicesServicesCreateRoute
   '/users/$userId': typeof usersUsersUserIdRoute
   '/changesets': typeof changesetsChangesetsIndexRoute
   '/services': typeof servicesServicesIndexRoute
+  '/admin/service-types': typeof adminAdminserviceTypesServiceTypesRoute
+  '/admin/variation-properties': typeof adminAdminvariationPropertiesVariationPropertiesRouteWithChildren
   '/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
   '/services/$serviceVersionId/link': typeof servicesServicesServiceVersionIdLinkRoute
   '/services/$serviceVersionId': typeof servicesServicesServiceVersionIdIndexRoute
+  '/admin/variation-properties/$propertyId': typeof adminAdminvariationPropertiesVariationPropertiesPropertyIdRoute
+  '/admin/variation-properties/create': typeof adminAdminvariationPropertiesVariationPropertiesCreateRoute
   '/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
   '/services/$serviceVersionId/features/$featureVersionId/edit': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
@@ -298,15 +411,20 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/admin': typeof adminAdminRouteWithChildren
   '/changesets/$changesetId': typeof changesetsChangesetsChangesetIdRoute
   '/changesets/empty': typeof changesetsChangesetsEmptyRoute
   '/services/create': typeof servicesServicesCreateRoute
   '/users/$userId': typeof usersUsersUserIdRoute
   '/changesets': typeof changesetsChangesetsIndexRoute
   '/services': typeof servicesServicesIndexRoute
+  '/admin/service-types': typeof adminAdminserviceTypesServiceTypesRoute
+  '/admin/variation-properties': typeof adminAdminvariationPropertiesVariationPropertiesRouteWithChildren
   '/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
   '/services/$serviceVersionId/link': typeof servicesServicesServiceVersionIdLinkRoute
   '/services/$serviceVersionId': typeof servicesServicesServiceVersionIdIndexRoute
+  '/admin/variation-properties/$propertyId': typeof adminAdminvariationPropertiesVariationPropertiesPropertyIdRoute
+  '/admin/variation-properties/create': typeof adminAdminvariationPropertiesVariationPropertiesCreateRoute
   '/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
   '/services/$serviceVersionId/features/$featureVersionId/edit': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
@@ -319,15 +437,20 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/(admin)/admin': typeof adminAdminRouteWithChildren
   '/(changesets)/changesets/$changesetId': typeof changesetsChangesetsChangesetIdRoute
   '/(changesets)/changesets/empty': typeof changesetsChangesetsEmptyRoute
   '/(services)/services/create': typeof servicesServicesCreateRoute
   '/(users)/users/$userId': typeof usersUsersUserIdRoute
   '/(changesets)/changesets/': typeof changesetsChangesetsIndexRoute
   '/(services)/services/': typeof servicesServicesIndexRoute
+  '/(admin)/admin/(service-types)/service-types': typeof adminAdminserviceTypesServiceTypesRoute
+  '/(admin)/admin/(variation-properties)/variation-properties': typeof adminAdminvariationPropertiesVariationPropertiesRouteWithChildren
   '/(services)/services/$serviceVersionId/edit': typeof servicesServicesServiceVersionIdEditRoute
   '/(services)/services/$serviceVersionId/link': typeof servicesServicesServiceVersionIdLinkRoute
   '/(services)/services/$serviceVersionId/': typeof servicesServicesServiceVersionIdIndexRoute
+  '/(admin)/admin/(variation-properties)/variation-properties/$propertyId': typeof adminAdminvariationPropertiesVariationPropertiesPropertyIdRoute
+  '/(admin)/admin/(variation-properties)/variation-properties/create': typeof adminAdminvariationPropertiesVariationPropertiesCreateRoute
   '/(features)/services/$serviceVersionId/features/create': typeof featuresServicesServiceVersionIdFeaturesCreateRoute
   '/(features)/services/$serviceVersionId/features/$featureVersionId/edit': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
   '/(features)/services/$serviceVersionId/features/$featureVersionId/': typeof featuresServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
@@ -341,15 +464,20 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/admin'
     | '/changesets/$changesetId'
     | '/changesets/empty'
     | '/services/create'
     | '/users/$userId'
     | '/changesets'
     | '/services'
+    | '/admin/service-types'
+    | '/admin/variation-properties'
     | '/services/$serviceVersionId/edit'
     | '/services/$serviceVersionId/link'
     | '/services/$serviceVersionId'
+    | '/admin/variation-properties/$propertyId'
+    | '/admin/variation-properties/create'
     | '/services/$serviceVersionId/features/create'
     | '/services/$serviceVersionId/features/$featureVersionId/edit'
     | '/services/$serviceVersionId/features/$featureVersionId'
@@ -360,15 +488,20 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/admin'
     | '/changesets/$changesetId'
     | '/changesets/empty'
     | '/services/create'
     | '/users/$userId'
     | '/changesets'
     | '/services'
+    | '/admin/service-types'
+    | '/admin/variation-properties'
     | '/services/$serviceVersionId/edit'
     | '/services/$serviceVersionId/link'
     | '/services/$serviceVersionId'
+    | '/admin/variation-properties/$propertyId'
+    | '/admin/variation-properties/create'
     | '/services/$serviceVersionId/features/create'
     | '/services/$serviceVersionId/features/$featureVersionId/edit'
     | '/services/$serviceVersionId/features/$featureVersionId'
@@ -379,15 +512,20 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/(admin)/admin'
     | '/(changesets)/changesets/$changesetId'
     | '/(changesets)/changesets/empty'
     | '/(services)/services/create'
     | '/(users)/users/$userId'
     | '/(changesets)/changesets/'
     | '/(services)/services/'
+    | '/(admin)/admin/(service-types)/service-types'
+    | '/(admin)/admin/(variation-properties)/variation-properties'
     | '/(services)/services/$serviceVersionId/edit'
     | '/(services)/services/$serviceVersionId/link'
     | '/(services)/services/$serviceVersionId/'
+    | '/(admin)/admin/(variation-properties)/variation-properties/$propertyId'
+    | '/(admin)/admin/(variation-properties)/variation-properties/create'
     | '/(features)/services/$serviceVersionId/features/create'
     | '/(features)/services/$serviceVersionId/features/$featureVersionId/edit'
     | '/(features)/services/$serviceVersionId/features/$featureVersionId/'
@@ -400,6 +538,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  adminAdminRoute: typeof adminAdminRouteWithChildren
   changesetsChangesetsChangesetIdRoute: typeof changesetsChangesetsChangesetIdRoute
   changesetsChangesetsEmptyRoute: typeof changesetsChangesetsEmptyRoute
   servicesServicesCreateRoute: typeof servicesServicesCreateRoute
@@ -420,6 +559,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  adminAdminRoute: adminAdminRouteWithChildren,
   changesetsChangesetsChangesetIdRoute: changesetsChangesetsChangesetIdRoute,
   changesetsChangesetsEmptyRoute: changesetsChangesetsEmptyRoute,
   servicesServicesCreateRoute: servicesServicesCreateRoute,
@@ -458,6 +598,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/login",
+        "/(admin)/admin",
         "/(changesets)/changesets/$changesetId",
         "/(changesets)/changesets/empty",
         "/(services)/services/create",
@@ -481,6 +622,13 @@ export const routeTree = rootRoute
     "/login": {
       "filePath": "login.tsx"
     },
+    "/(admin)/admin": {
+      "filePath": "(admin)/admin.tsx",
+      "children": [
+        "/(admin)/admin/(service-types)/service-types",
+        "/(admin)/admin/(variation-properties)/variation-properties"
+      ]
+    },
     "/(changesets)/changesets/$changesetId": {
       "filePath": "(changesets)/changesets.$changesetId.tsx"
     },
@@ -499,6 +647,18 @@ export const routeTree = rootRoute
     "/(services)/services/": {
       "filePath": "(services)/services.index.tsx"
     },
+    "/(admin)/admin/(service-types)/service-types": {
+      "filePath": "(admin)/admin.(service-types)/service-types.tsx",
+      "parent": "/(admin)/admin"
+    },
+    "/(admin)/admin/(variation-properties)/variation-properties": {
+      "filePath": "(admin)/admin.(variation-properties)/variation-properties.tsx",
+      "parent": "/(admin)/admin",
+      "children": [
+        "/(admin)/admin/(variation-properties)/variation-properties/$propertyId",
+        "/(admin)/admin/(variation-properties)/variation-properties/create"
+      ]
+    },
     "/(services)/services/$serviceVersionId/edit": {
       "filePath": "(services)/services.$serviceVersionId.edit.tsx"
     },
@@ -507,6 +667,14 @@ export const routeTree = rootRoute
     },
     "/(services)/services/$serviceVersionId/": {
       "filePath": "(services)/services.$serviceVersionId.index.tsx"
+    },
+    "/(admin)/admin/(variation-properties)/variation-properties/$propertyId": {
+      "filePath": "(admin)/admin.(variation-properties)/variation-properties.$propertyId.tsx",
+      "parent": "/(admin)/admin/(variation-properties)/variation-properties"
+    },
+    "/(admin)/admin/(variation-properties)/variation-properties/create": {
+      "filePath": "(admin)/admin.(variation-properties)/variation-properties.create.tsx",
+      "parent": "/(admin)/admin/(variation-properties)/variation-properties"
     },
     "/(features)/services/$serviceVersionId/features/create": {
       "filePath": "(features)/services.$serviceVersionId.features.create.tsx"

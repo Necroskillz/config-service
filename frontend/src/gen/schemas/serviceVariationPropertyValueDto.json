@@ -1,0 +1,1 @@
+{"properties":{"children":{"items":{"$ref":"#/components/schemas/service.VariationPropertyValueDto"},"type":"array"},"id":{"type":"integer"},"value":{"type":"string"}},"required":["children","id","value"],"type":"object","x-readme-ref-name":"service.VariationPropertyValueDto"}

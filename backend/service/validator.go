@@ -384,6 +384,10 @@ func (v *Validator) registerRules() {
 
 		switch x := value.(type) {
 		case string:
+			if x == "" {
+				return nil
+			}
+
 			match, err := regexp.MatchString(regex, x)
 			if err != nil {
 				return err

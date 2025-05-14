@@ -40,8 +40,8 @@ SELECT vpv.id,
     vp.name as property_name,
     vp.display_name as property_display_name,
     vp.id as property_id
-FROM variation_property_values vpv
-    JOIN variation_properties vp ON vp.id = vpv.variation_property_id
+FROM variation_properties vp
+    LEFT JOIN variation_property_values vpv ON vpv.variation_property_id = vp.id
 ORDER BY vpv.id;
 -- name: GetServiceTypeVariationProperties :many
 SELECT stvp.service_type_id,
@@ -60,7 +60,31 @@ VALUES (
 INSERT INTO variation_properties (name, display_name)
 VALUES (@name, @display_name)
 RETURNING id;
+-- name: UpdateVariationProperty :exec
+UPDATE variation_properties
+SET display_name = @display_name
+WHERE id = @id;
+-- name: GetVariationProperty :one
+SELECT *
+FROM variation_properties
+WHERE id = @id;
+-- name: GetVariationPropertyIDByName :one
+SELECT id
+FROM variation_properties
+WHERE name = @name;
+-- name: GetVariationPropertyValueIDByName :one
+SELECT id
+FROM variation_property_values
+WHERE variation_property_id = @variation_property_id
+    AND value = @value
+    AND NOT archived;
 -- name: CreateVariationPropertyValue :one
 INSERT INTO variation_property_values (variation_property_id, value, parent_id)
 VALUES (@variation_property_id, @value, @parent_id)
 RETURNING id;
+-- name: GetVariationPropertyValueIDByValue :one
+SELECT id
+FROM variation_property_values
+WHERE variation_property_id = @variation_property_id
+    AND value = @value
+    AND NOT archived;
