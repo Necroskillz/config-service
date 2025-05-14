@@ -139,7 +139,7 @@ function createMaxLengthValidatorRefiner(): ValidatorRefiner {
         }
 
         return value.length <= maxLength;
-      }, errorText || `Value must be at most ${maxLength} characters long`);
+      }, errorText || `Value must have at most ${maxLength} characters`);
     };
   };
 }

@@ -18,6 +18,7 @@ type ServiceService struct {
 	currentUserAccessor *auth.CurrentUserAccessor
 	validator           *Validator
 	coreService         *CoreService
+	validationService   *ValidationService
 }
 
 func NewServiceService(
@@ -27,6 +28,7 @@ func NewServiceService(
 	currentUserAccessor *auth.CurrentUserAccessor,
 	validator *Validator,
 	coreService *CoreService,
+	validationService *ValidationService,
 ) *ServiceService {
 	return &ServiceService{
 		unitOfWorkRunner:    unitOfWorkRunner,
@@ -35,6 +37,7 @@ func NewServiceService(
 		currentUserAccessor: currentUserAccessor,
 		validator:           validator,
 		coreService:         coreService,
+		validationService:   validationService,
 	}
 }
 
@@ -194,8 +197,12 @@ type CreateServiceParams struct {
 }
 
 func (s *ServiceService) validateCreateService(ctx context.Context, data CreateServiceParams) error {
+	if !s.currentUserAccessor.GetUser(ctx).IsGlobalAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create services")
+	}
+
 	err := s.validator.
-		Validate(data.Name, "Name").MaxLength(100).Required().ServiceNameNotTaken().
+		Validate(data.Name, "Name").Required().MaxLength(100).Regex(`^[\w\-_\.]+$`).
 		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc).
 		Validate(data.ServiceTypeID, "Service Type ID").Min(1).
 		Error(ctx)
@@ -204,8 +211,10 @@ func (s *ServiceService) validateCreateService(ctx context.Context, data CreateS
 		return err
 	}
 
-	if !s.currentUserAccessor.GetUser(ctx).IsGlobalAdmin {
-		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create services")
+	if taken, err := s.validationService.IsServiceNameTaken(ctx, data.Name); err != nil {
+		return err
+	} else if taken {
+		return NewServiceError(ErrorCodeInvalidOperation, "Service name is already taken")
 	}
 
 	return nil

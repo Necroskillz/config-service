@@ -66,7 +66,7 @@ function RouteComponent() {
         displayName: z
           .string()
           .min(1, 'Display name is required')
-          .max(20, 'Display name must be at most 20 characters')
+          .max(20, 'Display name must have at most 20 characters')
           .regex(/^[a-zA-Z\- ]+$/, 'Display name must not contain invalid characters'),
       }),
     },
@@ -85,8 +85,8 @@ function RouteComponent() {
         value: z
           .string()
           .min(1, 'Value is required')
-          .max(20, 'Value must be at most 20 characters')
-          .regex(/^[a-zA-Z0-9\-_]+$/, 'Value must not contain invalid characters'),
+          .max(20, 'Value must have at most 20 characters')
+          .regex(/^[\w\-_]+$/, 'Value must not contain invalid characters'),
         parentId: z.number(),
       }),
     },

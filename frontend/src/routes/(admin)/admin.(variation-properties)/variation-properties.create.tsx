@@ -40,11 +40,11 @@ function RouteComponent() {
         name: z
           .string()
           .min(1, 'Name is required')
-          .max(20, 'Name must be at most 20 characters')
+          .max(20, 'Name must have at most 20 characters')
           .regex(/^[a-z_\-]+$/, 'Name must not contain invalid characters'),
         displayName: z
           .string()
-          .max(20, 'Display name must be at most 20 characters')
+          .max(20, 'Display name must have at most 20 characters')
           .regex(/^[a-zA-Z\- ]*$/, 'Display name must not contain invalid characters'),
       }),
     },

@@ -25,6 +25,7 @@ type KeyService struct {
 	coreService               *CoreService
 	valueValidatorService     *ValueValidatorService
 	variationHierarchyService *VariationHierarchyService
+	validationService         *ValidationService
 }
 
 func NewKeyService(
@@ -37,6 +38,7 @@ func NewKeyService(
 	coreService *CoreService,
 	valueValidatorService *ValueValidatorService,
 	variationHierarchyService *VariationHierarchyService,
+	validationService *ValidationService,
 ) *KeyService {
 	return &KeyService{
 		unitOfWorkRunner:          unitOfWorkRunner,
@@ -48,6 +50,7 @@ func NewKeyService(
 		coreService:               coreService,
 		valueValidatorService:     valueValidatorService,
 		variationHierarchyService: variationHierarchyService,
+		validationService:         validationService,
 	}
 }
 
@@ -172,10 +175,12 @@ func (s *KeyService) validateCreateKey(ctx context.Context, data CreateKeyParams
 	}
 
 	vc := s.validator.
-		Validate(data.Name, "Name").Required().KeyNameNotTaken(data.FeatureVersionID).
+		Validate(data.Name, "Name").Required().MaxLength(100).Regex(`^[a-zA-Z_][\w_]*$`).
 		Validate(data.ValueTypeID, "Value Type ID").Min(1).
 		Validate(data.Description, "Description").Func(optionalDescriptionValidatorFunc)
+
 	s.validateValidators(vc, data.Validators)
+
 	validatorFunc, err := s.valueValidatorService.CreateValueValidatorFunc(data.Validators)
 	if err != nil {
 		return err
@@ -187,6 +192,12 @@ func (s *KeyService) validateCreateKey(ctx context.Context, data CreateKeyParams
 
 	if err != nil {
 		return err
+	}
+
+	if taken, err := s.validationService.IsKeyNameTaken(ctx, featureVersion.ID, data.Name); err != nil {
+		return err
+	} else if taken {
+		return NewServiceError(ErrorCodeInvalidOperation, "Key name is already taken")
 	}
 
 	return nil

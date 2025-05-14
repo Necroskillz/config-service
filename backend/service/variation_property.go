@@ -224,7 +224,7 @@ func (s *VariationPropertyService) validateCreateVariationPropertyValue(ctx cont
 		return NewDbError(err, "VariationProperty")
 	}
 
-	err = s.validator.Validate(data.Value, "Value").Required().MaxLength(20).Regex(`^[a-zA-Z0-9\-_]+$`).
+	err = s.validator.Validate(data.Value, "Value").Required().MaxLength(20).Regex(`^[\w\-_]+$`).
 		Error(ctx)
 
 	if err != nil {

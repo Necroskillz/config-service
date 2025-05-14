@@ -31,23 +31,20 @@ func (v *ValidationError) Error() string {
 type RuleID string
 
 const (
-	RuleIDRequired            RuleID = "required"
-	RuleIDMin                 RuleID = "min"
-	RuleIDMax                 RuleID = "max"
-	RuleIDMinFloat            RuleID = "min_float"
-	RuleIDMaxFloat            RuleID = "max_float"
-	RuleIDServiceNameNotTaken RuleID = "service_name_not_taken"
-	RuleIDFeatureNameNotTaken RuleID = "feature_name_not_taken"
-	RuleIDKeyNameNotTaken     RuleID = "key_name_not_taken"
-	RuleIDMinLength           RuleID = "min_length"
-	RuleIDMaxLength           RuleID = "max_length"
-	RuleIDRegex               RuleID = "regex"
-	RuleIDJsonSchema          RuleID = "json_schema"
-	RuleIDValidJson           RuleID = "valid_json"
-	RuleIDValidJsonSchema     RuleID = "valid_json_schema"
-	RuleIDValidInteger        RuleID = "valid_integer"
-	RuleIDValidFloat          RuleID = "valid_float"
-	RuleIDValidRegex          RuleID = "valid_regex"
+	RuleIDRequired        RuleID = "required"
+	RuleIDMin             RuleID = "min"
+	RuleIDMax             RuleID = "max"
+	RuleIDMinFloat        RuleID = "min_float"
+	RuleIDMaxFloat        RuleID = "max_float"
+	RuleIDMinLength       RuleID = "min_length"
+	RuleIDMaxLength       RuleID = "max_length"
+	RuleIDRegex           RuleID = "regex"
+	RuleIDJsonSchema      RuleID = "json_schema"
+	RuleIDValidJson       RuleID = "valid_json"
+	RuleIDValidJsonSchema RuleID = "valid_json_schema"
+	RuleIDValidInteger    RuleID = "valid_integer"
+	RuleIDValidFloat      RuleID = "valid_float"
+	RuleIDValidRegex      RuleID = "valid_regex"
 )
 
 var (
@@ -56,21 +53,13 @@ var (
 
 type RuleFunc func(ctx context.Context, value any, fieldName string, options ...any) error
 
-type DBValidationService interface {
-	IsServiceNameTaken(ctx context.Context, name string) (bool, error)
-	IsFeatureNameTaken(ctx context.Context, name string) (bool, error)
-	IsKeyNameTaken(ctx context.Context, featureVersionID uint, name string) (bool, error)
-}
-
 type Validator struct {
-	rules             map[RuleID]RuleFunc
-	validationService DBValidationService
+	rules map[RuleID]RuleFunc
 }
 
-func NewValidator(validationService DBValidationService) *Validator {
+func NewValidator() *Validator {
 	validator := &Validator{
-		rules:             make(map[RuleID]RuleFunc),
-		validationService: validationService,
+		rules: make(map[RuleID]RuleFunc),
 	}
 
 	validator.registerRules()
@@ -303,65 +292,6 @@ func (v *Validator) registerRules() {
 		return nil
 	})
 
-	v.registerRule(RuleIDServiceNameNotTaken, func(ctx context.Context, value any, fieldName string, options ...any) error {
-		switch x := value.(type) {
-		case string:
-			taken, err := v.validationService.IsServiceNameTaken(ctx, x)
-			if err != nil {
-				return err
-			}
-
-			if taken {
-				return NewValidationError(fieldName, fmt.Sprintf("Service name %s is already taken", x))
-			}
-		default:
-			return fmt.Errorf("invalid type for service name not taken validator %T", value)
-		}
-
-		return nil
-	})
-
-	v.registerRule(RuleIDFeatureNameNotTaken, func(ctx context.Context, value any, fieldName string, options ...any) error {
-		switch x := value.(type) {
-		case string:
-			taken, err := v.validationService.IsFeatureNameTaken(ctx, x)
-			if err != nil {
-				return err
-			}
-
-			if taken {
-				return NewValidationError(fieldName, fmt.Sprintf("Feature name %s is already taken", x))
-			}
-		default:
-			return fmt.Errorf("invalid type for feature name not taken validator %T", value)
-		}
-
-		return nil
-	})
-
-	v.registerRule(RuleIDKeyNameNotTaken, func(ctx context.Context, value any, fieldName string, options ...any) error {
-		featureVersionID, err := param[uint](options, 0)
-		if err != nil {
-			return err
-		}
-
-		switch x := value.(type) {
-		case string:
-			taken, err := v.validationService.IsKeyNameTaken(ctx, featureVersionID, x)
-			if err != nil {
-				return err
-			}
-
-			if taken {
-				return NewValidationError(fieldName, fmt.Sprintf("Key name %s is already taken", x))
-			}
-		default:
-			return fmt.Errorf("invalid type for key name not taken validator %T", value)
-		}
-
-		return nil
-	})
-
 	v.registerRule(RuleIDValidRegex, func(ctx context.Context, value any, fieldName string, options ...any) error {
 		switch x := value.(type) {
 		case string:
@@ -578,18 +508,6 @@ func (v *ValidatorContext) Validate(value any, fieldName string) *ValidatorConte
 
 func (v *ValidatorContext) Required() *ValidatorContext {
 	return v.Rule(RuleIDRequired)
-}
-
-func (v *ValidatorContext) ServiceNameNotTaken() *ValidatorContext {
-	return v.Rule(RuleIDServiceNameNotTaken)
-}
-
-func (v *ValidatorContext) FeatureNameNotTaken() *ValidatorContext {
-	return v.Rule(RuleIDFeatureNameNotTaken)
-}
-
-func (v *ValidatorContext) KeyNameNotTaken(featureVersionID uint) *ValidatorContext {
-	return v.Rule(RuleIDKeyNameNotTaken, featureVersionID)
 }
 
 func (v *ValidatorContext) Min(min int) *ValidatorContext {

@@ -17,6 +17,7 @@ type FeatureService struct {
 	currentUserAccessor *auth.CurrentUserAccessor
 	validator           *Validator
 	coreService         *CoreService
+	validationService   *ValidationService
 }
 
 func NewFeatureService(
@@ -26,6 +27,7 @@ func NewFeatureService(
 	currentUserAccessor *auth.CurrentUserAccessor,
 	validator *Validator,
 	coreService *CoreService,
+	validationService *ValidationService,
 ) *FeatureService {
 	return &FeatureService{
 		unitOfWorkRunner:    unitOfWorkRunner,
@@ -34,6 +36,7 @@ func NewFeatureService(
 		currentUserAccessor: currentUserAccessor,
 		validator:           validator,
 		coreService:         coreService,
+		validationService:   validationService,
 	}
 }
 
@@ -172,17 +175,24 @@ type CreateFeatureParams struct {
 }
 
 func (s *FeatureService) validateCreateFeature(ctx context.Context, data CreateFeatureParams, serviceVersion db.GetServiceVersionRow) error {
-	v := s.validator.
-		Validate(data.Name, "Name").Required().FeatureNameNotTaken().MaxLength(100).
-		Validate(data.Description, "Description").Func(descriptionValidatorFunc)
-
-	if err := v.Error(ctx); err != nil {
-		return err
-	}
-
 	user := s.currentUserAccessor.GetUser(ctx)
 	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
 		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create features for this service")
+	}
+
+	err := s.validator.
+		Validate(data.Name, "Name").Required().MaxLength(100).Regex(`^[\w\-_\.]+$`).
+		Validate(data.Description, "Description").Func(descriptionValidatorFunc).
+		Error(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	if taken, err := s.validationService.IsFeatureNameTaken(ctx, data.Name); err != nil {
+		return err
+	} else if taken {
+		return NewServiceError(ErrorCodeInvalidOperation, "Feature name is already taken")
 	}
 
 	return nil
@@ -261,20 +271,14 @@ type UpdateFeatureParams struct {
 }
 
 func (s *FeatureService) validateUpdateFeature(ctx context.Context, data UpdateFeatureParams, serviceVersion db.GetServiceVersionRow) error {
-	err := s.validator.
-		Validate(data.Description, "Description").Func(descriptionValidatorFunc).
-		Error(ctx)
-
-	if err != nil {
-		return err
-	}
-
 	user := s.currentUserAccessor.GetUser(ctx)
 	if user.GetPermissionForService(serviceVersion.ServiceID) != constants.PermissionAdmin {
 		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create features for this service")
 	}
 
-	return nil
+	return s.validator.
+		Validate(data.Description, "Description").Func(descriptionValidatorFunc).
+		Error(ctx)
 }
 
 func (s *FeatureService) UpdateFeature(ctx context.Context, params UpdateFeatureParams) error {

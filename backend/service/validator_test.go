@@ -5,34 +5,12 @@ import (
 	"testing"
 
 	"github.com/necroskillz/config-service/util/test"
-	"github.com/pkg/errors"
 	"gotest.tools/v3/assert"
 )
 
 const (
-	testFieldName         = "FieldName"
-	testTakenServiceName  = "TakenServiceName"
-	testTakenFeatureName  = "TakenFeatureName"
-	testTakenKeyName      = "TakenKeyName"
-	testTakenKeyFeatureID = uint(1)
-	testVariationKeyID    = uint(4)
+	testFieldName = "FieldName"
 )
-
-type MockValidationService struct {
-	err error
-}
-
-func (m *MockValidationService) IsServiceNameTaken(ctx context.Context, serviceName string) (bool, error) {
-	return testTakenServiceName == serviceName, m.err
-}
-
-func (m *MockValidationService) IsFeatureNameTaken(ctx context.Context, featureName string) (bool, error) {
-	return testTakenFeatureName == featureName, m.err
-}
-
-func (m *MockValidationService) IsKeyNameTaken(ctx context.Context, featureID uint, keyName string) (bool, error) {
-	return testTakenKeyFeatureID == featureID && testTakenKeyName == keyName, m.err
-}
 
 func assertValidatorError(t *testing.T, err error, expectError bool, errorText string) {
 	if expectError {
@@ -43,8 +21,7 @@ func assertValidatorError(t *testing.T, err error, expectError bool, errorText s
 }
 
 func TestValidator(t *testing.T) {
-	mockValidationService := &MockValidationService{}
-	validator := NewValidator(mockValidationService)
+	validator := NewValidator()
 
 	t.Run("Required", func(t *testing.T) {
 		type testCase struct {
@@ -62,38 +39,6 @@ func TestValidator(t *testing.T) {
 			"valid":                {value: "test", expectError: false},
 			"invalid empty string": {value: "", expectError: true, errorText: "Field FieldName is required"},
 			"invalid nil":          {value: nil, expectError: true, errorText: "Field FieldName is required"},
-		}
-
-		test.RunCases(t, run, testCases)
-	})
-
-	t.Run("ServiceNameNotTaken", func(t *testing.T) {
-		type testCase struct {
-			value       any
-			expectError bool
-			errorText   string
-			setup       func(t *testing.T)
-		}
-
-		run := func(t *testing.T, tc testCase) {
-			if tc.setup != nil {
-				tc.setup(t)
-			}
-
-			err := validator.Validate(tc.value, testFieldName).ServiceNameNotTaken().Error(context.Background())
-			assertValidatorError(t, err, tc.expectError, tc.errorText)
-		}
-
-		testCases := map[string]testCase{
-			"valid":      {value: "test", expectError: false},
-			"invalid":    {value: testTakenServiceName, expectError: true, errorText: "Service name TakenServiceName is already taken"},
-			"wrong type": {value: 0, expectError: true, errorText: "invalid type for service name not taken validator int"},
-			"service error": {value: "test", expectError: true, errorText: "service error",
-				setup: func(t *testing.T) {
-					mockValidationService.err = errors.New("service error")
-					t.Cleanup(func() { mockValidationService.err = nil })
-				},
-			},
 		}
 
 		test.RunCases(t, run, testCases)
@@ -123,69 +68,6 @@ func TestValidator(t *testing.T) {
 			"invalid string":          {value: "0", min: 1, expectError: true, errorText: "Field FieldName must be at least 1"},
 			"not a number string":     {value: "not a number", min: 1, expectError: true, errorText: "Field FieldName must be a valid integer"},
 			"wrong type":              {value: 6.0, min: 1, expectError: true, errorText: "type float64 cannot be converted to int64"},
-		}
-
-		test.RunCases(t, run, testCases)
-	})
-
-	t.Run("FeatureNameNotTaken", func(t *testing.T) {
-		type testCase struct {
-			value       any
-			expectError bool
-			errorText   string
-			setup       func(t *testing.T)
-		}
-
-		run := func(t *testing.T, tc testCase) {
-			if tc.setup != nil {
-				tc.setup(t)
-			}
-			err := validator.Validate(tc.value, testFieldName).FeatureNameNotTaken().Error(context.Background())
-			assertValidatorError(t, err, tc.expectError, tc.errorText)
-		}
-
-		testCases := map[string]testCase{
-			"valid":      {value: "test", expectError: false},
-			"invalid":    {value: testTakenFeatureName, expectError: true, errorText: "Feature name TakenFeatureName is already taken"},
-			"wrong type": {value: 0, expectError: true, errorText: "invalid type for feature name not taken validator int"},
-			"service error": {value: "test", expectError: true, errorText: "service error",
-				setup: func(t *testing.T) {
-					mockValidationService.err = errors.New("service error")
-					t.Cleanup(func() { mockValidationService.err = nil })
-				},
-			},
-		}
-
-		test.RunCases(t, run, testCases)
-	})
-
-	t.Run("KeyNameNotTaken", func(t *testing.T) {
-		type testCase struct {
-			value       any
-			featureID   uint
-			expectError bool
-			errorText   string
-			setup       func(t *testing.T)
-		}
-
-		run := func(t *testing.T, tc testCase) {
-			if tc.setup != nil {
-				tc.setup(t)
-			}
-			err := validator.Validate(tc.value, testFieldName).KeyNameNotTaken(tc.featureID).Error(context.Background())
-			assertValidatorError(t, err, tc.expectError, tc.errorText)
-		}
-
-		testCases := map[string]testCase{
-			"valid":      {value: "test", featureID: 2, expectError: false},
-			"invalid":    {value: testTakenKeyName, featureID: testTakenKeyFeatureID, expectError: true, errorText: "Key name TakenKeyName is already taken"},
-			"wrong type": {value: 0, featureID: 2, expectError: true, errorText: "invalid type for key name not taken validator int"},
-			"service error": {value: "test", featureID: 2, expectError: true, errorText: "service error",
-				setup: func(t *testing.T) {
-					mockValidationService.err = errors.New("service error")
-					t.Cleanup(func() { mockValidationService.err = nil })
-				},
-			},
 		}
 
 		test.RunCases(t, run, testCases)

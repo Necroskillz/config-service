@@ -59,8 +59,12 @@ function RouteComponent() {
     },
     validators: {
       onChange: z.object({
-        name: z.string().min(1, 'Name is required'),
-        description: z.string().min(1, 'Description is required'),
+        name: z
+          .string()
+          .min(1, 'Name is required')
+          .max(100, 'Name must have at most 100 characters')
+          .regex(/^[\w\-_\.]+$/, 'Allowed characters: letters, numbers, -, _ and .'),
+        description: z.string().min(1, 'Description is required').max(1000, 'Description must have at most 1000 characters'),
       }),
     },
     onSubmit: async ({ value }) => {
