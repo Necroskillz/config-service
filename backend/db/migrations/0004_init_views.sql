@@ -1,3 +1,2 @@
 -- migrate:up
-
 -- migrate:down

@@ -1,16 +1,4 @@
 {
-  "sqltools.queryParams.enableReplace": false, // enables string replacement.
-  // the following regex, will match named params in your variables files
-  "sqltools.queryParams.regex": "\\$[\\d]+|([@:$][\\w]+)",
-  "sqltools.connections": [
-    {
-      "previewLimit": 50,
-      "server": "localhost",
-      "driver": "PostgreSQL",
-      "name": "postgres",
-      "connectString": "postgres://postgres:postgres@localhost:5432/config_service?sslmode=disable"
-    }
-  ],
   "files.watcherExclude": {
     "**/routeTree.gen.ts": true
   },
@@ -21,7 +9,7 @@
     "**/routeTree.gen.ts": true
   },
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
   },
   "makefile.configureOnOpen": false
 }
