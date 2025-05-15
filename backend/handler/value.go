@@ -9,7 +9,6 @@ import (
 
 // @Summary Get values for a key
 // @Description Get values for a key
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service Version ID"
@@ -156,7 +155,6 @@ func (h *Handler) UpdateValue(c echo.Context) error {
 
 // @Summary Delete value
 // @Description Delete value
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service Version ID"
@@ -201,7 +199,6 @@ func (h *Handler) DeleteValue(c echo.Context) error {
 
 // @Summary Can operate value with variation
 // @Description Can operate value with variation
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service Version ID"
@@ -244,7 +241,6 @@ func (h *Handler) CanAddValue(c echo.Context) error {
 
 // @Summary Can edit value with variation
 // @Description Can edit value with variation
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service Version ID"

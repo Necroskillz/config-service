@@ -759,17 +759,23 @@ definitions:
     type: object
   service.VariationPropertyValueDto:
     properties:
+      archived:
+        type: boolean
       children:
         items:
           $ref: '#/definitions/service.VariationPropertyValueDto'
         type: array
       id:
         type: integer
+      usageCount:
+        type: integer
       value:
         type: string
     required:
+    - archived
     - children
     - id
+    - usageCount
     - value
     type: object
   service.VariationPropertyWithValuesDto:
@@ -893,8 +899,6 @@ paths:
       summary: Refresh token
   /auth/user:
     get:
-      consumes:
-      - application/json
       description: Get the current user
       produces:
       - application/json
@@ -964,8 +968,6 @@ paths:
       summary: Get changesets
   /changesets/{changeset_id}:
     delete:
-      consumes:
-      - application/json
       description: Discard a changeset by ID
       parameters:
       - description: Changeset ID
@@ -1002,8 +1004,6 @@ paths:
       - BearerAuth: []
       summary: Discard a changeset
     get:
-      consumes:
-      - application/json
       description: Get a changeset by ID
       parameters:
       - description: Changeset ID
@@ -1078,8 +1078,6 @@ paths:
       summary: Apply a changeset
   /changesets/{changeset_id}/changes/{change_id}:
     delete:
-      consumes:
-      - application/json
       description: Discard a change by ID
       parameters:
       - description: Changeset ID
@@ -1206,8 +1204,6 @@ paths:
       summary: Commit a changeset
   /changesets/{changeset_id}/reopen:
     put:
-      consumes:
-      - application/json
       description: Reopen a changeset by ID
       parameters:
       - description: Changeset ID
@@ -1245,8 +1241,6 @@ paths:
       summary: Reopen a changeset
   /changesets/{changeset_id}/stash:
     put:
-      consumes:
-      - application/json
       description: Stash a changeset by ID
       parameters:
       - description: Changeset ID
@@ -1284,8 +1278,6 @@ paths:
       summary: Stash a changeset
   /changesets/approvable-count:
     get:
-      consumes:
-      - application/json
       description: Get the number of approvable changesets
       produces:
       - application/json
@@ -1307,8 +1299,6 @@ paths:
       summary: Get the number of approvable changesets
   /changesets/current:
     get:
-      consumes:
-      - application/json
       description: Get the current changeset info
       produces:
       - application/json
@@ -1334,8 +1324,6 @@ paths:
       summary: Get the current changeset info
   /service-types:
     get:
-      consumes:
-      - application/json
       description: Get all service types
       produces:
       - application/json
@@ -1359,8 +1347,6 @@ paths:
       summary: Get service types
   /service-types/{service_type_id}/variation-properties:
     get:
-      consumes:
-      - application/json
       description: Get variation properties for a service type
       parameters:
       - description: Service type ID
@@ -1398,8 +1384,6 @@ paths:
       summary: Get variation properties
   /services:
     get:
-      consumes:
-      - application/json
       description: Get list of services
       produces:
       - application/json
@@ -1464,8 +1448,6 @@ paths:
       summary: Create service
   /services/{service_version_id}:
     get:
-      consumes:
-      - application/json
       description: Get service
       parameters:
       - description: Service version ID
@@ -1550,8 +1532,6 @@ paths:
       summary: Update service
   /services/{service_version_id}/features:
     get:
-      consumes:
-      - application/json
       description: Get features for a service version
       parameters:
       - description: Service version ID
@@ -1635,8 +1615,6 @@ paths:
       summary: Create feature
   /services/{service_version_id}/features/{feature_version_id}:
     get:
-      consumes:
-      - application/json
       description: Get feature
       parameters:
       - description: Service version ID
@@ -1726,8 +1704,6 @@ paths:
       summary: Create feature
   /services/{service_version_id}/features/{feature_version_id}/keys:
     get:
-      consumes:
-      - application/json
       description: Get keys for a feature
       parameters:
       - description: Service version ID
@@ -1821,8 +1797,6 @@ paths:
       summary: Create a key
   /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}:
     delete:
-      consumes:
-      - application/json
       description: Delete a key
       parameters:
       - description: Service version ID
@@ -1869,8 +1843,6 @@ paths:
       - BearerAuth: []
       summary: Delete a key
     get:
-      consumes:
-      - application/json
       description: Get a key
       parameters:
       - description: Service version ID
@@ -1970,8 +1942,6 @@ paths:
       summary: Create a key
   /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values:
     get:
-      consumes:
-      - application/json
       description: Get values for a key
       parameters:
       - description: Service Version ID
@@ -2079,8 +2049,6 @@ paths:
       summary: Create value
   /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values/{value_id}:
     delete:
-      consumes:
-      - application/json
       description: Delete value
       parameters:
       - description: Service Version ID
@@ -2198,8 +2166,6 @@ paths:
       summary: Update value
   /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values/{value_id}/can-edit:
     get:
-      consumes:
-      - application/json
       description: Can edit value with variation
       parameters:
       - description: Service Version ID
@@ -2256,8 +2222,6 @@ paths:
       summary: Can edit value with variation
   /services/{service_version_id}/features/{feature_version_id}/keys/{key_id}/values/can-add:
     get:
-      consumes:
-      - application/json
       description: Can operate value with variation
       parameters:
       - description: Service Version ID
@@ -2309,8 +2273,6 @@ paths:
       summary: Can operate value with variation
   /services/{service_version_id}/features/{feature_version_id}/keys/name-taken/{name}:
     get:
-      consumes:
-      - application/json
       description: Check if key name is taken
       parameters:
       - description: Service version ID
@@ -2356,8 +2318,6 @@ paths:
       summary: Check if key name is taken
   /services/{service_version_id}/features/{feature_version_id}/link:
     post:
-      consumes:
-      - application/json
       description: Link feature version to a service version
       parameters:
       - description: Service version ID
@@ -2396,8 +2356,6 @@ paths:
       summary: Link feature version
   /services/{service_version_id}/features/{feature_version_id}/unlink:
     delete:
-      consumes:
-      - application/json
       description: Unlink feature version from a service version
       parameters:
       - description: Service version ID
@@ -2440,8 +2398,6 @@ paths:
       summary: Unlink feature version
   /services/{service_version_id}/features/{feature_version_id}/versions:
     get:
-      consumes:
-      - application/json
       description: Get feature versions
       parameters:
       - description: Service version ID
@@ -2483,8 +2439,6 @@ paths:
       - BearerAuth: []
       summary: Get feature versions
     post:
-      consumes:
-      - application/json
       description: Create feature version
       parameters:
       - description: Service version ID
@@ -2529,8 +2483,6 @@ paths:
       summary: Create feature version
   /services/{service_version_id}/features/linkable:
     get:
-      consumes:
-      - application/json
       description: Get feature versions that can be linked to a service version
       parameters:
       - description: Service version ID
@@ -2568,8 +2520,6 @@ paths:
       summary: Get linkable features for a service version
   /services/{service_version_id}/features/name-taken/{name}:
     get:
-      consumes:
-      - application/json
       description: Check if feature name is taken
       parameters:
       - description: Service version ID
@@ -2606,8 +2556,6 @@ paths:
       summary: Check if feature name is taken
   /services/{service_version_id}/publish:
     put:
-      consumes:
-      - application/json
       description: Publish service version
       parameters:
       - description: Service version ID
@@ -2645,8 +2593,6 @@ paths:
       summary: Publish service version
   /services/{service_version_id}/versions:
     get:
-      consumes:
-      - application/json
       description: Get service versions
       parameters:
       - description: Service version ID
@@ -2683,8 +2629,6 @@ paths:
       - BearerAuth: []
       summary: Get service versions
     post:
-      consumes:
-      - application/json
       description: Create service version
       parameters:
       - description: Service version ID
@@ -2724,8 +2668,6 @@ paths:
       summary: Create service version
   /services/name-taken/{name}:
     get:
-      consumes:
-      - application/json
       description: Check if service name is taken
       parameters:
       - description: Service name
@@ -2757,8 +2699,6 @@ paths:
       summary: Check if service name is taken
   /value-types:
     get:
-      consumes:
-      - application/json
       description: Get all value types
       produces:
       - application/json
@@ -2782,8 +2722,6 @@ paths:
       summary: Get value types
   /value-types/{value_type_id}:
     get:
-      consumes:
-      - application/json
       description: Get a value type by ID
       parameters:
       - description: Value type ID
@@ -2815,8 +2753,6 @@ paths:
       summary: Get value type
   /variation-properties:
     get:
-      consumes:
-      - application/json
       description: Get all variation properties
       produces:
       - application/json
@@ -2877,8 +2813,6 @@ paths:
       summary: Create variation property
   /variation-properties/{property_id}:
     get:
-      consumes:
-      - application/json
       description: Get variation property by ID
       parameters:
       - description: Property ID
@@ -2950,8 +2884,6 @@ paths:
       summary: Update variation property
   /variation-properties/{property_id}/value-taken/{value}:
     get:
-      consumes:
-      - application/json
       description: Check if variation property name is taken
       parameters:
       - description: Property ID
@@ -3033,6 +2965,90 @@ paths:
       security:
       - BearerAuth: []
       summary: Create variation property value
+  /variation-properties/{property_id}/values/{value_id}:
+    delete:
+      description: Delete a variation property value
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      - description: Value ID
+        in: path
+        name: value_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Delete variation property value
+  /variation-properties/{property_id}/values/{value_id}/archive:
+    put:
+      description: Archive a variation property value
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      - description: Value ID
+        in: path
+        name: value_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Archive variation property value
   /variation-properties/{property_id}/values/{value_id}/order:
     put:
       consumes:
@@ -3083,10 +3099,50 @@ paths:
       security:
       - BearerAuth: []
       summary: Update variation property value order
+  /variation-properties/{property_id}/values/{value_id}/unarchive:
+    put:
+      description: Unarchive a variation property value
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      - description: Value ID
+        in: path
+        name: value_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Unarchive variation property value
   /variation-properties/name-taken/{name}:
     get:
-      consumes:
-      - application/json
       description: Check if variation property name is taken
       parameters:
       - description: Variation property name

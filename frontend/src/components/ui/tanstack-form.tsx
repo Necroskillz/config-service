@@ -46,11 +46,11 @@ export function FormDescription({ className, ...props }: React.ComponentPropsWit
   );
 }
 
-export function FormMessage({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
+export function FormMessage({ immediate, className, ...props }: { immediate?: boolean } & React.ComponentPropsWithoutRef<'p'>) {
   const { name, store } = useFieldContext();
   const errors = useStore(store, (state) => state.meta.errors);
   const isTouched = useStore(store, (state) => state.meta.isTouched);
-  const hasError = errors.length > 0 && isTouched;
+  const hasError = errors.length > 0 && (immediate || isTouched);
 
   const body = hasError ? String(errors.at(0)?.message ?? errors.at(0) ?? '') : props.children;
   if (!body) return null;

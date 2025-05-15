@@ -38,7 +38,7 @@ import { appTitle } from '~/utils/seo';
 import { seo } from '~/utils/seo';
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 import { DropdownMenu } from '~/components/ui/dropdown-menu';
-import { EllipsisIcon } from 'lucide-react';
+import { CircleAlert, EllipsisIcon, InfoIcon } from 'lucide-react';
 import { createDefaultValue, createValueValidator } from './-components/value';
 import { ValueEditor } from './-components/ValueEditor';
 import { ValueViewer } from './-components/ValueViewer';
@@ -46,6 +46,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ZodErrorMessage } from '~/components/ZodErrorMessage';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
 import { useQueryClient } from '@tanstack/react-query';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 
 export const Route = createFileRoute('/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values')({
   component: RouteComponent,
@@ -437,15 +438,36 @@ function RouteComponent() {
               {editingValueId === id ? (
                 <editForm.AppField
                   name={`variation.${property.id}`}
+                  validators={{
+                    onMount: ({ value }) => {
+                      if (value && !propertyValues.some((v) => v.value === value)) {
+                        return 'This value was probably archived and cannot be used anymore. Please change it or delete this row.';
+                      }
+
+                      return undefined;
+                    },
+                  }}
                   children={(field) => (
-                    <VariationSelect
-                      values={propertyValues}
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onValueChange={(value) => field.handleChange(value)}
-                      disabled={editForm.state.isSubmitting}
-                    ></VariationSelect>
+                    <div className="flex flex-row gap-2 items-center">
+                      <VariationSelect
+                        values={propertyValues}
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onValueChange={(value) => field.handleChange(value)}
+                        disabled={editForm.state.isSubmitting}
+                      ></VariationSelect>
+                      {field.state.meta.errors.length > 0 && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <CircleAlert className="size-4 text-destructive" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <field.FormMessage className="text-primary-foreground" immediate />
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
                   )}
                 />
               ) : (

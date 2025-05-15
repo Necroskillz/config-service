@@ -5,6 +5,10 @@
 
 export type ServiceVariationPropertyValueDto = {
   /**
+   * @type boolean
+   */
+  archived: boolean
+  /**
    * @type array
    */
   children: ServiceVariationPropertyValueDto[]
@@ -12,6 +16,10 @@ export type ServiceVariationPropertyValueDto = {
    * @type integer
    */
   id: number
+  /**
+   * @type integer
+   */
+  usageCount: number
   /**
    * @type string
    */

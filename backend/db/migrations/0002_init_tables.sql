@@ -114,8 +114,7 @@ CREATE TABLE variation_properties(
     id bigserial PRIMARY KEY,
     name text NOT NULL,
     display_name text NOT NULL,
-    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    archived boolean NOT NULL DEFAULT FALSE
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE service_type_variation_properties(
@@ -124,8 +123,7 @@ CREATE TABLE service_type_variation_properties(
     updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     priority integer NOT NULL,
     service_type_id bigint NOT NULL REFERENCES service_types(id),
-    variation_property_id bigint NOT NULL REFERENCES variation_properties(id),
-    archived boolean NOT NULL DEFAULT FALSE
+    variation_property_id bigint NOT NULL REFERENCES variation_properties(id)
 );
 
 CREATE TABLE variation_property_values(

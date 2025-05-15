@@ -470,7 +470,6 @@ type ServiceTypeVariationProperty struct {
 	Priority            int
 	ServiceTypeID       uint
 	VariationPropertyID uint
-	Archived            bool
 }
 
 type ServiceVersion struct {
@@ -535,7 +534,6 @@ type VariationProperty struct {
 	Name        string
 	DisplayName string
 	CreatedAt   time.Time
-	Archived    bool
 }
 
 type VariationPropertyValue struct {

@@ -104,6 +104,16 @@ func (q *Queries) CreateVariationPropertyValue(ctx context.Context, arg CreateVa
 	return id, err
 }
 
+const deleteVariationPropertyValue = `-- name: DeleteVariationPropertyValue :exec
+DELETE FROM variation_property_values
+WHERE id = $1
+`
+
+func (q *Queries) DeleteVariationPropertyValue(ctx context.Context, id uint) error {
+	_, err := q.db.Exec(ctx, deleteVariationPropertyValue, id)
+	return err
+}
+
 const getServiceTypeVariationProperties = `-- name: GetServiceTypeVariationProperties :many
 SELECT
     stvp.service_type_id,
@@ -215,7 +225,7 @@ func (q *Queries) GetVariationContextValues(ctx context.Context, variationContex
 
 const getVariationProperty = `-- name: GetVariationProperty :one
 SELECT
-    id, name, display_name, created_at, archived
+    id, name, display_name, created_at
 FROM
     variation_properties
 WHERE
@@ -230,7 +240,6 @@ func (q *Queries) GetVariationProperty(ctx context.Context, id uint) (VariationP
 		&i.Name,
 		&i.DisplayName,
 		&i.CreatedAt,
-		&i.Archived,
 	)
 	return i, err
 }
@@ -259,7 +268,6 @@ FROM
 WHERE
     variation_property_id = $1
     AND value = $2
-    AND NOT archived
 `
 
 type GetVariationPropertyValueIDByNameParams struct {
@@ -302,6 +310,7 @@ SELECT
     vpv.id,
     vpv.value,
     COALESCE(vpv.parent_id, 0) AS parent_id,
+    vpv.archived,
     vp.name AS property_name,
     vp.display_name AS property_display_name,
     vp.id AS property_id
@@ -318,6 +327,7 @@ type GetVariationPropertyValuesRow struct {
 	ID                  *uint
 	Value               *string
 	ParentID            uint
+	Archived            *bool
 	PropertyName        string
 	PropertyDisplayName string
 	PropertyID          uint
@@ -336,6 +346,7 @@ func (q *Queries) GetVariationPropertyValues(ctx context.Context) ([]GetVariatio
 			&i.ID,
 			&i.Value,
 			&i.ParentID,
+			&i.Archived,
 			&i.PropertyName,
 			&i.PropertyDisplayName,
 			&i.PropertyID,
@@ -348,6 +359,61 @@ func (q *Queries) GetVariationPropertyValues(ctx context.Context) ([]GetVariatio
 		return nil, err
 	}
 	return items, nil
+}
+
+const getVariationPropertyValuesUsage = `-- name: GetVariationPropertyValuesUsage :many
+SELECT
+    vpv.id,
+    COUNT(vcvpv.variation_context_id)::int AS usage_count
+FROM
+    variation_property_values vpv
+    JOIN variation_context_variation_property_values vcvpv ON vcvpv.variation_property_value_id = vpv.id
+    JOIN variation_values vv ON vv.variation_context_id = vcvpv.variation_context_id
+WHERE
+    vpv.variation_property_id = $1
+GROUP BY
+    vpv.id
+`
+
+type GetVariationPropertyValuesUsageRow struct {
+	ID         uint
+	UsageCount int
+}
+
+func (q *Queries) GetVariationPropertyValuesUsage(ctx context.Context, variationPropertyID uint) ([]GetVariationPropertyValuesUsageRow, error) {
+	rows, err := q.db.Query(ctx, getVariationPropertyValuesUsage, variationPropertyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetVariationPropertyValuesUsageRow
+	for rows.Next() {
+		var i GetVariationPropertyValuesUsageRow
+		if err := rows.Scan(&i.ID, &i.UsageCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const setVariationPropertyValueArchived = `-- name: SetVariationPropertyValueArchived :exec
+UPDATE variation_property_values
+SET archived = $1
+WHERE id = $2
+`
+
+type SetVariationPropertyValueArchivedParams struct {
+	Archived bool
+	ID       uint
+}
+
+func (q *Queries) SetVariationPropertyValueArchived(ctx context.Context, arg SetVariationPropertyValueArchivedParams) error {
+	_, err := q.db.Exec(ctx, setVariationPropertyValueArchived, arg.Archived, arg.ID)
+	return err
 }
 
 const updateVariationProperty = `-- name: UpdateVariationProperty :exec

@@ -9,7 +9,6 @@ import (
 
 // @Summary Get features for a service version
 // @Description Get features for a service version
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -127,7 +126,6 @@ func (h *Handler) UpdateFeature(c echo.Context) error {
 
 // @Summary Get feature
 // @Description Get feature
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -156,7 +154,6 @@ func (h *Handler) Feature(c echo.Context) error {
 
 // @Summary Check if feature name is taken
 // @Description Check if feature name is taken
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -183,7 +180,6 @@ func (h *Handler) IsFeatureNameTaken(c echo.Context) error {
 
 // @Summary Get feature versions
 // @Description Get feature versions
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -212,7 +208,6 @@ func (h *Handler) FeatureVersions(c echo.Context) error {
 
 // @Summary Get linkable features for a service version
 // @Description Get feature versions that can be linked to a service version
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -239,7 +234,6 @@ func (h *Handler) LinkableFeatures(c echo.Context) error {
 
 // @Summary Unlink feature version
 // @Description Unlink feature version from a service version
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -269,7 +263,6 @@ func (h *Handler) UnlinkFeatureVersion(c echo.Context) error {
 
 // @Summary Link feature version
 // @Description Link feature version to a service version
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -298,7 +291,6 @@ func (h *Handler) LinkFeatureVersion(c echo.Context) error {
 
 // @Summary Create feature version
 // @Description Create feature version
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"

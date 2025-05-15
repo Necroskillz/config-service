@@ -9,7 +9,6 @@ import (
 
 // @Summary Get variation properties
 // @Description Get all variation properties
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {array} service.VariationPropertyDto
@@ -27,7 +26,6 @@ func (h *Handler) VariationProperties(c echo.Context) error {
 
 // @Summary Get variation property
 // @Description Get variation property by ID
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param property_id path int true "Property ID"
@@ -125,7 +123,6 @@ func (h *Handler) UpdateVariationProperty(c echo.Context) error {
 
 // @Summary Check if variation property name is taken
 // @Description Check if variation property name is taken
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param name path string true "Variation property name"
@@ -237,7 +234,6 @@ func (h *Handler) UpdateVariationPropertyValueOrder(c echo.Context) error {
 
 // @Summary Check if variation property name is taken
 // @Description Check if variation property name is taken
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param property_id path int true "Property ID"
@@ -261,4 +257,97 @@ func (h *Handler) IsVariationPropertyValueTaken(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, NewBooleanResponse(taken))
+}
+
+// @Summary Delete variation property value
+// @Description Delete a variation property value
+// @Produce json
+// @Security BearerAuth
+// @Param property_id path int true "Property ID"
+// @Param value_id path int true "Value ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /variation-properties/{property_id}/values/{value_id} [delete]
+func (h *Handler) DeleteVariationPropertyValue(c echo.Context) error {
+	var propertyID uint
+	var valueID uint
+	err := echo.PathParamsBinder(c).MustUint("property_id", &propertyID).MustUint("value_id", &valueID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	if err := h.VariationPropertyService.DeleteVariationPropertyValue(c.Request().Context(), service.VariationPropertyValueParams{
+		PropertyID: propertyID,
+		ValueID:    valueID,
+	}); err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Archive variation property value
+// @Description Archive a variation property value
+// @Produce json
+// @Security BearerAuth
+// @Param property_id path int true "Property ID"
+// @Param value_id path int true "Value ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /variation-properties/{property_id}/values/{value_id}/archive [put]
+func (h *Handler) ArchiveVariationPropertyValue(c echo.Context) error {
+	var propertyID uint
+	var valueID uint
+	err := echo.PathParamsBinder(c).MustUint("property_id", &propertyID).MustUint("value_id", &valueID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	if err := h.VariationPropertyService.ArchiveVariationPropertyValue(c.Request().Context(), service.VariationPropertyValueParams{
+		PropertyID: propertyID,
+		ValueID:    valueID,
+	}); err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Unarchive variation property value
+// @Description Unarchive a variation property value
+// @Produce json
+// @Security BearerAuth
+// @Param property_id path int true "Property ID"
+// @Param value_id path int true "Value ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /variation-properties/{property_id}/values/{value_id}/unarchive [put]
+func (h *Handler) UnarchiveVariationPropertyValue(c echo.Context) error {
+	var propertyID uint
+	var valueID uint
+	err := echo.PathParamsBinder(c).MustUint("property_id", &propertyID).MustUint("value_id", &valueID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	if err := h.VariationPropertyService.UnarchiveVariationPropertyValue(c.Request().Context(), service.VariationPropertyValueParams{
+		PropertyID: propertyID,
+		ValueID:    valueID,
+	}); err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }

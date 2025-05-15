@@ -18,12 +18,14 @@ type VariationHierarchyProperty struct {
 }
 
 type VariationHierarchyValue struct {
-	ID       uint
-	Value    string
-	Order    int
-	Parent   *VariationHierarchyValue
-	Children []*VariationHierarchyValue
-	Depth    int
+	ID         uint
+	PropertyID uint
+	Value      string
+	Archived   bool
+	Parent     *VariationHierarchyValue
+	Children   []*VariationHierarchyValue
+	Depth      int
+	Order      int
 }
 
 type VariationHierarchyServiceType struct {
@@ -70,9 +72,11 @@ func NewVariationHierarchy(variationPropertyValues []db.GetVariationPropertyValu
 		}
 
 		value := VariationHierarchyValue{
-			ID:       *variationPropertyValue.ID,
-			Value:    *variationPropertyValue.Value,
-			Children: []*VariationHierarchyValue{},
+			ID:         *variationPropertyValue.ID,
+			Value:      *variationPropertyValue.Value,
+			Archived:   *variationPropertyValue.Archived,
+			PropertyID: propertyID,
+			Children:   []*VariationHierarchyValue{},
 		}
 
 		if variationPropertyValue.ParentID != 0 {
@@ -196,6 +200,56 @@ func (v *VariationHierarchy) GetValue(valueID uint) (*VariationHierarchyValue, e
 	return value, nil
 }
 
+type GetValuesWithSameParentOptions struct {
+	ValueID  uint
+	ParentID uint
+}
+
+type GetValuesWithSameParentOptionsFunc func(options *GetValuesWithSameParentOptions)
+
+func ByValueID(valueID uint) GetValuesWithSameParentOptionsFunc {
+	return func(options *GetValuesWithSameParentOptions) {
+		options.ValueID = valueID
+	}
+}
+
+func ByParentID(parentID uint) GetValuesWithSameParentOptionsFunc {
+	return func(options *GetValuesWithSameParentOptions) {
+		options.ParentID = parentID
+	}
+}
+
+func (v *VariationHierarchy) GetValuesWithSameParent(propertyID uint, by GetValuesWithSameParentOptionsFunc) ([]*VariationHierarchyValue, error) {
+	opts := GetValuesWithSameParentOptions{}
+
+	by(&opts)
+
+	if opts.ValueID != 0 {
+		value, err := v.GetValue(opts.ValueID)
+		if err != nil {
+			return nil, err
+		}
+
+		if value.Parent != nil {
+			return value.Parent.Children, nil
+		}
+	} else if opts.ParentID != 0 {
+		parent, err := v.GetValue(opts.ParentID)
+		if err != nil {
+			return nil, err
+		}
+
+		return parent.Children, nil
+	}
+
+	property, err := v.GetProperty(propertyID)
+	if err != nil {
+		return nil, err
+	}
+
+	return property.Values, nil
+}
+
 func (v *VariationHierarchy) VariationMapToIDs(serviceTypeID uint, variation map[uint]string) ([]uint, error) {
 	ids := []uint{}
 
@@ -211,6 +265,10 @@ func (v *VariationHierarchy) VariationMapToIDs(serviceTypeID uint, variation map
 		hierarchyValue, ok := v.lookup[property.ID][value]
 		if !ok {
 			return nil, NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Value %s not found for property %s", variation[property.ID], property.Name))
+		}
+
+		if hierarchyValue.Archived {
+			return nil, NewServiceError(ErrorCodeInvalidOperation, fmt.Sprintf("Value %s for property %s is archived", variation[property.ID], property.Name))
 		}
 
 		ids = append(ids, hierarchyValue.ID)

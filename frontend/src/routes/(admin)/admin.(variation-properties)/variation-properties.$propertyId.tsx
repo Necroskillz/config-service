@@ -1,10 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, EllipsisIcon } from 'lucide-react';
 import { z } from 'zod';
 import { MutationErrors } from '~/components/MutationErrors';
 import { PageTitle } from '~/components/PageTitle';
 import { Button } from '~/components/ui/button';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
@@ -14,10 +16,13 @@ import {
   getVariationPropertiesPropertyIdValueTakenValue,
   getVariationPropertiesQueryOptions,
   ServiceVariationPropertyValueDto,
+  useDeleteVariationPropertiesPropertyIdValuesValueId,
   useGetVariationPropertiesPropertyIdSuspense,
   usePostVariationPropertiesPropertyIdValues,
   usePutVariationPropertiesPropertyId,
+  usePutVariationPropertiesPropertyIdValuesValueIdArchive,
   usePutVariationPropertiesPropertyIdValuesValueIdOrder,
+  usePutVariationPropertiesPropertyIdValuesValueIdUnarchive,
 } from '~/gen';
 import { cn } from '~/lib/utils';
 import { appTitle } from '~/utils/seo';
@@ -51,10 +56,14 @@ function RouteComponent() {
     },
   });
 
+  function refetchProperty() {
+    queryClient.refetchQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
+  }
+
   const createValueMutation = usePostVariationPropertiesPropertyIdValues({
     mutation: {
       onSuccess: async () => {
-        queryClient.refetchQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
+        refetchProperty();
       },
     },
   });
@@ -62,7 +71,31 @@ function RouteComponent() {
   const updateOrderMutation = usePutVariationPropertiesPropertyIdValuesValueIdOrder({
     mutation: {
       onSuccess: async () => {
-        queryClient.refetchQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
+        refetchProperty();
+      },
+    },
+  });
+
+  const deleteValueMutation = useDeleteVariationPropertiesPropertyIdValuesValueId({
+    mutation: {
+      onSuccess: async () => {
+        refetchProperty();
+      },
+    },
+  });
+
+  const archiveValueMutation = usePutVariationPropertiesPropertyIdValuesValueIdArchive({
+    mutation: {
+      onSuccess: async () => {
+        refetchProperty();
+      },
+    },
+  });
+
+  const unarchiveValueMutation = usePutVariationPropertiesPropertyIdValuesValueIdUnarchive({
+    mutation: {
+      onSuccess: async () => {
+        refetchProperty();
       },
     },
   });
@@ -154,12 +187,20 @@ function RouteComponent() {
         </form>
       </updateForm.AppForm>
       <h2 className="text-lg font-medium">Values</h2>
-      <MutationErrors mutations={[updateOrderMutation]} />
+      <MutationErrors mutations={[updateOrderMutation, deleteValueMutation, archiveValueMutation, unarchiveValueMutation]} />
       {property.values.length > 0 ? (
         <VariationPropertyValue
-          value={{ id: 0, value: '', children: property.values }}
+          value={{ id: 0, value: '', children: property.values, usageCount: 0, archived: false }}
           onOrderChange={(id, order) => updateOrderMutation.mutate({ property_id: propertyId, value_id: id, data: { order } })}
-          disabled={updateOrderMutation.isPending}
+          onDelete={(id) => deleteValueMutation.mutate({ property_id: propertyId, value_id: id })}
+          onArchive={(id) => archiveValueMutation.mutate({ property_id: propertyId, value_id: id })}
+          onUnarchive={(id) => unarchiveValueMutation.mutate({ property_id: propertyId, value_id: id })}
+          disabled={
+            updateOrderMutation.isPending ||
+            deleteValueMutation.isPending ||
+            archiveValueMutation.isPending ||
+            unarchiveValueMutation.isPending
+          }
         />
       ) : (
         <div className="text-sm text-muted-foreground">No values</div>
@@ -247,18 +288,27 @@ function RouteComponent() {
 function VariationPropertyValue({
   value,
   onOrderChange,
+  onDelete,
+  onArchive,
+  onUnarchive,
   disabled,
   order = 0,
   isLast = false,
 }: {
   value: ServiceVariationPropertyValueDto;
   onOrderChange: (id: number, order: number) => void;
+  onDelete: (id: number) => void;
+  onArchive: (id: number) => void;
+  onUnarchive: (id: number) => void;
   disabled: boolean;
   order?: number;
   isLast?: boolean;
 }) {
   const canChangeOrderUp = !disabled && order > 1;
   const canChangeOrderDown = !disabled && !isLast;
+  const isDeletable = value.usageCount === 0 && value.children.length === 0;
+  const isArchivable = !value.archived && value.children.every((child) => child.archived);
+  const isUnarchivable = value.archived;
 
   return (
     <div className="mb-2">
@@ -274,10 +324,36 @@ function VariationPropertyValue({
               onClick={() => canChangeOrderDown && onOrderChange(value.id, order + 1)}
             />
           </div>
-          <pre>{value.value}</pre>
+          <pre className={cn(isUnarchivable && 'line-through text-muted-foreground')}>{value.value}</pre>
+          {(isDeletable || isArchivable || isUnarchivable) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <EllipsisIcon className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {isUnarchivable && (
+                  <DropdownMenuItem disabled={disabled} onClick={() => onUnarchive(value.id)}>
+                    Unarchive
+                  </DropdownMenuItem>
+                )}
+                {isDeletable && (
+                  <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onDelete(value.id)}>
+                    Delete
+                  </DropdownMenuItem>
+                )}
+                {!isDeletable && isArchivable && (
+                  <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onArchive(value.id)}>
+                    Archive
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       )}
-      {value.children && (
+      {value.children.length > 0 && (
         <div className={cn('border-l border-muted-foreground pl-1', value.id !== 0 && 'ml-8')}>
           {value.children.map((child, index) => (
             <VariationPropertyValue
@@ -285,6 +361,9 @@ function VariationPropertyValue({
               value={child}
               order={index + 1}
               onOrderChange={onOrderChange}
+              onDelete={onDelete}
+              onArchive={onArchive}
+              onUnarchive={onUnarchive}
               disabled={disabled}
               isLast={index === value.children.length - 1}
             />

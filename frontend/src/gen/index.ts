@@ -3,6 +3,7 @@ export type { DeleteChangesetsChangesetIdChangesChangeIdMutationKey } from './ho
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
+export type { DeleteVariationPropertiesPropertyIdValuesValueIdMutationKey } from './hooks/useDeleteVariationPropertiesPropertyIdValuesValueId.ts'
 export type { GetAuthUserQueryKey } from './hooks/useGetAuthUser.ts'
 export type { GetAuthUserSuspenseQueryKey } from './hooks/useGetAuthUserSuspense.ts'
 export type { GetChangesetsQueryKey } from './hooks/useGetChangesets.ts'
@@ -81,7 +82,9 @@ export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutati
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { PutServicesServiceVersionIdPublishMutationKey } from './hooks/usePutServicesServiceVersionIdPublish.ts'
 export type { PutVariationPropertiesPropertyIdMutationKey } from './hooks/usePutVariationPropertiesPropertyId.ts'
+export type { PutVariationPropertiesPropertyIdValuesValueIdArchiveMutationKey } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdArchive.ts'
 export type { PutVariationPropertiesPropertyIdValuesValueIdOrderMutationKey } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdOrder.ts'
+export type { PutVariationPropertiesPropertyIdValuesValueIdUnarchiveMutationKey } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdUnarchive.ts'
 export type { AuthUser } from './types/auth/User.ts'
 export type { DbChangesetActionTypeEnum, DbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export type { DbChangesetChangeTypeEnum, DbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
@@ -143,6 +146,17 @@ export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutation,
 } from './types/DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
+export type {
+  DeleteVariationPropertiesPropertyIdValuesValueIdPathParams,
+  DeleteVariationPropertiesPropertyIdValuesValueId204,
+  DeleteVariationPropertiesPropertyIdValuesValueId400,
+  DeleteVariationPropertiesPropertyIdValuesValueId401,
+  DeleteVariationPropertiesPropertyIdValuesValueId403,
+  DeleteVariationPropertiesPropertyIdValuesValueId404,
+  DeleteVariationPropertiesPropertyIdValuesValueId500,
+  DeleteVariationPropertiesPropertyIdValuesValueIdMutationResponse,
+  DeleteVariationPropertiesPropertyIdValuesValueIdMutation,
+} from './types/DeleteVariationPropertiesPropertyIdValuesValueId.ts'
 export type { EchoHTTPError } from './types/echo/HTTPError.ts'
 export type { GetAuthUser200, GetAuthUser401, GetAuthUser500, GetAuthUserQueryResponse, GetAuthUserQuery } from './types/GetAuthUser.ts'
 export type {
@@ -651,6 +665,17 @@ export type {
   PutVariationPropertiesPropertyIdMutation,
 } from './types/PutVariationPropertiesPropertyId.ts'
 export type {
+  PutVariationPropertiesPropertyIdValuesValueIdArchivePathParams,
+  PutVariationPropertiesPropertyIdValuesValueIdArchive204,
+  PutVariationPropertiesPropertyIdValuesValueIdArchive400,
+  PutVariationPropertiesPropertyIdValuesValueIdArchive401,
+  PutVariationPropertiesPropertyIdValuesValueIdArchive403,
+  PutVariationPropertiesPropertyIdValuesValueIdArchive404,
+  PutVariationPropertiesPropertyIdValuesValueIdArchive500,
+  PutVariationPropertiesPropertyIdValuesValueIdArchiveMutationResponse,
+  PutVariationPropertiesPropertyIdValuesValueIdArchiveMutation,
+} from './types/PutVariationPropertiesPropertyIdValuesValueIdArchive.ts'
+export type {
   PutVariationPropertiesPropertyIdValuesValueIdOrderPathParams,
   PutVariationPropertiesPropertyIdValuesValueIdOrder204,
   PutVariationPropertiesPropertyIdValuesValueIdOrder400,
@@ -662,6 +687,17 @@ export type {
   PutVariationPropertiesPropertyIdValuesValueIdOrderMutationResponse,
   PutVariationPropertiesPropertyIdValuesValueIdOrderMutation,
 } from './types/PutVariationPropertiesPropertyIdValuesValueIdOrder.ts'
+export type {
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchivePathParams,
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchive204,
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchive400,
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchive401,
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchive403,
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchive404,
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchive500,
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchiveMutationResponse,
+  PutVariationPropertiesPropertyIdValuesValueIdUnarchiveMutation,
+} from './types/PutVariationPropertiesPropertyIdValuesValueIdUnarchive.ts'
 export type { ServiceAllowedValidatorDto } from './types/service/AllowedValidatorDto.ts'
 export type { ServiceChangesetAction } from './types/service/ChangesetAction.ts'
 export type { ServiceChangesetChange } from './types/service/ChangesetChange.ts'
@@ -707,6 +743,11 @@ export {
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink,
   useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink,
 } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
+export {
+  deleteVariationPropertiesPropertyIdValuesValueIdMutationKey,
+  deleteVariationPropertiesPropertyIdValuesValueId,
+  useDeleteVariationPropertiesPropertyIdValuesValueId,
+} from './hooks/useDeleteVariationPropertiesPropertyIdValuesValueId.ts'
 export { getAuthUserQueryKey, getAuthUser, getAuthUserQueryOptions, useGetAuthUser } from './hooks/useGetAuthUser.ts'
 export { getAuthUserSuspenseQueryKey, getAuthUserSuspense, getAuthUserSuspenseQueryOptions, useGetAuthUserSuspense } from './hooks/useGetAuthUserSuspense.ts'
 export { getChangesetsQueryKey, getChangesets, getChangesetsQueryOptions, useGetChangesets } from './hooks/useGetChangesets.ts'
@@ -1099,10 +1140,20 @@ export {
   usePutVariationPropertiesPropertyId,
 } from './hooks/usePutVariationPropertiesPropertyId.ts'
 export {
+  putVariationPropertiesPropertyIdValuesValueIdArchiveMutationKey,
+  putVariationPropertiesPropertyIdValuesValueIdArchive,
+  usePutVariationPropertiesPropertyIdValuesValueIdArchive,
+} from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdArchive.ts'
+export {
   putVariationPropertiesPropertyIdValuesValueIdOrderMutationKey,
   putVariationPropertiesPropertyIdValuesValueIdOrder,
   usePutVariationPropertiesPropertyIdValuesValueIdOrder,
 } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdOrder.ts'
+export {
+  putVariationPropertiesPropertyIdValuesValueIdUnarchiveMutationKey,
+  putVariationPropertiesPropertyIdValuesValueIdUnarchive,
+  usePutVariationPropertiesPropertyIdValuesValueIdUnarchive,
+} from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdUnarchive.ts'
 export { dbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export { dbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export { dbChangesetState } from './types/db/ChangesetState.ts'

@@ -11,7 +11,6 @@ import (
 
 // @Summary Get current user
 // @Description Get the current user
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} auth.User

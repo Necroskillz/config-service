@@ -10,7 +10,6 @@ import (
 
 // @Summary Get service types
 // @Description Get all service types
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {array} SelectOption
@@ -42,7 +41,6 @@ type VariationValueSelectOption struct {
 
 // @Summary Get variation properties
 // @Description Get variation properties for a service type
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_type_id path uint true "Service type ID"
@@ -89,6 +87,10 @@ func makeIndentedSelectOptions(indent int, values []*service.VariationHierarchyV
 	options := []VariationValueSelectOption{}
 
 	for _, value := range values {
+		if value.Archived {
+			continue
+		}
+
 		options = append(options, VariationValueSelectOption{
 			Value: value.Value,
 			Depth: value.Depth,

@@ -51,7 +51,6 @@ func (h *Handler) Changesets(c echo.Context) error {
 
 // @Summary Get a changeset
 // @Description Get a changeset by ID
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
@@ -150,7 +149,6 @@ func (h *Handler) CommitChangeset(c echo.Context) error {
 
 // @Summary Reopen a changeset
 // @Description Reopen a changeset by ID
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
@@ -178,7 +176,6 @@ func (h *Handler) ReopenChangeset(c echo.Context) error {
 
 // @Summary Discard a changeset
 // @Description Discard a changeset by ID
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
@@ -206,7 +203,6 @@ func (h *Handler) DiscardChangeset(c echo.Context) error {
 
 // @Summary Discard a change
 // @Description Discard a change by ID
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
@@ -236,7 +232,6 @@ func (h *Handler) DiscardChange(c echo.Context) error {
 
 // @Summary Stash a changeset
 // @Description Stash a changeset by ID
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
@@ -308,7 +303,6 @@ type ChangesetInfoResponse struct {
 
 // @Summary Get the current changeset info
 // @Description Get the current changeset info
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} ChangesetInfoResponse
@@ -336,7 +330,6 @@ type ApprovableChangesetCountResponse struct {
 
 // @Summary Get the number of approvable changesets
 // @Description Get the number of approvable changesets
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} ApprovableChangesetCountResponse

@@ -9,7 +9,6 @@ import (
 
 // @Summary Get services
 // @Description Get list of services
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} []service.ServiceDto
@@ -108,7 +107,6 @@ func (h *Handler) UpdateService(c echo.Context) error {
 
 // @Summary Publish service version
 // @Description Publish service version
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -136,7 +134,6 @@ func (h *Handler) PublishServiceVersion(c echo.Context) error {
 
 // @Summary Get service
 // @Description Get service
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -163,7 +160,6 @@ func (h *Handler) Service(c echo.Context) error {
 
 // @Summary Get service versions
 // @Description Get service versions
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -191,7 +187,6 @@ func (h *Handler) ServiceVersions(c echo.Context) error {
 
 // @Summary Create service version
 // @Description Create service version
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -219,7 +214,6 @@ func (h *Handler) CreateServiceVersion(c echo.Context) error {
 
 // @Summary Check if service name is taken
 // @Description Check if service name is taken
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param name path string true "Service name"

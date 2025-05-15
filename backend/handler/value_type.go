@@ -8,7 +8,6 @@ import (
 
 // @Summary Get value types
 // @Description Get all value types
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {array} service.ValueTypeDto
@@ -26,7 +25,6 @@ func (h *Handler) GetValueTypes(c echo.Context) error {
 
 // @Summary Get value type
 // @Description Get a value type by ID
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param value_type_id path uint true "Value type ID"

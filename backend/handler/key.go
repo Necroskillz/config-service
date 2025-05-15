@@ -10,7 +10,6 @@ import (
 
 // @Summary Get keys for a feature
 // @Description Get keys for a feature
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -43,7 +42,6 @@ func (h *Handler) Keys(c echo.Context) error {
 
 // @Summary Get a key
 // @Description Get a key
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -207,7 +205,6 @@ func (h *Handler) UpdateKey(c echo.Context) error {
 
 // @Summary Delete a key
 // @Description Delete a key
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
@@ -244,7 +241,6 @@ func (h *Handler) DeleteKey(c echo.Context) error {
 
 // @Summary Check if key name is taken
 // @Description Check if key name is taken
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"

@@ -127,9 +127,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get the current user",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -239,9 +236,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get the number of approvable changesets",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -276,9 +270,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get the current changeset info",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -319,9 +310,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get a changeset by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -375,9 +363,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Discard a changeset by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -497,9 +482,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Discard a change by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -696,9 +678,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Reopen a changeset by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -757,9 +736,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Stash a changeset by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -818,9 +794,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get all service types",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -858,9 +831,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get variation properties for a service type",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -919,9 +889,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get list of services",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1023,9 +990,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Check if service name is taken",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1075,9 +1039,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get service",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1207,9 +1168,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get features for a service version",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1339,9 +1297,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get feature versions that can be linked to a service version",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1400,9 +1355,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Check if feature name is taken",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1459,9 +1411,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get feature",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1599,9 +1548,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get keys for a feature",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1745,9 +1691,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Check if key name is taken",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1817,9 +1760,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get a key",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1969,9 +1909,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Delete a key",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2044,9 +1981,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get values for a key",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2210,9 +2144,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Can operate value with variation",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2389,9 +2320,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Delete value",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2471,9 +2399,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Can edit value with variation",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2559,9 +2484,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Link feature version to a service version",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2621,9 +2543,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Unlink feature version from a service version",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2689,9 +2608,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get feature versions",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2755,9 +2671,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Create feature version",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2826,9 +2739,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Publish service version",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2887,9 +2797,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get service versions",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2946,9 +2853,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Create service version",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3010,9 +2914,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get all value types",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3050,9 +2951,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get a value type by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3102,9 +3000,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get all variation properties",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3200,9 +3095,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Check if variation property name is taken",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3252,9 +3144,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get variation property by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3366,9 +3255,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Check if variation property name is taken",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3490,6 +3376,136 @@ const docTemplate = `{
                 }
             }
         },
+        "/variation-properties/{property_id}/values/{value_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a variation property value",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete variation property value",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Property ID",
+                        "name": "property_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Value ID",
+                        "name": "value_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/variation-properties/{property_id}/values/{value_id}/archive": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Archive a variation property value",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Archive variation property value",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Property ID",
+                        "name": "property_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Value ID",
+                        "name": "value_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/variation-properties/{property_id}/values/{value_id}/order": {
             "put": {
                 "security": [
@@ -3528,6 +3544,71 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handler.UpdateVariationPropertyValueOrderRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/variation-properties/{property_id}/values/{value_id}/unarchive": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Unarchive a variation property value",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Unarchive variation property value",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Property ID",
+                        "name": "property_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Value ID",
+                        "name": "value_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -4651,11 +4732,16 @@ const docTemplate = `{
         "service.VariationPropertyValueDto": {
             "type": "object",
             "required": [
+                "archived",
                 "children",
                 "id",
+                "usageCount",
                 "value"
             ],
             "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
                 "children": {
                     "type": "array",
                     "items": {
@@ -4663,6 +4749,9 @@ const docTemplate = `{
                     }
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "usageCount": {
                     "type": "integer"
                 },
                 "value": {
