@@ -1,0 +1,1 @@
+{"properties":{"order":{"type":"integer"}},"required":["order"],"type":"object","x-readme-ref-name":"handler.UpdateVariationPropertyValueOrderRequest"}

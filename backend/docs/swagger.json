@@ -3483,6 +3483,83 @@
                     }
                 }
             }
+        },
+        "/variation-properties/{property_id}/values/{value_id}/order": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update variation property value order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update variation property value order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Property ID",
+                        "name": "property_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Value ID",
+                        "name": "value_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Variation property value order",
+                        "name": "variation_property_value_order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateVariationPropertyValueOrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -3862,6 +3939,17 @@
             "properties": {
                 "displayName": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.UpdateVariationPropertyValueOrderRequest": {
+            "type": "object",
+            "required": [
+                "order"
+            ],
+            "properties": {
+                "order": {
+                    "type": "integer"
                 }
             }
         },

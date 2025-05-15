@@ -98,5 +98,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	variationPropertyGroup.GET("", h.VariationProperty)
 	variationPropertyGroup.PUT("", h.UpdateVariationProperty)
 	variationPropertyGroup.POST("/values", h.CreateVariationPropertyValue)
+	variationPropertyGroup.PUT("/values/:value_id/order", h.UpdateVariationPropertyValueOrder)
 	variationPropertyGroup.GET("/value-taken/:value", h.IsVariationPropertyValueTaken)
 }

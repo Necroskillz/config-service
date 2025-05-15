@@ -224,7 +224,7 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 
 		keyID, err = tx.CreateKey(ctx, db.CreateKeyParams{
 			Name:             params.Name,
-			Description:      ptr.To(params.Description, ptr.WithNilIfZero()),
+			Description:      ptr.To(params.Description, ptr.NilIfZero()),
 			ValueTypeID:      params.ValueTypeID,
 			FeatureVersionID: params.FeatureVersionID,
 		})
@@ -236,8 +236,8 @@ func (s *KeyService) CreateKey(ctx context.Context, params CreateKeyParams) (uin
 			_, err = tx.CreateValueValidatorForKey(ctx, db.CreateValueValidatorForKeyParams{
 				KeyID:         &keyID,
 				ValidatorType: validator.ValidatorType,
-				Parameter:     ptr.To(validator.Parameter, ptr.WithNilIfZero()),
-				ErrorText:     ptr.To(validator.ErrorText, ptr.WithNilIfZero()),
+				Parameter:     ptr.To(validator.Parameter, ptr.NilIfZero()),
+				ErrorText:     ptr.To(validator.ErrorText, ptr.NilIfZero()),
 			})
 			if err != nil {
 				return err
@@ -348,12 +348,12 @@ func (s *KeyService) validateUpdateKey(ctx context.Context, data UpdateKeyParams
 			valueNameBuilder.WriteString("Value for variation: ")
 			if len(variationContextValues) > 0 {
 				for propertyID, propertyValue := range variationContextValues {
-					propertyName, err := variationHierarchy.GetPropertyName(propertyID)
+					property, err := variationHierarchy.GetProperty(propertyID)
 					if err != nil {
 						return err
 					}
 
-					valueNameBuilder.WriteString(fmt.Sprintf("%s: %s, ", propertyName, propertyValue))
+					valueNameBuilder.WriteString(fmt.Sprintf("%s: %s, ", property.Name, propertyValue))
 				}
 			} else {
 				valueNameBuilder.WriteString("Default")
@@ -410,7 +410,7 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
 		if err = tx.UpdateKey(ctx, db.UpdateKeyParams{
 			KeyID:               params.KeyID,
-			Description:         ptr.To(params.Description, ptr.WithNilIfZero()),
+			Description:         ptr.To(params.Description, ptr.NilIfZero()),
 			ValidatorsUpdatedAt: validatorsUpdatedAt,
 		}); err != nil {
 			return err
@@ -426,8 +426,8 @@ func (s *KeyService) UpdateKey(ctx context.Context, params UpdateKeyParams) erro
 				_, err = tx.CreateValueValidatorForKey(ctx, db.CreateValueValidatorForKeyParams{
 					KeyID:         &params.KeyID,
 					ValidatorType: validator.ValidatorType,
-					Parameter:     ptr.To(validator.Parameter, ptr.WithNilIfZero()),
-					ErrorText:     ptr.To(validator.ErrorText, ptr.WithNilIfZero()),
+					Parameter:     ptr.To(validator.Parameter, ptr.NilIfZero()),
+					ErrorText:     ptr.To(validator.ErrorText, ptr.NilIfZero()),
 				})
 				if err != nil {
 					return err

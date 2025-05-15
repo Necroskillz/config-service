@@ -15,7 +15,7 @@ export function Header() {
   });
 
   return (
-    <div className="p-2 flex gap-2 text-lg">
+    <div className="p-2 flex gap-2 text-lg items-center">
       <Link to="/" activeOptions={{ exact: true }}>
         <img src="/logo-no-background.png" alt="Config Service" className="w-25" />
       </Link>
@@ -26,6 +26,7 @@ export function Header() {
             to={changesetId > 0 ? '/changesets/$changesetId' : '/changesets/empty'}
             params={{ changesetId }}
             activeOptions={{ exact: true }}
+            className="flex items-center gap-1"
           >
             Changeset <Badge variant="outline">{numberOfChanges}</Badge>
           </Link>
@@ -33,6 +34,7 @@ export function Header() {
             to="/changesets"
             search={{ mode: approvableCount?.count && approvableCount.count > 0 ? 'approvable' : 'my' }}
             activeOptions={{ exact: true, includeSearch: false }}
+            className="flex items-center gap-1"
           >
             Changesets
             {approvableCount?.count && approvableCount.count > 0 ? (

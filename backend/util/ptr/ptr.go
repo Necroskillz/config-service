@@ -6,7 +6,7 @@ type PtrToOptions struct {
 
 type PtrToOptionFunc func(*PtrToOptions)
 
-func WithNilIfZero() PtrToOptionFunc {
+func NilIfZero() PtrToOptionFunc {
 	return func(o *PtrToOptions) {
 		o.NilIfZero = true
 	}

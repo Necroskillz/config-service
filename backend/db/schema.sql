@@ -910,6 +910,7 @@ CREATE TABLE public.variation_property_values (
     variation_property_id bigint NOT NULL,
     value text NOT NULL,
     parent_id bigint,
+    order_index integer NOT NULL,
     archived boolean DEFAULT false NOT NULL
 );
 
@@ -1345,6 +1346,13 @@ CREATE INDEX idx_service_versions_valid_to ON public.service_versions USING btre
 --
 
 CREATE INDEX idx_users_deleted_at ON public.users USING btree (deleted_at);
+
+
+--
+-- Name: idx_variation_property_values_order_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_variation_property_values_order_index ON public.variation_property_values USING btree (order_index);
 
 
 --

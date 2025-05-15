@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"slices"
 
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/db"
@@ -14,15 +15,17 @@ type VariationPropertyService struct {
 	validator                 *Validator
 	validationService         *ValidationService
 	currentUserAccessor       *auth.CurrentUserAccessor
+	unitOfWorkRunner          db.UnitOfWorkRunner
 }
 
-func NewVariationPropertyService(queries *db.Queries, variationHierarchyService *VariationHierarchyService, validator *Validator, validationService *ValidationService, currentUserAccessor *auth.CurrentUserAccessor) *VariationPropertyService {
+func NewVariationPropertyService(queries *db.Queries, variationHierarchyService *VariationHierarchyService, validator *Validator, validationService *ValidationService, currentUserAccessor *auth.CurrentUserAccessor, unitOfWorkRunner db.UnitOfWorkRunner) *VariationPropertyService {
 	return &VariationPropertyService{
 		queries:                   queries,
 		variationHierarchyService: variationHierarchyService,
 		validator:                 validator,
 		validationService:         validationService,
 		currentUserAccessor:       currentUserAccessor,
+		unitOfWorkRunner:          unitOfWorkRunner,
 	}
 }
 
@@ -242,15 +245,61 @@ func (s *VariationPropertyService) validateCreateVariationPropertyValue(ctx cont
 
 func (s *VariationPropertyService) CreateVariationPropertyValue(ctx context.Context, params CreateVariationPropertyValueParams) (uint, error) {
 	err := s.validateCreateVariationPropertyValue(ctx, params)
-
 	if err != nil {
 		return 0, err
 	}
 
-	variationPropertyValueID, err := s.queries.CreateVariationPropertyValue(ctx, db.CreateVariationPropertyValueParams{
-		Value:               params.Value,
-		ParentID:            ptr.To(params.ParentID, ptr.WithNilIfZero()),
-		VariationPropertyID: params.PropertyID,
+	variationHierachy, err := s.variationHierarchyService.GetVariationHierarchy(ctx, WithForceRefresh())
+	if err != nil {
+		return 0, err
+	}
+
+	var values []*VariationHierarchyValue
+
+	if params.ParentID != 0 {
+		parent, err := variationHierachy.GetValue(params.ParentID)
+		if err != nil {
+			return 0, err
+		}
+
+		values = parent.Children
+	} else {
+		property, err := variationHierachy.GetProperty(params.PropertyID)
+		if err != nil {
+			return 0, err
+		}
+
+		values = property.Values
+	}
+
+	index := slices.IndexFunc(values, func(value *VariationHierarchyValue) bool {
+		return params.Value < value.Value
+	})
+
+	if index == -1 {
+		index = len(values)
+	} else {
+		index++
+	}
+
+	var valueID uint
+
+	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		valueID, err = tx.CreateVariationPropertyValue(ctx, db.CreateVariationPropertyValueParams{
+			Value:               params.Value,
+			ParentID:            ptr.To(params.ParentID, ptr.NilIfZero()),
+			VariationPropertyID: params.PropertyID,
+		})
+		if err != nil {
+			return err
+		}
+
+		tx.UpdateVariationPropertyValueOrder(ctx, db.UpdateVariationPropertyValueOrderParams{
+			ID:          valueID,
+			TargetIndex: index,
+		})
+
+		return nil
 	})
 
 	if err != nil {
@@ -259,5 +308,57 @@ func (s *VariationPropertyService) CreateVariationPropertyValue(ctx context.Cont
 
 	s.variationHierarchyService.ClearCache(ctx)
 
-	return variationPropertyValueID, nil
+	return valueID, nil
+}
+
+type UpdateVariationPropertyValueOrderParams struct {
+	PropertyID uint
+	ValueID    uint
+	Order      int
+}
+
+func (s *VariationPropertyService) validateUpdateVariationPropertyValueOrder(ctx context.Context, params UpdateVariationPropertyValueOrderParams) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	if !user.IsGlobalAdmin {
+		return NewServiceError(ErrorCodeInvalidOperation, "You are not authorized to update variation property values")
+	}
+
+	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx, WithForceRefresh())
+	if err != nil {
+		return err
+	}
+
+	value, err := variationHierarchy.GetValue(params.ValueID)
+	if err != nil {
+		return err
+	}
+
+	var valueGroup []*VariationHierarchyValue
+
+	if value.Parent != nil {
+		valueGroup = value.Parent.Children
+	} else {
+		property, err := variationHierarchy.GetProperty(params.PropertyID)
+		if err != nil {
+			return err
+		}
+
+		valueGroup = property.Values
+	}
+
+	return s.validator.Validate(params.Order, "Order").Min(1).Max(len(valueGroup)).Error(ctx)
+}
+
+func (s *VariationPropertyService) UpdateVariationPropertyValueOrder(ctx context.Context, params UpdateVariationPropertyValueOrderParams) error {
+	err := s.validateUpdateVariationPropertyValueOrder(ctx, params)
+
+	if err != nil {
+		return err
+	}
+
+	return s.queries.UpdateVariationPropertyValueOrder(ctx, db.UpdateVariationPropertyValueOrderParams{
+		ID:          params.ValueID,
+		TargetIndex: params.Order,
+	})
 }

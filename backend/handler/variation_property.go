@@ -192,6 +192,49 @@ func (h *Handler) CreateVariationPropertyValue(c echo.Context) error {
 	return c.JSON(http.StatusOK, NewCreateResponse(variationPropertyValueID))
 }
 
+type UpdateVariationPropertyValueOrderRequest struct {
+	Order int `json:"order" validate:"required"`
+}
+
+// @Summary Update variation property value order
+// @Description Update variation property value order
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param property_id path int true "Property ID"
+// @Param value_id path int true "Value ID"
+// @Param variation_property_value_order body UpdateVariationPropertyValueOrderRequest true "Variation property value order"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /variation-properties/{property_id}/values/{value_id}/order [put]
+func (h *Handler) UpdateVariationPropertyValueOrder(c echo.Context) error {
+	var data UpdateVariationPropertyValueOrderRequest
+	var propertyID uint
+	var valueID uint
+	err := echo.PathParamsBinder(c).MustUint("property_id", &propertyID).MustUint("value_id", &valueID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	if err := c.Bind(&data); err != nil {
+		return ToHTTPError(err)
+	}
+
+	if err := h.VariationPropertyService.UpdateVariationPropertyValueOrder(c.Request().Context(), service.UpdateVariationPropertyValueOrderParams{
+		PropertyID: propertyID,
+		ValueID:    valueID,
+		Order:      data.Order,
+	}); err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 // @Summary Check if variation property name is taken
 // @Description Check if variation property name is taken
 // @Accept json

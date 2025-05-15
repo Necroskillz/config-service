@@ -82,8 +82,22 @@ func (q *Queries) CreateVariationProperty(ctx context.Context, arg CreateVariati
 }
 
 const createVariationPropertyValue = `-- name: CreateVariationPropertyValue :one
-INSERT INTO variation_property_values (variation_property_id, value, parent_id)
-VALUES ($1, $2, $3)
+INSERT INTO variation_property_values (
+        variation_property_id,
+        value,
+        parent_id,
+        order_index
+    )
+SELECT $1,
+    $2,
+    $3,
+    (
+        SELECT COALESCE(MAX(order_index), 0) + 1
+        FROM variation_property_values
+        WHERE variation_property_id = $1
+            AND parent_id IS NOT DISTINCT
+        FROM $3
+    )
 RETURNING id
 `
 
@@ -272,19 +286,21 @@ func (q *Queries) GetVariationPropertyValueIDByValue(ctx context.Context, arg Ge
 const getVariationPropertyValues = `-- name: GetVariationPropertyValues :many
 SELECT vpv.id,
     vpv.value,
-    vpv.parent_id,
+    COALESCE(vpv.parent_id, 0) as parent_id,
     vp.name as property_name,
     vp.display_name as property_display_name,
     vp.id as property_id
 FROM variation_properties vp
     LEFT JOIN variation_property_values vpv ON vpv.variation_property_id = vp.id
-ORDER BY vpv.id
+ORDER BY vp.id,
+    parent_id,
+    vpv.order_index
 `
 
 type GetVariationPropertyValuesRow struct {
 	ID                  *uint
 	Value               *string
-	ParentID            *uint
+	ParentID            uint
 	PropertyName        string
 	PropertyDisplayName string
 	PropertyID          uint
@@ -330,5 +346,59 @@ type UpdateVariationPropertyParams struct {
 
 func (q *Queries) UpdateVariationProperty(ctx context.Context, arg UpdateVariationPropertyParams) error {
 	_, err := q.db.Exec(ctx, updateVariationProperty, arg.DisplayName, arg.ID)
+	return err
+}
+
+const updateVariationPropertyValueOrder = `-- name: UpdateVariationPropertyValueOrder :exec
+WITH source AS (
+    SELECT svpv.id,
+        svpv.order_index,
+        svpv.parent_id,
+        svpv.variation_property_id
+    FROM variation_property_values svpv
+    WHERE svpv.id = $1
+),
+bounds AS (
+    SELECT MIN(bvpv.order_index) AS min_index,
+        MAX(bvpv.order_index) AS max_index
+    FROM source s
+        JOIN variation_property_values bvpv ON (
+            bvpv.variation_property_id = s.variation_property_id
+            AND bvpv.parent_id IS NOT DISTINCT
+            FROM s.parent_id
+        )
+),
+params AS (
+    SELECT source.id,
+        source.variation_property_id,
+        source.parent_id,
+        source.order_index AS source_index,
+        GREATEST(
+            bounds.min_index,
+            LEAST($2::int, bounds.max_index)
+        ) AS target_index
+    FROM source,
+        bounds
+)
+UPDATE variation_property_values vpv
+SET order_index = CASE
+        WHEN vpv.order_index = params.source_index THEN params.target_index
+        WHEN params.source_index < params.target_index THEN vpv.order_index - 1
+        ELSE vpv.order_index + 1
+    END
+FROM params
+WHERE vpv.variation_property_id = params.variation_property_id
+    AND vpv.parent_id IS NOT DISTINCT
+FROM params.parent_id
+    AND vpv.order_index BETWEEN LEAST(params.source_index, params.target_index) AND GREATEST(params.source_index, params.target_index)
+`
+
+type UpdateVariationPropertyValueOrderParams struct {
+	ID          uint
+	TargetIndex int
+}
+
+func (q *Queries) UpdateVariationPropertyValueOrder(ctx context.Context, arg UpdateVariationPropertyValueOrderParams) error {
+	_, err := q.db.Exec(ctx, updateVariationPropertyValueOrder, arg.ID, arg.TargetIndex)
 	return err
 }

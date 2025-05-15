@@ -543,6 +543,7 @@ type VariationPropertyValue struct {
 	VariationPropertyID uint
 	Value               string
 	ParentID            *uint
+	OrderIndex          int
 	Archived            bool
 }
 

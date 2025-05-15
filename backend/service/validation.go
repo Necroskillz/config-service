@@ -105,7 +105,7 @@ func (s *ValidationService) DoesVariationExist(ctx context.Context, keyID uint, 
 		return 0, err
 	}
 
-	variationIDs, err := variationHierarchy.VariationMapToIds(serviceTypeID, variation)
+	variationIDs, err := variationHierarchy.VariationMapToIDs(serviceTypeID, variation)
 	if err != nil {
 		return 0, err
 	}

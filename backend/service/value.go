@@ -169,7 +169,7 @@ func (s *ValueService) CreateValue(ctx context.Context, data CreateValueParams) 
 		return NewValueInfo{}, err
 	}
 
-	variationIds, err := variationHierarchy.VariationMapToIds(serviceVersion.ServiceTypeID, data.Variation)
+	variationIds, err := variationHierarchy.VariationMapToIDs(serviceVersion.ServiceTypeID, data.Variation)
 	if err != nil {
 		return NewValueInfo{}, err
 	}
@@ -337,7 +337,7 @@ func (s *ValueService) UpdateValue(ctx context.Context, params UpdateValueParams
 		return NewValueInfo{}, err
 	}
 
-	variationIds, err := variationHierarchy.VariationMapToIds(serviceVersion.ServiceTypeID, params.Variation)
+	variationIds, err := variationHierarchy.VariationMapToIDs(serviceVersion.ServiceTypeID, params.Variation)
 	if err != nil {
 		return NewValueInfo{}, err
 	}

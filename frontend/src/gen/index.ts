@@ -81,6 +81,7 @@ export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutati
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { PutServicesServiceVersionIdPublishMutationKey } from './hooks/usePutServicesServiceVersionIdPublish.ts'
 export type { PutVariationPropertiesPropertyIdMutationKey } from './hooks/usePutVariationPropertiesPropertyId.ts'
+export type { PutVariationPropertiesPropertyIdValuesValueIdOrderMutationKey } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdOrder.ts'
 export type { AuthUser } from './types/auth/User.ts'
 export type { DbChangesetActionTypeEnum, DbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export type { DbChangesetChangeTypeEnum, DbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
@@ -395,6 +396,7 @@ export type { HandlerUpdateFeatureRequest } from './types/handler/UpdateFeatureR
 export type { HandlerUpdateKeyRequest } from './types/handler/UpdateKeyRequest.ts'
 export type { HandlerUpdateServiceRequest } from './types/handler/UpdateServiceRequest.ts'
 export type { HandlerUpdateVariationPropertyRequest } from './types/handler/UpdateVariationPropertyRequest.ts'
+export type { HandlerUpdateVariationPropertyValueOrderRequest } from './types/handler/UpdateVariationPropertyValueOrderRequest.ts'
 export type { HandlerValidatorRequest } from './types/handler/ValidatorRequest.ts'
 export type { HandlerValueRequest } from './types/handler/ValueRequest.ts'
 export type { HandlerVariationProperty } from './types/handler/VariationProperty.ts'
@@ -648,6 +650,18 @@ export type {
   PutVariationPropertiesPropertyIdMutationResponse,
   PutVariationPropertiesPropertyIdMutation,
 } from './types/PutVariationPropertiesPropertyId.ts'
+export type {
+  PutVariationPropertiesPropertyIdValuesValueIdOrderPathParams,
+  PutVariationPropertiesPropertyIdValuesValueIdOrder204,
+  PutVariationPropertiesPropertyIdValuesValueIdOrder400,
+  PutVariationPropertiesPropertyIdValuesValueIdOrder401,
+  PutVariationPropertiesPropertyIdValuesValueIdOrder403,
+  PutVariationPropertiesPropertyIdValuesValueIdOrder404,
+  PutVariationPropertiesPropertyIdValuesValueIdOrder500,
+  PutVariationPropertiesPropertyIdValuesValueIdOrderMutationRequest,
+  PutVariationPropertiesPropertyIdValuesValueIdOrderMutationResponse,
+  PutVariationPropertiesPropertyIdValuesValueIdOrderMutation,
+} from './types/PutVariationPropertiesPropertyIdValuesValueIdOrder.ts'
 export type { ServiceAllowedValidatorDto } from './types/service/AllowedValidatorDto.ts'
 export type { ServiceChangesetAction } from './types/service/ChangesetAction.ts'
 export type { ServiceChangesetChange } from './types/service/ChangesetChange.ts'
@@ -1084,6 +1098,11 @@ export {
   putVariationPropertiesPropertyId,
   usePutVariationPropertiesPropertyId,
 } from './hooks/usePutVariationPropertiesPropertyId.ts'
+export {
+  putVariationPropertiesPropertyIdValuesValueIdOrderMutationKey,
+  putVariationPropertiesPropertyIdValuesValueIdOrder,
+  usePutVariationPropertiesPropertyIdValuesValueIdOrder,
+} from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdOrder.ts'
 export { dbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export { dbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export { dbChangesetState } from './types/db/ChangesetState.ts'

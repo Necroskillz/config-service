@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { z } from 'zod';
 import { MutationErrors } from '~/components/MutationErrors';
 import { PageTitle } from '~/components/PageTitle';
@@ -16,6 +17,7 @@ import {
   useGetVariationPropertiesPropertyIdSuspense,
   usePostVariationPropertiesPropertyIdValues,
   usePutVariationPropertiesPropertyId,
+  usePutVariationPropertiesPropertyIdValuesValueIdOrder,
 } from '~/gen';
 import { cn } from '~/lib/utils';
 import { appTitle } from '~/utils/seo';
@@ -50,6 +52,14 @@ function RouteComponent() {
   });
 
   const createValueMutation = usePostVariationPropertiesPropertyIdValues({
+    mutation: {
+      onSuccess: async () => {
+        queryClient.refetchQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
+      },
+    },
+  });
+
+  const updateOrderMutation = usePutVariationPropertiesPropertyIdValuesValueIdOrder({
     mutation: {
       onSuccess: async () => {
         queryClient.refetchQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
@@ -144,8 +154,13 @@ function RouteComponent() {
         </form>
       </updateForm.AppForm>
       <h2 className="text-lg font-medium">Values</h2>
+      <MutationErrors mutations={[updateOrderMutation]} />
       {property.values.length > 0 ? (
-        <VariationPropertyValue value={{ id: 0, value: '', children: property.values }} />
+        <VariationPropertyValue
+          value={{ id: 0, value: '', children: property.values }}
+          onOrderChange={(id, order) => updateOrderMutation.mutate({ property_id: propertyId, value_id: id, data: { order } })}
+          disabled={updateOrderMutation.isPending}
+        />
       ) : (
         <div className="text-sm text-muted-foreground">No values</div>
       )}
@@ -229,16 +244,50 @@ function RouteComponent() {
   );
 }
 
-function VariationPropertyValue({ value }: { value: ServiceVariationPropertyValueDto }) {
+function VariationPropertyValue({
+  value,
+  onOrderChange,
+  disabled,
+  order = 0,
+  isLast = false,
+}: {
+  value: ServiceVariationPropertyValueDto;
+  onOrderChange: (id: number, order: number) => void;
+  disabled: boolean;
+  order?: number;
+  isLast?: boolean;
+}) {
+  const canChangeOrderUp = !disabled && order > 1;
+  const canChangeOrderDown = !disabled && !isLast;
+
   return (
     <div className="mb-2">
-      <div className="flex flex-row items-center gap-2 mb-2">
-        <div>{value.value}</div>
-      </div>
+      {value.id !== 0 && (
+        <div className="flex flex-row items-center gap-2 mb-2">
+          <div className="flex flex-col gap-1">
+            <ChevronUp
+              className={cn('w-4 h-4', canChangeOrderUp ? 'cursor-pointer' : 'opacity-50')}
+              onClick={() => canChangeOrderUp && onOrderChange(value.id, order - 1)}
+            />
+            <ChevronDown
+              className={cn('w-4 h-4', canChangeOrderDown ? 'cursor-pointer' : 'opacity-50')}
+              onClick={() => canChangeOrderDown && onOrderChange(value.id, order + 1)}
+            />
+          </div>
+          <pre>{value.value}</pre>
+        </div>
+      )}
       {value.children && (
         <div className={cn('border-l border-muted-foreground pl-1', value.id !== 0 && 'ml-8')}>
-          {value.children.map((child) => (
-            <VariationPropertyValue key={child.id} value={child} />
+          {value.children.map((child, index) => (
+            <VariationPropertyValue
+              key={child.id}
+              value={child}
+              order={index + 1}
+              onOrderChange={onOrderChange}
+              disabled={disabled}
+              isLast={index === value.children.length - 1}
+            />
           ))}
         </div>
       )}

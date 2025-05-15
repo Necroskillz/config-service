@@ -81,7 +81,7 @@ func (s *Server) Start() error {
 	featureService := service.NewFeatureService(unitOfWorkRunner, queries, changesetService, currentUserAccessor, validator, coreService, validationService)
 	keyService := service.NewKeyService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService, variationHierarchyService, validationService)
 	valueService := service.NewValueService(unitOfWorkRunner, variationContextService, variationHierarchyService, queries, changesetService, currentUserAccessor, validator, coreService, validationService, valueValidatorService)
-	variationPropertyService := service.NewVariationPropertyService(queries, variationHierarchyService, validator, validationService, currentUserAccessor)
+	variationPropertyService := service.NewVariationPropertyService(queries, variationHierarchyService, validator, validationService, currentUserAccessor, unitOfWorkRunner)
 
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{

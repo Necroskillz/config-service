@@ -121,8 +121,10 @@ CREATE TABLE variation_property_values (
     variation_property_id BIGINT NOT NULL REFERENCES variation_properties(id),
     value TEXT NOT NULL,
     parent_id BIGINT REFERENCES variation_property_values(id),
+    order_index INTEGER NOT NULL,
     archived BOOLEAN NOT NULL DEFAULT FALSE
 );
+CREATE INDEX idx_variation_property_values_order_index ON variation_property_values(order_index);
 CREATE TABLE variation_contexts (
     id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP

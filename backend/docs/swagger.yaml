@@ -269,6 +269,13 @@ definitions:
     required:
     - displayName
     type: object
+  handler.UpdateVariationPropertyValueOrderRequest:
+    properties:
+      order:
+        type: integer
+    required:
+    - order
+    type: object
   handler.ValidatorRequest:
     properties:
       errorText:
@@ -3024,6 +3031,56 @@ paths:
       security:
       - BearerAuth: []
       summary: Create variation property value
+  /variation-properties/{property_id}/values/{value_id}/order:
+    put:
+      consumes:
+      - application/json
+      description: Update variation property value order
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      - description: Value ID
+        in: path
+        name: value_id
+        required: true
+        type: integer
+      - description: Variation property value order
+        in: body
+        name: variation_property_value_order
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateVariationPropertyValueOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Update variation property value order
   /variation-properties/name-taken/{name}:
     get:
       consumes:
