@@ -11,13 +11,8 @@ import (
 )
 
 const addChangesetAction = `-- name: AddChangesetAction :exec
-INSERT INTO changeset_actions (changeset_id, user_id, type, comment)
-VALUES (
-        $1,
-        $2,
-        $3,
-        $4
-    )
+INSERT INTO changeset_actions(changeset_id, user_id, type, comment)
+    VALUES ($1, $2, $3, $4)
 `
 
 type AddChangesetActionParams struct {
@@ -38,22 +33,8 @@ func (q *Queries) AddChangesetAction(ctx context.Context, arg AddChangesetAction
 }
 
 const addCreateFeatureVersionChange = `-- name: AddCreateFeatureVersionChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        feature_version_id,
-        previous_feature_version_id,
-        service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3,
-        $4::bigint,
-        'create',
-        'feature_version'
-    )
+INSERT INTO changeset_changes(changeset_id, feature_version_id, previous_feature_version_id, service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3, $4::bigint, 'create', 'feature_version')
 `
 
 type AddCreateFeatureVersionChangeParams struct {
@@ -74,22 +55,8 @@ func (q *Queries) AddCreateFeatureVersionChange(ctx context.Context, arg AddCrea
 }
 
 const addCreateFeatureVersionServiceVersionChange = `-- name: AddCreateFeatureVersionServiceVersionChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        feature_version_service_version_id,
-        feature_version_id,
-        service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3::bigint,
-        $4::bigint,
-        'create',
-        'feature_version_service_version'
-    )
+INSERT INTO changeset_changes(changeset_id, feature_version_service_version_id, feature_version_id, service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3::bigint, $4::bigint, 'create', 'feature_version_service_version')
 `
 
 type AddCreateFeatureVersionServiceVersionChangeParams struct {
@@ -110,22 +77,8 @@ func (q *Queries) AddCreateFeatureVersionServiceVersionChange(ctx context.Contex
 }
 
 const addCreateKeyChange = `-- name: AddCreateKeyChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        key_id,
-        feature_version_id,
-        service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3::bigint,
-        $4::bigint,
-        'create',
-        'key'
-    )
+INSERT INTO changeset_changes(changeset_id, key_id, feature_version_id, service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3::bigint, $4::bigint, 'create', 'key')
 `
 
 type AddCreateKeyChangeParams struct {
@@ -146,20 +99,8 @@ func (q *Queries) AddCreateKeyChange(ctx context.Context, arg AddCreateKeyChange
 }
 
 const addCreateServiceVersionChange = `-- name: AddCreateServiceVersionChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        service_version_id,
-        previous_service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3,
-        'create',
-        'service_version'
-    )
+INSERT INTO changeset_changes(changeset_id, service_version_id, previous_service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3, 'create', 'service_version')
 `
 
 type AddCreateServiceVersionChangeParams struct {
@@ -174,24 +115,8 @@ func (q *Queries) AddCreateServiceVersionChange(ctx context.Context, arg AddCrea
 }
 
 const addCreateVariationValueChange = `-- name: AddCreateVariationValueChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        new_variation_value_id,
-        feature_version_id,
-        key_id,
-        service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3::bigint,
-        $4::bigint,
-        $5::bigint,
-        'create',
-        'variation_value'
-    )
+INSERT INTO changeset_changes(changeset_id, new_variation_value_id, feature_version_id, key_id, service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3::bigint, $4::bigint, $5::bigint, 'create', 'variation_value')
 `
 
 type AddCreateVariationValueChangeParams struct {
@@ -214,22 +139,8 @@ func (q *Queries) AddCreateVariationValueChange(ctx context.Context, arg AddCrea
 }
 
 const addDeleteFeatureVersionServiceVersionChange = `-- name: AddDeleteFeatureVersionServiceVersionChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        feature_version_service_version_id,
-        feature_version_id,
-        service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3::bigint,
-        $4::bigint,
-        'delete',
-        'feature_version_service_version'
-    )
+INSERT INTO changeset_changes(changeset_id, feature_version_service_version_id, feature_version_id, service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3::bigint, $4::bigint, 'delete', 'feature_version_service_version')
 `
 
 type AddDeleteFeatureVersionServiceVersionChangeParams struct {
@@ -250,22 +161,8 @@ func (q *Queries) AddDeleteFeatureVersionServiceVersionChange(ctx context.Contex
 }
 
 const addDeleteKeyChange = `-- name: AddDeleteKeyChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        key_id,
-        feature_version_id,
-        service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3::bigint,
-        $4::bigint,
-        'delete',
-        'key'
-    )
+INSERT INTO changeset_changes(changeset_id, key_id, feature_version_id, service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3::bigint, $4::bigint, 'delete', 'key')
 `
 
 type AddDeleteKeyChangeParams struct {
@@ -286,24 +183,8 @@ func (q *Queries) AddDeleteKeyChange(ctx context.Context, arg AddDeleteKeyChange
 }
 
 const addDeleteVariationValueChange = `-- name: AddDeleteVariationValueChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        old_variation_value_id,
-        feature_version_id,
-        key_id,
-        service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3::bigint,
-        $4::bigint,
-        $5::bigint,
-        'delete',
-        'variation_value'
-    )
+INSERT INTO changeset_changes(changeset_id, old_variation_value_id, feature_version_id, key_id, service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3::bigint, $4::bigint, $5::bigint, 'delete', 'variation_value')
 `
 
 type AddDeleteVariationValueChangeParams struct {
@@ -326,26 +207,8 @@ func (q *Queries) AddDeleteVariationValueChange(ctx context.Context, arg AddDele
 }
 
 const addUpdateVariationValueChange = `-- name: AddUpdateVariationValueChange :exec
-INSERT INTO changeset_changes (
-        changeset_id,
-        new_variation_value_id,
-        old_variation_value_id,
-        feature_version_id,
-        key_id,
-        service_version_id,
-        type,
-        kind
-    )
-VALUES (
-        $1,
-        $2::bigint,
-        $3::bigint,
-        $4::bigint,
-        $5::bigint,
-        $6::bigint,
-        'update',
-        'variation_value'
-    )
+INSERT INTO changeset_changes(changeset_id, new_variation_value_id, old_variation_value_id, feature_version_id, key_id, service_version_id, type, kind)
+    VALUES ($1, $2::bigint, $3::bigint, $4::bigint, $5::bigint, $6::bigint, 'update', 'variation_value')
 `
 
 type AddUpdateVariationValueChangeParams struct {
@@ -370,9 +233,10 @@ func (q *Queries) AddUpdateVariationValueChange(ctx context.Context, arg AddUpda
 }
 
 const createChangeset = `-- name: CreateChangeset :one
-INSERT INTO changesets (user_id, state)
-VALUES ($1, 'open')
-RETURNING id
+INSERT INTO changesets(user_id, state)
+    VALUES ($1, 'open')
+RETURNING
+    id
 `
 
 func (q *Queries) CreateChangeset(ctx context.Context, userID uint) (uint, error) {
@@ -404,31 +268,43 @@ func (q *Queries) DeleteChangesForChangeset(ctx context.Context, changesetID uin
 
 const getApprovableChangesetCount = `-- name: GetApprovableChangesetCount :one
 WITH changeset_services AS (
-    SELECT DISTINCT cs.id,
+    SELECT DISTINCT
+        cs.id,
         sv.service_id
-    FROM changesets cs
+    FROM
+        changesets cs
         JOIN changeset_changes csc ON csc.changeset_id = cs.id
         JOIN service_versions sv ON sv.id = csc.service_version_id
-    WHERE cs.state = 'committed'
+    WHERE
+        cs.state = 'committed'
 ),
 user_service_permissions AS (
-    SELECT DISTINCT service_id
-    FROM user_permissions up
-    WHERE up.kind = 'service'
+    SELECT DISTINCT
+        service_id
+    FROM
+        user_permissions up
+    WHERE
+        up.kind = 'service'
         AND up.user_id = $1
         AND up.permission = 'admin'
 )
-SELECT COUNT(DISTINCT cs.id)::integer
-FROM changeset_services cs
-WHERE NOT EXISTS (
-        SELECT 1
-        FROM changeset_services sub
-        WHERE sub.id = cs.id
+SELECT
+    COUNT(DISTINCT cs.id)::integer
+FROM
+    changeset_services cs
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            changeset_services sub
+        WHERE
+            sub.id = cs.id
             AND sub.service_id NOT IN (
-                SELECT service_id
-                FROM user_service_permissions
-            )
-    )
+                SELECT
+                    service_id
+                FROM
+                    user_service_permissions))
 `
 
 func (q *Queries) GetApprovableChangesetCount(ctx context.Context, userID uint) (int, error) {
@@ -439,11 +315,14 @@ func (q *Queries) GetApprovableChangesetCount(ctx context.Context, userID uint) 
 }
 
 const getChangeForFeatureVersionServiceVersion = `-- name: GetChangeForFeatureVersionServiceVersion :one
-SELECT csc.id,
+SELECT
+    csc.id,
     csc.type,
     csc.feature_version_service_version_id
-FROM changeset_changes csc
-WHERE csc.changeset_id = $1
+FROM
+    changeset_changes csc
+WHERE
+    csc.changeset_id = $1
     AND csc.service_version_id = $2::bigint
     AND csc.feature_version_id = $3::bigint
     AND csc.kind = 'feature_version_service_version'
@@ -470,13 +349,16 @@ func (q *Queries) GetChangeForFeatureVersionServiceVersion(ctx context.Context, 
 }
 
 const getChangeForKey = `-- name: GetChangeForKey :one
-SELECT csc.id,
+SELECT
+    csc.id,
     csc.type,
     csc.key_id,
     csc.feature_version_id,
     csc.service_version_id
-FROM changeset_changes csc
-WHERE csc.changeset_id = $1
+FROM
+    changeset_changes csc
+WHERE
+    csc.changeset_id = $1
     AND csc.kind = 'key'
     AND csc.key_id = $2::bigint
 LIMIT 1
@@ -509,21 +391,19 @@ func (q *Queries) GetChangeForKey(ctx context.Context, arg GetChangeForKeyParams
 }
 
 const getChangeForVariationValue = `-- name: GetChangeForVariationValue :one
-SELECT csc.id,
+SELECT
+    csc.id,
     csc.type,
     csc.new_variation_value_id,
     csc.old_variation_value_id,
     vv.variation_context_id
-FROM changeset_changes csc
-    JOIN variation_values vv ON vv.id = COALESCE(
-        csc.new_variation_value_id,
-        csc.old_variation_value_id
-    )
-WHERE csc.changeset_id = $1
-    AND (
-        csc.old_variation_value_id = $2::bigint
-        OR csc.new_variation_value_id = $2::bigint
-    )
+FROM
+    changeset_changes csc
+    JOIN variation_values vv ON vv.id = COALESCE(csc.new_variation_value_id, csc.old_variation_value_id)
+WHERE
+    csc.changeset_id = $1
+    AND (csc.old_variation_value_id = $2::bigint
+        OR csc.new_variation_value_id = $2::bigint)
 LIMIT 1
 `
 
@@ -554,13 +434,16 @@ func (q *Queries) GetChangeForVariationValue(ctx context.Context, arg GetChangeF
 }
 
 const getChangeset = `-- name: GetChangeset :one
-SELECT cs.id,
+SELECT
+    cs.id,
     cs.state,
-    u.id as user_id,
-    u.name as user_name
-FROM changesets cs
+    u.id AS user_id,
+    u.name AS user_name
+FROM
+    changesets cs
     JOIN users u ON u.id = cs.user_id
-WHERE cs.id = $1
+WHERE
+    cs.id = $1
 LIMIT 1
 `
 
@@ -584,16 +467,20 @@ func (q *Queries) GetChangeset(ctx context.Context, changesetID uint) (GetChange
 }
 
 const getChangesetActions = `-- name: GetChangesetActions :many
-SELECT ca.id,
+SELECT
+    ca.id,
     ca.type,
     ca.comment,
     ca.created_at,
-    u.id as user_id,
-    u.name as user_name
-FROM changeset_actions ca
+    u.id AS user_id,
+    u.name AS user_name
+FROM
+    changeset_actions ca
     JOIN users u ON u.id = ca.user_id
-WHERE ca.changeset_id = $1
-ORDER BY ca.id
+WHERE
+    ca.changeset_id = $1
+ORDER BY
+    ca.id
 `
 
 type GetChangesetActionsRow struct {
@@ -633,28 +520,30 @@ func (q *Queries) GetChangesetActions(ctx context.Context, changesetID uint) ([]
 }
 
 const getChangesetChanges = `-- name: GetChangesetChanges :many
-SELECT csc.id,
+SELECT
+    csc.id,
     csc.type,
     csc.kind,
-    sv.id as service_version_id,
+    sv.id AS service_version_id,
     csc.previous_service_version_id,
-    s.name as service_name,
-    s.id as service_id,
-    sv.version as service_version,
-    fv.id as feature_version_id,
+    s.name AS service_name,
+    s.id AS service_id,
+    sv.version AS service_version,
+    fv.id AS feature_version_id,
     csc.previous_feature_version_id,
-    f.name as feature_name,
-    f.id as feature_id,
-    fv.version as feature_version,
-    k.id as key_id,
-    k.name as key_name,
-    nv.id as new_variation_value_id,
-    nv.data as new_variation_value_data,
-    ov.id as old_variation_value_id,
-    ov.data as old_variation_value_data,
-    vc.id as variation_context_id,
+    f.name AS feature_name,
+    f.id AS feature_id,
+    fv.version AS feature_version,
+    k.id AS key_id,
+    k.name AS key_name,
+    nv.id AS new_variation_value_id,
+    nv.data AS new_variation_value_data,
+    ov.id AS old_variation_value_id,
+    ov.data AS old_variation_value_data,
+    vc.id AS variation_context_id,
     csc.feature_version_service_version_id
-FROM changeset_changes csc
+FROM
+    changeset_changes csc
     JOIN service_versions sv ON sv.id = csc.service_version_id
     JOIN services s ON s.id = sv.service_id
     LEFT JOIN feature_versions fv ON fv.id = csc.feature_version_id
@@ -663,8 +552,10 @@ FROM changeset_changes csc
     LEFT JOIN variation_values nv ON nv.id = csc.new_variation_value_id
     LEFT JOIN variation_values ov ON ov.id = csc.old_variation_value_id
     LEFT JOIN variation_contexts vc ON vc.id = COALESCE(nv.variation_context_id, ov.variation_context_id)
-WHERE changeset_id = $1
-ORDER BY csc.id
+WHERE
+    changeset_id = $1
+ORDER BY
+    csc.id
 `
 
 type GetChangesetChangesRow struct {
@@ -734,9 +625,12 @@ func (q *Queries) GetChangesetChanges(ctx context.Context, changesetID uint) ([]
 }
 
 const getChangesetChangesCount = `-- name: GetChangesetChangesCount :one
-SELECT COUNT(*)::integer
-FROM changeset_changes csc
-WHERE csc.changeset_id = $1
+SELECT
+    COUNT(*)::integer
+FROM
+    changeset_changes csc
+WHERE
+    csc.changeset_id = $1
 `
 
 func (q *Queries) GetChangesetChangesCount(ctx context.Context, changesetID uint) (int, error) {
@@ -748,72 +642,88 @@ func (q *Queries) GetChangesetChangesCount(ctx context.Context, changesetID uint
 
 const getChangesets = `-- name: GetChangesets :many
 WITH changeset_services AS (
-    SELECT DISTINCT cs.id,
+    SELECT DISTINCT
+        cs.id,
         sv.service_id
-    FROM changesets cs
+    FROM
+        changesets cs
         JOIN changeset_changes csc ON csc.changeset_id = cs.id
         JOIN service_versions sv ON sv.id = csc.service_version_id
-    WHERE cs.state = 'committed'
+    WHERE
+        cs.state = 'committed'
 ),
 user_service_permissions AS (
-    SELECT DISTINCT service_id
-    FROM user_permissions up
-    WHERE up.kind = 'service'
+    SELECT DISTINCT
+        service_id
+    FROM
+        user_permissions up
+    WHERE
+        up.kind = 'service'
         AND up.user_id = $3::bigint
         AND up.permission = 'admin'
 ),
 filtered_changesets AS (
-    SELECT cs.id
-    FROM changesets cs
-    WHERE (
-            $4::bigint IS NULL
-            OR cs.user_id = $4::bigint
-        )
-        AND (
-            $3::bigint IS NULL
-            OR (
-                cs.state = 'committed'
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM changeset_services sub
-                    WHERE sub.id = cs.id
-                        AND sub.service_id NOT IN (
-                            SELECT service_id
-                            FROM user_service_permissions
-                        )
-                )
-            )
-        )
+    SELECT
+        cs.id
+    FROM
+        changesets cs
+    WHERE ($4::bigint IS NULL
+        OR cs.user_id = $4::bigint)
+    AND ($3::bigint IS NULL
+        OR (cs.state = 'committed'
+            AND NOT EXISTS (
+                SELECT
+                    1
+                FROM
+                    changeset_services sub
+                WHERE
+                    sub.id = cs.id
+                    AND sub.service_id NOT IN (
+                        SELECT
+                            service_id
+                        FROM
+                            user_service_permissions))))
 ),
 last_actions AS (
-    SELECT DISTINCT ON (changeset_id) changeset_id,
-        created_at as last_action_at
-    FROM changeset_actions
-    ORDER BY changeset_id,
+    SELECT DISTINCT ON (changeset_id)
+        changeset_id,
+        created_at AS last_action_at
+    FROM
+        changeset_actions
+    ORDER BY
+        changeset_id,
         created_at DESC
 ),
 action_counts AS (
-    SELECT changeset_id,
-        COUNT(*)::integer as action_count
-    FROM changeset_actions
-    GROUP BY changeset_id
+    SELECT
+        changeset_id,
+        COUNT(*)::integer AS action_count
+    FROM
+        changeset_actions
+    GROUP BY
+        changeset_id
 ),
 total_count AS (
-    SELECT COUNT(*)::integer as total
-    FROM filtered_changesets
+    SELECT
+        COUNT(*)::integer AS total
+    FROM
+        filtered_changesets
 )
-SELECT cs.id, cs.created_at, cs.updated_at, cs.user_id, cs.state,
-    COALESCE(la.last_action_at, cs.created_at) as last_action_at,
-    COALESCE(ac.action_count, 0)::integer as action_count,
-    u.name as user_name,
-    tc.total as total_count
-FROM filtered_changesets fc
+SELECT
+    cs.id, cs.created_at, cs.updated_at, cs.user_id, cs.state,
+    COALESCE(la.last_action_at, cs.created_at) AS last_action_at,
+    COALESCE(ac.action_count, 0)::integer AS action_count,
+    u.name AS user_name,
+    tc.total AS total_count
+FROM
+    filtered_changesets fc
     JOIN changesets cs ON cs.id = fc.id
     JOIN users u ON u.id = cs.user_id
     LEFT JOIN last_actions la ON la.changeset_id = cs.id
     LEFT JOIN action_counts ac ON ac.changeset_id = cs.id
     CROSS JOIN total_count tc
-ORDER BY cs.id DESC
+ORDER BY
+    cs.id DESC
 LIMIT $2::integer OFFSET $1::integer
 `
 
@@ -872,9 +782,12 @@ func (q *Queries) GetChangesets(ctx context.Context, arg GetChangesetsParams) ([
 }
 
 const getOpenChangesetIDForUser = `-- name: GetOpenChangesetIDForUser :one
-SELECT id
-FROM changesets
-WHERE user_id = $1
+SELECT
+    id
+FROM
+    changesets
+WHERE
+    user_id = $1
     AND state = 'open'
 LIMIT 1
 `
@@ -887,15 +800,16 @@ func (q *Queries) GetOpenChangesetIDForUser(ctx context.Context, userID uint) (u
 }
 
 const getRelatedFeatureVersionChangesCount = `-- name: GetRelatedFeatureVersionChangesCount :one
-SELECT COUNT(*)::integer
-FROM changeset_changes csc
-WHERE csc.feature_version_id = $1::bigint
+SELECT
+    COUNT(*)::integer
+FROM
+    changeset_changes csc
+WHERE
+    csc.feature_version_id = $1::bigint
     AND csc.changeset_id = $2
-    AND (
-        csc.kind = 'feature_version'
+    AND (csc.kind = 'feature_version'
         OR csc.kind = 'key'
-        OR csc.kind = 'variation_value'
-    )
+        OR csc.kind = 'variation_value')
 `
 
 type GetRelatedFeatureVersionChangesCountParams struct {
@@ -911,9 +825,12 @@ func (q *Queries) GetRelatedFeatureVersionChangesCount(ctx context.Context, arg 
 }
 
 const getRelatedKeyChangesCount = `-- name: GetRelatedKeyChangesCount :one
-SELECT COUNT(*)::integer
-FROM changeset_changes csc
-WHERE csc.key_id = $1::bigint
+SELECT
+    COUNT(*)::integer
+FROM
+    changeset_changes csc
+WHERE
+    csc.key_id = $1::bigint
     AND csc.changeset_id = $2
 `
 
@@ -930,9 +847,12 @@ func (q *Queries) GetRelatedKeyChangesCount(ctx context.Context, arg GetRelatedK
 }
 
 const getRelatedServiceVersionChangesCount = `-- name: GetRelatedServiceVersionChangesCount :one
-SELECT COUNT(*)::integer
-FROM changeset_changes csc
-WHERE csc.service_version_id = $1
+SELECT
+    COUNT(*)::integer
+FROM
+    changeset_changes csc
+WHERE
+    csc.service_version_id = $1
     AND csc.changeset_id = $2
 `
 
@@ -949,9 +869,12 @@ func (q *Queries) GetRelatedServiceVersionChangesCount(ctx context.Context, arg 
 }
 
 const setChangesetState = `-- name: SetChangesetState :exec
-UPDATE changesets
-SET state = $1
-WHERE id = $2
+UPDATE
+    changesets
+SET
+    state = $1
+WHERE
+    id = $2
 `
 
 type SetChangesetStateParams struct {

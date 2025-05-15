@@ -285,6 +285,8 @@ definitions:
       validatorType:
         $ref: '#/definitions/db.ValueValidatorType'
     required:
+    - errorText
+    - parameter
     - validatorType
     type: object
   handler.ValueRequest:

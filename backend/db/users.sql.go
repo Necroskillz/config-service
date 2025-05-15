@@ -10,9 +10,10 @@ import (
 )
 
 const createPermission = `-- name: CreatePermission :one
-INSERT INTO user_permissions (user_id, kind, service_id, feature_id, key_id, permission, variation_context_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id
+INSERT INTO user_permissions(user_id, kind, service_id, feature_id, key_id, permission, variation_context_id)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING
+    id
 `
 
 type CreatePermissionParams struct {
@@ -41,9 +42,10 @@ func (q *Queries) CreatePermission(ctx context.Context, arg CreatePermissionPara
 }
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (name, password, global_administrator)
-VALUES ($1, $2, $3)
-RETURNING id
+INSERT INTO users(name, password, global_administrator)
+    VALUES ($1, $2, $3)
+RETURNING
+    id
 `
 
 type CreateUserParams struct {
@@ -60,9 +62,12 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uint, e
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_at, updated_at, deleted_at, name, password, global_administrator
-FROM users
-WHERE id = $1
+SELECT
+    id, created_at, updated_at, deleted_at, name, password, global_administrator
+FROM
+    users
+WHERE
+    id = $1
     AND deleted_at IS NULL
 `
 
@@ -82,9 +87,12 @@ func (q *Queries) GetUserByID(ctx context.Context, userID uint) (User, error) {
 }
 
 const getUserByName = `-- name: GetUserByName :one
-SELECT id, created_at, updated_at, deleted_at, name, password, global_administrator
-FROM users
-WHERE name = $1
+SELECT
+    id, created_at, updated_at, deleted_at, name, password, global_administrator
+FROM
+    users
+WHERE
+    name = $1
     AND deleted_at IS NULL
 LIMIT 1
 `
@@ -105,14 +113,17 @@ func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) 
 }
 
 const getUserPermissions = `-- name: GetUserPermissions :many
-SELECT up.id,
+SELECT
+    up.id,
     up.service_id,
     up.feature_id,
     up.key_id,
     up.permission,
     up.variation_context_id
-FROM user_permissions up
-WHERE up.user_id = $1
+FROM
+    user_permissions up
+WHERE
+    up.user_id = $1
 `
 
 type GetUserPermissionsRow struct {

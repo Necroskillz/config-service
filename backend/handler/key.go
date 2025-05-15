@@ -79,8 +79,8 @@ func (h *Handler) Key(c echo.Context) error {
 
 type ValidatorRequest struct {
 	ValidatorType db.ValueValidatorType `json:"validatorType" validate:"required"`
-	Parameter     string                `json:"parameter"`
-	ErrorText     string                `json:"errorText"`
+	Parameter     string                `json:"parameter" validate:"required"`
+	ErrorText     string                `json:"errorText" validate:"required"`
 }
 
 type ValidatorRequestList []ValidatorRequest

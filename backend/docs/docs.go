@@ -3962,6 +3962,8 @@ const docTemplate = `{
         "handler.ValidatorRequest": {
             "type": "object",
             "required": [
+                "errorText",
+                "parameter",
                 "validatorType"
             ],
             "properties": {

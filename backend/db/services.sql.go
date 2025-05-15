@@ -11,9 +11,10 @@ import (
 )
 
 const createService = `-- name: CreateService :one
-INSERT INTO services (name, description, service_type_id)
-VALUES ($1, $2, $3)
-RETURNING id
+INSERT INTO services(name, description, service_type_id)
+    VALUES ($1, $2, $3)
+RETURNING
+    id
 `
 
 type CreateServiceParams struct {
@@ -30,9 +31,10 @@ func (q *Queries) CreateService(ctx context.Context, arg CreateServiceParams) (u
 }
 
 const createServiceType = `-- name: CreateServiceType :one
-INSERT INTO service_types (name)
-VALUES ($1)
-RETURNING id
+INSERT INTO service_types(name)
+    VALUES ($1)
+RETURNING
+    id
 `
 
 func (q *Queries) CreateServiceType(ctx context.Context, name string) (uint, error) {
@@ -43,9 +45,10 @@ func (q *Queries) CreateServiceType(ctx context.Context, name string) (uint, err
 }
 
 const createServiceVersion = `-- name: CreateServiceVersion :one
-INSERT INTO service_versions (service_id, version)
-VALUES ($1, $2)
-RETURNING id
+INSERT INTO service_versions(service_id, version)
+    VALUES ($1, $2)
+RETURNING
+    id
 `
 
 type CreateServiceVersionParams struct {
@@ -81,9 +84,12 @@ func (q *Queries) DeleteServiceVersion(ctx context.Context, serviceVersionID uin
 }
 
 const endServiceVersionValidity = `-- name: EndServiceVersionValidity :exec
-UPDATE service_versions
-SET valid_to = $1
-WHERE id = $2
+UPDATE
+    service_versions
+SET
+    valid_to = $1
+WHERE
+    id = $2
 `
 
 type EndServiceVersionValidityParams struct {
@@ -97,9 +103,12 @@ func (q *Queries) EndServiceVersionValidity(ctx context.Context, arg EndServiceV
 }
 
 const getServiceIDByName = `-- name: GetServiceIDByName :one
-SELECT id
-FROM services
-WHERE name = $1
+SELECT
+    id
+FROM
+    services
+WHERE
+    name = $1
 LIMIT 1
 `
 
@@ -111,9 +120,12 @@ func (q *Queries) GetServiceIDByName(ctx context.Context, name string) (uint, er
 }
 
 const getServiceType = `-- name: GetServiceType :one
-SELECT id, created_at, name
-FROM service_types
-WHERE id = $1
+SELECT
+    id, created_at, name
+FROM
+    service_types
+WHERE
+    id = $1
 LIMIT 1
 `
 
@@ -125,9 +137,12 @@ func (q *Queries) GetServiceType(ctx context.Context, serviceTypeID uint) (Servi
 }
 
 const getServiceTypes = `-- name: GetServiceTypes :many
-SELECT id, created_at, name
-FROM service_types
-ORDER BY name
+SELECT
+    id, created_at, name
+FROM
+    service_types
+ORDER BY
+    name
 `
 
 func (q *Queries) GetServiceTypes(ctx context.Context) ([]ServiceType, error) {
@@ -152,27 +167,34 @@ func (q *Queries) GetServiceTypes(ctx context.Context) ([]ServiceType, error) {
 
 const getServiceVersion = `-- name: GetServiceVersion :one
 WITH last_service_versions AS (
-    SELECT sv.service_id,
-        MAX(sv.version)::int as last_version
-    FROM service_versions sv
-    WHERE is_service_version_valid_in_changeset(sv, $2)
-    GROUP BY sv.service_id
+    SELECT
+        sv.service_id,
+        MAX(sv.version)::int AS last_version
+    FROM
+        service_versions sv
+    WHERE
+        is_service_version_valid_in_changeset(sv, $2)
+    GROUP BY
+        sv.service_id
 )
-SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
-    s.name as service_name,
-    s.description as service_description,
-    s.service_type_id as service_type_id,
-    st.name as service_type_name,
-    lsv.last_version as last_version,
-    csc.changeset_id as changeset_id
-FROM service_versions sv
+SELECT
+    sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
+    s.name AS service_name,
+    s.description AS service_description,
+    s.service_type_id AS service_type_id,
+    st.name AS service_type_name,
+    lsv.last_version AS last_version,
+    csc.changeset_id AS changeset_id
+FROM
+    service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
     JOIN last_service_versions lsv ON lsv.service_id = sv.service_id
     JOIN changeset_changes csc ON csc.service_version_id = sv.id
-    AND csc.type = 'create'
-    AND csc.kind = 'service_version'
-WHERE sv.id = $1
+        AND csc.type = 'create'
+        AND csc.kind = 'service_version'
+WHERE
+    sv.id = $1
     AND is_service_version_valid_in_changeset(sv, $2)
 LIMIT 1
 `
@@ -222,16 +244,20 @@ func (q *Queries) GetServiceVersion(ctx context.Context, arg GetServiceVersionPa
 }
 
 const getServiceVersions = `-- name: GetServiceVersions :many
-SELECT sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
-    s.name as service_name,
-    s.description as service_description,
-    s.service_type_id as service_type_id,
-    st.name as service_type_name
-FROM service_versions sv
+SELECT
+    sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
+    s.name AS service_name,
+    s.description AS service_description,
+    s.service_type_id AS service_type_id,
+    st.name AS service_type_name
+FROM
+    service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
-WHERE is_service_version_valid_in_changeset(sv, $1)
-ORDER BY s.name,
+WHERE
+    is_service_version_valid_in_changeset(sv, $1)
+ORDER BY
+    s.name,
     sv.version ASC
 `
 
@@ -284,12 +310,16 @@ func (q *Queries) GetServiceVersions(ctx context.Context, changesetID uint) ([]G
 }
 
 const getServiceVersionsForService = `-- name: GetServiceVersionsForService :many
-SELECT sv.id,
+SELECT
+    sv.id,
     sv.version
-FROM service_versions sv
-WHERE sv.service_id = $1
+FROM
+    service_versions sv
+WHERE
+    sv.service_id = $1
     AND is_service_version_valid_in_changeset(sv, $2)
-ORDER BY sv.version ASC
+ORDER BY
+    sv.version ASC
 `
 
 type GetServiceVersionsForServiceParams struct {
@@ -323,9 +353,12 @@ func (q *Queries) GetServiceVersionsForService(ctx context.Context, arg GetServi
 }
 
 const publishServiceVersion = `-- name: PublishServiceVersion :exec
-UPDATE service_versions
-SET published = TRUE
-WHERE id = $1
+UPDATE
+    service_versions
+SET
+    published = TRUE
+WHERE
+    id = $1
 `
 
 func (q *Queries) PublishServiceVersion(ctx context.Context, serviceVersionID uint) error {
@@ -334,9 +367,12 @@ func (q *Queries) PublishServiceVersion(ctx context.Context, serviceVersionID ui
 }
 
 const startServiceVersionValidity = `-- name: StartServiceVersionValidity :exec
-UPDATE service_versions
-SET valid_from = $1
-WHERE id = $2
+UPDATE
+    service_versions
+SET
+    valid_from = $1
+WHERE
+    id = $2
 `
 
 type StartServiceVersionValidityParams struct {
@@ -350,9 +386,12 @@ func (q *Queries) StartServiceVersionValidity(ctx context.Context, arg StartServ
 }
 
 const updateService = `-- name: UpdateService :exec
-UPDATE services
-SET description = $1
-WHERE id = $2
+UPDATE
+    services
+SET
+    description = $1
+WHERE
+    id = $2
 `
 
 type UpdateServiceParams struct {

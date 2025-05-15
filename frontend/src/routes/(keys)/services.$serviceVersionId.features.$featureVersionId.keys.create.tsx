@@ -146,7 +146,7 @@ function RouteComponent() {
             .min(1, 'Name is required')
             .max(100, 'Name must have at most 100 characters')
             .regex(/^[a-zA-Z_][\w_]*$/, 'Allowed characters: letters, numbers, _. Must start with a letter or underscore.'),
-          description: z.string().min(1, 'Description is required').max(1000, 'Description must have at most 1000 characters'),
+          description: z.string().max(1000, 'Description must have at most 1000 characters'),
           valueTypeId: z.number().min(1, 'Value type is required'),
           defaultValue: z.string(),
           validators: z.array(

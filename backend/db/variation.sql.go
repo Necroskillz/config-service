@@ -10,12 +10,8 @@ import (
 )
 
 const addPropertyToServiceType = `-- name: AddPropertyToServiceType :exec
-INSERT INTO service_type_variation_properties (service_type_id, variation_property_id, priority)
-VALUES (
-        $1,
-        $2,
-        $3
-    )
+INSERT INTO service_type_variation_properties(service_type_id, variation_property_id, priority)
+    VALUES ($1, $2, $3)
 `
 
 type AddPropertyToServiceTypeParams struct {
@@ -31,8 +27,9 @@ func (q *Queries) AddPropertyToServiceType(ctx context.Context, arg AddPropertyT
 
 const createVariationContext = `-- name: CreateVariationContext :one
 INSERT INTO variation_contexts DEFAULT
-VALUES
-RETURNING id
+    VALUES
+    RETURNING
+        id
 `
 
 func (q *Queries) CreateVariationContext(ctx context.Context) (uint, error) {
@@ -43,14 +40,8 @@ func (q *Queries) CreateVariationContext(ctx context.Context) (uint, error) {
 }
 
 const createVariationContextValue = `-- name: CreateVariationContextValue :exec
-INSERT INTO variation_context_variation_property_values (
-        variation_context_id,
-        variation_property_value_id
-    )
-VALUES (
-        $1,
-        $2
-    )
+INSERT INTO variation_context_variation_property_values(variation_context_id, variation_property_value_id)
+    VALUES ($1, $2)
 `
 
 type CreateVariationContextValueParams struct {
@@ -64,9 +55,10 @@ func (q *Queries) CreateVariationContextValue(ctx context.Context, arg CreateVar
 }
 
 const createVariationProperty = `-- name: CreateVariationProperty :one
-INSERT INTO variation_properties (name, display_name)
-VALUES ($1, $2)
-RETURNING id
+INSERT INTO variation_properties(name, display_name)
+    VALUES ($1, $2)
+RETURNING
+    id
 `
 
 type CreateVariationPropertyParams struct {
@@ -82,23 +74,21 @@ func (q *Queries) CreateVariationProperty(ctx context.Context, arg CreateVariati
 }
 
 const createVariationPropertyValue = `-- name: CreateVariationPropertyValue :one
-INSERT INTO variation_property_values (
-        variation_property_id,
-        value,
-        parent_id,
-        order_index
-    )
-SELECT $1,
+INSERT INTO variation_property_values(variation_property_id, value, parent_id, order_index)
+SELECT
+    $1,
     $2,
     $3,
-    (
-        SELECT COALESCE(MAX(order_index), 0) + 1
-        FROM variation_property_values
-        WHERE variation_property_id = $1
-            AND parent_id IS NOT DISTINCT
-        FROM $3
-    )
-RETURNING id
+(
+        SELECT
+            COALESCE(MAX(order_index), 0) + 1
+        FROM
+            variation_property_values
+        WHERE
+            variation_property_id = $1
+            AND parent_id IS NOT DISTINCT FROM $3)
+RETURNING
+    id
 `
 
 type CreateVariationPropertyValueParams struct {
@@ -115,10 +105,13 @@ func (q *Queries) CreateVariationPropertyValue(ctx context.Context, arg CreateVa
 }
 
 const getServiceTypeVariationProperties = `-- name: GetServiceTypeVariationProperties :many
-SELECT stvp.service_type_id,
+SELECT
+    stvp.service_type_id,
     stvp.variation_property_id
-FROM service_type_variation_properties stvp
-ORDER BY stvp.service_type_id,
+FROM
+    service_type_variation_properties stvp
+ORDER BY
+    stvp.service_type_id,
     stvp.priority
 `
 
@@ -148,19 +141,25 @@ func (q *Queries) GetServiceTypeVariationProperties(ctx context.Context) ([]GetS
 }
 
 const getVariationContextId = `-- name: GetVariationContextId :one
-SELECT vc.id
-FROM variation_contexts vc
+SELECT
+    vc.id
+FROM
+    variation_contexts vc
 WHERE (
-        SELECT COUNT(variation_property_value_id)
-        FROM variation_context_variation_property_values
-        WHERE variation_context_id = vc.id
-    ) = $1::int
+    SELECT
+        COUNT(variation_property_value_id)
+    FROM
+        variation_context_variation_property_values
+    WHERE
+        variation_context_id = vc.id) = $1::int
     AND (
-        SELECT COUNT(vcvpv.variation_property_value_id)
-        FROM variation_context_variation_property_values vcvpv
-        WHERE vcvpv.variation_context_id = vc.id
-            AND vcvpv.variation_property_value_id = ANY($2::bigint [])
-    ) = $1::int
+        SELECT
+            COUNT(vcvpv.variation_property_value_id)
+        FROM
+            variation_context_variation_property_values vcvpv
+        WHERE
+            vcvpv.variation_context_id = vc.id
+            AND vcvpv.variation_property_value_id = ANY ($2::bigint[])) = $1::int
 `
 
 type GetVariationContextIdParams struct {
@@ -176,13 +175,16 @@ func (q *Queries) GetVariationContextId(ctx context.Context, arg GetVariationCon
 }
 
 const getVariationContextValues = `-- name: GetVariationContextValues :many
-SELECT vpv.value,
-    vpv.id as value_id,
-    vpv.variation_property_id as property_id
-FROM variation_contexts vc
-    JOIN variation_context_variation_property_values vcvpv on vcvpv.variation_context_id = vc.id
-    JOIN variation_property_values vpv on vpv.id = vcvpv.variation_property_value_id
-WHERE vc.id = $1
+SELECT
+    vpv.value,
+    vpv.id AS value_id,
+    vpv.variation_property_id AS property_id
+FROM
+    variation_contexts vc
+    JOIN variation_context_variation_property_values vcvpv ON vcvpv.variation_context_id = vc.id
+    JOIN variation_property_values vpv ON vpv.id = vcvpv.variation_property_value_id
+WHERE
+    vc.id = $1
 `
 
 type GetVariationContextValuesRow struct {
@@ -212,9 +214,12 @@ func (q *Queries) GetVariationContextValues(ctx context.Context, variationContex
 }
 
 const getVariationProperty = `-- name: GetVariationProperty :one
-SELECT id, name, display_name, created_at, archived
-FROM variation_properties
-WHERE id = $1
+SELECT
+    id, name, display_name, created_at, archived
+FROM
+    variation_properties
+WHERE
+    id = $1
 `
 
 func (q *Queries) GetVariationProperty(ctx context.Context, id uint) (VariationProperty, error) {
@@ -231,9 +236,12 @@ func (q *Queries) GetVariationProperty(ctx context.Context, id uint) (VariationP
 }
 
 const getVariationPropertyIDByName = `-- name: GetVariationPropertyIDByName :one
-SELECT id
-FROM variation_properties
-WHERE name = $1
+SELECT
+    id
+FROM
+    variation_properties
+WHERE
+    name = $1
 `
 
 func (q *Queries) GetVariationPropertyIDByName(ctx context.Context, name string) (uint, error) {
@@ -244,9 +252,12 @@ func (q *Queries) GetVariationPropertyIDByName(ctx context.Context, name string)
 }
 
 const getVariationPropertyValueIDByName = `-- name: GetVariationPropertyValueIDByName :one
-SELECT id
-FROM variation_property_values
-WHERE variation_property_id = $1
+SELECT
+    id
+FROM
+    variation_property_values
+WHERE
+    variation_property_id = $1
     AND value = $2
     AND NOT archived
 `
@@ -264,9 +275,12 @@ func (q *Queries) GetVariationPropertyValueIDByName(ctx context.Context, arg Get
 }
 
 const getVariationPropertyValueIDByValue = `-- name: GetVariationPropertyValueIDByValue :one
-SELECT id
-FROM variation_property_values
-WHERE variation_property_id = $1
+SELECT
+    id
+FROM
+    variation_property_values
+WHERE
+    variation_property_id = $1
     AND value = $2
     AND NOT archived
 `
@@ -284,15 +298,18 @@ func (q *Queries) GetVariationPropertyValueIDByValue(ctx context.Context, arg Ge
 }
 
 const getVariationPropertyValues = `-- name: GetVariationPropertyValues :many
-SELECT vpv.id,
+SELECT
+    vpv.id,
     vpv.value,
-    COALESCE(vpv.parent_id, 0) as parent_id,
-    vp.name as property_name,
-    vp.display_name as property_display_name,
-    vp.id as property_id
-FROM variation_properties vp
+    COALESCE(vpv.parent_id, 0) AS parent_id,
+    vp.name AS property_name,
+    vp.display_name AS property_display_name,
+    vp.id AS property_id
+FROM
+    variation_properties vp
     LEFT JOIN variation_property_values vpv ON vpv.variation_property_id = vp.id
-ORDER BY vp.id,
+ORDER BY
+    vp.id,
     parent_id,
     vpv.order_index
 `
@@ -334,9 +351,12 @@ func (q *Queries) GetVariationPropertyValues(ctx context.Context) ([]GetVariatio
 }
 
 const updateVariationProperty = `-- name: UpdateVariationProperty :exec
-UPDATE variation_properties
-SET display_name = $1
-WHERE id = $2
+UPDATE
+    variation_properties
+SET
+    display_name = $1
+WHERE
+    id = $2
 `
 
 type UpdateVariationPropertyParams struct {
@@ -351,46 +371,52 @@ func (q *Queries) UpdateVariationProperty(ctx context.Context, arg UpdateVariati
 
 const updateVariationPropertyValueOrder = `-- name: UpdateVariationPropertyValueOrder :exec
 WITH source AS (
-    SELECT svpv.id,
+    SELECT
+        svpv.id,
         svpv.order_index,
         svpv.parent_id,
         svpv.variation_property_id
-    FROM variation_property_values svpv
-    WHERE svpv.id = $1
+    FROM
+        variation_property_values svpv
+    WHERE
+        svpv.id = $1
 ),
 bounds AS (
-    SELECT MIN(bvpv.order_index) AS min_index,
-        MAX(bvpv.order_index) AS max_index
-    FROM source s
-        JOIN variation_property_values bvpv ON (
-            bvpv.variation_property_id = s.variation_property_id
-            AND bvpv.parent_id IS NOT DISTINCT
-            FROM s.parent_id
-        )
+    SELECT
+        MIN(bvpv.order_index)::int AS min_index,
+        MAX(bvpv.order_index)::int AS max_index
+    FROM
+        source s
+        JOIN variation_property_values bvpv ON bvpv.variation_property_id = s.variation_property_id
+            AND bvpv.parent_id IS NOT DISTINCT FROM s.parent_id
 ),
 params AS (
-    SELECT source.id,
+    SELECT
+        source.id,
         source.variation_property_id,
         source.parent_id,
         source.order_index AS source_index,
-        GREATEST(
-            bounds.min_index,
-            LEAST($2::int, bounds.max_index)
-        ) AS target_index
-    FROM source,
-        bounds
-)
-UPDATE variation_property_values vpv
-SET order_index = CASE
-        WHEN vpv.order_index = params.source_index THEN params.target_index
-        WHEN params.source_index < params.target_index THEN vpv.order_index - 1
-        ELSE vpv.order_index + 1
+        GREATEST(bounds.min_index, LEAST($2::int, bounds.max_index)) AS target_index
+    FROM
+        source,
+        bounds)
+UPDATE
+    variation_property_values vpv
+SET
+    order_index = CASE WHEN vpv.order_index = params.source_index THEN
+        params.target_index
+    WHEN params.source_index < params.target_index THEN
+        vpv.order_index - 1
+    ELSE
+        vpv.order_index + 1
     END
-FROM params
-WHERE vpv.variation_property_id = params.variation_property_id
-    AND vpv.parent_id IS NOT DISTINCT
-FROM params.parent_id
-    AND vpv.order_index BETWEEN LEAST(params.source_index, params.target_index) AND GREATEST(params.source_index, params.target_index)
+FROM
+    params
+WHERE
+    vpv.variation_property_id = params.variation_property_id
+    AND vpv.parent_id IS NOT DISTINCT FROM params.parent_id
+    AND vpv.order_index BETWEEN LEAST(params.source_index, params.target_index)
+    AND GREATEST(params.source_index, params.target_index)
 `
 
 type UpdateVariationPropertyValueOrderParams struct {

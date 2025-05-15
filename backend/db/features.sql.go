@@ -11,9 +11,10 @@ import (
 )
 
 const createFeature = `-- name: CreateFeature :one
-INSERT INTO features (name, description, service_id)
-VALUES ($1, $2, $3)
-RETURNING id
+INSERT INTO features(name, description, service_id)
+    VALUES ($1, $2, $3)
+RETURNING
+    id
 `
 
 type CreateFeatureParams struct {
@@ -30,9 +31,10 @@ func (q *Queries) CreateFeature(ctx context.Context, arg CreateFeatureParams) (u
 }
 
 const createFeatureVersion = `-- name: CreateFeatureVersion :one
-INSERT INTO feature_versions (feature_id, version, valid_from)
-VALUES ($1, $2, $3)
-RETURNING id
+INSERT INTO feature_versions(feature_id, version, valid_from)
+    VALUES ($1, $2, $3)
+RETURNING
+    id
 `
 
 type CreateFeatureVersionParams struct {
@@ -49,9 +51,10 @@ func (q *Queries) CreateFeatureVersion(ctx context.Context, arg CreateFeatureVer
 }
 
 const createFeatureVersionServiceVersion = `-- name: CreateFeatureVersionServiceVersion :one
-INSERT INTO feature_version_service_versions (service_version_id, feature_version_id)
-VALUES ($1, $2)
-RETURNING id
+INSERT INTO feature_version_service_versions(service_version_id, feature_version_id)
+    VALUES ($1, $2)
+RETURNING
+    id
 `
 
 type CreateFeatureVersionServiceVersionParams struct {
@@ -97,9 +100,12 @@ func (q *Queries) DeleteFeatureVersionServiceVersion(ctx context.Context, featur
 }
 
 const endFeatureVersionServiceVersionValidity = `-- name: EndFeatureVersionServiceVersionValidity :exec
-UPDATE feature_version_service_versions
-SET valid_to = $1
-WHERE id = $2
+UPDATE
+    feature_version_service_versions
+SET
+    valid_to = $1
+WHERE
+    id = $2
 `
 
 type EndFeatureVersionServiceVersionValidityParams struct {
@@ -113,9 +119,12 @@ func (q *Queries) EndFeatureVersionServiceVersionValidity(ctx context.Context, a
 }
 
 const endFeatureVersionValidity = `-- name: EndFeatureVersionValidity :exec
-UPDATE feature_versions
-SET valid_to = $1
-WHERE id = $2
+UPDATE
+    feature_versions
+SET
+    valid_to = $1
+WHERE
+    id = $2
 `
 
 type EndFeatureVersionValidityParams struct {
@@ -129,9 +138,12 @@ func (q *Queries) EndFeatureVersionValidity(ctx context.Context, arg EndFeatureV
 }
 
 const getFeatureIDByName = `-- name: GetFeatureIDByName :one
-SELECT id
-FROM features
-WHERE name = $1
+SELECT
+    id
+FROM
+    features
+WHERE
+    name = $1
 `
 
 func (q *Queries) GetFeatureIDByName(ctx context.Context, name string) (uint, error) {
@@ -143,33 +155,44 @@ func (q *Queries) GetFeatureIDByName(ctx context.Context, name string) (uint, er
 
 const getFeatureVersion = `-- name: GetFeatureVersion :one
 WITH last_feature_versions AS (
-    SELECT fv.feature_id,
-        MAX(fv.version)::int as last_version
-    FROM feature_versions fv
-    WHERE is_feature_version_valid_in_changeset(fv, $2)
-    GROUP BY fv.feature_id
+    SELECT
+        fv.feature_id,
+        MAX(fv.version)::int AS last_version
+    FROM
+        feature_versions fv
+    WHERE
+        is_feature_version_valid_in_changeset(fv, $2)
+    GROUP BY
+        fv.feature_id
 ),
 links AS (
-    SELECT fvsv.feature_version_id,
-        BOOL_OR(sv.published) as published,
-        COUNT(*) as link_count
-    FROM feature_version_service_versions fvsv
+    SELECT
+        fvsv.feature_version_id,
+        BOOL_OR(sv.published)::boolean AS published,
+        COUNT(*)::int AS link_count
+    FROM
+        feature_version_service_versions fvsv
         JOIN service_versions sv ON sv.id = fvsv.service_version_id
-    WHERE is_link_valid_in_changeset(fvsv, $2)
-    GROUP BY fvsv.feature_version_id
+    WHERE
+        is_link_valid_in_changeset(fvsv, $2)
+    GROUP BY
+        fvsv.feature_version_id
 )
-SELECT fv.id, fv.created_at, fv.updated_at, fv.valid_from, fv.valid_to, fv.version, fv.feature_id,
-    f.name as feature_name,
-    f.description as feature_description,
+SELECT
+    fv.id, fv.created_at, fv.updated_at, fv.valid_from, fv.valid_to, fv.version, fv.feature_id,
+    f.name AS feature_name,
+    f.description AS feature_description,
     f.service_id,
-    lfv.last_version as last_version,
-    l.published as linked_to_published_service_version,
-    l.link_count as service_version_link_count
-FROM feature_versions fv
+    lfv.last_version AS last_version,
+    l.published AS linked_to_published_service_version,
+    l.link_count AS service_version_link_count
+FROM
+    feature_versions fv
     JOIN features f ON f.id = fv.feature_id
     JOIN last_feature_versions lfv ON lfv.feature_id = fv.feature_id
     JOIN links l ON l.feature_version_id = fv.id
-WHERE fv.id = $1
+WHERE
+    fv.id = $1
     AND is_feature_version_valid_in_changeset(fv, $2)
 LIMIT 1
 `
@@ -192,7 +215,7 @@ type GetFeatureVersionRow struct {
 	ServiceID                       uint
 	LastVersion                     int
 	LinkedToPublishedServiceVersion bool
-	ServiceVersionLinkCount         int64
+	ServiceVersionLinkCount         int
 }
 
 func (q *Queries) GetFeatureVersion(ctx context.Context, arg GetFeatureVersionParams) (GetFeatureVersionRow, error) {
@@ -217,13 +240,16 @@ func (q *Queries) GetFeatureVersion(ctx context.Context, arg GetFeatureVersionPa
 }
 
 const getFeatureVersionServiceVersionLink = `-- name: GetFeatureVersionServiceVersionLink :one
-SELECT fvsv.id,
-    csc.changeset_id as created_in_changeset_id
-FROM feature_version_service_versions fvsv
+SELECT
+    fvsv.id,
+    csc.changeset_id AS created_in_changeset_id
+FROM
+    feature_version_service_versions fvsv
     JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id
-    AND csc.type = 'create'
-    AND csc.kind = 'feature_version_service_version'
-WHERE fvsv.feature_version_id = $1
+        AND csc.type = 'create'
+        AND csc.kind = 'feature_version_service_version'
+WHERE
+    fvsv.feature_version_id = $1
     AND fvsv.service_version_id = $2
     AND is_link_valid_in_changeset(fvsv, $3)
 `
@@ -247,13 +273,16 @@ func (q *Queries) GetFeatureVersionServiceVersionLink(ctx context.Context, arg G
 }
 
 const getFeatureVersionValidatorData = `-- name: GetFeatureVersionValidatorData :many
-SELECT k.id as key_id,
+SELECT
+    k.id AS key_id,
     v.validator_type,
     v.parameter,
     v.error_text
-FROM value_validators v
+FROM
+    value_validators v
     JOIN keys k ON k.id = v.key_id
-WHERE k.feature_version_id = $1
+WHERE
+    k.feature_version_id = $1
     AND is_key_valid_in_changeset(k, $2)
 `
 
@@ -295,15 +324,18 @@ func (q *Queries) GetFeatureVersionValidatorData(ctx context.Context, arg GetFea
 }
 
 const getFeatureVersionValuesData = `-- name: GetFeatureVersionValuesData :many
-SELECT vv.data,
+SELECT
+    vv.data,
     vv.variation_context_id,
-    k.id as key_id,
-    k.name as key_name,
-    k.value_type_id as key_value_type_id,
-    k.description as key_description
-FROM variation_values vv
+    k.id AS key_id,
+    k.name AS key_name,
+    k.value_type_id AS key_value_type_id,
+    k.description AS key_description
+FROM
+    variation_values vv
     JOIN keys k ON k.id = vv.key_id
-WHERE k.feature_version_id = $1
+WHERE
+    k.feature_version_id = $1
     AND is_key_valid_in_changeset(k, $2)
     AND is_variation_value_valid_in_changeset(vv, $2)
 `
@@ -350,21 +382,25 @@ func (q *Queries) GetFeatureVersionValuesData(ctx context.Context, arg GetFeatur
 }
 
 const getFeatureVersionsForServiceVersion = `-- name: GetFeatureVersionsForServiceVersion :many
-SELECT fv.id,
+SELECT
+    fv.id,
     fv.feature_id,
     fv.version,
-    f.name as feature_name,
-    f.description as feature_description,
-    csc.changeset_id as linked_in_changeset_id
-FROM feature_version_service_versions fvsv
+    f.name AS feature_name,
+    f.description AS feature_description,
+    csc.changeset_id AS linked_in_changeset_id
+FROM
+    feature_version_service_versions fvsv
     JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
     JOIN features f ON f.id = fv.feature_id
     JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id
-    AND csc.type = 'create'
-    AND csc.kind = 'feature_version_service_version'
-WHERE fvsv.service_version_id = $1
+        AND csc.type = 'create'
+        AND csc.kind = 'feature_version_service_version'
+WHERE
+    fvsv.service_version_id = $1
     AND is_link_valid_in_changeset(fvsv, $2)
-ORDER BY f.name
+ORDER BY
+    f.name
 `
 
 type GetFeatureVersionsForServiceVersionParams struct {
@@ -409,23 +445,29 @@ func (q *Queries) GetFeatureVersionsForServiceVersion(ctx context.Context, arg G
 }
 
 const getFeatureVersionsLinkableToServiceVersion = `-- name: GetFeatureVersionsLinkableToServiceVersion :many
-SELECT fv.id,
+SELECT
+    fv.id,
     fv.version,
-    f.name as feature_name,
-    f.description as feature_description
-FROM feature_versions fv
+    f.name AS feature_name,
+    f.description AS feature_description
+FROM
+    feature_versions fv
     JOIN features f ON f.id = fv.feature_id
-WHERE f.service_id = $1
+WHERE
+    f.service_id = $1
     AND is_feature_version_valid_in_changeset(fv, $2)
     AND NOT EXISTS (
-        SELECT 1
-        FROM feature_version_service_versions ifvsv
+        SELECT
+            1
+        FROM
+            feature_version_service_versions ifvsv
             JOIN feature_versions ifv ON ifv.id = ifvsv.feature_version_id
-        WHERE ifv.feature_id = f.id
+        WHERE
+            ifv.feature_id = f.id
             AND ifvsv.service_version_id = $3
-            AND is_link_valid_in_changeset(ifvsv, $2)
-    )
-ORDER BY f.name,
+            AND is_link_valid_in_changeset(ifvsv, $2))
+ORDER BY
+    f.name,
     fv.version
 `
 
@@ -469,20 +511,28 @@ func (q *Queries) GetFeatureVersionsLinkableToServiceVersion(ctx context.Context
 
 const getVersionsOfFeatureForServiceVersion = `-- name: GetVersionsOfFeatureForServiceVersion :many
 WITH latest_links AS (
-    SELECT fvsv.feature_version_id,
-        MAX(fvsv.service_version_id)::bigint as service_version_id
-    FROM feature_version_service_versions fvsv
-    WHERE is_link_valid_in_changeset(fvsv, $2)
-    GROUP BY fvsv.feature_version_id
+    SELECT
+        fvsv.feature_version_id,
+        MAX(fvsv.service_version_id)::bigint AS service_version_id
+    FROM
+        feature_version_service_versions fvsv
+    WHERE
+        is_link_valid_in_changeset(fvsv, $2)
+    GROUP BY
+        fvsv.feature_version_id
 )
-SELECT fv.id,
+SELECT
+    fv.id,
     fv.version,
-    ll.service_version_id as service_version_id
-FROM feature_versions fv
+    ll.service_version_id AS service_version_id
+FROM
+    feature_versions fv
     JOIN latest_links ll ON ll.feature_version_id = fv.id
-WHERE fv.feature_id = $1
+WHERE
+    fv.feature_id = $1
     AND is_feature_version_valid_in_changeset(fv, $2)
-ORDER BY fv.version
+ORDER BY
+    fv.version
 `
 
 type GetVersionsOfFeatureForServiceVersionParams struct {
@@ -517,14 +567,17 @@ func (q *Queries) GetVersionsOfFeatureForServiceVersion(ctx context.Context, arg
 }
 
 const isFeatureLinkedToServiceVersion = `-- name: IsFeatureLinkedToServiceVersion :one
-SELECT EXISTS (
-        SELECT 1
-        FROM feature_version_service_versions fvsv
+SELECT
+    EXISTS (
+        SELECT
+            1
+        FROM
+            feature_version_service_versions fvsv
             JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
-        WHERE fv.feature_id = $1
+        WHERE
+            fv.feature_id = $1
             AND fvsv.service_version_id = $2
-            AND is_link_valid_in_changeset(fvsv, $3)
-    )
+            AND is_link_valid_in_changeset(fvsv, $3))
 `
 
 type IsFeatureLinkedToServiceVersionParams struct {
@@ -541,9 +594,12 @@ func (q *Queries) IsFeatureLinkedToServiceVersion(ctx context.Context, arg IsFea
 }
 
 const startFeatureVersionServiceVersionValidity = `-- name: StartFeatureVersionServiceVersionValidity :exec
-UPDATE feature_version_service_versions
-SET valid_from = $1
-WHERE id = $2
+UPDATE
+    feature_version_service_versions
+SET
+    valid_from = $1
+WHERE
+    id = $2
 `
 
 type StartFeatureVersionServiceVersionValidityParams struct {
@@ -557,9 +613,12 @@ func (q *Queries) StartFeatureVersionServiceVersionValidity(ctx context.Context,
 }
 
 const startFeatureVersionValidity = `-- name: StartFeatureVersionValidity :exec
-UPDATE feature_versions
-SET valid_from = $1
-WHERE id = $2
+UPDATE
+    feature_versions
+SET
+    valid_from = $1
+WHERE
+    id = $2
 `
 
 type StartFeatureVersionValidityParams struct {
@@ -573,9 +632,12 @@ func (q *Queries) StartFeatureVersionValidity(ctx context.Context, arg StartFeat
 }
 
 const updateFeature = `-- name: UpdateFeature :exec
-UPDATE features
-SET description = $1
-WHERE id = $2
+UPDATE
+    features
+SET
+    description = $1
+WHERE
+    id = $2
 `
 
 type UpdateFeatureParams struct {

@@ -11,9 +11,10 @@ import (
 )
 
 const createVariationValue = `-- name: CreateVariationValue :one
-INSERT INTO variation_values (key_id, variation_context_id, data)
-VALUES ($1, $2, $3)
-RETURNING id
+INSERT INTO variation_values(key_id, variation_context_id, data)
+    VALUES ($1, $2, $3)
+RETURNING
+    id
 `
 
 type CreateVariationValueParams struct {
@@ -40,9 +41,12 @@ func (q *Queries) DeleteVariationValue(ctx context.Context, variationValueID uin
 }
 
 const endValueValidity = `-- name: EndValueValidity :exec
-UPDATE variation_values
-SET valid_to = $1
-WHERE id = $2
+UPDATE
+    variation_values
+SET
+    valid_to = $1
+WHERE
+    id = $2
 `
 
 type EndValueValidityParams struct {
@@ -56,9 +60,12 @@ func (q *Queries) EndValueValidity(ctx context.Context, arg EndValueValidityPara
 }
 
 const getVariationValue = `-- name: GetVariationValue :one
-SELECT vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
-FROM variation_values vv
-WHERE vv.id = $1
+SELECT
+    vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
+FROM
+    variation_values vv
+WHERE
+    vv.id = $1
     AND is_variation_value_valid_in_changeset(vv, $2)
 LIMIT 1
 `
@@ -83,9 +90,12 @@ func (q *Queries) GetVariationValue(ctx context.Context, arg GetVariationValuePa
 }
 
 const getVariationValueIDByVariationContextID = `-- name: GetVariationValueIDByVariationContextID :one
-SELECT id
-FROM variation_values vv
-WHERE vv.key_id = $1
+SELECT
+    id
+FROM
+    variation_values vv
+WHERE
+    vv.key_id = $1
     AND vv.variation_context_id = $2
     AND is_variation_value_valid_in_changeset(vv, $3)
 LIMIT 1
@@ -105,9 +115,12 @@ func (q *Queries) GetVariationValueIDByVariationContextID(ctx context.Context, a
 }
 
 const getVariationValuesForKey = `-- name: GetVariationValuesForKey :many
-SELECT vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
-FROM variation_values vv
-WHERE vv.key_id = $1
+SELECT
+    vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
+FROM
+    variation_values vv
+WHERE
+    vv.key_id = $1
     AND is_variation_value_valid_in_changeset(vv, $2)
 `
 
@@ -144,9 +157,12 @@ func (q *Queries) GetVariationValuesForKey(ctx context.Context, arg GetVariation
 }
 
 const startValueValidity = `-- name: StartValueValidity :exec
-UPDATE variation_values
-SET valid_from = $1
-WHERE id = $2
+UPDATE
+    variation_values
+SET
+    valid_from = $1
+WHERE
+    id = $2
 `
 
 type StartValueValidityParams struct {
@@ -160,10 +176,13 @@ func (q *Queries) StartValueValidity(ctx context.Context, arg StartValueValidity
 }
 
 const updateVariationValue = `-- name: UpdateVariationValue :exec
-UPDATE variation_values
-SET data = $1,
+UPDATE
+    variation_values
+SET
+    data = $1,
     variation_context_id = $2
-WHERE id = $3
+WHERE
+    id = $3
 `
 
 type UpdateVariationValueParams struct {

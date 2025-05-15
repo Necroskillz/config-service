@@ -7,13 +7,13 @@ import type { DbValueValidatorType } from '../db/ValueValidatorType.ts'
 
 export type HandlerValidatorRequest = {
   /**
-   * @type string | undefined
+   * @type string
    */
-  errorText?: string
+  errorText: string
   /**
-   * @type string | undefined
+   * @type string
    */
-  parameter?: string
+  parameter: string
   /**
    * @type string
    */

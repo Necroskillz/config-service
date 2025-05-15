@@ -1,11 +1,7 @@
 import { Input } from '~/components/ui/input';
 import { Switch } from '~/components/ui/switch';
 import { DbValueTypeKind } from '~/gen';
-import { useTheme } from '~/ThemeProvider';
-import CodeMirror from '@uiw/react-codemirror';
-import { json } from '@codemirror/lang-json';
-import { formatJsonSafe } from '~/utils/json';
-import { useState } from 'react';
+import { JsonEditor } from '~/components/JsonEditor';
 
 type ValueEditorProps = {
   valueType: DbValueTypeKind;
@@ -19,32 +15,13 @@ type ValueEditorProps = {
 
 export function ValueEditor({ valueType, ...props }: ValueEditorProps) {
   const { onChange, ...commonProps } = props;
-  const { activeTheme } = useTheme();
 
   function inputOnChange(e: React.ChangeEvent<HTMLInputElement>) {
     onChange(e.target.value);
   }
 
   if (valueType === 'json') {
-    const [editorValue, setEditorValue] = useState(() => formatJsonSafe(props.value));
-
-    return (
-      <div className="json-editor-container">
-        <CodeMirror
-          suppressHydrationWarning
-          value={editorValue}
-          onChange={(val) => {
-            setEditorValue(val);
-            onChange(val);
-          }}
-          theme={activeTheme === 'dark' ? 'dark' : 'light'}
-          extensions={[json()]}
-          readOnly={props.disabled}
-          id={`${props.id}-editor`}
-          onBlur={props.onBlur}
-        />
-      </div>
-    );
+    return <JsonEditor value={props.value} onChange={onChange} id={props.id} disabled={props.disabled} onBlur={props.onBlur} />;
   } else if (valueType === 'boolean') {
     return <Switch onCheckedChange={(checked) => onChange(checked ? 'TRUE' : 'FALSE')} checked={props.value === 'TRUE'} {...commonProps} />;
   } else {

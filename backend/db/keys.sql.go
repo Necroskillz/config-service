@@ -11,19 +11,10 @@ import (
 )
 
 const createKey = `-- name: CreateKey :one
-INSERT INTO keys (
-        name,
-        description,
-        value_type_id,
-        feature_version_id
-    )
-VALUES (
-        $1,
-        $2,
-        $3,
-        $4
-    )
-RETURNING id
+INSERT INTO keys(name, description, value_type_id, feature_version_id)
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    id
 `
 
 type CreateKeyParams struct {
@@ -46,9 +37,10 @@ func (q *Queries) CreateKey(ctx context.Context, arg CreateKeyParams) (uint, err
 }
 
 const createValueType = `-- name: CreateValueType :one
-INSERT INTO value_types (name, kind)
-VALUES ($1, $2)
-RETURNING id
+INSERT INTO value_types(name, kind)
+    VALUES ($1, $2)
+RETURNING
+    id
 `
 
 type CreateValueTypeParams struct {
@@ -64,14 +56,10 @@ func (q *Queries) CreateValueType(ctx context.Context, arg CreateValueTypeParams
 }
 
 const createValueValidatorForKey = `-- name: CreateValueValidatorForKey :one
-INSERT INTO value_validators (key_id, validator_type, parameter, error_text)
-VALUES (
-        $1,
-        $2,
-        $3,
-        $4
-    )
-RETURNING id
+INSERT INTO value_validators(key_id, validator_type, parameter, error_text)
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    id
 `
 
 type CreateValueValidatorForKeyParams struct {
@@ -94,19 +82,10 @@ func (q *Queries) CreateValueValidatorForKey(ctx context.Context, arg CreateValu
 }
 
 const createValueValidatorForValueType = `-- name: CreateValueValidatorForValueType :one
-INSERT INTO value_validators (
-        value_type_id,
-        validator_type,
-        parameter,
-        error_text
-    )
-VALUES (
-        $1,
-        $2,
-        $3,
-        $4
-    )
-RETURNING id
+INSERT INTO value_validators(value_type_id, validator_type, parameter, error_text)
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    id
 `
 
 type CreateValueValidatorForValueTypeParams struct {
@@ -149,9 +128,12 @@ func (q *Queries) DeleteValueValidatorsForKey(ctx context.Context, keyID uint) e
 }
 
 const endKeyValidity = `-- name: EndKeyValidity :exec
-UPDATE keys
-SET valid_to = $1
-WHERE id = $2
+UPDATE
+    keys
+SET
+    valid_to = $1
+WHERE
+    id = $2
 `
 
 type EndKeyValidityParams struct {
@@ -165,16 +147,19 @@ func (q *Queries) EndKeyValidity(ctx context.Context, arg EndKeyValidityParams) 
 }
 
 const getKey = `-- name: GetKey :one
-SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id, k.validators_updated_at,
-    vt.kind as value_type_kind,
-    vt.name as value_type_name,
-    csc.changeset_id as created_in_changeset_id
-FROM keys k
+SELECT
+    k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id, k.validators_updated_at,
+    vt.kind AS value_type_kind,
+    vt.name AS value_type_name,
+    csc.changeset_id AS created_in_changeset_id
+FROM
+    keys k
     JOIN value_types vt ON vt.id = k.value_type_id
     JOIN changeset_changes csc ON csc.key_id = k.id
-    AND csc.type = 'create'
-    AND csc.kind = 'key'
-WHERE k.id = $1
+        AND csc.type = 'create'
+        AND csc.kind = 'key'
+WHERE
+    k.id = $1
     AND is_key_valid_in_changeset(k, $2)
 LIMIT 1
 `
@@ -222,9 +207,12 @@ func (q *Queries) GetKey(ctx context.Context, arg GetKeyParams) (GetKeyRow, erro
 }
 
 const getKeyIDByName = `-- name: GetKeyIDByName :one
-SELECT id
-FROM keys
-WHERE name = $1
+SELECT
+    id
+FROM
+    keys
+WHERE
+    name = $1
     AND feature_version_id = $2
 LIMIT 1
 `
@@ -242,14 +230,18 @@ func (q *Queries) GetKeyIDByName(ctx context.Context, arg GetKeyIDByNameParams) 
 }
 
 const getKeysForFeatureVersion = `-- name: GetKeysForFeatureVersion :many
-SELECT k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id, k.validators_updated_at,
-    vt.kind as value_type_kind,
-    vt.name as value_type_name
-FROM keys k
+SELECT
+    k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id, k.validators_updated_at,
+    vt.kind AS value_type_kind,
+    vt.name AS value_type_name
+FROM
+    keys k
     JOIN value_types vt ON vt.id = k.value_type_id
-WHERE k.feature_version_id = $1
+WHERE
+    k.feature_version_id = $1
     AND is_key_valid_in_changeset(k, $2)
-ORDER BY k.name
+ORDER BY
+    k.name
 `
 
 type GetKeysForFeatureVersionParams struct {
@@ -306,9 +298,12 @@ func (q *Queries) GetKeysForFeatureVersion(ctx context.Context, arg GetKeysForFe
 }
 
 const getValueType = `-- name: GetValueType :one
-SELECT id, kind, name
-FROM value_types
-WHERE id = $1
+SELECT
+    id, kind, name
+FROM
+    value_types
+WHERE
+    id = $1
 `
 
 func (q *Queries) GetValueType(ctx context.Context, id uint) (ValueType, error) {
@@ -319,9 +314,12 @@ func (q *Queries) GetValueType(ctx context.Context, id uint) (ValueType, error) 
 }
 
 const getValueTypeValueValidators = `-- name: GetValueTypeValueValidators :many
-SELECT id, value_type_id, key_id, validator_type, parameter, error_text
-FROM value_validators
-WHERE value_type_id IS NOT NULL
+SELECT
+    id, value_type_id, key_id, validator_type, parameter, error_text
+FROM
+    value_validators
+WHERE
+    value_type_id IS NOT NULL
 `
 
 func (q *Queries) GetValueTypeValueValidators(ctx context.Context) ([]ValueValidator, error) {
@@ -352,8 +350,10 @@ func (q *Queries) GetValueTypeValueValidators(ctx context.Context) ([]ValueValid
 }
 
 const getValueTypes = `-- name: GetValueTypes :many
-SELECT id, kind, name
-FROM value_types
+SELECT
+    id, kind, name
+FROM
+    value_types
 `
 
 func (q *Queries) GetValueTypes(ctx context.Context) ([]ValueType, error) {
@@ -377,9 +377,12 @@ func (q *Queries) GetValueTypes(ctx context.Context) ([]ValueType, error) {
 }
 
 const getValueValidators = `-- name: GetValueValidators :many
-SELECT id, value_type_id, key_id, validator_type, parameter, error_text
-FROM value_validators
-WHERE value_type_id = $1
+SELECT
+    id, value_type_id, key_id, validator_type, parameter, error_text
+FROM
+    value_validators
+WHERE
+    value_type_id = $1
     OR key_id = $2
 `
 
@@ -416,9 +419,12 @@ func (q *Queries) GetValueValidators(ctx context.Context, arg GetValueValidators
 }
 
 const startKeyValidity = `-- name: StartKeyValidity :exec
-UPDATE keys
-SET valid_from = $1
-WHERE id = $2
+UPDATE
+    keys
+SET
+    valid_from = $1
+WHERE
+    id = $2
 `
 
 type StartKeyValidityParams struct {
@@ -432,9 +438,13 @@ func (q *Queries) StartKeyValidity(ctx context.Context, arg StartKeyValidityPara
 }
 
 const updateKey = `-- name: UpdateKey :exec
-UPDATE keys
-SET description = $1, validators_updated_at = $2
-WHERE id = $3
+UPDATE
+    keys
+SET
+    description = $1,
+    validators_updated_at = $2
+WHERE
+    id = $3
 `
 
 type UpdateKeyParams struct {

@@ -13,11 +13,11 @@ WITH last_feature_versions AS (
 links AS (
     SELECT
         fvsv.feature_version_id,
-        BOOL_OR(sv.published) AS published,
-    COUNT(*) AS link_count
-FROM
-    feature_version_service_versions fvsv
-    JOIN service_versions sv ON sv.id = fvsv.service_version_id
+        BOOL_OR(sv.published)::boolean AS published,
+        COUNT(*)::int AS link_count
+    FROM
+        feature_version_service_versions fvsv
+        JOIN service_versions sv ON sv.id = fvsv.service_version_id
     WHERE
         is_link_valid_in_changeset(fvsv, @changeset_id)
     GROUP BY

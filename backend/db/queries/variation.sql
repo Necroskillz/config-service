@@ -142,12 +142,12 @@ WITH source AS (
 ),
 bounds AS (
     SELECT
-        MIN(bvpv.order_index) AS min_index,
-    MAX(bvpv.order_index) AS max_index
-FROM
-    source s
-    JOIN variation_property_values bvpv ON bvpv.variation_property_id = s.variation_property_id
-        AND bvpv.parent_id IS NOT DISTINCT FROM s.parent_id
+        MIN(bvpv.order_index)::int AS min_index,
+        MAX(bvpv.order_index)::int AS max_index
+    FROM
+        source s
+        JOIN variation_property_values bvpv ON bvpv.variation_property_id = s.variation_property_id
+            AND bvpv.parent_id IS NOT DISTINCT FROM s.parent_id
 ),
 params AS (
     SELECT
