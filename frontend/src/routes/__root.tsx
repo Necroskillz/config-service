@@ -7,14 +7,16 @@ import { Header } from '~/components/Header';
 import appCss from '~/styles/app.css?url';
 import { seo } from '~/utils/seo';
 import { isServer, QueryClient } from '@tanstack/react-query';
-import { AuthProvider, getAccessToken, getRefreshToken, refreshFn, setRequestAccessToken } from '~/auth';
+import { AnonymousUser, AuthProvider, getAccessToken, getRefreshToken, refreshFn, setRequestAccessToken } from '~/auth';
 import { useState } from 'react';
 import { ChangesetProvider } from '~/hooks/useChangeset';
 import { ThemeProvider } from '~/ThemeProvider';
+import { AuthUser, getAuthUserSuspense } from '~/gen';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   accessToken: string | null;
+  user: AuthUser;
 }>()({
   head: () => ({
     meta: [
@@ -75,7 +77,12 @@ export const Route = createRootRouteWithContext<{
 
     setRequestAccessToken(accessToken);
 
-    return { accessToken };
+    let user: AuthUser = AnonymousUser;
+    if (accessToken) {
+      user = await getAuthUserSuspense();
+    }
+
+    return { accessToken, user };
   },
 });
 
@@ -83,10 +90,11 @@ function RootComponent() {
   const serverData = Route.useRouteContext();
 
   const [accessToken] = useState<string | null>(serverData.accessToken);
+  const [user] = useState<AuthUser>(serverData.user);
 
   return (
     <RootDocument>
-      <AuthProvider accessToken={accessToken}>
+      <AuthProvider accessToken={accessToken} initialUser={user}>
         <ChangesetProvider>
           <Header />
           <Outlet />

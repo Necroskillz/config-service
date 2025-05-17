@@ -1,6 +1,8 @@
 import { createContext, use, useEffect, useState } from 'react';
-import { getChangesetsCurrentQueryKey, HandlerChangesetInfoResponse, useGetChangesetsCurrentSuspense } from '~/gen';
+import { getChangesetsCurrentQueryKey, HandlerChangesetInfoResponse, useGetChangesetsCurrent, useGetChangesetsCurrentSuspense } from '~/gen';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '~/auth';
+
 export type ChangesetContext = {
   id: number;
   numberOfChanges: number;
@@ -10,12 +12,21 @@ export type ChangesetContext = {
 const ChangesetContext = createContext<ChangesetContext>(undefined as unknown as ChangesetContext);
 
 export function ChangesetProvider({ children }: { children: React.ReactNode }) {
-  const { data: changesetData } = useGetChangesetsCurrentSuspense();
+  const { user } = useAuth();
+  const { data: changesetData } = useGetChangesetsCurrent({
+    query: {
+      enabled: user.isAuthenticated,
+    },
+  });
   const queryClient = useQueryClient();
-  const [changeset, setChangeset] = useState<HandlerChangesetInfoResponse>(changesetData);
+  const [changeset, setChangeset] = useState<HandlerChangesetInfoResponse>({ id: 0, numberOfChanges: 0 });
 
   useEffect(() => {
-    setChangeset(changesetData);
+    if (changesetData) {
+      setChangeset(changesetData);
+    } else {
+      setChangeset({ id: 0, numberOfChanges: 0 });
+    }
   }, [changesetData]);
 
   async function refresh() {

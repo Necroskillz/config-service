@@ -112,14 +112,9 @@ export function setAccessToken(accessToken: string | null) {
 }
 const AuthContext = createContext<AuthContextType>(undefined as unknown as AuthContextType);
 
-export const AuthProvider = ({ children, accessToken }: { children: React.ReactNode; accessToken: string | null }) => {
+export const AuthProvider = ({ children, accessToken, initialUser }: { children: React.ReactNode; accessToken: string | null; initialUser: AuthUser }) => {
   setAccessToken(accessToken);
-  const { data: user } = useGetAuthUserSuspense();
-  const [userState, setUserState] = useState<User>(user);
-
-  useEffect(() => {
-    setUserState(user);
-  }, [user]);
+  const [userState, setUserState] = useState<User>(initialUser);
 
   async function login(username: string, password: string) {
     const { accessToken, user } = await loginFn({ data: { username, password } });

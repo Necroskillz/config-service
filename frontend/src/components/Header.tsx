@@ -11,6 +11,7 @@ export function Header() {
   const { data: approvableCount } = useGetChangesetsApprovableCount({
     query: {
       refetchInterval: 60000,
+      enabled: user.isAuthenticated,
     },
   });
 
