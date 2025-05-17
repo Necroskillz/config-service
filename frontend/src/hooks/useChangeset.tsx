@@ -1,5 +1,10 @@
 import { createContext, use, useEffect, useState } from 'react';
-import { getChangesetsCurrentQueryKey, HandlerChangesetInfoResponse, useGetChangesetsCurrent, useGetChangesetsCurrentSuspense } from '~/gen';
+import {
+  getChangesetsCurrentQueryKey,
+  HandlerChangesetInfoResponse,
+  useGetChangesetsCurrent,
+  useGetChangesetsCurrentSuspense,
+} from '~/gen';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '~/auth';
 
@@ -11,7 +16,13 @@ export type ChangesetContext = {
 
 const ChangesetContext = createContext<ChangesetContext>(undefined as unknown as ChangesetContext);
 
-export function ChangesetProvider({ children }: { children: React.ReactNode }) {
+export function ChangesetProvider({
+  children,
+  initialChangeset,
+}: {
+  children: React.ReactNode;
+  initialChangeset: HandlerChangesetInfoResponse;
+}) {
   const { user } = useAuth();
   const { data: changesetData } = useGetChangesetsCurrent({
     query: {
@@ -19,15 +30,16 @@ export function ChangesetProvider({ children }: { children: React.ReactNode }) {
     },
   });
   const queryClient = useQueryClient();
-  const [changeset, setChangeset] = useState<HandlerChangesetInfoResponse>({ id: 0, numberOfChanges: 0 });
+  const [changeset, setChangeset] = useState<HandlerChangesetInfoResponse>(initialChangeset);
 
   useEffect(() => {
-    if (changesetData) {
+    if (user.isAuthenticated && changesetData) {
       setChangeset(changesetData);
-    } else {
+    } else if (!user.isAuthenticated) {
       setChangeset({ id: 0, numberOfChanges: 0 });
+      queryClient.removeQueries({ queryKey: getChangesetsCurrentQueryKey() });
     }
-  }, [changesetData]);
+  }, [changesetData, user]);
 
   async function refresh() {
     await queryClient.refetchQueries({ queryKey: getChangesetsCurrentQueryKey() });

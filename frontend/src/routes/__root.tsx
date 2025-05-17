@@ -11,12 +11,13 @@ import { AnonymousUser, AuthProvider, getAccessToken, getRefreshToken, refreshFn
 import { useState } from 'react';
 import { ChangesetProvider } from '~/hooks/useChangeset';
 import { ThemeProvider } from '~/ThemeProvider';
-import { AuthUser, getAuthUserSuspense } from '~/gen';
+import { AuthUser, getAuthUser, getChangesetsCurrent, HandlerChangesetInfoResponse } from '~/gen';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   accessToken: string | null;
   user: AuthUser;
+  changeset: HandlerChangesetInfoResponse;
 }>()({
   head: () => ({
     meta: [
@@ -78,11 +79,12 @@ export const Route = createRootRouteWithContext<{
     setRequestAccessToken(accessToken);
 
     let user: AuthUser = AnonymousUser;
+    let changeset: HandlerChangesetInfoResponse = { id: 0, numberOfChanges: 0 };
     if (accessToken) {
-      user = await getAuthUserSuspense();
+      [user, changeset] = await Promise.all([getAuthUser(), getChangesetsCurrent()]);
     }
 
-    return { accessToken, user };
+    return { accessToken, user, changeset };
   },
 });
 
@@ -91,11 +93,12 @@ function RootComponent() {
 
   const [accessToken] = useState<string | null>(serverData.accessToken);
   const [user] = useState<AuthUser>(serverData.user);
+  const [changeset] = useState<HandlerChangesetInfoResponse>(serverData.changeset);
 
   return (
     <RootDocument>
       <AuthProvider accessToken={accessToken} initialUser={user}>
-        <ChangesetProvider>
+        <ChangesetProvider initialChangeset={changeset}>
           <Header />
           <Outlet />
         </ChangesetProvider>
