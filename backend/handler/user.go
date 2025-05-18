@@ -93,6 +93,8 @@ type CreateUserRequest struct {
 // @Success 200 {object} CreateResponse
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 422 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /users [post]
 func (h *Handler) CreateUser(c echo.Context) error {
@@ -124,6 +126,8 @@ type UpdateUserRequest struct {
 // @Success 204
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 422 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /users/{user_id} [put]
 func (h *Handler) UpdateUser(c echo.Context) error {

@@ -6,6 +6,7 @@ import { seo, appTitle } from '~/utils/seo';
 import { z } from 'zod';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { usePostUsers, usePutUsersUserId, useGetUsersUserIdSuspense } from '~/gen';
+import { MutationErrors } from '~/components/MutationErrors';
 
 interface UserFormData {
   username: string;
@@ -81,7 +82,7 @@ function RouteComponent() {
   return (
     <div className="p-4">
       <h2 className="text-2xl font-semibold mb-6">{isNewUser ? 'Create New User' : 'Edit User'}</h2>
-      
+      <MutationErrors mutations={[createUser, updateUser]} />
       <form.AppForm>
         <form
           className="space-y-6 max-w-md"
@@ -105,6 +106,7 @@ function RouteComponent() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
                     disabled={!isNewUser}
+                    maxLength={100}
                   />
                 </field.FormControl>
                 <field.FormMessage />
@@ -126,7 +128,8 @@ function RouteComponent() {
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
-                      disabled={!isNewUser}
+                      minLength={8}
+                      maxLength={100}
                     />
                   </field.FormControl>
                   <field.FormMessage />

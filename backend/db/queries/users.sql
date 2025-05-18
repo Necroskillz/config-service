@@ -52,7 +52,7 @@ FROM
     filtered_users
     CROSS JOIN total_count
 ORDER BY
-    filtered_users.created_at DESC
+    filtered_users.name ASC
 LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;
 
 -- name: CreateUser :one
@@ -65,7 +65,8 @@ RETURNING
 UPDATE
     users
 SET
-    global_administrator = @global_administrator
+    global_administrator = @global_administrator,
+    updated_at = now()
 WHERE
     id = @id;
 

@@ -2,9 +2,7 @@ package service
 
 import (
 	"context"
-	"errors"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
@@ -14,10 +12,12 @@ import (
 type UserService struct {
 	queries                 *db.Queries
 	variationContextService *VariationContextService
+	validationService       *ValidationService
+	validator               *Validator
 }
 
-func NewUserService(queries *db.Queries, variationContextService *VariationContextService) *UserService {
-	return &UserService{queries: queries, variationContextService: variationContextService}
+func NewUserService(queries *db.Queries, variationContextService *VariationContextService, validationService *ValidationService, validator *Validator) *UserService {
+	return &UserService{queries: queries, variationContextService: variationContextService, validationService: validationService, validator: validator}
 }
 
 func (s *UserService) Authenticate(ctx context.Context, name, password string) (uint, error) {
@@ -156,12 +156,8 @@ func (s *UserService) CreateUser(ctx context.Context, name string, password stri
 		return 0, NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create a user")
 	}
 
-	// Check if username already exists
-	_, err := s.queries.GetUserByName(ctx, name)
-	if err == nil {
-		return 0, NewServiceError(ErrorCodeInvalidOperation, "Username already exists")
-	} else if !errors.Is(err, pgx.ErrNoRows) {
-		return 0, NewDbError(err, "GetUserByName")
+	if err := s.validateCreateUser(ctx, name, password, globalAdministrator); err != nil {
+		return 0, err
 	}
 
 	passwordHash, err := auth.GeneratePasswordHash(password)
@@ -189,4 +185,16 @@ type UserDto struct {
 	ID                  uint   `json:"id" validate:"required"`
 	Username            string `json:"username" validate:"required"`
 	GlobalAdministrator bool   `json:"globalAdministrator" validate:"required"`
+}
+
+func (s *UserService) validateCreateUser(ctx context.Context, name string, password string, globalAdministrator bool) error {
+	if taken, err := s.validationService.IsUsernameTaken(ctx, name); err != nil {
+		return err
+	} else if taken {
+		return NewServiceError(ErrorCodeInvalidInput, "Username already exists")
+	}
+
+	return s.validator.
+		Validate(name, "Name").Required().MinLength(1).MaxLength(100).
+		Validate(password, "Password").Required().MinLength(8).MaxLength(100).Error(ctx)
 }

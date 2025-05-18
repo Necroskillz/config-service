@@ -185,7 +185,7 @@ FROM
     filtered_users
     CROSS JOIN total_count
 ORDER BY
-    filtered_users.created_at DESC
+    filtered_users.name ASC
 LIMIT $2::integer OFFSET $1::integer
 `
 
@@ -238,7 +238,8 @@ const updateUser = `-- name: UpdateUser :exec
 UPDATE
     users
 SET
-    global_administrator = $1
+    global_administrator = $1,
+    updated_at = now()
 WHERE
     id = $2
 `

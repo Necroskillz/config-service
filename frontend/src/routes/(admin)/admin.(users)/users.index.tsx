@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { z } from 'zod';
 import { buttonVariants } from '~/components/ui/button';
-import { useGetUsers } from '~/gen';
+import { useGetUsers, useGetUsersSuspense } from '~/gen';
 import { seo, appTitle } from '~/utils/seo';
 import { zodValidator } from '@tanstack/zod-adapter';
 import {
@@ -77,7 +77,7 @@ function RouteComponent() {
           </PaginationContent>
         </Pagination>
         <div className="mt-4">
-          <Link to="/admin/users/create" className={buttonVariants({ variant: 'default', size: 'sm' })}>
+          <Link to="/admin/users/$userId" params={{ userId: 'create' }} className={buttonVariants({ variant: 'default', size: 'sm' })}>
             Create New User
           </Link>
         </div>
