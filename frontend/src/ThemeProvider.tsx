@@ -81,25 +81,32 @@ const Theme = ({
   nonce,
 }: ThemeProviderProps) => {
   const [themeState, setThemeState] = useState(() => getTheme(storageKey, defaultTheme));
+  const [systemTheme, setSystemTheme] = useState(() => getSystemTheme());
   const attrs = !value ? themes : Object.values(value);
 
   const resolvedTheme = useMemo(() => {
     if (forcedTheme) return forcedTheme;
 
     let resolved = themeState;
-    if (!resolved) return defaultTheme;
+    if (!resolved) {
+      resolved = defaultTheme;
+    }
 
-    if (themeState === 'system' && enableSystem) {
-      resolved = getSystemTheme();
+    if (resolved === 'system' && enableSystem) {
+      resolved = systemTheme;
+    }
+
+    if (!resolved) {
+      return 'light';
     }
 
     const name = value ? value[resolved] : resolved;
     return name;
-  }, [themeState, enableSystem, value, forcedTheme]);
+  }, [themeState, systemTheme, enableSystem, value, forcedTheme]);
 
   // apply selected theme function (light, dark, system)
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  const applyTheme = useCallback((theme: string | undefined) => {
+  const applyTheme = useCallback(() => {
     const enable = disableTransitionOnChange ? disableAnimation() : null;
     const d = document.documentElement;
 
@@ -127,7 +134,7 @@ const Theme = ({
     }
 
     enable?.();
-  }, []);
+  }, [resolvedTheme]);
 
   // Set theme state and save to local storage
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -153,7 +160,7 @@ const Theme = ({
       const resolved = getSystemTheme(e);
 
       if (themeState === 'system' && enableSystem && !forcedTheme) {
-        applyTheme('system');
+        setSystemTheme(resolved);
       }
     },
     [themeState, forcedTheme]
@@ -190,7 +197,7 @@ const Theme = ({
   // Whenever theme or forcedTheme changes, apply it
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    applyTheme(resolvedTheme);
+    applyTheme();
   }, [resolvedTheme]);
 
   const providerValue = useMemo(
@@ -292,6 +299,8 @@ const disableAnimation = () => {
 };
 
 const getSystemTheme = (e?: MediaQueryList | MediaQueryListEvent) => {
+  if (isServer) return undefined;
+
   const event = e ?? window.matchMedia(MEDIA);
   const isDark = event.matches;
   const systemTheme = isDark ? 'dark' : 'light';

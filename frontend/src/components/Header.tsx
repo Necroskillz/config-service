@@ -1,9 +1,22 @@
 import { Link } from '@tanstack/react-router';
 import { useAuth } from '~/auth';
 import { Badge } from './ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuTriggerLabel } from './ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+  DropdownMenuTriggerLabel,
+} from './ui/dropdown-menu';
 import { useChangeset } from '~/hooks/useChangeset';
 import { useGetChangesetsApprovableCount } from '~/gen';
+import { useTheme } from '~/ThemeProvider';
+import { Sun, Moon, Monitor, Check } from 'lucide-react';
 
 export function Header() {
   const { user } = useAuth();
@@ -38,9 +51,7 @@ export function Header() {
             className="flex items-center gap-1"
           >
             Changesets
-            {approvableCount?.count && approvableCount.count > 0 ? (
-              <Badge variant="outline">{approvableCount.count}</Badge>
-            ) : null}
+            {approvableCount?.count && approvableCount.count > 0 ? <Badge variant="outline">{approvableCount.count}</Badge> : null}
           </Link>
           {user.isGlobalAdmin && <Link to="/admin">Admin</Link>}
         </>
@@ -52,12 +63,49 @@ export function Header() {
 
 function UserMenu() {
   const { user, logout } = useAuth();
+  const { setTheme, theme } = useTheme();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <DropdownMenuTriggerLabel>{user.username}</DropdownMenuTriggerLabel>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={() => setTheme('system')}>
+                <Monitor className="w-4 h-4" />
+                System
+                {(!theme || theme === 'system') && (
+                  <DropdownMenuShortcut>
+                    <Check className="w-4 h-4" />
+                  </DropdownMenuShortcut>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('light')}>
+                <Sun className="w-4 h-4" />
+                Light
+                {theme === 'light' && (
+                  <DropdownMenuShortcut>
+                    <Check className="w-4 h-4" />
+                  </DropdownMenuShortcut>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('dark')}>
+                <Moon className="w-4 h-4" />
+                Dark
+                {theme === 'dark' && (
+                  <DropdownMenuShortcut>
+                    <Check className="w-4 h-4" />
+                  </DropdownMenuShortcut>
+                )}
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
         <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
