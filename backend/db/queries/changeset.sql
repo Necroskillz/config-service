@@ -60,29 +60,22 @@ action_counts AS (
         changeset_actions
     GROUP BY
         changeset_id
-),
-total_count AS (
-    SELECT
-        COUNT(*)::integer AS total
-    FROM
-        filtered_changesets
 )
 SELECT
     cs.*,
     COALESCE(la.last_action_at, cs.created_at) AS last_action_at,
     COALESCE(ac.action_count, 0)::integer AS action_count,
     u.name AS user_name,
-    tc.total AS total_count
-FROM
-    filtered_changesets fc
-    JOIN changesets cs ON cs.id = fc.id
-    JOIN users u ON u.id = cs.user_id
-    LEFT JOIN last_actions la ON la.changeset_id = cs.id
-    LEFT JOIN action_counts ac ON ac.changeset_id = cs.id
-    CROSS JOIN total_count tc
-ORDER BY
-    cs.id DESC
-LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;
+    COUNT(*) OVER ()::integer AS total_count
+    FROM
+        filtered_changesets fc
+        JOIN changesets cs ON cs.id = fc.id
+        JOIN users u ON u.id = cs.user_id
+        LEFT JOIN last_actions la ON la.changeset_id = cs.id
+        LEFT JOIN action_counts ac ON ac.changeset_id = cs.id
+    ORDER BY
+        cs.id DESC
+    LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;
 
 -- name: CreateChangeset :one
 INSERT INTO changesets(user_id, state)

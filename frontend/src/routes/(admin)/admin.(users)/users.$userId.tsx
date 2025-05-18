@@ -5,7 +5,7 @@ import { Button } from '~/components/ui/button';
 import { seo, appTitle } from '~/utils/seo';
 import { z } from 'zod';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
-import { usePostUsers, usePutUsersUserId, useGetUsersUserIdSuspense } from '~/gen';
+import { usePostUsers, usePutUsersUserId, useGetUsersUserIdSuspense, getUsersUserIdQueryOptions } from '~/gen';
 import { MutationErrors } from '~/components/MutationErrors';
 
 interface UserFormData {
@@ -20,12 +20,17 @@ const Schema = z.object({
 
 export const Route = createFileRoute('/(admin)/admin/(users)/users/$userId')({
   component: RouteComponent,
-  head: () => ({
-    meta: [...seo({ title: appTitle(['User Details', 'Admin']) })],
-  }),
   params: {
     parse: Schema.parse,
   },
+  loader: async ({ context, params }) => {
+    if (params.userId !== 'create') {
+      return context.queryClient.ensureQueryData(getUsersUserIdQueryOptions(params.userId));
+    }
+  },
+  head: ({ loaderData }) => ({
+    meta: [...seo({ title: appTitle([loaderData ? 'Edit User' : 'Create User', 'Admin']) })],
+  }),
 });
 
 function RouteComponent() {
@@ -33,10 +38,8 @@ function RouteComponent() {
   const navigate = useNavigate();
   const isNewUser = userId === 'create';
 
-  // queries
   const { data: userData } = isNewUser ? { data: undefined } : useGetUsersUserIdSuspense(userId);
 
-  // mutations
   const createUser = usePostUsers({
     mutation: {
       onSuccess: async () => {
@@ -80,12 +83,12 @@ function RouteComponent() {
   });
 
   return (
-    <div className="p-4">
+    <div className="p-4 w-[720px]">
       <h2 className="text-2xl font-semibold mb-6">{isNewUser ? 'Create New User' : 'Edit User'}</h2>
       <MutationErrors mutations={[createUser, updateUser]} />
       <form.AppForm>
         <form
-          className="space-y-6 max-w-md"
+          className="flex flex-col gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();

@@ -164,26 +164,19 @@ func (q *Queries) GetUserPermissions(ctx context.Context, userID uint) ([]GetUse
 }
 
 const getUsers = `-- name: GetUsers :many
-with filtered_users as (
+WITH filtered_users AS (
     SELECT
         id, created_at, updated_at, deleted_at, name, password, global_administrator
     FROM
         users
     WHERE
         deleted_at IS NULL
-),
-total_count as (
-    SELECT
-        COUNT(*)::integer AS total
-    FROM
-        filtered_users
 )
 SELECT
     filtered_users.id, filtered_users.created_at, filtered_users.updated_at, filtered_users.deleted_at, filtered_users.name, filtered_users.password, filtered_users.global_administrator,
-    total_count.total as total_count
+    COUNT(*) OVER ()::integer AS total_count
 FROM
     filtered_users
-    CROSS JOIN total_count
 ORDER BY
     filtered_users.name ASC
 LIMIT $2::integer OFFSET $1::integer

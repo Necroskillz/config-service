@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { useAuth } from '~/auth';
 import { PageTitle } from '~/components/PageTitle';
 import { SlimPage } from '~/components/SlimPage';
-import { useGetChangesets } from '~/gen';
+import { useGetChangesets, getChangesetsQueryOptions } from '~/gen';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { List, ListItem } from '~/components/List';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select';
@@ -32,6 +32,9 @@ export const Route = createFileRoute('/(changesets)/changesets/')({
       mode: z.enum(MODES).default('my'),
     })
   ),
+  loader: async ({ context }) => {
+    return context.queryClient.ensureQueryData(getChangesetsQueryOptions({ limit: PAGE_SIZE, offset: 0 }));
+  },
 });
 
 function RouteComponent() {

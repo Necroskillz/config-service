@@ -31,26 +31,19 @@ WHERE
     up.user_id = @user_id;
 
 -- name: GetUsers :many
-with filtered_users as (
+WITH filtered_users AS (
     SELECT
         *
     FROM
         users
     WHERE
         deleted_at IS NULL
-),
-total_count as (
-    SELECT
-        COUNT(*)::integer AS total
-    FROM
-        filtered_users
 )
 SELECT
     filtered_users.*,
-    total_count.total as total_count
+    COUNT(*) OVER ()::integer AS total_count
 FROM
     filtered_users
-    CROSS JOIN total_count
 ORDER BY
     filtered_users.name ASC
 LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;

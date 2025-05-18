@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { z } from 'zod';
 import { buttonVariants } from '~/components/ui/button';
-import { useGetUsers, useGetUsersSuspense } from '~/gen';
+import { getUsersQueryOptions, useGetUsers, useGetUsersSuspense } from '~/gen';
 import { seo, appTitle } from '~/utils/seo';
 import { zodValidator } from '@tanstack/zod-adapter';
 import {
@@ -23,6 +23,9 @@ export const Route = createFileRoute('/(admin)/admin/(users)/users/')({
       page: z.number().min(1).default(1),
     })
   ),
+  loader: async ({ context }) => {
+    return context.queryClient.ensureQueryData(getUsersQueryOptions({ limit: PAGE_SIZE, offset: 0 }));
+  },
   head: () => ({
     meta: [...seo({ title: appTitle(['Users', 'Admin']) })],
   }),
@@ -36,8 +39,8 @@ function RouteComponent() {
   });
 
   return (
-    <div className="p-4 flex flex-row">
-      <div className="w-64 flex flex-col gap-2">
+    <div className="w-[720px] p-4 flex flex-row">
+      <div className="w-full flex flex-col gap-2">
         <h2 className="text-lg font-semibold mb-2">Users</h2>
         {isLoading ? (
           <div className="flex justify-center items-center h-full mt-16">
@@ -81,9 +84,6 @@ function RouteComponent() {
             Create New User
           </Link>
         </div>
-      </div>
-      <div>
-        <Outlet />
       </div>
     </div>
   );

@@ -104,7 +104,11 @@ func (h *Handler) CreateUser(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	userID, err := h.UserService.CreateUser(c.Request().Context(), request.Username, request.Password, request.GlobalAdministrator)
+	userID, err := h.UserService.CreateUser(c.Request().Context(), service.CreateUserParams{
+		Username:            request.Username,
+		Password:            request.Password,
+		GlobalAdministrator: request.GlobalAdministrator,
+	})
 	if err != nil {
 		return ToHTTPError(err)
 	}
@@ -127,7 +131,7 @@ type UpdateUserRequest struct {
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
-// @Failure 422 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /users/{user_id} [put]
 func (h *Handler) UpdateUser(c echo.Context) error {
@@ -143,7 +147,9 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	err = h.UserService.UpdateUser(c.Request().Context(), userID, request.GlobalAdministrator)
+	err = h.UserService.UpdateUser(c.Request().Context(), userID, service.UpdateUserParams{
+		GlobalAdministrator: request.GlobalAdministrator,
+	})
 	if err != nil {
 		return ToHTTPError(err)
 	}

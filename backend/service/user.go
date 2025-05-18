@@ -60,6 +60,12 @@ func dbPermissionToConstant(dbPerm db.PermissionLevel) constants.PermissionLevel
 	}
 }
 
+type UserDto struct {
+	ID                  uint   `json:"id" validate:"required"`
+	Username            string `json:"username" validate:"required"`
+	GlobalAdministrator bool   `json:"globalAdministrator" validate:"required"`
+}
+
 func (s *UserService) Get(ctx context.Context, id uint) (User, error) {
 	dbUser, err := s.queries.GetUserByID(ctx, id)
 	if err != nil {
@@ -101,6 +107,11 @@ func (s *UserService) Get(ctx context.Context, id uint) (User, error) {
 	}, nil
 }
 
+type UsersFilter struct {
+	Limit  int
+	Offset int
+}
+
 func (s *UserService) GetUsers(ctx context.Context, filter UsersFilter) (PaginatedResult[UserDto], error) {
 	if filter.Limit > 100 {
 		return PaginatedResult[UserDto]{}, NewServiceError(ErrorCodeInvalidOperation, "Limit cannot be greater than 100")
@@ -134,67 +145,77 @@ func (s *UserService) GetUsers(ctx context.Context, filter UsersFilter) (Paginat
 	}, nil
 }
 
-func (s *UserService) UpdateUser(ctx context.Context, userID uint, globalAdministrator bool) error {
+type UpdateUserParams struct {
+	GlobalAdministrator bool
+}
+
+func (s *UserService) validateUpdateUser(ctx context.Context, userID uint) error {
 	currentUser := auth.GetUserFromContext(ctx)
 	if !currentUser.IsGlobalAdmin {
 		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to update a user")
 	}
 
-	err := s.queries.UpdateUser(ctx, db.UpdateUserParams{
-		ID:                  userID,
-		GlobalAdministrator: globalAdministrator,
-	})
+	_, err := s.queries.GetUserByID(ctx, userID)
 	if err != nil {
-		return NewDbError(err, "UpdateUser")
+		return NewDbError(err, "User")
 	}
+
 	return nil
 }
 
-func (s *UserService) CreateUser(ctx context.Context, name string, password string, globalAdministrator bool) (uint, error) {
-	currentUser := auth.GetUserFromContext(ctx)
-	if !currentUser.IsGlobalAdmin {
-		return 0, NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create a user")
+func (s *UserService) UpdateUser(ctx context.Context, userID uint, params UpdateUserParams) error {
+	if err := s.validateUpdateUser(ctx, userID); err != nil {
+		return err
 	}
 
-	if err := s.validateCreateUser(ctx, name, password, globalAdministrator); err != nil {
-		return 0, err
-	}
-
-	passwordHash, err := auth.GeneratePasswordHash(password)
-	if err != nil {
-		return 0, NewServiceError(ErrorCodeInvalidOperation, "Failed to hash password")
-	}
-
-	userID, err := s.queries.CreateUser(ctx, db.CreateUserParams{
-		Name:                name,
-		Password:            string(passwordHash),
-		GlobalAdministrator: globalAdministrator,
+	return s.queries.UpdateUser(ctx, db.UpdateUserParams{
+		ID:                  userID,
+		GlobalAdministrator: params.GlobalAdministrator,
 	})
-	if err != nil {
-		return 0, NewDbError(err, "CreateUser")
+}
+
+type CreateUserParams struct {
+	Username            string
+	Password            string
+	GlobalAdministrator bool
+}
+
+func (s *UserService) validateCreateUser(ctx context.Context, data CreateUserParams) error {
+	user := auth.GetUserFromContext(ctx)
+	if !user.IsGlobalAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create a user")
 	}
-	return userID, nil
-}
 
-type UsersFilter struct {
-	Limit  int
-	Offset int
-}
-
-type UserDto struct {
-	ID                  uint   `json:"id" validate:"required"`
-	Username            string `json:"username" validate:"required"`
-	GlobalAdministrator bool   `json:"globalAdministrator" validate:"required"`
-}
-
-func (s *UserService) validateCreateUser(ctx context.Context, name string, password string, globalAdministrator bool) error {
-	if taken, err := s.validationService.IsUsernameTaken(ctx, name); err != nil {
+	if taken, err := s.validationService.IsUsernameTaken(ctx, data.Username); err != nil {
 		return err
 	} else if taken {
 		return NewServiceError(ErrorCodeInvalidInput, "Username already exists")
 	}
 
 	return s.validator.
-		Validate(name, "Name").Required().MinLength(1).MaxLength(100).
-		Validate(password, "Password").Required().MinLength(8).MaxLength(100).Error(ctx)
+		Validate(data.Username, "Username").Required().MinLength(1).MaxLength(100).
+		Validate(data.Password, "Password").Required().MinLength(8).MaxLength(100).
+		Error(ctx)
+}
+
+func (s *UserService) CreateUser(ctx context.Context, params CreateUserParams) (uint, error) {
+	if err := s.validateCreateUser(ctx, params); err != nil {
+		return 0, err
+	}
+
+	passwordHash, err := auth.GeneratePasswordHash(params.Password)
+	if err != nil {
+		return 0, NewServiceError(ErrorCodeInvalidOperation, "Failed to hash password")
+	}
+
+	userID, err := s.queries.CreateUser(ctx, db.CreateUserParams{
+		Name:                params.Username,
+		Password:            string(passwordHash),
+		GlobalAdministrator: params.GlobalAdministrator,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }
