@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/constants"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthState struct {
@@ -112,4 +113,8 @@ func NewCurrentUserAccessor() *CurrentUserAccessor {
 
 func (c *CurrentUserAccessor) GetUser(ctx context.Context) *User {
 	return GetUserFromContext(ctx)
+}
+
+func GeneratePasswordHash(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }

@@ -16,6 +16,16 @@ definitions:
     - isGlobalAdmin
     - username
     type: object
+  constants.PermissionLevel:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - PermissionViewer
+    - PermissionEditor
+    - PermissionAdmin
   db.ChangesetActionType:
     enum:
     - apply
@@ -186,6 +196,19 @@ definitions:
     - name
     - serviceTypeId
     type: object
+  handler.CreateUserRequest:
+    properties:
+      globalAdministrator:
+        type: boolean
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - globalAdministrator
+    - name
+    - password
+    type: object
   handler.CreateVariationPropertyRequest:
     properties:
       display_name:
@@ -261,6 +284,13 @@ definitions:
         type: string
     required:
     - description
+    type: object
+  handler.UpdateUserRequest:
+    properties:
+      globalAdministrator:
+        type: boolean
+    required:
+    - globalAdministrator
     type: object
   handler.UpdateVariationPropertyRequest:
     properties:
@@ -600,6 +630,18 @@ definitions:
     - items
     - totalCount
     type: object
+  service.PaginatedResult-service_UserDto:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/service.UserDto'
+        type: array
+      totalCount:
+        type: integer
+    required:
+    - items
+    - totalCount
+    type: object
   service.ServiceDto:
     properties:
       description:
@@ -671,6 +713,47 @@ definitions:
     required:
     - id
     - version
+    type: object
+  service.User:
+    properties:
+      globalAdministrator:
+        type: boolean
+      id:
+        type: integer
+      permissions:
+        items:
+          $ref: '#/definitions/service.UserPermission'
+        type: array
+      username:
+        type: string
+    type: object
+  service.UserDto:
+    properties:
+      globalAdministrator:
+        type: boolean
+      id:
+        type: integer
+      username:
+        type: string
+    required:
+    - globalAdministrator
+    - id
+    - username
+    type: object
+  service.UserPermission:
+    properties:
+      featureID:
+        type: integer
+      keyID:
+        type: integer
+      permission:
+        $ref: '#/definitions/constants.PermissionLevel'
+      serviceID:
+        type: integer
+      variation:
+        additionalProperties:
+          type: string
+        type: object
     type: object
   service.ValidatorDto:
     properties:
@@ -2697,6 +2780,146 @@ paths:
       security:
       - BearerAuth: []
       summary: Check if service name is taken
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get list of users
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.PaginatedResult-service_UserDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create a user
+  /users/{user_id}:
+    get:
+      description: Get a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get a user
+    put:
+      consumes:
+      - application/json
+      description: Update a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Update a user
   /value-types:
     get:
       description: Get all value types
