@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 )
 
 const createPermission = `-- name: CreatePermission :one
@@ -160,4 +161,95 @@ func (q *Queries) GetUserPermissions(ctx context.Context, userID uint) ([]GetUse
 		return nil, err
 	}
 	return items, nil
+}
+
+const getUsers = `-- name: GetUsers :many
+with filtered_users as (
+    SELECT
+        id, created_at, updated_at, deleted_at, name, password, global_administrator
+    FROM
+        users
+    WHERE
+        deleted_at IS NULL
+),
+total_count as (
+    SELECT
+        COUNT(*)::integer AS total
+    FROM
+        filtered_users
+)
+SELECT
+    filtered_users.id, filtered_users.created_at, filtered_users.updated_at, filtered_users.deleted_at, filtered_users.name, filtered_users.password, filtered_users.global_administrator,
+    total_count.total as total_count
+FROM
+    filtered_users
+    CROSS JOIN total_count
+ORDER BY
+    filtered_users.name ASC
+LIMIT $2::integer OFFSET $1::integer
+`
+
+type GetUsersParams struct {
+	Offset int
+	Limit  int
+}
+
+type GetUsersRow struct {
+	ID                  uint
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	DeletedAt           *time.Time
+	Name                string
+	Password            string
+	GlobalAdministrator bool
+	TotalCount          int
+}
+
+func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersRow, error) {
+	rows, err := q.db.Query(ctx, getUsers, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersRow
+	for rows.Next() {
+		var i GetUsersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Name,
+			&i.Password,
+			&i.GlobalAdministrator,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE
+    users
+SET
+    global_administrator = $1,
+    updated_at = now()
+WHERE
+    id = $2
+`
+
+type UpdateUserParams struct {
+	GlobalAdministrator bool
+	ID                  uint
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser, arg.GlobalAdministrator, arg.ID)
+	return err
 }

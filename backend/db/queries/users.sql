@@ -30,11 +30,45 @@ FROM
 WHERE
     up.user_id = @user_id;
 
+-- name: GetUsers :many
+with filtered_users as (
+    SELECT
+        *
+    FROM
+        users
+    WHERE
+        deleted_at IS NULL
+),
+total_count as (
+    SELECT
+        COUNT(*)::integer AS total
+    FROM
+        filtered_users
+)
+SELECT
+    filtered_users.*,
+    total_count.total as total_count
+FROM
+    filtered_users
+    CROSS JOIN total_count
+ORDER BY
+    filtered_users.name ASC
+LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;
+
 -- name: CreateUser :one
 INSERT INTO users(name, password, global_administrator)
     VALUES (@name, @password, @global_administrator)
 RETURNING
     id;
+
+-- name: UpdateUser :exec
+UPDATE
+    users
+SET
+    global_administrator = @global_administrator,
+    updated_at = now()
+WHERE
+    id = @id;
 
 -- name: CreatePermission :one
 INSERT INTO user_permissions(user_id, kind, service_id, feature_id, key_id, permission, variation_context_id)

@@ -4,8 +4,8 @@
  */
 
 import client from '~/axios'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import type { GetVariationPropertiesQueryResponse, GetVariationProperties401, GetVariationProperties500 } from '../types/GetVariationProperties.ts'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 

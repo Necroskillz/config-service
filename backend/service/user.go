@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
 	"golang.org/x/crypto/bcrypt"
@@ -11,10 +12,12 @@ import (
 type UserService struct {
 	queries                 *db.Queries
 	variationContextService *VariationContextService
+	validationService       *ValidationService
+	validator               *Validator
 }
 
-func NewUserService(queries *db.Queries, variationContextService *VariationContextService) *UserService {
-	return &UserService{queries: queries, variationContextService: variationContextService}
+func NewUserService(queries *db.Queries, variationContextService *VariationContextService, validationService *ValidationService, validator *Validator) *UserService {
+	return &UserService{queries: queries, variationContextService: variationContextService, validationService: validationService, validator: validator}
 }
 
 func (s *UserService) Authenticate(ctx context.Context, name, password string) (uint, error) {
@@ -96,4 +99,102 @@ func (s *UserService) Get(ctx context.Context, id uint) (User, error) {
 		GlobalAdministrator: dbUser.GlobalAdministrator,
 		Permissions:         permissions,
 	}, nil
+}
+
+func (s *UserService) GetUsers(ctx context.Context, filter UsersFilter) (PaginatedResult[UserDto], error) {
+	if filter.Limit > 100 {
+		return PaginatedResult[UserDto]{}, NewServiceError(ErrorCodeInvalidOperation, "Limit cannot be greater than 100")
+	}
+
+	users, err := s.queries.GetUsers(ctx, db.GetUsersParams{
+		Limit:  filter.Limit,
+		Offset: filter.Offset,
+	})
+	if err != nil {
+		return PaginatedResult[UserDto]{}, NewDbError(err, "Users")
+	}
+
+	userItems := make([]UserDto, len(users))
+	for i, user := range users {
+		userItems[i] = UserDto{
+			ID:                  user.ID,
+			Username:            user.Name,
+			GlobalAdministrator: user.GlobalAdministrator,
+		}
+	}
+
+	var total int
+	if len(users) > 0 {
+		total = users[0].TotalCount
+	}
+
+	return PaginatedResult[UserDto]{
+		Items:      userItems,
+		TotalCount: total,
+	}, nil
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, userID uint, globalAdministrator bool) error {
+	currentUser := auth.GetUserFromContext(ctx)
+	if !currentUser.IsGlobalAdmin {
+		return NewServiceError(ErrorCodePermissionDenied, "You are not authorized to update a user")
+	}
+
+	err := s.queries.UpdateUser(ctx, db.UpdateUserParams{
+		ID:                  userID,
+		GlobalAdministrator: globalAdministrator,
+	})
+	if err != nil {
+		return NewDbError(err, "UpdateUser")
+	}
+	return nil
+}
+
+func (s *UserService) CreateUser(ctx context.Context, name string, password string, globalAdministrator bool) (uint, error) {
+	currentUser := auth.GetUserFromContext(ctx)
+	if !currentUser.IsGlobalAdmin {
+		return 0, NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create a user")
+	}
+
+	if err := s.validateCreateUser(ctx, name, password, globalAdministrator); err != nil {
+		return 0, err
+	}
+
+	passwordHash, err := auth.GeneratePasswordHash(password)
+	if err != nil {
+		return 0, NewServiceError(ErrorCodeInvalidOperation, "Failed to hash password")
+	}
+
+	userID, err := s.queries.CreateUser(ctx, db.CreateUserParams{
+		Name:                name,
+		Password:            string(passwordHash),
+		GlobalAdministrator: globalAdministrator,
+	})
+	if err != nil {
+		return 0, NewDbError(err, "CreateUser")
+	}
+	return userID, nil
+}
+
+type UsersFilter struct {
+	Limit  int
+	Offset int
+}
+
+type UserDto struct {
+	ID                  uint   `json:"id" validate:"required"`
+	Username            string `json:"username" validate:"required"`
+	GlobalAdministrator bool   `json:"globalAdministrator" validate:"required"`
+}
+
+func (s *UserService) validateCreateUser(ctx context.Context, name string, password string, globalAdministrator bool) error {
+	if taken, err := s.validationService.IsUsernameTaken(ctx, name); err != nil {
+		return err
+	} else if taken {
+		return NewServiceError(ErrorCodeInvalidInput, "Username already exists")
+	}
+
+	return s.validator.
+		Validate(name, "Name").Required().MinLength(1).MaxLength(100).
+		Validate(password, "Password").Required().MinLength(8).MaxLength(100).Error(ctx)
 }

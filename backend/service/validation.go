@@ -199,3 +199,16 @@ func (s *ValidationService) CanEditValue(ctx context.Context, serviceVersionID u
 
 	return s.canEditValueInternal(ctx, serviceVersion, featureVersion, key, value, variation)
 }
+
+func (s *ValidationService) IsUsernameTaken(ctx context.Context, username string) (bool, error) {
+	_, err := s.queries.GetUserByName(ctx, username)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}

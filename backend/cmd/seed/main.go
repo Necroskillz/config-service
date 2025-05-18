@@ -10,8 +10,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
+	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/db"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func Ptr[T any](v T) *T {
@@ -51,7 +51,7 @@ func main() {
 
 	queries := db.New(conn)
 
-	password, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+	password, err := auth.GeneratePasswordHash("admin")
 	if err != nil {
 		log.Fatalf("failed to generate password: %v", err)
 	}

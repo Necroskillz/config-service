@@ -77,7 +77,7 @@ func (s *Server) Start() error {
 	validator := service.NewValidator()
 	changesetService := service.NewChangesetService(queries, variationContextService, unitOfWorkRunner, currentUserAccessor, validator)
 	serviceService := service.NewServiceService(queries, unitOfWorkRunner, changesetService, currentUserAccessor, validator, coreService, validationService)
-	userService := service.NewUserService(queries, variationContextService)
+	userService := service.NewUserService(queries, variationContextService, validationService, validator)
 	featureService := service.NewFeatureService(unitOfWorkRunner, queries, changesetService, currentUserAccessor, validator, coreService, validationService)
 	keyService := service.NewKeyService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService, variationHierarchyService, validationService)
 	valueService := service.NewValueService(unitOfWorkRunner, variationContextService, variationHierarchyService, queries, changesetService, currentUserAccessor, validator, coreService, validationService, valueValidatorService)
