@@ -194,7 +194,7 @@ func (s *UserService) validateCreateUser(ctx context.Context, data CreateUserPar
 
 	return s.validator.
 		Validate(data.Username, "Username").Required().MinLength(1).MaxLength(100).
-		Validate(data.Password, "Password").Required().MinLength(8).MaxLength(100).
+		Validate(data.Password, "Password").Required().MinLength(8).
 		Error(ctx)
 }
 

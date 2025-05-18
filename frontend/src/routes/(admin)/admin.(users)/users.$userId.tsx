@@ -69,7 +69,7 @@ function RouteComponent() {
           .min(1, 'Username is required')
           .max(100, 'Username must have at most 100 characters')
           .regex(/^[\w\-_\.]+$/, 'Allowed characters: letters, numbers, -, _ and .'),
-        password: isNewUser ? z.string().min(1, 'Password is required').max(100, 'Password must have at most 100 characters') : z.string(),
+        password: isNewUser ? z.string().min(8, 'Password must be at least 8 characters') : z.string(),
         isGlobalAdmin: z.boolean(),
       }),
     },
@@ -85,7 +85,6 @@ function RouteComponent() {
   return (
     <div className="p-4 w-[720px]">
       <h2 className="text-2xl font-semibold mb-6">{isNewUser ? 'Create New User' : 'Edit User'}</h2>
-      <MutationErrors mutations={[createUser, updateUser]} />
       <form.AppForm>
         <form
           className="flex flex-col gap-4"
@@ -95,6 +94,7 @@ function RouteComponent() {
             form.handleSubmit();
           }}
         >
+          <MutationErrors mutations={[createUser, updateUser]} />
           <form.AppField
             name="username"
             children={(field) => (
@@ -109,7 +109,6 @@ function RouteComponent() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
                     disabled={!isNewUser}
-                    maxLength={100}
                   />
                 </field.FormControl>
                 <field.FormMessage />
@@ -131,8 +130,6 @@ function RouteComponent() {
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
-                      minLength={8}
-                      maxLength={100}
                     />
                   </field.FormControl>
                   <field.FormMessage />
