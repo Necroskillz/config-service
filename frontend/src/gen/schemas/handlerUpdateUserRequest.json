@@ -1,0 +1,1 @@
+{"properties":{"globalAdministrator":{"type":"boolean"}},"required":["globalAdministrator"],"type":"object","x-readme-ref-name":"handler.UpdateUserRequest"}

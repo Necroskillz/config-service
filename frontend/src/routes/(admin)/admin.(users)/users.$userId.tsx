@@ -5,7 +5,7 @@ import { Button } from '~/components/ui/button';
 import { seo, appTitle } from '~/utils/seo';
 import { z } from 'zod';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
-import { usePostUsers, usePutUsersUserId, useGetUsersUserId } from '~/gen';
+import { usePostUsers, usePutUsersUserId, useGetUsersUserIdSuspense } from '~/gen';
 
 interface UserFormData {
   username: string;
@@ -33,11 +33,7 @@ function RouteComponent() {
   const isNewUser = userId === 'create';
 
   // queries
-  const { data: userData } = useGetUsersUserId(isNewUser ? 0 : userId, {
-    query: {
-      enabled: !isNewUser,
-    },
-  });
+  const { data: userData } = isNewUser ? { data: undefined } : useGetUsersUserIdSuspense(userId);
 
   // mutations
   const createUser = usePostUsers({

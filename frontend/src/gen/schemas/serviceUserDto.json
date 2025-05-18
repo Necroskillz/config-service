@@ -1,0 +1,1 @@
+{"properties":{"globalAdministrator":{"type":"boolean"},"id":{"type":"integer"},"username":{"type":"string"}},"required":["globalAdministrator","id","username"],"type":"object","x-readme-ref-name":"service.UserDto"}
