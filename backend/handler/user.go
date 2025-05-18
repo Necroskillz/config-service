@@ -79,7 +79,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 }
 
 type CreateUserRequest struct {
-	Name                string `json:"name" validate:"required"`
+	Username            string `json:"username" validate:"required"`
 	Password            string `json:"password" validate:"required"`
 	GlobalAdministrator bool   `json:"globalAdministrator" validate:"required"`
 }
@@ -102,7 +102,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	userID, err := h.UserService.CreateUser(c.Request().Context(), request.Name, request.Password, request.GlobalAdministrator)
+	userID, err := h.UserService.CreateUser(c.Request().Context(), request.Username, request.Password, request.GlobalAdministrator)
 	if err != nil {
 		return ToHTTPError(err)
 	}

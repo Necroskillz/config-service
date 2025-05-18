@@ -4138,17 +4138,17 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "globalAdministrator",
-                "name",
-                "password"
+                "password",
+                "username"
             ],
             "properties": {
                 "globalAdministrator": {
                     "type": "boolean"
                 },
-                "name": {
+                "password": {
                     "type": "string"
                 },
-                "password": {
+                "username": {
                     "type": "string"
                 }
             }

@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
 	"github.com/necroskillz/config-service/db"
@@ -154,9 +156,22 @@ func (s *UserService) CreateUser(ctx context.Context, name string, password stri
 		return 0, NewServiceError(ErrorCodePermissionDenied, "You are not authorized to create a user")
 	}
 
+	// Check if username already exists
+	_, err := s.queries.GetUserByName(ctx, name)
+	if err == nil {
+		return 0, NewServiceError(ErrorCodeInvalidOperation, "Username already exists")
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return 0, NewDbError(err, "GetUserByName")
+	}
+
+	passwordHash, err := auth.GeneratePasswordHash(password)
+	if err != nil {
+		return 0, NewServiceError(ErrorCodeInvalidOperation, "Failed to hash password")
+	}
+
 	userID, err := s.queries.CreateUser(ctx, db.CreateUserParams{
 		Name:                name,
-		Password:            password,
+		Password:            string(passwordHash),
 		GlobalAdministrator: globalAdministrator,
 	})
 	if err != nil {

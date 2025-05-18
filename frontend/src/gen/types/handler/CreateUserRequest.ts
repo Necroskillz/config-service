@@ -11,9 +11,9 @@ export type HandlerCreateUserRequest = {
   /**
    * @type string
    */
-  name: string
+  password: string
   /**
    * @type string
    */
-  password: string
+  username: string
 }

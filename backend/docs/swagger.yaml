@@ -200,14 +200,14 @@ definitions:
     properties:
       globalAdministrator:
         type: boolean
-      name:
-        type: string
       password:
+        type: string
+      username:
         type: string
     required:
     - globalAdministrator
-    - name
     - password
+    - username
     type: object
   handler.CreateVariationPropertyRequest:
     properties:

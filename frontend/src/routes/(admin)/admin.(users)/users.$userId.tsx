@@ -38,7 +38,7 @@ function RouteComponent() {
   // mutations
   const createUser = usePostUsers({
     mutation: {
-      onSuccess: async ({ newId: userId }) => {
+      onSuccess: async () => {
         navigate({ to: '/admin/users' });
       },
     },
@@ -52,16 +52,6 @@ function RouteComponent() {
     },
   });
 
-  const validator = z.object({
-    username: z
-      .string()
-      .min(1, 'Username is required')
-      .max(100, 'Username must have at most 100 characters')
-      .regex(/^[\w\-_\.]+$/, 'Allowed characters: letters, numbers, -, _ and .'),
-    password: isNewUser ? z.string().min(1, 'Password is required').max(100, 'Password must have at most 100 characters') : z.string(),
-    isGlobalAdmin: z.boolean(),
-  });
-
   const form = useAppForm({
     defaultValues: {
       username: userData?.username ?? '',
@@ -69,13 +59,19 @@ function RouteComponent() {
       isGlobalAdmin: userData?.globalAdministrator ?? false,
     } as UserFormData,
     validators: {
-      onChange: validator,
-      onMount: isNewUser ? validator : undefined,
+      onChange: z.object({
+        username: z
+          .string()
+          .min(1, 'Username is required')
+          .max(100, 'Username must have at most 100 characters')
+          .regex(/^[\w\-_\.]+$/, 'Allowed characters: letters, numbers, -, _ and .'),
+        password: isNewUser ? z.string().min(1, 'Password is required').max(100, 'Password must have at most 100 characters') : z.string(),
+        isGlobalAdmin: z.boolean(),
+      }),
     },
     onSubmit: async ({ value }) => {
-      console.log('clicko');
       if (isNewUser) {
-        await createUser.mutateAsync({ data: { name: value.username, password: value.password, globalAdministrator: value.isGlobalAdmin } });
+        await createUser.mutateAsync({ data: { username: value.username, password: value.password, globalAdministrator: value.isGlobalAdmin } });
       } else {
         await updateUser.mutateAsync({ user_id: userId, data: { globalAdministrator: value.isGlobalAdmin } });
       }

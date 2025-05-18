@@ -1,1 +1,1 @@
-{"properties":{"globalAdministrator":{"type":"boolean"},"name":{"type":"string"},"password":{"type":"string"}},"required":["globalAdministrator","name","password"],"type":"object","x-readme-ref-name":"handler.CreateUserRequest"}
+{"properties":{"globalAdministrator":{"type":"boolean"},"password":{"type":"string"},"username":{"type":"string"}},"required":["globalAdministrator","password","username"],"type":"object","x-readme-ref-name":"handler.CreateUserRequest"}
