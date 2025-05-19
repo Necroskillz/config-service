@@ -30,6 +30,16 @@ export type PutUsersUserId400 = EchoHTTPError
 export type PutUsersUserId401 = EchoHTTPError
 
 /**
+ * @description Forbidden
+ */
+export type PutUsersUserId403 = EchoHTTPError
+
+/**
+ * @description Not Found
+ */
+export type PutUsersUserId404 = EchoHTTPError
+
+/**
  * @description Internal Server Error
  */
 export type PutUsersUserId500 = EchoHTTPError
@@ -45,5 +55,5 @@ export type PutUsersUserIdMutation = {
   Response: PutUsersUserId204
   Request: PutUsersUserIdMutationRequest
   PathParams: PutUsersUserIdPathParams
-  Errors: PutUsersUserId400 | PutUsersUserId401 | PutUsersUserId500
+  Errors: PutUsersUserId400 | PutUsersUserId401 | PutUsersUserId403 | PutUsersUserId404 | PutUsersUserId500
 }

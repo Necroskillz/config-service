@@ -4,13 +4,13 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetChangesetsCurrentQueryResponse,
   GetChangesetsCurrent401,
   GetChangesetsCurrent404,
   GetChangesetsCurrent500,
 } from '../types/GetChangesetsCurrent.ts'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -55,11 +55,7 @@ export function getChangesetsCurrentSuspenseQueryOptions(config: Partial<Request
  * @summary Get the current changeset info
  * {@link /changesets/current}
  */
-export function useGetChangesetsCurrentSuspense<
-  TData = GetChangesetsCurrentQueryResponse,
-  TQueryData = GetChangesetsCurrentQueryResponse,
-  TQueryKey extends QueryKey = GetChangesetsCurrentSuspenseQueryKey,
->(
+export function useGetChangesetsCurrentSuspense<TData = GetChangesetsCurrentQueryResponse, TQueryKey extends QueryKey = GetChangesetsCurrentSuspenseQueryKey>(
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<

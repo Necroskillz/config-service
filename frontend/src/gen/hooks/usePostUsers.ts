@@ -4,8 +4,16 @@
  */
 
 import client from '~/axios'
-import type { PostUsersMutationRequest, PostUsersMutationResponse, PostUsers400, PostUsers401, PostUsers500 } from '../types/PostUsers.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type {
+  PostUsersMutationRequest,
+  PostUsersMutationResponse,
+  PostUsers400,
+  PostUsers401,
+  PostUsers403,
+  PostUsers422,
+  PostUsers500,
+} from '../types/PostUsers.ts'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -21,12 +29,11 @@ export type PostUsersMutationKey = ReturnType<typeof postUsersMutationKey>
 export async function postUsers(data: PostUsersMutationRequest, config: Partial<RequestConfig<PostUsersMutationRequest>> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
-  const res = await request<PostUsersMutationResponse, ResponseErrorConfig<PostUsers400 | PostUsers401 | PostUsers500>, PostUsersMutationRequest>({
-    method: 'POST',
-    url: `/users`,
-    data,
-    ...requestConfig,
-  })
+  const res = await request<
+    PostUsersMutationResponse,
+    ResponseErrorConfig<PostUsers400 | PostUsers401 | PostUsers403 | PostUsers422 | PostUsers500>,
+    PostUsersMutationRequest
+  >({ method: 'POST', url: `/users`, data, ...requestConfig })
   return res.data
 }
 
@@ -39,17 +46,23 @@ export function usePostUsers<TContext>(
   options: {
     mutation?: UseMutationOptions<
       PostUsersMutationResponse,
-      ResponseErrorConfig<PostUsers400 | PostUsers401 | PostUsers500>,
+      ResponseErrorConfig<PostUsers400 | PostUsers401 | PostUsers403 | PostUsers422 | PostUsers500>,
       { data: PostUsersMutationRequest },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<PostUsersMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? postUsersMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? postUsersMutationKey()
 
-  return useMutation<PostUsersMutationResponse, ResponseErrorConfig<PostUsers400 | PostUsers401 | PostUsers500>, { data: PostUsersMutationRequest }, TContext>(
+  return useMutation<
+    PostUsersMutationResponse,
+    ResponseErrorConfig<PostUsers400 | PostUsers401 | PostUsers403 | PostUsers422 | PostUsers500>,
+    { data: PostUsersMutationRequest },
+    TContext
+  >(
     {
       mutationFn: async ({ data }) => {
         return postUsers(data, config)

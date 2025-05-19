@@ -4,8 +4,8 @@
  */
 
 import client from '~/axios'
-import type { GetValueTypesQueryResponse, GetValueTypes401, GetValueTypes500 } from '../types/GetValueTypes.ts'
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { GetValueTypesQueryResponse, GetValueTypes401, GetValueTypes500 } from '../types/GetValueTypes.ts'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -45,11 +45,7 @@ export function getValueTypesSuspenseQueryOptions(config: Partial<RequestConfig>
  * @summary Get value types
  * {@link /value-types}
  */
-export function useGetValueTypesSuspense<
-  TData = GetValueTypesQueryResponse,
-  TQueryData = GetValueTypesQueryResponse,
-  TQueryKey extends QueryKey = GetValueTypesSuspenseQueryKey,
->(
+export function useGetValueTypesSuspense<TData = GetValueTypesQueryResponse, TQueryKey extends QueryKey = GetValueTypesSuspenseQueryKey>(
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetValueTypesQueryResponse, ResponseErrorConfig<GetValueTypes401 | GetValueTypes500>, TData, TQueryKey>> & {
       client?: QueryClient

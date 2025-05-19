@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostAuthLoginMutationRequest,
   PostAuthLoginMutationResponse,
@@ -12,7 +13,6 @@ import type {
   PostAuthLogin422,
   PostAuthLogin500,
 } from '../types/PostAuthLogin.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -55,8 +55,9 @@ export function usePostAuthLogin<TContext>(
     client?: Partial<RequestConfig<PostAuthLoginMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? postAuthLoginMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? postAuthLoginMutationKey()
 
   return useMutation<
     PostAuthLoginMutationResponse,

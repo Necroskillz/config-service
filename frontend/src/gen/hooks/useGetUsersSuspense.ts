@@ -4,8 +4,8 @@
  */
 
 import client from '~/axios'
-import type { GetUsersQueryResponse, GetUsersQueryParams, GetUsers400, GetUsers401, GetUsers500 } from '../types/GetUsers.ts'
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { GetUsersQueryResponse, GetUsersQueryParams, GetUsers400, GetUsers401, GetUsers500 } from '../types/GetUsers.ts'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -46,7 +46,7 @@ export function getUsersSuspenseQueryOptions(params?: GetUsersQueryParams, confi
  * @summary Get users
  * {@link /users}
  */
-export function useGetUsersSuspense<TData = GetUsersQueryResponse, TQueryData = GetUsersQueryResponse, TQueryKey extends QueryKey = GetUsersSuspenseQueryKey>(
+export function useGetUsersSuspense<TData = GetUsersQueryResponse, TQueryKey extends QueryKey = GetUsersSuspenseQueryKey>(
   params?: GetUsersQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetUsersQueryResponse, ResponseErrorConfig<GetUsers400 | GetUsers401 | GetUsers500>, TData, TQueryKey>> & {

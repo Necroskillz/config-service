@@ -11,7 +11,7 @@ import (
 // @Description Get all variation properties
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {array} service.VariationPropertyDto
+// @Success 200 {array} service.VariationPropertyItemDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /variation-properties [get]
@@ -29,7 +29,7 @@ func (h *Handler) VariationProperties(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param property_id path int true "Property ID"
-// @Success 200 {object} service.VariationPropertyWithValuesDto
+// @Success 200 {object} service.VariationPropertyDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -115,6 +115,32 @@ func (h *Handler) UpdateVariationProperty(c echo.Context) error {
 	if err := h.VariationPropertyService.UpdateVariationProperty(c.Request().Context(), propertyID, service.UpdateVariationPropertyParams{
 		DisplayName: data.DisplayName,
 	}); err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Delete variation property
+// @Description Delete a variation property
+// @Produce json
+// @Security BearerAuth
+// @Param property_id path int true "Property ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 403 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /variation-properties/{property_id} [delete]
+func (h *Handler) DeleteVariationProperty(c echo.Context) error {
+	var propertyID uint
+	err := echo.PathParamsBinder(c).MustUint("property_id", &propertyID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	if err := h.VariationPropertyService.DeleteVariationProperty(c.Request().Context(), propertyID); err != nil {
 		return ToHTTPError(err)
 	}
 

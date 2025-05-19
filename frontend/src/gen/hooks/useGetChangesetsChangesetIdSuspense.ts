@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetChangesetsChangesetIdQueryResponse,
   GetChangesetsChangesetIdPathParams,
@@ -12,7 +13,6 @@ import type {
   GetChangesetsChangesetId404,
   GetChangesetsChangesetId500,
 } from '../types/GetChangesetsChangesetId.ts'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -67,7 +67,6 @@ export function getChangesetsChangesetIdSuspenseQueryOptions(
  */
 export function useGetChangesetsChangesetIdSuspense<
   TData = GetChangesetsChangesetIdQueryResponse,
-  TQueryData = GetChangesetsChangesetIdQueryResponse,
   TQueryKey extends QueryKey = GetChangesetsChangesetIdSuspenseQueryKey,
 >(
   changeset_id: GetChangesetsChangesetIdPathParams['changeset_id'],

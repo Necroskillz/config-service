@@ -13,9 +13,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-row">
       <AdminSidebar />
-      <div>
-        <Outlet />
-      </div>
+      <Outlet />
     </div>
   );
 }

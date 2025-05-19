@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationResponse,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkPathParams,
@@ -12,7 +13,6 @@ import type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdLink404,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdLink500,
 } from '../types/PostServicesServiceVersionIdFeaturesFeatureVersionIdLink.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -72,8 +72,9 @@ export function usePostServicesServiceVersionIdFeaturesFeatureVersionIdLink<TCon
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? postServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? postServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationKey()
 
   return useMutation<
     PostServicesServiceVersionIdFeaturesFeatureVersionIdLinkMutationResponse,

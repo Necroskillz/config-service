@@ -30,9 +30,7 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      <div>
-        <Outlet />
-      </div>
+      <Outlet />
     </div>
   );
 }

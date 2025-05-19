@@ -4,8 +4,8 @@
  */
 
 import client from '~/axios'
-import type { GetVariationPropertiesQueryResponse, GetVariationProperties401, GetVariationProperties500 } from '../types/GetVariationProperties.ts'
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { GetVariationPropertiesQueryResponse, GetVariationProperties401, GetVariationProperties500 } from '../types/GetVariationProperties.ts'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -52,7 +52,6 @@ export function getVariationPropertiesSuspenseQueryOptions(config: Partial<Reque
  */
 export function useGetVariationPropertiesSuspense<
   TData = GetVariationPropertiesQueryResponse,
-  TQueryData = GetVariationPropertiesQueryResponse,
   TQueryKey extends QueryKey = GetVariationPropertiesSuspenseQueryKey,
 >(
   options: {

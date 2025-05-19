@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetVariationPropertiesPropertyIdQueryResponse,
   GetVariationPropertiesPropertyIdPathParams,
@@ -11,7 +12,6 @@ import type {
   GetVariationPropertiesPropertyId404,
   GetVariationPropertiesPropertyId500,
 } from '../types/GetVariationPropertiesPropertyId.ts'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -66,7 +66,6 @@ export function getVariationPropertiesPropertyIdSuspenseQueryOptions(
  */
 export function useGetVariationPropertiesPropertyIdSuspense<
   TData = GetVariationPropertiesPropertyIdQueryResponse,
-  TQueryData = GetVariationPropertiesPropertyIdQueryResponse,
   TQueryKey extends QueryKey = GetVariationPropertiesPropertyIdSuspenseQueryKey,
 >(
   property_id: GetVariationPropertiesPropertyIdPathParams['property_id'],

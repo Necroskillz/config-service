@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostAuthRefreshTokenMutationRequest,
   PostAuthRefreshTokenMutationResponse,
@@ -11,7 +12,6 @@ import type {
   PostAuthRefreshToken401,
   PostAuthRefreshToken500,
 } from '../types/PostAuthRefreshToken.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -54,8 +54,9 @@ export function usePostAuthRefreshToken<TContext>(
     client?: Partial<RequestConfig<PostAuthRefreshTokenMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? postAuthRefreshTokenMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? postAuthRefreshTokenMutationKey()
 
   return useMutation<
     PostAuthRefreshTokenMutationResponse,

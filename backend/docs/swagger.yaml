@@ -835,6 +835,27 @@ definitions:
         type: integer
       name:
         type: string
+      usageCount:
+        type: integer
+      values:
+        items:
+          $ref: '#/definitions/service.VariationPropertyValueDto'
+        type: array
+    required:
+    - displayName
+    - id
+    - name
+    - usageCount
+    - values
+    type: object
+  service.VariationPropertyItemDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
     required:
     - displayName
     - id
@@ -860,24 +881,6 @@ definitions:
     - id
     - usageCount
     - value
-    type: object
-  service.VariationPropertyWithValuesDto:
-    properties:
-      displayName:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      values:
-        items:
-          $ref: '#/definitions/service.VariationPropertyValueDto'
-        type: array
-    required:
-    - displayName
-    - id
-    - name
-    - values
     type: object
   service.VariationValue:
     properties:
@@ -2925,8 +2928,8 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/echo.HTTPError'
-        "422":
-          description: Unprocessable Entity
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -3000,7 +3003,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.VariationPropertyDto'
+              $ref: '#/definitions/service.VariationPropertyItemDto'
             type: array
         "401":
           description: Unauthorized
@@ -3051,6 +3054,42 @@ paths:
       - BearerAuth: []
       summary: Create variation property
   /variation-properties/{property_id}:
+    delete:
+      description: Delete a variation property
+      parameters:
+      - description: Property ID
+        in: path
+        name: property_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Delete variation property
     get:
       description: Get variation property by ID
       parameters:
@@ -3065,7 +3104,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.VariationPropertyWithValuesDto'
+            $ref: '#/definitions/service.VariationPropertyDto'
         "401":
           description: Unauthorized
           schema:

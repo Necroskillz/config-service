@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutChangesetsChangesetIdReopenMutationResponse,
   PutChangesetsChangesetIdReopenPathParams,
@@ -13,7 +14,6 @@ import type {
   PutChangesetsChangesetIdReopen404,
   PutChangesetsChangesetIdReopen500,
 } from '../types/PutChangesetsChangesetIdReopen.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -68,8 +68,9 @@ export function usePutChangesetsChangesetIdReopen<TContext>(
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? putChangesetsChangesetIdReopenMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? putChangesetsChangesetIdReopenMutationKey()
 
   return useMutation<
     PutChangesetsChangesetIdReopenMutationResponse,

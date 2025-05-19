@@ -4,15 +4,17 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutUsersUserIdMutationRequest,
   PutUsersUserIdMutationResponse,
   PutUsersUserIdPathParams,
   PutUsersUserId400,
   PutUsersUserId401,
+  PutUsersUserId403,
+  PutUsersUserId404,
   PutUsersUserId500,
 } from '../types/PutUsersUserId.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -34,7 +36,7 @@ export async function putUsersUserId(
 
   const res = await request<
     PutUsersUserIdMutationResponse,
-    ResponseErrorConfig<PutUsersUserId400 | PutUsersUserId401 | PutUsersUserId500>,
+    ResponseErrorConfig<PutUsersUserId400 | PutUsersUserId401 | PutUsersUserId403 | PutUsersUserId404 | PutUsersUserId500>,
     PutUsersUserIdMutationRequest
   >({ method: 'PUT', url: `/users/${user_id}`, data, ...requestConfig })
   return res.data
@@ -49,19 +51,20 @@ export function usePutUsersUserId<TContext>(
   options: {
     mutation?: UseMutationOptions<
       PutUsersUserIdMutationResponse,
-      ResponseErrorConfig<PutUsersUserId400 | PutUsersUserId401 | PutUsersUserId500>,
+      ResponseErrorConfig<PutUsersUserId400 | PutUsersUserId401 | PutUsersUserId403 | PutUsersUserId404 | PutUsersUserId500>,
       { user_id: PutUsersUserIdPathParams['user_id']; data: PutUsersUserIdMutationRequest },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<PutUsersUserIdMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? putUsersUserIdMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? putUsersUserIdMutationKey()
 
   return useMutation<
     PutUsersUserIdMutationResponse,
-    ResponseErrorConfig<PutUsersUserId400 | PutUsersUserId401 | PutUsersUserId500>,
+    ResponseErrorConfig<PutUsersUserId400 | PutUsersUserId401 | PutUsersUserId403 | PutUsersUserId404 | PutUsersUserId500>,
     { user_id: PutUsersUserIdPathParams['user_id']; data: PutUsersUserIdMutationRequest },
     TContext
   >(

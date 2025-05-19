@@ -128,9 +128,9 @@ CREATE TABLE service_type_variation_properties(
 
 CREATE TABLE variation_property_values(
     id bigserial PRIMARY KEY,
-    variation_property_id bigint NOT NULL REFERENCES variation_properties(id),
+    variation_property_id bigint NOT NULL REFERENCES variation_properties(id) ON DELETE CASCADE,
     value text NOT NULL,
-    parent_id bigint REFERENCES variation_property_values(id),
+    parent_id bigint REFERENCES variation_property_values(id) ON DELETE CASCADE,
     order_index integer NOT NULL,
     archived boolean NOT NULL DEFAULT FALSE
 );

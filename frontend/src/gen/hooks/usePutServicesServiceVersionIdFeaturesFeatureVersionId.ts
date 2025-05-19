@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationRequest,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationResponse,
@@ -14,7 +15,6 @@ import type {
   PutServicesServiceVersionIdFeaturesFeatureVersionId422,
   PutServicesServiceVersionIdFeaturesFeatureVersionId500,
 } from '../types/PutServicesServiceVersionIdFeaturesFeatureVersionId.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -76,8 +76,9 @@ export function usePutServicesServiceVersionIdFeaturesFeatureVersionId<TContext>
     client?: Partial<RequestConfig<PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? putServicesServiceVersionIdFeaturesFeatureVersionIdMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? putServicesServiceVersionIdFeaturesFeatureVersionIdMutationKey()
 
   return useMutation<
     PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationResponse,

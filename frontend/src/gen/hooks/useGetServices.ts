@@ -4,8 +4,8 @@
  */
 
 import client from '~/axios'
-import type { GetServicesQueryResponse, GetServices401, GetServices500 } from '../types/GetServices.ts'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
+import type { GetServicesQueryResponse, GetServices401, GetServices500 } from '../types/GetServices.ts'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 

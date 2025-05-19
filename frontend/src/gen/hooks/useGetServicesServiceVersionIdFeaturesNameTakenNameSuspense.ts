@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
   GetServicesServiceVersionIdFeaturesNameTakenNamePathParams,
@@ -11,7 +12,6 @@ import type {
   GetServicesServiceVersionIdFeaturesNameTakenName401,
   GetServicesServiceVersionIdFeaturesNameTakenName500,
 } from '../types/GetServicesServiceVersionIdFeaturesNameTakenName.ts'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -80,7 +80,6 @@ export function getServicesServiceVersionIdFeaturesNameTakenNameSuspenseQueryOpt
  */
 export function useGetServicesServiceVersionIdFeaturesNameTakenNameSuspense<
   TData = GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
-  TQueryData = GetServicesServiceVersionIdFeaturesNameTakenNameQueryResponse,
   TQueryKey extends QueryKey = GetServicesServiceVersionIdFeaturesNameTakenNameSuspenseQueryKey,
 >(
   service_version_id: GetServicesServiceVersionIdFeaturesNameTakenNamePathParams['service_version_id'],

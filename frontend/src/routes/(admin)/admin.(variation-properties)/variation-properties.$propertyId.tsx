@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ChevronUp, ChevronDown, EllipsisIcon } from 'lucide-react';
 import { z } from 'zod';
 import { MutationErrors } from '~/components/MutationErrors';
@@ -16,6 +16,7 @@ import {
   getVariationPropertiesPropertyIdValueTakenValue,
   getVariationPropertiesQueryOptions,
   ServiceVariationPropertyValueDto,
+  useDeleteVariationPropertiesPropertyId,
   useDeleteVariationPropertiesPropertyIdValuesValueId,
   useGetVariationPropertiesPropertyIdSuspense,
   usePostVariationPropertiesPropertyIdValues,
@@ -47,18 +48,31 @@ function RouteComponent() {
   const { propertyId } = Route.useParams();
   const { data: property } = useGetVariationPropertiesPropertyIdSuspense(propertyId);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  function refetchProperty() {
+    queryClient.refetchQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
+  }
+
+  function refetchPropertyList() {
+    queryClient.refetchQueries(getVariationPropertiesQueryOptions());
+  }
 
   const updateMutation = usePutVariationPropertiesPropertyId({
     mutation: {
       onSuccess: async () => {
-        queryClient.refetchQueries(getVariationPropertiesQueryOptions());
+        refetchPropertyList();
       },
     },
   });
 
-  function refetchProperty() {
-    queryClient.refetchQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
-  }
+  const deleteMutation = useDeleteVariationPropertiesPropertyId({
+    mutation: {
+      onSuccess: async () => {
+        refetchPropertyList();
+        navigate({ to: '/admin/variation-properties' });
+      },
+    },
+  });
 
   const createValueMutation = usePostVariationPropertiesPropertyIdValues({
     mutation: {
@@ -141,10 +155,27 @@ function RouteComponent() {
 
   return (
     <div className="w-[720px] flex flex-col gap-4">
-      <PageTitle>
-        Variation Property <pre className="inline">{property.name}</pre>
-      </PageTitle>
-
+      <div className="flex items-center justify-between mb-8">
+        <PageTitle className="mb-0">
+          Variation Property <pre className="inline">{property.name}</pre>
+        </PageTitle>
+        <div className="flex items-center">
+          {property.usageCount === 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <EllipsisIcon className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem variant="destructive" onClick={() => deleteMutation.mutate({ property_id: propertyId })}>
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
       <updateForm.AppForm>
         <form
           className="flex flex-col gap-4"
@@ -154,7 +185,7 @@ function RouteComponent() {
             updateForm.handleSubmit();
           }}
         >
-          <MutationErrors mutations={[updateMutation]} />
+          <MutationErrors mutations={[updateMutation, deleteMutation]} />
           <updateForm.AppField
             name="displayName"
             children={(field) => (

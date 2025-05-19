@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutVariationPropertiesPropertyIdValuesValueIdArchiveMutationResponse,
   PutVariationPropertiesPropertyIdValuesValueIdArchivePathParams,
@@ -13,7 +14,6 @@ import type {
   PutVariationPropertiesPropertyIdValuesValueIdArchive404,
   PutVariationPropertiesPropertyIdValuesValueIdArchive500,
 } from '../types/PutVariationPropertiesPropertyIdValuesValueIdArchive.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -73,8 +73,9 @@ export function usePutVariationPropertiesPropertyIdValuesValueIdArchive<TContext
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? putVariationPropertiesPropertyIdValuesValueIdArchiveMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? putVariationPropertiesPropertyIdValuesValueIdArchiveMutationKey()
 
   return useMutation<
     PutVariationPropertiesPropertyIdValuesValueIdArchiveMutationResponse,

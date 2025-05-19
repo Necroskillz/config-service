@@ -3,6 +3,7 @@ export type { DeleteChangesetsChangesetIdChangesChangeIdMutationKey } from './ho
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
+export type { DeleteVariationPropertiesPropertyIdMutationKey } from './hooks/useDeleteVariationPropertiesPropertyId.ts'
 export type { DeleteVariationPropertiesPropertyIdValuesValueIdMutationKey } from './hooks/useDeleteVariationPropertiesPropertyIdValuesValueId.ts'
 export type { GetAuthUserQueryKey } from './hooks/useGetAuthUser.ts'
 export type { GetAuthUserSuspenseQueryKey } from './hooks/useGetAuthUserSuspense.ts'
@@ -153,6 +154,17 @@ export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutation,
 } from './types/DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
+export type {
+  DeleteVariationPropertiesPropertyIdPathParams,
+  DeleteVariationPropertiesPropertyId204,
+  DeleteVariationPropertiesPropertyId400,
+  DeleteVariationPropertiesPropertyId401,
+  DeleteVariationPropertiesPropertyId403,
+  DeleteVariationPropertiesPropertyId404,
+  DeleteVariationPropertiesPropertyId500,
+  DeleteVariationPropertiesPropertyIdMutationResponse,
+  DeleteVariationPropertiesPropertyIdMutation,
+} from './types/DeleteVariationPropertiesPropertyId.ts'
 export type {
   DeleteVariationPropertiesPropertyIdValuesValueIdPathParams,
   DeleteVariationPropertiesPropertyIdValuesValueId204,
@@ -550,6 +562,8 @@ export type {
   PostUsers200,
   PostUsers400,
   PostUsers401,
+  PostUsers403,
+  PostUsers422,
   PostUsers500,
   PostUsersMutationRequest,
   PostUsersMutationResponse,
@@ -687,6 +701,8 @@ export type {
   PutUsersUserId204,
   PutUsersUserId400,
   PutUsersUserId401,
+  PutUsersUserId403,
+  PutUsersUserId404,
   PutUsersUserId500,
   PutUsersUserIdMutationRequest,
   PutUsersUserIdMutationResponse,
@@ -762,8 +778,8 @@ export type { ServiceValidatorWithParameterTypeDto } from './types/service/Valid
 export type { ServiceValueTypeDto } from './types/service/ValueTypeDto.ts'
 export type { ServiceValueValidatorParameterTypeEnum, ServiceValueValidatorParameterType } from './types/service/ValueValidatorParameterType.ts'
 export type { ServiceVariationPropertyDto } from './types/service/VariationPropertyDto.ts'
+export type { ServiceVariationPropertyItemDto } from './types/service/VariationPropertyItemDto.ts'
 export type { ServiceVariationPropertyValueDto } from './types/service/VariationPropertyValueDto.ts'
-export type { ServiceVariationPropertyWithValuesDto } from './types/service/VariationPropertyWithValuesDto.ts'
 export type { ServiceVariationValue } from './types/service/VariationValue.ts'
 export { deleteChangesetsChangesetIdMutationKey, deleteChangesetsChangesetId, useDeleteChangesetsChangesetId } from './hooks/useDeleteChangesetsChangesetId.ts'
 export {
@@ -786,6 +802,11 @@ export {
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink,
   useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink,
 } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
+export {
+  deleteVariationPropertiesPropertyIdMutationKey,
+  deleteVariationPropertiesPropertyId,
+  useDeleteVariationPropertiesPropertyId,
+} from './hooks/useDeleteVariationPropertiesPropertyId.ts'
 export {
   deleteVariationPropertiesPropertyIdValuesValueIdMutationKey,
   deleteVariationPropertiesPropertyIdValuesValueId,

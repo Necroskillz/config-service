@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceVariationPropertyWithValuesDto } from './service/VariationPropertyWithValuesDto.ts'
+import type { ServiceVariationPropertyDto } from './service/VariationPropertyDto.ts'
 
 export type GetVariationPropertiesPropertyIdPathParams = {
   /**
@@ -17,7 +17,7 @@ export type GetVariationPropertiesPropertyIdPathParams = {
 /**
  * @description OK
  */
-export type GetVariationPropertiesPropertyId200 = ServiceVariationPropertyWithValuesDto
+export type GetVariationPropertiesPropertyId200 = ServiceVariationPropertyDto
 
 /**
  * @description Unauthorized

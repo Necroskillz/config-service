@@ -190,7 +190,7 @@ WHERE
 -- name: GetVariationPropertyValuesUsage :many
 SELECT
     vpv.id,
-    COUNT(vcvpv.variation_context_id)::int AS usage_count
+    COUNT(vv.id)::int AS usage_count
 FROM
     variation_property_values vpv
     JOIN variation_context_variation_property_values vcvpv ON vcvpv.variation_property_value_id = vpv.id
@@ -200,12 +200,29 @@ WHERE
 GROUP BY
     vpv.id;
 
+-- name: GetVariationPropertyUsage :one
+SELECT
+    COUNT(vv.id)::int AS usage_count
+FROM
+    variation_property_values vpv
+    JOIN variation_context_variation_property_values vcvpv ON vcvpv.variation_property_value_id = vpv.id
+    JOIN variation_values vv ON vv.variation_context_id = vcvpv.variation_context_id
+WHERE
+    vpv.variation_property_id = @variation_property_id;
+
+-- name: DeleteVariationProperty :exec
+DELETE FROM variation_properties
+WHERE id = @id;
+
 -- name: DeleteVariationPropertyValue :exec
 DELETE FROM variation_property_values
 WHERE id = @id;
 
 -- name: SetVariationPropertyValueArchived :exec
-UPDATE variation_property_values
-SET archived = @archived
-WHERE id = @id;
+UPDATE
+    variation_property_values
+SET
+    archived = @archived
+WHERE
+    id = @id;
 

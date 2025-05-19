@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import type {
   GetChangesetsChangesetIdQueryResponse,
   GetChangesetsChangesetIdPathParams,
@@ -12,7 +13,6 @@ import type {
   GetChangesetsChangesetId404,
   GetChangesetsChangesetId500,
 } from '../types/GetChangesetsChangesetId.ts'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 

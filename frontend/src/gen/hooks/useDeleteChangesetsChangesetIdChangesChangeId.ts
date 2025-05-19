@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   DeleteChangesetsChangesetIdChangesChangeIdMutationResponse,
   DeleteChangesetsChangesetIdChangesChangeIdPathParams,
@@ -13,7 +14,6 @@ import type {
   DeleteChangesetsChangesetIdChangesChangeId404,
   DeleteChangesetsChangesetIdChangesChangeId500,
 } from '../types/DeleteChangesetsChangesetIdChangesChangeId.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -72,8 +72,9 @@ export function useDeleteChangesetsChangesetIdChangesChangeId<TContext>(
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? deleteChangesetsChangesetIdChangesChangeIdMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? deleteChangesetsChangesetIdChangesChangeIdMutationKey()
 
   return useMutation<
     DeleteChangesetsChangesetIdChangesChangeIdMutationResponse,

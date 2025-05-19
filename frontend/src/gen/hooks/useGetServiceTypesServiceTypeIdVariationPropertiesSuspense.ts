@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetServiceTypesServiceTypeIdVariationPropertiesQueryResponse,
   GetServiceTypesServiceTypeIdVariationPropertiesPathParams,
@@ -12,7 +13,6 @@ import type {
   GetServiceTypesServiceTypeIdVariationProperties404,
   GetServiceTypesServiceTypeIdVariationProperties500,
 } from '../types/GetServiceTypesServiceTypeIdVariationProperties.ts'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -78,7 +78,6 @@ export function getServiceTypesServiceTypeIdVariationPropertiesSuspenseQueryOpti
  */
 export function useGetServiceTypesServiceTypeIdVariationPropertiesSuspense<
   TData = GetServiceTypesServiceTypeIdVariationPropertiesQueryResponse,
-  TQueryData = GetServiceTypesServiceTypeIdVariationPropertiesQueryResponse,
   TQueryKey extends QueryKey = GetServiceTypesServiceTypeIdVariationPropertiesSuspenseQueryKey,
 >(
   service_type_id: GetServiceTypesServiceTypeIdVariationPropertiesPathParams['service_type_id'],

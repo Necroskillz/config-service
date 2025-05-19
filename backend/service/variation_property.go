@@ -29,14 +29,14 @@ func NewVariationPropertyService(queries *db.Queries, variationHierarchyService 
 	}
 }
 
-type VariationPropertyDto struct {
+type VariationPropertyItemDto struct {
 	ID          uint   `json:"id" validate:"required"`
 	Name        string `json:"name" validate:"required"`
 	DisplayName string `json:"displayName" validate:"required"`
 }
 
-func NewVariationPropertyDto(property *VariationHierarchyProperty) VariationPropertyDto {
-	return VariationPropertyDto{
+func NewVariationPropertyItemDto(property *VariationHierarchyProperty) VariationPropertyItemDto {
+	return VariationPropertyItemDto{
 		ID:          property.ID,
 		Name:        property.Name,
 		DisplayName: property.DisplayName,
@@ -51,12 +51,13 @@ type VariationPropertyValueDto struct {
 	Archived   bool                        `json:"archived" validate:"required"`
 }
 
-type VariationPropertyWithValuesDto struct {
-	VariationPropertyDto
-	Values []VariationPropertyValueDto `json:"values" validate:"required"`
+type VariationPropertyDto struct {
+	VariationPropertyItemDto
+	UsageCount int                         `json:"usageCount" validate:"required"`
+	Values     []VariationPropertyValueDto `json:"values" validate:"required"`
 }
 
-func (s *VariationPropertyService) GetVariationProperties(ctx context.Context) ([]VariationPropertyDto, error) {
+func (s *VariationPropertyService) GetVariationProperties(ctx context.Context) ([]VariationPropertyItemDto, error) {
 	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx, WithForceRefresh())
 
 	if err != nil {
@@ -65,10 +66,10 @@ func (s *VariationPropertyService) GetVariationProperties(ctx context.Context) (
 
 	variationProperties := variationHierarchy.GetAllProperties()
 
-	result := make([]VariationPropertyDto, len(variationProperties))
+	result := make([]VariationPropertyItemDto, len(variationProperties))
 
 	for i, property := range variationProperties {
-		result[i] = NewVariationPropertyDto(property)
+		result[i] = NewVariationPropertyItemDto(property)
 	}
 
 	return result, nil
@@ -90,36 +91,42 @@ func (s *VariationPropertyService) makeVariationPropertyValueDto(value *Variatio
 	return dto
 }
 
-func (s *VariationPropertyService) GetVariationProperty(ctx context.Context, id uint) (VariationPropertyWithValuesDto, error) {
+func (s *VariationPropertyService) GetVariationProperty(ctx context.Context, id uint) (VariationPropertyDto, error) {
 	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx, WithForceRefresh())
 
 	if err != nil {
-		return VariationPropertyWithValuesDto{}, err
+		return VariationPropertyDto{}, err
 	}
 
 	property, err := variationHierarchy.GetProperty(id)
 
 	if err != nil {
-		return VariationPropertyWithValuesDto{}, err
+		return VariationPropertyDto{}, err
 	}
 
 	propertyValuesUsage, err := s.queries.GetVariationPropertyValuesUsage(ctx, id)
 	if err != nil {
-		return VariationPropertyWithValuesDto{}, err
+		return VariationPropertyDto{}, err
 	}
 
-	usageMap := make(map[uint]int)
+	valueUsageMap := make(map[uint]int)
 	for _, usage := range propertyValuesUsage {
-		usageMap[usage.ID] = usage.UsageCount
+		valueUsageMap[usage.ID] = usage.UsageCount
 	}
 
-	dto := VariationPropertyWithValuesDto{
-		VariationPropertyDto: NewVariationPropertyDto(property),
-		Values:               make([]VariationPropertyValueDto, len(property.Values)),
+	propertyUsage, err := s.queries.GetVariationPropertyUsage(ctx, id)
+	if err != nil {
+		return VariationPropertyDto{}, err
+	}
+
+	dto := VariationPropertyDto{
+		VariationPropertyItemDto: NewVariationPropertyItemDto(property),
+		UsageCount:               propertyUsage,
+		Values:                   make([]VariationPropertyValueDto, len(property.Values)),
 	}
 
 	for i, value := range property.Values {
-		dto.Values[i] = s.makeVariationPropertyValueDto(value, usageMap)
+		dto.Values[i] = s.makeVariationPropertyValueDto(value, valueUsageMap)
 	}
 
 	return dto, nil
@@ -213,6 +220,45 @@ func (s *VariationPropertyService) UpdateVariationProperty(ctx context.Context, 
 		DisplayName: params.DisplayName,
 	})
 
+	if err != nil {
+		return err
+	}
+
+	s.variationHierarchyService.ClearCache(ctx)
+
+	return nil
+}
+
+func (s *VariationPropertyService) validateDeleteVariationProperty(ctx context.Context, id uint) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+	if !user.IsGlobalAdmin {
+		return NewServiceError(ErrorCodeInvalidOperation, "You are not authorized to delete variation properties")
+	}
+
+	_, err := s.queries.GetVariationProperty(ctx, id)
+	if err != nil {
+		return NewDbError(err, "VariationProperty")
+	}
+
+	usage, err := s.queries.GetVariationPropertyUsage(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if usage > 0 {
+		return NewServiceError(ErrorCodeInvalidOperation, "Cannot delete variation property with values that are in use")
+	}
+
+	return nil
+}
+
+func (s *VariationPropertyService) DeleteVariationProperty(ctx context.Context, id uint) error {
+	err := s.validateDeleteVariationProperty(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	err = s.queries.DeleteVariationProperty(ctx, id)
 	if err != nil {
 		return err
 	}

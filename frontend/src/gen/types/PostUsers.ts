@@ -23,6 +23,16 @@ export type PostUsers400 = EchoHTTPError
 export type PostUsers401 = EchoHTTPError
 
 /**
+ * @description Forbidden
+ */
+export type PostUsers403 = EchoHTTPError
+
+/**
+ * @description Unprocessable Entity
+ */
+export type PostUsers422 = EchoHTTPError
+
+/**
  * @description Internal Server Error
  */
 export type PostUsers500 = EchoHTTPError
@@ -37,5 +47,5 @@ export type PostUsersMutationResponse = PostUsers200
 export type PostUsersMutation = {
   Response: PostUsers200
   Request: PostUsersMutationRequest
-  Errors: PostUsers400 | PostUsers401 | PostUsers500
+  Errors: PostUsers400 | PostUsers401 | PostUsers403 | PostUsers422 | PostUsers500
 }

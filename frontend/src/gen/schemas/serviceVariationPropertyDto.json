@@ -1,1 +1,1 @@
-{"properties":{"displayName":{"type":"string"},"id":{"type":"integer"},"name":{"type":"string"}},"required":["displayName","id","name"],"type":"object","x-readme-ref-name":"service.VariationPropertyDto"}
+{"properties":{"displayName":{"type":"string"},"id":{"type":"integer"},"name":{"type":"string"},"usageCount":{"type":"integer"},"values":{"items":{"$ref":"#/components/schemas/service.VariationPropertyValueDto"},"type":"array"}},"required":["displayName","id","name","usageCount","values"],"type":"object","x-readme-ref-name":"service.VariationPropertyDto"}

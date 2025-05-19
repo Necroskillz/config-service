@@ -3,6 +3,8 @@
  * Do not edit manually.
  */
 
+import type { ServiceVariationPropertyValueDto } from './VariationPropertyValueDto.ts'
+
 export type ServiceVariationPropertyDto = {
   /**
    * @type string
@@ -16,4 +18,12 @@ export type ServiceVariationPropertyDto = {
    * @type string
    */
   name: string
+  /**
+   * @type integer
+   */
+  usageCount: number
+  /**
+   * @type array
+   */
+  values: ServiceVariationPropertyValueDto[]
 }

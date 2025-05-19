@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkPathParams,
@@ -13,7 +14,6 @@ import type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink404,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink500,
 } from '../types/DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -75,8 +75,9 @@ export function useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink<
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? deleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? deleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey()
 
   return useMutation<
     DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationResponse,

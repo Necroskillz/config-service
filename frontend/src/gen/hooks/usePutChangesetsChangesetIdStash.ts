@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutChangesetsChangesetIdStashMutationResponse,
   PutChangesetsChangesetIdStashPathParams,
@@ -13,7 +14,6 @@ import type {
   PutChangesetsChangesetIdStash404,
   PutChangesetsChangesetIdStash500,
 } from '../types/PutChangesetsChangesetIdStash.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
@@ -68,8 +68,9 @@ export function usePutChangesetsChangesetIdStash<TContext>(
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? putChangesetsChangesetIdStashMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? putChangesetsChangesetIdStashMutationKey()
 
   return useMutation<
     PutChangesetsChangesetIdStashMutationResponse,
