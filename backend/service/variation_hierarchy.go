@@ -100,7 +100,7 @@ func NewVariationHierarchy(variationPropertyValues []db.GetVariationPropertyValu
 	}
 
 	accumulatedDepth := 0
-	for i, serviceTypeProperty := range serviceTypesProperties {
+	for _, serviceTypeProperty := range serviceTypesProperties {
 		serviceType, ok := variationHierarchy.serviceTypes[serviceTypeProperty.ServiceTypeID]
 		if !ok {
 			serviceType = &VariationHierarchyServiceType{
@@ -114,7 +114,7 @@ func NewVariationHierarchy(variationPropertyValues []db.GetVariationPropertyValu
 
 		serviceType.Order = append(serviceType.Order, serviceTypeProperty.VariationPropertyID)
 		serviceType.RankMap[serviceTypeProperty.VariationPropertyID] = accumulatedDepth
-		serviceType.OrderMap[serviceTypeProperty.VariationPropertyID] = i
+		serviceType.OrderMap[serviceTypeProperty.VariationPropertyID] = len(serviceType.Order) - 1
 
 		accumulatedDepth += variationHierarchy.properties[serviceTypeProperty.VariationPropertyID].MaxDepth + 1
 	}

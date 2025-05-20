@@ -30,7 +30,7 @@ export function ChangesetProvider({
     },
   });
   const queryClient = useQueryClient();
-  const [changeset, setChangeset] = useState<HandlerChangesetInfoResponse>(initialChangeset);
+  const [changeset, setChangeset] = useState<HandlerChangesetInfoResponse>(initialChangeset || { id: 0, numberOfChanges: 0 });
 
   useEffect(() => {
     if (user.isAuthenticated && changesetData) {

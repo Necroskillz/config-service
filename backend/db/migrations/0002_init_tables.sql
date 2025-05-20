@@ -122,7 +122,7 @@ CREATE TABLE service_type_variation_properties(
     created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     priority integer NOT NULL,
-    service_type_id bigint NOT NULL REFERENCES service_types(id),
+    service_type_id bigint NOT NULL REFERENCES service_types(id) ON DELETE CASCADE,
     variation_property_id bigint NOT NULL REFERENCES variation_properties(id)
 );
 

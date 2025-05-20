@@ -49,8 +49,8 @@ ORDER BY
 LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;
 
 -- name: CreateUser :one
-INSERT INTO users(name, password, global_administrator)
-    VALUES (@name, @password, @global_administrator)
+INSERT INTO users(name, password, global_administrator, created_at)
+    VALUES (@name, @password, @global_administrator, now())
 RETURNING
     id;
 

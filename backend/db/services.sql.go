@@ -30,20 +30,6 @@ func (q *Queries) CreateService(ctx context.Context, arg CreateServiceParams) (u
 	return id, err
 }
 
-const createServiceType = `-- name: CreateServiceType :one
-INSERT INTO service_types(name)
-    VALUES ($1)
-RETURNING
-    id
-`
-
-func (q *Queries) CreateServiceType(ctx context.Context, name string) (uint, error) {
-	row := q.db.QueryRow(ctx, createServiceType, name)
-	var id uint
-	err := row.Scan(&id)
-	return id, err
-}
-
 const createServiceVersion = `-- name: CreateServiceVersion :one
 INSERT INTO service_versions(service_id, version)
     VALUES ($1, $2)
@@ -117,52 +103,6 @@ func (q *Queries) GetServiceIDByName(ctx context.Context, name string) (uint, er
 	var id uint
 	err := row.Scan(&id)
 	return id, err
-}
-
-const getServiceType = `-- name: GetServiceType :one
-SELECT
-    id, created_at, name
-FROM
-    service_types
-WHERE
-    id = $1
-LIMIT 1
-`
-
-func (q *Queries) GetServiceType(ctx context.Context, serviceTypeID uint) (ServiceType, error) {
-	row := q.db.QueryRow(ctx, getServiceType, serviceTypeID)
-	var i ServiceType
-	err := row.Scan(&i.ID, &i.CreatedAt, &i.Name)
-	return i, err
-}
-
-const getServiceTypes = `-- name: GetServiceTypes :many
-SELECT
-    id, created_at, name
-FROM
-    service_types
-ORDER BY
-    name
-`
-
-func (q *Queries) GetServiceTypes(ctx context.Context) ([]ServiceType, error) {
-	rows, err := q.db.Query(ctx, getServiceTypes)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ServiceType
-	for rows.Next() {
-		var i ServiceType
-		if err := rows.Scan(&i.ID, &i.CreatedAt, &i.Name); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const getServiceVersion = `-- name: GetServiceVersion :one

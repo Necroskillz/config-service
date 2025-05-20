@@ -50,11 +50,11 @@ function RouteComponent() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   function refetchProperty() {
-    queryClient.refetchQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
+    queryClient.invalidateQueries(getVariationPropertiesPropertyIdQueryOptions(propertyId));
   }
 
   function refetchPropertyList() {
-    queryClient.refetchQueries(getVariationPropertiesQueryOptions());
+    queryClient.invalidateQueries(getVariationPropertiesQueryOptions());
   }
 
   const updateMutation = usePutVariationPropertiesPropertyId({
@@ -143,7 +143,7 @@ function RouteComponent() {
           .string()
           .min(1, 'Value is required')
           .max(20, 'Value must have at most 20 characters')
-          .regex(/^[\w\-_]+$/, 'Value must not contain invalid characters'),
+          .regex(/^[\w\-_\.]+$/, 'Value must not contain invalid characters'),
         parentId: z.number(),
       }),
     },
@@ -154,7 +154,7 @@ function RouteComponent() {
   });
 
   return (
-    <div className="w-[720px] flex flex-col gap-4">
+    <div className="w-[720px] pl-4 flex flex-col gap-4">
       <div className="flex items-center justify-between mb-8">
         <PageTitle className="mb-0">
           Variation Property <pre className="inline">{property.name}</pre>
@@ -290,7 +290,7 @@ function RouteComponent() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="0">(root)</SelectItem>
-                      {property.values.map((value) => (
+                      {property.values.filter((value) => !value.archived).map((value) => (
                         <VariationValueSelectOptions key={value.id} value={value} depth={0} isLast={false} />
                       ))}
                     </SelectContent>
@@ -420,7 +420,7 @@ function VariationValueSelectOptions({
         {value.value}
       </SelectItem>
       {value.children &&
-        value.children.map((child, index) => (
+        value.children.filter((child) => !child.archived).map((child, index) => (
           <VariationValueSelectOptions key={child.id} value={child} depth={depth + 1} isLast={index === value.children.length - 1} />
         ))}
     </>

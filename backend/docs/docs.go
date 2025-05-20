@@ -804,12 +804,181 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.SelectOption"
+                                "$ref": "#/definitions/service.ServiceTypeDto"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new service type",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create service type",
+                "parameters": [
+                    {
+                        "description": "Service type",
+                        "name": "service_type_dto",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateServiceTypeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/service-types/{service_type_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a service type",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get service type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service type ID",
+                        "name": "service_type_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.ServiceTypeDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a service type",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete service type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service type ID",
+                        "name": "service_type_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -850,7 +1019,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.VariationProperty"
+                                "$ref": "#/definitions/service.ServiceTypeVariationPropertyDto"
                             }
                         }
                     },
@@ -862,6 +1031,219 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Link a variation property to a service type",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Link variation property to service type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service type ID",
+                        "name": "service_type_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Link variation property to service type request",
+                        "name": "link_variation_property_to_service_type_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.LinkVariationPropertyToServiceTypeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/service-types/{service_type_id}/variation-properties/{variation_property_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Unlink a variation property from a service type",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Unlink variation property from service type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service type ID",
+                        "name": "service_type_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Variation property ID",
+                        "name": "variation_property_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/service-types/{service_type_id}/variation-properties/{variation_property_id}/priority": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update the priority of a variation property in a service type",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update service type variation property priority",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service type ID",
+                        "name": "service_type_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Variation property ID",
+                        "name": "variation_property_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update service type variation property priority request",
+                        "name": "update_service_type_variation_property_priority_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateServiceTypeVariationPropertyPriorityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -4214,6 +4596,17 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateServiceTypeRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.CreateUserRequest": {
             "type": "object",
             "required": [
@@ -4255,6 +4648,17 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.LinkVariationPropertyToServiceTypeRequest": {
+            "type": "object",
+            "required": [
+                "variation_property_id"
+            ],
+            "properties": {
+                "variation_property_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.LoginRequest": {
             "type": "object",
             "required": [
@@ -4277,21 +4681,6 @@ const docTemplate = `{
             ],
             "properties": {
                 "refresh_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SelectOption": {
-            "type": "object",
-            "required": [
-                "text",
-                "value"
-            ],
-            "properties": {
-                "text": {
-                    "type": "string"
-                },
-                "value": {
                     "type": "string"
                 }
             }
@@ -4347,6 +4736,17 @@ const docTemplate = `{
             "properties": {
                 "description": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.UpdateServiceTypeVariationPropertyPriorityRequest": {
+            "type": "object",
+            "required": [
+                "priority"
+            ],
+            "properties": {
+                "priority": {
+                    "type": "integer"
                 }
             }
         },
@@ -4417,47 +4817,6 @@ const docTemplate = `{
                     "additionalProperties": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "handler.VariationProperty": {
-            "type": "object",
-            "required": [
-                "displayName",
-                "id",
-                "name",
-                "values"
-            ],
-            "properties": {
-                "displayName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "values": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handler.VariationValueSelectOption"
-                    }
-                }
-            }
-        },
-        "handler.VariationValueSelectOption": {
-            "type": "object",
-            "required": [
-                "depth",
-                "value"
-            ],
-            "properties": {
-                "depth": {
-                    "type": "integer"
-                },
-                "value": {
-                    "type": "string"
                 }
             }
         },
@@ -4741,6 +5100,25 @@ const docTemplate = `{
                 }
             }
         },
+        "service.FlatVariationPropertyValueDto": {
+            "type": "object",
+            "required": [
+                "depth",
+                "id",
+                "value"
+            ],
+            "properties": {
+                "depth": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "service.KeyDto": {
             "type": "object",
             "required": [
@@ -4887,6 +5265,89 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/service.ServiceVersionInfoDto"
                     }
+                }
+            }
+        },
+        "service.ServiceTypeDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "properties",
+                "usageCount"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ServiceTypeVariationPropertyLinkDto"
+                    }
+                },
+                "usageCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.ServiceTypeVariationPropertyDto": {
+            "type": "object",
+            "required": [
+                "displayName",
+                "id",
+                "name",
+                "values"
+            ],
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.FlatVariationPropertyValueDto"
+                    }
+                }
+            }
+        },
+        "service.ServiceTypeVariationPropertyLinkDto": {
+            "type": "object",
+            "required": [
+                "displayName",
+                "id",
+                "name",
+                "priority",
+                "propertyId",
+                "usageCount"
+            ],
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "propertyId": {
+                    "type": "integer"
+                },
+                "usageCount": {
+                    "type": "integer"
                 }
             }
         },

@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { HandlerVariationProperty } from './handler/VariationProperty.ts'
+import type { ServiceServiceTypeVariationPropertyDto } from './service/ServiceTypeVariationPropertyDto.ts'
 
 export type GetServiceTypesServiceTypeIdVariationPropertiesPathParams = {
   /**
@@ -17,7 +17,7 @@ export type GetServiceTypesServiceTypeIdVariationPropertiesPathParams = {
 /**
  * @description OK
  */
-export type GetServiceTypesServiceTypeIdVariationProperties200 = HandlerVariationProperty[]
+export type GetServiceTypesServiceTypeIdVariationProperties200 = ServiceServiceTypeVariationPropertyDto[]
 
 /**
  * @description Bad Request

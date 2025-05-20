@@ -1,0 +1,1 @@
+{"properties":{"priority":{"type":"integer"}},"required":["priority"],"type":"object","x-readme-ref-name":"handler.UpdateServiceTypeVariationPropertyPriorityRequest"}

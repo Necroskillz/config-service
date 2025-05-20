@@ -196,6 +196,13 @@ definitions:
     - name
     - serviceTypeId
     type: object
+  handler.CreateServiceTypeRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   handler.CreateUserRequest:
     properties:
       globalAdministrator:
@@ -223,6 +230,13 @@ definitions:
       value:
         type: string
     type: object
+  handler.LinkVariationPropertyToServiceTypeRequest:
+    properties:
+      variation_property_id:
+        type: integer
+    required:
+    - variation_property_id
+    type: object
   handler.LoginRequest:
     properties:
       password:
@@ -239,16 +253,6 @@ definitions:
         type: string
     required:
     - refresh_token
-    type: object
-  handler.SelectOption:
-    properties:
-      text:
-        type: string
-      value:
-        type: string
-    required:
-    - text
-    - value
     type: object
   handler.TokensResponse:
     properties:
@@ -284,6 +288,13 @@ definitions:
         type: string
     required:
     - description
+    type: object
+  handler.UpdateServiceTypeVariationPropertyPriorityRequest:
+    properties:
+      priority:
+        type: integer
+    required:
+    - priority
     type: object
   handler.UpdateUserRequest:
     properties:
@@ -330,34 +341,6 @@ definitions:
     required:
     - data
     - variation
-    type: object
-  handler.VariationProperty:
-    properties:
-      displayName:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      values:
-        items:
-          $ref: '#/definitions/handler.VariationValueSelectOption'
-        type: array
-    required:
-    - displayName
-    - id
-    - name
-    - values
-    type: object
-  handler.VariationValueSelectOption:
-    properties:
-      depth:
-        type: integer
-      value:
-        type: string
-    required:
-    - depth
-    - value
     type: object
   service.AllowedValidatorDto:
     properties:
@@ -554,6 +537,19 @@ definitions:
     - serviceVersionId
     - version
     type: object
+  service.FlatVariationPropertyValueDto:
+    properties:
+      depth:
+        type: integer
+      id:
+        type: integer
+      value:
+        type: string
+    required:
+    - depth
+    - id
+    - value
+    type: object
   service.KeyDto:
     properties:
       canEdit:
@@ -656,6 +652,64 @@ definitions:
     - description
     - name
     - versions
+    type: object
+  service.ServiceTypeDto:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/service.ServiceTypeVariationPropertyLinkDto'
+        type: array
+      usageCount:
+        type: integer
+    required:
+    - id
+    - name
+    - properties
+    - usageCount
+    type: object
+  service.ServiceTypeVariationPropertyDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/service.FlatVariationPropertyValueDto'
+        type: array
+    required:
+    - displayName
+    - id
+    - name
+    - values
+    type: object
+  service.ServiceTypeVariationPropertyLinkDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      priority:
+        type: integer
+      propertyId:
+        type: integer
+      usageCount:
+        type: integer
+    required:
+    - displayName
+    - id
+    - name
+    - priority
+    - propertyId
+    - usageCount
     type: object
   service.ServiceVersionDto:
     properties:
@@ -1418,7 +1472,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handler.SelectOption'
+              $ref: '#/definitions/service.ServiceTypeDto'
             type: array
         "401":
           description: Unauthorized
@@ -1431,6 +1485,114 @@ paths:
       security:
       - BearerAuth: []
       summary: Get service types
+    post:
+      consumes:
+      - application/json
+      description: Create a new service type
+      parameters:
+      - description: Service type
+        in: body
+        name: service_type_dto
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateServiceTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create service type
+  /service-types/{service_type_id}:
+    delete:
+      description: Delete a service type
+      parameters:
+      - description: Service type ID
+        in: path
+        name: service_type_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Delete service type
+    get:
+      description: Get a service type
+      parameters:
+      - description: Service type ID
+        in: path
+        name: service_type_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.ServiceTypeDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get service type
   /service-types/{service_type_id}/variation-properties:
     get:
       description: Get variation properties for a service type
@@ -1447,7 +1609,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handler.VariationProperty'
+              $ref: '#/definitions/service.ServiceTypeVariationPropertyDto'
             type: array
         "400":
           description: Bad Request
@@ -1468,6 +1630,144 @@ paths:
       security:
       - BearerAuth: []
       summary: Get variation properties
+    post:
+      consumes:
+      - application/json
+      description: Link a variation property to a service type
+      parameters:
+      - description: Service type ID
+        in: path
+        name: service_type_id
+        required: true
+        type: integer
+      - description: Link variation property to service type request
+        in: body
+        name: link_variation_property_to_service_type_request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LinkVariationPropertyToServiceTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Link variation property to service type
+  /service-types/{service_type_id}/variation-properties/{variation_property_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Unlink a variation property from a service type
+      parameters:
+      - description: Service type ID
+        in: path
+        name: service_type_id
+        required: true
+        type: integer
+      - description: Variation property ID
+        in: path
+        name: variation_property_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Unlink variation property from service type
+  /service-types/{service_type_id}/variation-properties/{variation_property_id}/priority:
+    put:
+      consumes:
+      - application/json
+      description: Update the priority of a variation property in a service type
+      parameters:
+      - description: Service type ID
+        in: path
+        name: service_type_id
+        required: true
+        type: integer
+      - description: Variation property ID
+        in: path
+        name: variation_property_id
+        required: true
+        type: integer
+      - description: Update service type variation property priority request
+        in: body
+        name: update_service_type_variation_property_priority_request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateServiceTypeVariationPropertyPriorityRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Update service type variation property priority
   /services:
     get:
       description: Get list of services

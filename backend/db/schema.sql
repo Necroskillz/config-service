@@ -144,33 +144,33 @@ CREATE TABLE public.feature_versions (
 CREATE FUNCTION public.is_feature_version_valid_in_changeset(fv public.feature_versions, changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
-SELECT (
-        (
-            fv.valid_from IS NOT NULL
-            AND fv.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version'
-                    AND csc.type = 'delete'
-                    AND csc.feature_version_id = fv.id
-                LIMIT 1
-            )
-        )
-    )
-    OR (
-        fv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
+    SELECT
+((fv.valid_from IS NOT NULL
+                AND fv.valid_to IS NULL
+                AND NOT EXISTS(
+                    SELECT
+                        csc.id
+                    FROM
+                        changeset_changes csc
+                    WHERE
+                        csc.changeset_id = @changeset_id
+                        AND csc.kind = 'feature_version'
+                        AND csc.type = 'delete'
+                        AND csc.feature_version_id = fv.id
+                    LIMIT 1)))
+    OR(fv.valid_from IS NULL
+        AND EXISTS(
+            SELECT
+                csc.id
+            FROM
+                changeset_changes csc
+            WHERE
+                csc.changeset_id = @changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'feature_version'
                 AND csc.feature_version_id = fv.id
-            LIMIT 1
-        )
-    ) $$;
+            LIMIT 1))
+$$;
 
 
 --
@@ -198,33 +198,33 @@ CREATE TABLE public.keys (
 CREATE FUNCTION public.is_key_valid_in_changeset(k public.keys, changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
-SELECT (
-        (
-            k.valid_from IS NOT NULL
-            AND k.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'key'
-                    AND csc.type = 'delete'
-                    AND csc.key_id = k.id
-                LIMIT 1
-            )
-        )
-    )
-    OR (
-        k.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
+    SELECT
+((k.valid_from IS NOT NULL
+                AND k.valid_to IS NULL
+                AND NOT EXISTS(
+                    SELECT
+                        csc.id
+                    FROM
+                        changeset_changes csc
+                    WHERE
+                        csc.changeset_id = @changeset_id
+                        AND csc.kind = 'key'
+                        AND csc.type = 'delete'
+                        AND csc.key_id = k.id
+                    LIMIT 1)))
+    OR(k.valid_from IS NULL
+        AND EXISTS(
+            SELECT
+                csc.id
+            FROM
+                changeset_changes csc
+            WHERE
+                csc.changeset_id = @changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'key'
                 AND csc.key_id = k.id
-            LIMIT 1
-        )
-    ) $$;
+            LIMIT 1))
+$$;
 
 
 --
@@ -248,33 +248,33 @@ CREATE TABLE public.feature_version_service_versions (
 CREATE FUNCTION public.is_link_valid_in_changeset(fvsv public.feature_version_service_versions, changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
-SELECT (
-        (
-            fvsv.valid_from IS NOT NULL
-            AND fvsv.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'feature_version_service_version'
-                    AND csc.type = 'delete'
-                    AND csc.feature_version_service_version_id = fvsv.id
-                LIMIT 1
-            )
-        )
-    )
-    OR (
-        fvsv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
+    SELECT
+((fvsv.valid_from IS NOT NULL
+                AND fvsv.valid_to IS NULL
+                AND NOT EXISTS(
+                    SELECT
+                        csc.id
+                    FROM
+                        changeset_changes csc
+                    WHERE
+                        csc.changeset_id = @changeset_id
+                        AND csc.kind = 'feature_version_service_version'
+                        AND csc.type = 'delete'
+                        AND csc.feature_version_service_version_id = fvsv.id
+                    LIMIT 1)))
+    OR(fvsv.valid_from IS NULL
+        AND EXISTS(
+            SELECT
+                csc.id
+            FROM
+                changeset_changes csc
+            WHERE
+                csc.changeset_id = @changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'feature_version_service_version'
                 AND csc.feature_version_service_version_id = fvsv.id
-            LIMIT 1
-        )
-    ) $$;
+            LIMIT 1))
+$$;
 
 
 --
@@ -300,33 +300,33 @@ CREATE TABLE public.service_versions (
 CREATE FUNCTION public.is_service_version_valid_in_changeset(sv public.service_versions, changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
-SELECT (
-        (
-            sv.valid_from IS NOT NULL
-            AND sv.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'service_version'
-                    AND csc.type = 'delete'
-                    AND csc.service_version_id = sv.id
-                LIMIT 1
-            )
-        )
-    )
-    OR (
-        sv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
+    SELECT
+((sv.valid_from IS NOT NULL
+                AND sv.valid_to IS NULL
+                AND NOT EXISTS(
+                    SELECT
+                        csc.id
+                    FROM
+                        changeset_changes csc
+                    WHERE
+                        csc.changeset_id = @changeset_id
+                        AND csc.kind = 'service_version'
+                        AND csc.type = 'delete'
+                        AND csc.service_version_id = sv.id
+                    LIMIT 1)))
+    OR(sv.valid_from IS NULL
+        AND EXISTS(
+            SELECT
+                csc.id
+            FROM
+                changeset_changes csc
+            WHERE
+                csc.changeset_id = @changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'service_version'
                 AND csc.service_version_id = sv.id
-            LIMIT 1
-        )
-    ) $$;
+            LIMIT 1))
+$$;
 
 
 --
@@ -350,31 +350,31 @@ CREATE TABLE public.variation_values (
 CREATE FUNCTION public.is_variation_value_valid_in_changeset(vv public.variation_values, changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
-SELECT (
-        (
-            vv.valid_from IS NOT NULL
-            AND vv.valid_to IS NULL
-            AND NOT EXISTS (
-                SELECT csc.id
-                FROM changeset_changes csc
-                WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'variation_value'
-                    AND csc.old_variation_value_id = vv.id
-                LIMIT 1
-            )
-        )
-    )
-    OR (
-        vv.valid_from IS NULL
-        AND EXISTS (
-            SELECT csc.id
-            FROM changeset_changes csc
-            WHERE csc.changeset_id = @changeset_id
-                    AND csc.kind = 'variation_value'
+    SELECT
+((vv.valid_from IS NOT NULL
+                AND vv.valid_to IS NULL
+                AND NOT EXISTS(
+                    SELECT
+                        csc.id
+                    FROM
+                        changeset_changes csc
+                    WHERE
+                        csc.changeset_id = @changeset_id
+                        AND csc.kind = 'variation_value'
+                        AND csc.old_variation_value_id = vv.id
+                    LIMIT 1)))
+    OR(vv.valid_from IS NULL
+        AND EXISTS(
+            SELECT
+                csc.id
+            FROM
+                changeset_changes csc
+            WHERE
+                csc.changeset_id = @changeset_id
+                AND csc.kind = 'variation_value'
                 AND csc.new_variation_value_id = vv.id
-            LIMIT 1
-        )
-    ) $$;
+            LIMIT 1))
+$$;
 
 
 --
@@ -591,8 +591,7 @@ CREATE TABLE public.service_type_variation_properties (
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     priority integer NOT NULL,
     service_type_id bigint NOT NULL,
-    variation_property_id bigint NOT NULL,
-    archived boolean DEFAULT false NOT NULL
+    variation_property_id bigint NOT NULL
 );
 
 
@@ -877,8 +876,7 @@ CREATE TABLE public.variation_properties (
     id bigint NOT NULL,
     name text NOT NULL,
     display_name text NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    archived boolean DEFAULT false NOT NULL
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -1518,7 +1516,7 @@ ALTER TABLE ONLY public.keys
 --
 
 ALTER TABLE ONLY public.service_type_variation_properties
-    ADD CONSTRAINT service_type_variation_properties_service_type_id_fkey FOREIGN KEY (service_type_id) REFERENCES public.service_types(id);
+    ADD CONSTRAINT service_type_variation_properties_service_type_id_fkey FOREIGN KEY (service_type_id) REFERENCES public.service_types(id) ON DELETE CASCADE;
 
 
 --
@@ -1622,7 +1620,7 @@ ALTER TABLE ONLY public.variation_context_variation_property_values
 --
 
 ALTER TABLE ONLY public.variation_property_values
-    ADD CONSTRAINT variation_property_values_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.variation_property_values(id);
+    ADD CONSTRAINT variation_property_values_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.variation_property_values(id) ON DELETE CASCADE;
 
 
 --
@@ -1630,7 +1628,7 @@ ALTER TABLE ONLY public.variation_property_values
 --
 
 ALTER TABLE ONLY public.variation_property_values
-    ADD CONSTRAINT variation_property_values_variation_property_id_fkey FOREIGN KEY (variation_property_id) REFERENCES public.variation_properties(id);
+    ADD CONSTRAINT variation_property_values_variation_property_id_fkey FOREIGN KEY (variation_property_id) REFERENCES public.variation_properties(id) ON DELETE CASCADE;
 
 
 --

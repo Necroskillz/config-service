@@ -60,23 +60,6 @@ WHERE
     AND is_service_version_valid_in_changeset(sv, @changeset_id)
 LIMIT 1;
 
--- name: GetServiceTypes :many
-SELECT
-    *
-FROM
-    service_types
-ORDER BY
-    name;
-
--- name: GetServiceType :one
-SELECT
-    *
-FROM
-    service_types
-WHERE
-    id = @service_type_id
-LIMIT 1;
-
 -- name: GetServiceIDByName :one
 SELECT
     id
@@ -113,12 +96,6 @@ SET
     published = TRUE
 WHERE
     id = @service_version_id;
-
--- name: CreateServiceType :one
-INSERT INTO service_types(name)
-    VALUES (@name)
-RETURNING
-    id;
 
 -- name: EndServiceVersionValidity :exec
 UPDATE

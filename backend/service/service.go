@@ -177,19 +177,6 @@ func (s *ServiceService) GetServices(ctx context.Context) ([]ServiceDto, error) 
 	return result, nil
 }
 
-func (s *ServiceService) GetServiceTypes(ctx context.Context) ([]db.ServiceType, error) {
-	return s.queries.GetServiceTypes(ctx)
-}
-
-func (s *ServiceService) GetServiceType(ctx context.Context, id uint) (db.ServiceType, error) {
-	serviceType, err := s.queries.GetServiceType(ctx, id)
-	if err != nil {
-		return db.ServiceType{}, NewDbError(err, "ServiceType")
-	}
-
-	return serviceType, nil
-}
-
 type CreateServiceParams struct {
 	Name          string
 	Description   string

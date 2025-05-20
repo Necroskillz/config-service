@@ -64,8 +64,8 @@ function RouteComponent() {
   });
 
   useEffect(() => {
-    if (!isLoading && !form.state.values.serviceTypeId && serviceTypes?.[0].value) {
-      form.setFieldValue('serviceTypeId', parseInt(serviceTypes?.[0].value), {
+    if (!isLoading && !form.state.values.serviceTypeId && serviceTypes?.[0]?.id) {
+      form.setFieldValue('serviceTypeId', serviceTypes?.[0]?.id, {
         dontUpdateMeta: true,
       });
     }
@@ -155,16 +155,17 @@ function RouteComponent() {
                       <SelectValue placeholder="Select a service type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {isLoading && (
+                      {isLoading ? (
                         <SelectGroup>
                           <SelectLabel>Loading...</SelectLabel>
                         </SelectGroup>
+                      ) : (
+                        serviceTypes?.map((serviceType) => (
+                          <SelectItem key={serviceType.id} value={serviceType.id.toString()}>
+                            {serviceType.name}
+                          </SelectItem>
+                        ))
                       )}
-                      {serviceTypes?.map((serviceType) => (
-                        <SelectItem key={serviceType.value} value={serviceType.value}>
-                          {serviceType.text}
-                        </SelectItem>
-                      ))}
                     </SelectContent>
                   </Select>
                 </field.FormControl>

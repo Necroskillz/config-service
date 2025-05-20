@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"slices"
+	"strings"
 
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/db"
@@ -72,7 +73,83 @@ func (s *VariationPropertyService) GetVariationProperties(ctx context.Context) (
 		result[i] = NewVariationPropertyItemDto(property)
 	}
 
+	slices.SortFunc(result, func(a, b VariationPropertyItemDto) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+
 	return result, nil
+}
+
+type FlatVariationPropertyValueDto struct {
+	ID    uint   `json:"id" validate:"required"`
+	Value string `json:"value" validate:"required"`
+	Depth int    `json:"depth" validate:"required"`
+}
+
+type ServiceTypeVariationPropertyDto struct {
+	VariationPropertyItemDto
+	Values []FlatVariationPropertyValueDto `json:"values" validate:"required"`
+}
+
+func (s *VariationPropertyService) makeFlatVariationPropertyValues(indent int, values []*VariationHierarchyValue) []FlatVariationPropertyValueDto {
+	flatValues := []FlatVariationPropertyValueDto{}
+
+	for _, value := range values {
+		if value.Archived {
+			continue
+		}
+
+		flatValues = append(flatValues, FlatVariationPropertyValueDto{
+			ID:    value.ID,
+			Value: value.Value,
+			Depth: value.Depth,
+		})
+
+		if len(value.Children) > 0 {
+			flatValues = append(flatValues, s.makeFlatVariationPropertyValues(indent+1, value.Children)...)
+		}
+	}
+
+	return flatValues
+}
+
+func (s *VariationPropertyService) getFlatValues(property *VariationHierarchyProperty) []FlatVariationPropertyValueDto {
+	values := []FlatVariationPropertyValueDto{
+		{
+			Value: "any",
+			Depth: 0,
+		},
+	}
+
+	values = append(values, s.makeFlatVariationPropertyValues(0, property.Values)...)
+
+	return values
+}
+
+func (s *VariationPropertyService) GetVariationPropertiesForServiceType(ctx context.Context, serviceTypeID uint) ([]ServiceTypeVariationPropertyDto, error) {
+	// 404 check
+	_, err := s.queries.GetServiceType(ctx, serviceTypeID)
+	if err != nil {
+		return nil, err
+	}
+
+	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	properties := variationHierarchy.GetProperties(serviceTypeID)
+
+	response := []ServiceTypeVariationPropertyDto{}
+
+	for _, property := range properties {
+		response = append(response, ServiceTypeVariationPropertyDto{
+			VariationPropertyItemDto: NewVariationPropertyItemDto(property),
+			Values:                   s.getFlatValues(property),
+		})
+	}
+
+	return response, nil
 }
 
 func (s *VariationPropertyService) makeVariationPropertyValueDto(value *VariationHierarchyValue, usageMap map[uint]int) VariationPropertyValueDto {
@@ -299,7 +376,7 @@ func (s *VariationPropertyService) validateCreateVariationPropertyValue(ctx cont
 		}
 	}
 
-	err := s.validator.Validate(data.Value, "Value").Required().MaxLength(20).Regex(`^[\w\-_]+$`).
+	err := s.validator.Validate(data.Value, "Value").Required().MaxLength(20).Regex(`^[\w\-_\.]+$`).
 		Error(ctx)
 
 	if err != nil {

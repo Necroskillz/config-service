@@ -10,20 +10,6 @@ import (
 	"github.com/necroskillz/config-service/service"
 )
 
-type SelectOption struct {
-	Value string `json:"value" validate:"required"`
-	Text  string `json:"text" validate:"required"`
-}
-
-func MakeSelectOptions[T any](items []T, fn func(item T) (uint, string)) []SelectOption {
-	options := []SelectOption{}
-	for _, item := range items {
-		value, text := fn(item)
-		options = append(options, SelectOption{Value: fmt.Sprintf("%d", value), Text: text})
-	}
-	return options
-}
-
 func getVariation(serviceTypeID uint, variationHierarchy *service.VariationHierarchy, getter func(string) string) map[string]string {
 	properties := variationHierarchy.GetProperties(serviceTypeID)
 	variation := make(map[string]string)

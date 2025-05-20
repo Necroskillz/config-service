@@ -1,0 +1,1 @@
+{"properties":{"variation_property_id":{"type":"integer"}},"required":["variation_property_id"],"type":"object","x-readme-ref-name":"handler.LinkVariationPropertyToServiceTypeRequest"}

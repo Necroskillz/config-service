@@ -4,12 +4,12 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { HandlerSelectOption } from './handler/SelectOption.ts'
+import type { ServiceServiceTypeDto } from './service/ServiceTypeDto.ts'
 
 /**
  * @description OK
  */
-export type GetServiceTypes200 = HandlerSelectOption[]
+export type GetServiceTypes200 = ServiceServiceTypeDto[]
 
 /**
  * @description Unauthorized

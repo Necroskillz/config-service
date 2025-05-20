@@ -69,12 +69,13 @@ func (s *Server) Start() error {
 
 	unitOfWorkRunner := db.NewPgxUnitOfWorkRunner(dbpool, queries)
 	valueValidatorService := service.NewValueValidatorService(queries)
+	validator := service.NewValidator()
 	valueTypeService := service.NewValueTypeService(queries, valueValidatorService)
 	coreService := service.NewCoreService(queries, currentUserAccessor)
 	variationHierarchyService := service.NewVariationHierarchyService(queries, cache)
 	variationContextService := service.NewVariationContextService(queries, unitOfWorkRunner, cache)
 	validationService := service.NewValidationService(queries, variationContextService, variationHierarchyService, currentUserAccessor, coreService)
-	validator := service.NewValidator()
+	serviceTypeService := service.NewServiceTypeService(unitOfWorkRunner, queries, validator, validationService, currentUserAccessor)
 	changesetService := service.NewChangesetService(queries, variationContextService, unitOfWorkRunner, currentUserAccessor, validator)
 	serviceService := service.NewServiceService(queries, unitOfWorkRunner, changesetService, currentUserAccessor, validator, coreService, validationService)
 	userService := service.NewUserService(queries, variationContextService, validationService, validator)
@@ -149,6 +150,7 @@ func (s *Server) Start() error {
 		currentUserAccessor,
 		valueTypeService,
 		variationPropertyService,
+		serviceTypeService,
 	)
 	handler.RegisterRoutes(e)
 

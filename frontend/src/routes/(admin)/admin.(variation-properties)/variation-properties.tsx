@@ -18,9 +18,15 @@ function RouteComponent() {
 
   return (
     <div className="p-4 flex flex-row">
-      <div className="w-64 flex flex-col gap-2">
+      <div className="w-52 flex flex-col gap-2">
         {variationProperties.map((property) => (
-          <Link key={property.id} to="/admin/variation-properties/$propertyId" params={{ propertyId: property.id }}>
+          <Link
+            className="text-ellipsis overflow-hidden text-nowrap"
+            title={`${property.name}${property.displayName !== property.name ? ` (${property.displayName})` : ''}`}
+            key={property.id}
+            to="/admin/variation-properties/$propertyId"
+            params={{ propertyId: property.id }}
+          >
             {property.name} {property.displayName !== property.name && `(${property.displayName})`}
           </Link>
         ))}

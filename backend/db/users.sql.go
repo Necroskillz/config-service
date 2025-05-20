@@ -43,8 +43,8 @@ func (q *Queries) CreatePermission(ctx context.Context, arg CreatePermissionPara
 }
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users(name, password, global_administrator)
-    VALUES ($1, $2, $3)
+INSERT INTO users(name, password, global_administrator, created_at)
+    VALUES ($1, $2, $3, now())
 RETURNING
     id
 `

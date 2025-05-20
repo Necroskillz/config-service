@@ -17,6 +17,7 @@ type Handler struct {
 	CurrentUserAccessor       *auth.CurrentUserAccessor
 	ValueTypeService          *service.ValueTypeService
 	VariationPropertyService  *service.VariationPropertyService
+	ServiceTypeService        *service.ServiceTypeService
 }
 
 func NewHandler(
@@ -31,6 +32,7 @@ func NewHandler(
 	currentUserAccessor *auth.CurrentUserAccessor,
 	valueTypeService *service.ValueTypeService,
 	variationPropertyService *service.VariationPropertyService,
+	serviceTypeService *service.ServiceTypeService,
 ) *Handler {
 	return &Handler{
 		ServiceService:            serviceService,
@@ -44,5 +46,6 @@ func NewHandler(
 		CurrentUserAccessor:       currentUserAccessor,
 		ValueTypeService:          valueTypeService,
 		VariationPropertyService:  variationPropertyService,
+		ServiceTypeService:        serviceTypeService,
 	}
 }

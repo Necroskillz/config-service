@@ -70,9 +70,17 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	valueGroup.DELETE("", h.DeleteValue)
 	valueGroup.GET("/can-edit", h.CanEditValue)
 
-	serviceTypeGroup := apiGroup.Group("/service-types")
-	serviceTypeGroup.GET("", h.GetServiceTypes)
-	serviceTypeGroup.GET("/:service_type_id/variation-properties", h.GetProperties)
+	serviceTypesGroup := apiGroup.Group("/service-types")
+	serviceTypesGroup.GET("", h.GetServiceTypes)
+	serviceTypesGroup.POST("", h.CreateServiceType)
+
+	serviceTypeGroup := serviceTypesGroup.Group("/:service_type_id")
+	serviceTypeGroup.GET("", h.GetServiceType)
+	serviceTypeGroup.DELETE("", h.DeleteServiceType)
+	serviceTypeGroup.GET("/variation-properties", h.GetProperties)
+	serviceTypeGroup.POST("/variation-properties", h.LinkVariationPropertyToServiceType)
+	serviceTypeGroup.DELETE("/variation-properties/:variation_property_id", h.UnlinkVariationPropertyFromServiceType)
+	serviceTypeGroup.PUT("/variation-properties/:variation_property_id/priority", h.UpdateServiceTypeVariationPropertyPriority)
 
 	valueTypeGroup := apiGroup.Group("/value-types")
 	valueTypeGroup.GET("", h.GetValueTypes)

@@ -28,6 +28,17 @@ func NewValidationService(queries *db.Queries, variationContextService *Variatio
 	}
 }
 
+func (s *ValidationService) IsServiceTypeNameTaken(ctx context.Context, name string) (bool, error) {
+	_, err := s.queries.GetServiceTypeIDByName(ctx, name)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 func (s *ValidationService) IsServiceNameTaken(ctx context.Context, name string) (bool, error) {
 	_, err := s.queries.GetServiceIDByName(ctx, name)
 	if err != nil {
