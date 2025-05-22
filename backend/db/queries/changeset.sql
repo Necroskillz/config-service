@@ -269,16 +269,33 @@ LIMIT 1;
 SELECT
     csc.id,
     csc.type,
-    csc.new_variation_value_id,
-    csc.old_variation_value_id,
-    vv.variation_context_id
+    nvv.id AS new_variation_value_id,
+    ovv.id AS old_variation_value_id,
+    COALESCE(nvv.variation_context_id, ovv.variation_context_id) AS variation_context_id,
+    nvv.data AS new_variation_value_data,
+    ovv.data AS old_variation_value_data
 FROM
     changeset_changes csc
-    JOIN variation_values vv ON vv.id = COALESCE(csc.new_variation_value_id, csc.old_variation_value_id)
+    LEFT JOIN variation_values nvv ON nvv.id = csc.new_variation_value_id
+    LEFT JOIN variation_values ovv ON ovv.id = csc.old_variation_value_id
 WHERE
     csc.changeset_id = @changeset_id
     AND (csc.old_variation_value_id = @variation_value_id::bigint
         OR csc.new_variation_value_id = @variation_value_id::bigint)
+LIMIT 1;
+
+-- name: GetDeleteChangeForVariationContextID :one
+SELECT
+    csc.id,
+    csc.type,
+    vv.id AS variation_value_id,
+    vv.data AS variation_value_data
+FROM
+    changeset_changes csc
+    JOIN variation_values vv ON vv.id = csc.old_variation_value_id
+WHERE
+    csc.changeset_id = @changeset_id
+    AND vv.variation_context_id = @variation_context_id
 LIMIT 1;
 
 -- name: GetChangeForFeatureVersionServiceVersion :one

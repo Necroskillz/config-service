@@ -394,12 +394,15 @@ const getChangeForVariationValue = `-- name: GetChangeForVariationValue :one
 SELECT
     csc.id,
     csc.type,
-    csc.new_variation_value_id,
-    csc.old_variation_value_id,
-    vv.variation_context_id
+    nvv.id AS new_variation_value_id,
+    ovv.id AS old_variation_value_id,
+    COALESCE(nvv.variation_context_id, ovv.variation_context_id) AS variation_context_id,
+    nvv.data AS new_variation_value_data,
+    ovv.data AS old_variation_value_data
 FROM
     changeset_changes csc
-    JOIN variation_values vv ON vv.id = COALESCE(csc.new_variation_value_id, csc.old_variation_value_id)
+    LEFT JOIN variation_values nvv ON nvv.id = csc.new_variation_value_id
+    LEFT JOIN variation_values ovv ON ovv.id = csc.old_variation_value_id
 WHERE
     csc.changeset_id = $1
     AND (csc.old_variation_value_id = $2::bigint
@@ -413,11 +416,13 @@ type GetChangeForVariationValueParams struct {
 }
 
 type GetChangeForVariationValueRow struct {
-	ID                  uint
-	Type                ChangesetChangeType
-	NewVariationValueID *uint
-	OldVariationValueID *uint
-	VariationContextID  uint
+	ID                    uint
+	Type                  ChangesetChangeType
+	NewVariationValueID   *uint
+	OldVariationValueID   *uint
+	VariationContextID    uint
+	NewVariationValueData *string
+	OldVariationValueData *string
 }
 
 func (q *Queries) GetChangeForVariationValue(ctx context.Context, arg GetChangeForVariationValueParams) (GetChangeForVariationValueRow, error) {
@@ -429,6 +434,8 @@ func (q *Queries) GetChangeForVariationValue(ctx context.Context, arg GetChangeF
 		&i.NewVariationValueID,
 		&i.OldVariationValueID,
 		&i.VariationContextID,
+		&i.NewVariationValueData,
+		&i.OldVariationValueData,
 	)
 	return i, err
 }
@@ -772,6 +779,45 @@ func (q *Queries) GetChangesets(ctx context.Context, arg GetChangesetsParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const getDeleteChangeForVariationContextID = `-- name: GetDeleteChangeForVariationContextID :one
+SELECT
+    csc.id,
+    csc.type,
+    vv.id AS variation_value_id,
+    vv.data AS variation_value_data
+FROM
+    changeset_changes csc
+    JOIN variation_values vv ON vv.id = csc.old_variation_value_id
+WHERE
+    csc.changeset_id = $1
+    AND vv.variation_context_id = $2
+LIMIT 1
+`
+
+type GetDeleteChangeForVariationContextIDParams struct {
+	ChangesetID        uint
+	VariationContextID uint
+}
+
+type GetDeleteChangeForVariationContextIDRow struct {
+	ID                 uint
+	Type               ChangesetChangeType
+	VariationValueID   uint
+	VariationValueData string
+}
+
+func (q *Queries) GetDeleteChangeForVariationContextID(ctx context.Context, arg GetDeleteChangeForVariationContextIDParams) (GetDeleteChangeForVariationContextIDRow, error) {
+	row := q.db.QueryRow(ctx, getDeleteChangeForVariationContextID, arg.ChangesetID, arg.VariationContextID)
+	var i GetDeleteChangeForVariationContextIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.VariationValueID,
+		&i.VariationValueData,
+	)
+	return i, err
 }
 
 const getOpenChangesetIDForUser = `-- name: GetOpenChangesetIDForUser :one

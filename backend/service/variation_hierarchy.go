@@ -285,6 +285,10 @@ func (v *VariationHierarchy) GetRank(serviceTypeID uint, variation map[uint]stri
 	rank := 0
 
 	for propertyID, value := range variation {
+		if value == "any" {
+			continue
+		}
+
 		baseRank := v.serviceTypes[serviceTypeID].RankMap[propertyID]
 		depth := v.lookup[propertyID][value].Depth
 
@@ -302,6 +306,10 @@ func (v *VariationHierarchy) GetOrder(serviceTypeID uint, variation map[uint]str
 	order := make([]int, len(v.serviceTypes[serviceTypeID].Order))
 
 	for propertyID, value := range variation {
+		if value == "any" {
+			continue
+		}
+
 		order[v.serviceTypes[serviceTypeID].OrderMap[propertyID]] = v.lookup[propertyID][value].Order
 	}
 

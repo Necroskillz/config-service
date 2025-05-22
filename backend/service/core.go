@@ -17,8 +17,6 @@ func NewCoreService(queries *db.Queries, currentUserAccessor *auth.CurrentUserAc
 	return &CoreService{queries: queries, currentUserAccessor: currentUserAccessor}
 }
 
-// TODO: Add changeset constrains to all queries
-
 func (s *CoreService) GetServiceVersion(ctx context.Context, serviceVersionID uint) (db.GetServiceVersionRow, error) {
 	user := s.currentUserAccessor.GetUser(ctx)
 
