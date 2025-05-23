@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/services/core"
 	"github.com/necroskillz/config-service/services/variation"
+	"github.com/necroskillz/config-service/util/validator"
 )
 
 func getVariation(serviceTypeID uint, variationHierarchy *variation.Hierarchy, getter func(string) string) map[string]string {
@@ -69,7 +70,7 @@ func ToHTTPError(err error) *echo.HTTPError {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if errors.Is(err, core.ErrInvalidInput) {
+	if errors.Is(err, core.ErrInvalidInput) || errors.Is(err, &validator.ValidationError{}) {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 

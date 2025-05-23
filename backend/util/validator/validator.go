@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/necroskillz/config-service/services/core"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
@@ -392,7 +391,7 @@ func (v *Validator) registerRules() {
 			c.AddResource("schema.json", schema)
 			sch, err := c.Compile("schema.json")
 			if err != nil {
-				return core.NewServiceError(core.ErrorCodeUnknownError, "Invalid JSON schema").WithErr(err)
+				return fmt.Errorf("invalid JSON schema: %w", err)
 			}
 
 			err = sch.Validate(inst)
@@ -489,11 +488,7 @@ func (v *Context) Error(ctx context.Context) error {
 	for _, rule := range v.rules {
 		err := rule.fn(ctx, rule.fieldName, rule.value)
 		if err != nil {
-			if errors.Is(err, &ValidationError{}) {
-				return core.NewServiceError(core.ErrorCodeInvalidInput, err.Error()).WithErr(err)
-			}
-
-			return core.NewServiceError(core.ErrorCodeUnknownError, err.Error()).WithErr(err)
+			return err
 		}
 	}
 

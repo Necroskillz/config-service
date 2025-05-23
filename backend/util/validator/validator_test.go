@@ -309,7 +309,7 @@ func TestValidator(t *testing.T) {
 		testCases := map[string]testCase{
 			"valid":          {value: validInstance, schema: validSchema, expectError: false},
 			"invalid":        {value: invalidInstance, schema: validSchema, expectError: true, errorText: "Field FieldName must match the JSON schema {\"type\":\"object\",\"properties\":{\"a\":{\"type\":\"integer\"}}}"},
-			"invalid schema": {value: validInstance, schema: invalidSchema, expectError: true, errorText: "Invalid JSON schema"},
+			"invalid schema": {value: validInstance, schema: invalidSchema, expectError: true, errorText: "invalid JSON schema: \"file:///C:/Devel/config-service/backend/util/validator/schema.json#\" is not valid against metaschema: jsonschema validation failed with 'https://json-schema.org/draft/2020-12/schema#'\n- at '': allOf failed\n  - at '/properties/a': allOf failed\n    - at '/properties/a/type': anyOf failed\n      - at '/properties/a/type': value must be one of 'array', 'boolean', 'integer', 'null', 'number', 'object', 'string'\n      - at '/properties/a/type': got string, want array"},
 			"wrong type":     {value: 123, schema: validSchema, expectError: true, errorText: "invalid type for JSON schema validator int"},
 		}
 
