@@ -5,7 +5,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/db"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/key"
+	"github.com/necroskillz/config-service/services/validation"
 )
 
 // @Summary Get keys for a feature
@@ -14,7 +15,7 @@ import (
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
-// @Success 200 {array} service.KeyItemDto
+// @Success 200 {array} key.KeyItemDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -47,7 +48,7 @@ func (h *Handler) Keys(c echo.Context) error {
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
 // @Param key_id path int true "Key ID"
-// @Success 200 {object} service.KeyDto
+// @Success 200 {object} key.KeyDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -83,10 +84,10 @@ type ValidatorRequest struct {
 
 type ValidatorRequestList []ValidatorRequest
 
-func (v ValidatorRequestList) ToDto() []service.ValidatorDto {
-	validators := make([]service.ValidatorDto, len(v))
+func (v ValidatorRequestList) ToDto() []validation.ValidatorDto {
+	validators := make([]validation.ValidatorDto, len(v))
 	for i, v := range v {
-		validators[i] = service.ValidatorDto{
+		validators[i] = validation.ValidatorDto{
 			ValidatorType: v.ValidatorType,
 			Parameter:     v.Parameter,
 			ErrorText:     v.ErrorText,
@@ -132,7 +133,7 @@ func (h *Handler) CreateKey(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	keyID, err := h.KeyService.CreateKey(c.Request().Context(), service.CreateKeyParams{
+	keyID, err := h.KeyService.CreateKey(c.Request().Context(), key.CreateKeyParams{
 		ServiceVersionID: serviceVersionID,
 		FeatureVersionID: featureVersionID,
 		Name:             data.Name,
@@ -189,7 +190,7 @@ func (h *Handler) UpdateKey(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	err = h.KeyService.UpdateKey(c.Request().Context(), service.UpdateKeyParams{
+	err = h.KeyService.UpdateKey(c.Request().Context(), key.UpdateKeyParams{
 		ServiceVersionID: serviceVersionID,
 		FeatureVersionID: featureVersionID,
 		KeyID:            keyID,

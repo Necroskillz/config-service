@@ -18,7 +18,19 @@ import (
 	_ "github.com/necroskillz/config-service/docs"
 	"github.com/necroskillz/config-service/handler"
 	"github.com/necroskillz/config-service/middleware"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/changeset"
+	"github.com/necroskillz/config-service/services/core"
+	"github.com/necroskillz/config-service/services/feature"
+	"github.com/necroskillz/config-service/services/key"
+	"github.com/necroskillz/config-service/services/membership"
+	"github.com/necroskillz/config-service/services/service"
+	"github.com/necroskillz/config-service/services/servicetype"
+	"github.com/necroskillz/config-service/services/validation"
+	"github.com/necroskillz/config-service/services/value"
+	"github.com/necroskillz/config-service/services/valuetype"
+	"github.com/necroskillz/config-service/services/variation"
+	"github.com/necroskillz/config-service/services/variationproperty"
+	"github.com/necroskillz/config-service/util/validator"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	"github.com/dgraph-io/ristretto/v2"
@@ -68,21 +80,21 @@ func (s *Server) Start() error {
 	currentUserAccessor := auth.NewCurrentUserAccessor()
 
 	unitOfWorkRunner := db.NewPgxUnitOfWorkRunner(dbpool, queries)
-	valueValidatorService := service.NewValueValidatorService(queries)
-	validator := service.NewValidator()
-	valueTypeService := service.NewValueTypeService(queries, valueValidatorService)
-	coreService := service.NewCoreService(queries, currentUserAccessor)
-	variationHierarchyService := service.NewVariationHierarchyService(queries, cache)
-	variationContextService := service.NewVariationContextService(queries, unitOfWorkRunner, cache)
-	validationService := service.NewValidationService(queries, variationContextService, variationHierarchyService, currentUserAccessor, coreService)
-	serviceTypeService := service.NewServiceTypeService(unitOfWorkRunner, queries, validator, validationService, currentUserAccessor)
-	changesetService := service.NewChangesetService(queries, variationContextService, unitOfWorkRunner, currentUserAccessor, validator)
-	serviceService := service.NewServiceService(queries, unitOfWorkRunner, changesetService, currentUserAccessor, validator, coreService, validationService)
-	userService := service.NewUserService(queries, variationContextService, validationService, validator)
-	featureService := service.NewFeatureService(unitOfWorkRunner, queries, changesetService, currentUserAccessor, validator, coreService, validationService)
-	keyService := service.NewKeyService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService, variationHierarchyService, validationService)
-	valueService := service.NewValueService(unitOfWorkRunner, variationContextService, variationHierarchyService, queries, changesetService, currentUserAccessor, validator, coreService, validationService, valueValidatorService)
-	variationPropertyService := service.NewVariationPropertyService(queries, variationHierarchyService, validator, validationService, currentUserAccessor, unitOfWorkRunner)
+	valueValidatorService := validation.NewValueValidatorService(queries)
+	validator := validator.New()
+	valueTypeService := valuetype.NewService(queries, valueValidatorService)
+	coreService := core.NewService(queries, currentUserAccessor)
+	variationHierarchyService := variation.NewHierarchyService(queries, cache)
+	variationContextService := variation.NewContextService(queries, unitOfWorkRunner, cache)
+	validationService := validation.NewService(queries, variationContextService, variationHierarchyService, currentUserAccessor, coreService)
+	serviceTypeService := servicetype.NewService(unitOfWorkRunner, queries, validator, validationService, currentUserAccessor)
+	changesetService := changeset.NewService(queries, variationContextService, unitOfWorkRunner, currentUserAccessor, validator)
+	serviceService := service.NewService(queries, unitOfWorkRunner, changesetService, currentUserAccessor, validator, coreService, validationService)
+	userService := membership.NewUserService(queries, variationContextService, validationService, validator)
+	featureService := feature.NewService(unitOfWorkRunner, queries, changesetService, currentUserAccessor, validator, coreService, validationService)
+	keyService := key.NewService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService, variationHierarchyService, validationService)
+	valueService := value.NewService(unitOfWorkRunner, variationContextService, variationHierarchyService, queries, changesetService, currentUserAccessor, validator, coreService, validationService, valueValidatorService)
+	variationPropertyService := variationproperty.NewService(queries, variationHierarchyService, validator, validationService, currentUserAccessor, unitOfWorkRunner)
 
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{

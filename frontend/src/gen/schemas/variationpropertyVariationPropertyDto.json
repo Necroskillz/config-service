@@ -1,0 +1,1 @@
+{"properties":{"displayName":{"type":"string"},"id":{"type":"integer"},"name":{"type":"string"},"usageCount":{"type":"integer"},"values":{"items":{"$ref":"#/components/schemas/variationproperty.VariationPropertyValueDto"},"type":"array"}},"required":["displayName","id","name","usageCount","values"],"type":"object","x-readme-ref-name":"variationproperty.VariationPropertyDto"}

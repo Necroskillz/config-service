@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/changeset"
+	_ "github.com/necroskillz/config-service/services/core"
 )
 
 type ChangesetsRequest struct {
@@ -23,7 +24,7 @@ type ChangesetsRequest struct {
 // @Param offset query int false "Offset"
 // @Param authorId query uint false "Author ID"
 // @Param approvable query bool false "Approvable"
-// @Success 200 {object} service.PaginatedResult[service.ChangesetItemDto]
+// @Success 200 {object} core.PaginatedResult[changeset.ChangesetItemDto]
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -36,7 +37,7 @@ func (h *Handler) Changesets(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	changesets, err := h.ChangesetService.GetChangesets(c.Request().Context(), service.ChangesetsFilter{
+	changesets, err := h.ChangesetService.GetChangesets(c.Request().Context(), changeset.Filter{
 		AuthorID:   request.AuthorID,
 		Approvable: request.Approvable,
 		Limit:      request.Limit,
@@ -54,7 +55,7 @@ func (h *Handler) Changesets(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param changeset_id path uint true "Changeset ID"
-// @Success 200 {object} service.ChangesetDto
+// @Success 200 {object} changeset.ChangesetDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError

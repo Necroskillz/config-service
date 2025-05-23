@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceKeyDto } from './service/KeyDto.ts'
+import type { KeyKeyDto } from './key/KeyDto.ts'
 
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams = {
   /**
@@ -27,7 +27,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathPara
 /**
  * @description OK
  */
-export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200 = ServiceKeyDto
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId200 = KeyKeyDto
 
 /**
  * @description Bad Request

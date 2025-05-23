@@ -4,14 +4,14 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/variationproperty"
 )
 
 // @Summary Get variation properties
 // @Description Get all variation properties
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {array} service.VariationPropertyItemDto
+// @Success 200 {array} variationproperty.VariationPropertyItemDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /variation-properties [get]
@@ -29,7 +29,7 @@ func (h *Handler) VariationProperties(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param property_id path int true "Property ID"
-// @Success 200 {object} service.VariationPropertyDto
+// @Success 200 {object} variationproperty.VariationPropertyDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -72,7 +72,7 @@ func (h *Handler) CreateVariationProperty(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	variationPropertyID, err := h.VariationPropertyService.CreateVariationProperty(c.Request().Context(), service.CreateVariationPropertyParams{
+	variationPropertyID, err := h.VariationPropertyService.CreateVariationProperty(c.Request().Context(), variationproperty.CreateVariationPropertyParams{
 		Name:        data.Name,
 		DisplayName: data.DisplayName,
 	})
@@ -112,7 +112,7 @@ func (h *Handler) UpdateVariationProperty(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	if err := h.VariationPropertyService.UpdateVariationProperty(c.Request().Context(), propertyID, service.UpdateVariationPropertyParams{
+	if err := h.VariationPropertyService.UpdateVariationProperty(c.Request().Context(), propertyID, variationproperty.UpdateVariationPropertyParams{
 		DisplayName: data.DisplayName,
 	}); err != nil {
 		return ToHTTPError(err)
@@ -203,7 +203,7 @@ func (h *Handler) CreateVariationPropertyValue(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	variationPropertyValueID, err := h.VariationPropertyService.CreateVariationPropertyValue(c.Request().Context(), service.CreateVariationPropertyValueParams{
+	variationPropertyValueID, err := h.VariationPropertyService.CreateVariationPropertyValue(c.Request().Context(), variationproperty.CreateVariationPropertyValueParams{
 		PropertyID: propertyID,
 		ParentID:   data.ParentID,
 		Value:      data.Value,
@@ -247,7 +247,7 @@ func (h *Handler) UpdateVariationPropertyValueOrder(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	if err := h.VariationPropertyService.UpdateVariationPropertyValueOrder(c.Request().Context(), service.UpdateVariationPropertyValueOrderParams{
+	if err := h.VariationPropertyService.UpdateVariationPropertyValueOrder(c.Request().Context(), variationproperty.UpdateVariationPropertyValueOrderParams{
 		PropertyID: propertyID,
 		ValueID:    valueID,
 		Order:      data.Order,
@@ -306,7 +306,7 @@ func (h *Handler) DeleteVariationPropertyValue(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	if err := h.VariationPropertyService.DeleteVariationPropertyValue(c.Request().Context(), service.VariationPropertyValueParams{
+	if err := h.VariationPropertyService.DeleteVariationPropertyValue(c.Request().Context(), variationproperty.VariationPropertyValueParams{
 		PropertyID: propertyID,
 		ValueID:    valueID,
 	}); err != nil {
@@ -337,7 +337,7 @@ func (h *Handler) ArchiveVariationPropertyValue(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	if err := h.VariationPropertyService.ArchiveVariationPropertyValue(c.Request().Context(), service.VariationPropertyValueParams{
+	if err := h.VariationPropertyService.ArchiveVariationPropertyValue(c.Request().Context(), variationproperty.VariationPropertyValueParams{
 		PropertyID: propertyID,
 		ValueID:    valueID,
 	}); err != nil {
@@ -368,7 +368,7 @@ func (h *Handler) UnarchiveVariationPropertyValue(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	if err := h.VariationPropertyService.UnarchiveVariationPropertyValue(c.Request().Context(), service.VariationPropertyValueParams{
+	if err := h.VariationPropertyService.UnarchiveVariationPropertyValue(c.Request().Context(), variationproperty.VariationPropertyValueParams{
 		PropertyID: propertyID,
 		ValueID:    valueID,
 	}); err != nil {

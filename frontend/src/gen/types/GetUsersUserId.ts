@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceUser } from './service/User.ts'
+import type { MembershipUserDto } from './membership/UserDto.ts'
 
 export type GetUsersUserIdPathParams = {
   /**
@@ -17,7 +17,7 @@ export type GetUsersUserIdPathParams = {
 /**
  * @description OK
  */
-export type GetUsersUserId200 = ServiceUser
+export type GetUsersUserId200 = MembershipUserDto
 
 /**
  * @description Bad Request

@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/auth"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/core"
 )
 
 // @Summary Get current user
@@ -54,7 +54,7 @@ func (h *Handler) Login(c echo.Context) error {
 
 	userId, err := h.UserService.Authenticate(c.Request().Context(), data.Username, data.Password)
 	if err != nil {
-		if errors.Is(err, service.ErrInvalidPassword) || errors.Is(err, service.ErrRecordNotFound) {
+		if errors.Is(err, core.ErrInvalidPassword) || errors.Is(err, core.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "Invalid username or password")
 		}
 

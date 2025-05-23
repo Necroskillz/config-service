@@ -9,10 +9,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/changeset"
+	"github.com/necroskillz/config-service/services/membership"
+	"github.com/necroskillz/config-service/services/variation"
 )
 
-func AuthMiddleware(userService *service.UserService, variationHierarchyService *service.VariationHierarchyService, changesetService *service.ChangesetService) echo.MiddlewareFunc {
+func AuthMiddleware(userService *membership.UserService, variationHierarchyService *variation.HierarchyService, changesetService *changeset.Service) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			if strings.HasPrefix(c.Request().URL.Path, "/assets/") {

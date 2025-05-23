@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/value"
 )
 
 // @Summary Get values for a key
@@ -14,7 +14,7 @@ import (
 // @Param service_version_id path int true "Service Version ID"
 // @Param feature_version_id path int true "Feature Version ID"
 // @Param key_id path int true "Key ID"
-// @Success 200 {array} service.VariationValue
+// @Success 200 {array} value.VariationValueDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -56,7 +56,7 @@ type ValueRequest struct {
 // @Param feature_version_id path int true "Feature Version ID"
 // @Param key_id path int true "Key ID"
 // @Param valueRequest body ValueRequest true "Value request"
-// @Success 200 {object} service.NewValueInfo
+// @Success 200 {object} value.NewValueInfo
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
@@ -84,7 +84,7 @@ func (h *Handler) CreateValue(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Failed to bind form data")
 	}
 
-	info, err := h.ValueService.CreateValue(c.Request().Context(), service.CreateValueParams{
+	info, err := h.ValueService.CreateValue(c.Request().Context(), value.CreateValueParams{
 		ServiceVersionID: serviceVersionID,
 		FeatureVersionID: featureVersionID,
 		KeyID:            keyID,
@@ -108,7 +108,7 @@ func (h *Handler) CreateValue(c echo.Context) error {
 // @Param key_id path int true "Key ID"
 // @Param value_id path int true "Value ID"
 // @Param valueRequest body ValueRequest true "Value request"
-// @Success 200 {object} service.NewValueInfo
+// @Success 200 {object} value.NewValueInfo
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 403 {object} echo.HTTPError
@@ -138,7 +138,7 @@ func (h *Handler) UpdateValue(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Failed to bind form data")
 	}
 
-	info, err := h.ValueService.UpdateValue(c.Request().Context(), service.UpdateValueParams{
+	info, err := h.ValueService.UpdateValue(c.Request().Context(), value.UpdateValueParams{
 		ServiceVersionID: serviceVersionID,
 		FeatureVersionID: featureVersionID,
 		KeyID:            keyID,
@@ -184,7 +184,7 @@ func (h *Handler) DeleteValue(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Failed to bind path params").WithInternal(err)
 	}
 
-	err = h.ValueService.DeleteValue(c.Request().Context(), service.DeleteValueParams{
+	err = h.ValueService.DeleteValue(c.Request().Context(), value.DeleteValueParams{
 		ServiceVersionID: serviceVersionID,
 		FeatureVersionID: featureVersionID,
 		KeyID:            keyID,

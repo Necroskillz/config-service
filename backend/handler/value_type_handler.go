@@ -10,7 +10,7 @@ import (
 // @Description Get all value types
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {array} service.ValueTypeDto
+// @Success 200 {array} valuetype.ValueTypeDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /value-types [get]
@@ -28,7 +28,7 @@ func (h *Handler) GetValueTypes(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param value_type_id path uint true "Value type ID"
-// @Success 200 {object} service.ValueTypeDto
+// @Success 200 {object} valuetype.ValueTypeDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError

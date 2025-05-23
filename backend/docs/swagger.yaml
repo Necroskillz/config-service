@@ -16,16 +16,161 @@ definitions:
     - isGlobalAdmin
     - username
     type: object
-  constants.PermissionLevel:
-    enum:
-    - 0
-    - 1
-    - 2
-    type: integer
-    x-enum-varnames:
-    - PermissionViewer
-    - PermissionEditor
-    - PermissionAdmin
+  changeset.ChangesetAction:
+    properties:
+      comment:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      type:
+        $ref: '#/definitions/db.ChangesetActionType'
+      userId:
+        type: integer
+      userName:
+        type: string
+    required:
+    - createdAt
+    - id
+    - type
+    - userId
+    - userName
+    type: object
+  changeset.ChangesetChange:
+    properties:
+      featureId:
+        type: integer
+      featureName:
+        type: string
+      featureVersion:
+        type: integer
+      featureVersionId:
+        type: integer
+      featureVersionServiceVersionId:
+        type: integer
+      id:
+        type: integer
+      keyId:
+        type: integer
+      keyName:
+        type: string
+      newVariationValueData:
+        type: string
+      newVariationValueId:
+        type: integer
+      oldVariationValueData:
+        type: string
+      oldVariationValueId:
+        type: integer
+      previousFeatureVersionId:
+        type: integer
+      previousServiceVersionId:
+        type: integer
+      serviceId:
+        type: integer
+      serviceName:
+        type: string
+      serviceVersion:
+        type: integer
+      serviceVersionId:
+        type: integer
+      type:
+        $ref: '#/definitions/db.ChangesetChangeType'
+      variation:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - id
+    - serviceName
+    - serviceVersion
+    - serviceVersionId
+    - type
+    type: object
+  changeset.ChangesetDto:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/changeset.ChangesetAction'
+        type: array
+      canApply:
+        type: boolean
+      changes:
+        items:
+          $ref: '#/definitions/changeset.ChangesetChange'
+        type: array
+      id:
+        type: integer
+      state:
+        $ref: '#/definitions/db.ChangesetState'
+      userId:
+        type: integer
+      userName:
+        type: string
+      variationContext:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - actions
+    - canApply
+    - changes
+    - id
+    - state
+    - userId
+    - userName
+    - variationContext
+    type: object
+  changeset.ChangesetItemDto:
+    properties:
+      actionCount:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: integer
+      lastActionAt:
+        type: string
+      state:
+        $ref: '#/definitions/db.ChangesetState'
+      userId:
+        type: integer
+      userName:
+        type: string
+    required:
+    - actionCount
+    - createdAt
+    - id
+    - lastActionAt
+    - state
+    - userId
+    - userName
+    type: object
+  core.PaginatedResult-changeset_ChangesetItemDto:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/changeset.ChangesetItemDto'
+        type: array
+      totalCount:
+        type: integer
+    required:
+    - items
+    - totalCount
+    type: object
+  core.PaginatedResult-membership_UserDto:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/membership.UserDto'
+        type: array
+      totalCount:
+        type: integer
+    required:
+    - items
+    - totalCount
+    type: object
   db.ChangesetActionType:
     enum:
     - apply
@@ -115,6 +260,60 @@ definitions:
   echo.HTTPError:
     properties:
       message: {}
+    type: object
+  feature.FeatureVersionDto:
+    properties:
+      canEdit:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      isLastVersion:
+        type: boolean
+      name:
+        type: string
+      version:
+        type: integer
+    required:
+    - canEdit
+    - description
+    - id
+    - isLastVersion
+    - name
+    - version
+    type: object
+  feature.FeatureVersionItemDto:
+    properties:
+      canUnlink:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      version:
+        type: integer
+    required:
+    - canUnlink
+    - description
+    - id
+    - name
+    - version
+    type: object
+  feature.FeatureVersionLinkDto:
+    properties:
+      featureVersionId:
+        type: integer
+      serviceVersionId:
+        type: integer
+      version:
+        type: integer
+    required:
+    - featureVersionId
+    - serviceVersionId
+    - version
     type: object
   handler.AddCommentRequest:
     properties:
@@ -342,215 +541,7 @@ definitions:
     - data
     - variation
     type: object
-  service.AllowedValidatorDto:
-    properties:
-      parameterType:
-        $ref: '#/definitions/service.ValueValidatorParameterType'
-      validatorType:
-        $ref: '#/definitions/db.ValueValidatorType'
-    required:
-    - parameterType
-    - validatorType
-    type: object
-  service.ChangesetAction:
-    properties:
-      comment:
-        type: string
-      createdAt:
-        type: string
-      id:
-        type: integer
-      type:
-        $ref: '#/definitions/db.ChangesetActionType'
-      userId:
-        type: integer
-      userName:
-        type: string
-    required:
-    - createdAt
-    - id
-    - type
-    - userId
-    - userName
-    type: object
-  service.ChangesetChange:
-    properties:
-      featureId:
-        type: integer
-      featureName:
-        type: string
-      featureVersion:
-        type: integer
-      featureVersionId:
-        type: integer
-      featureVersionServiceVersionId:
-        type: integer
-      id:
-        type: integer
-      keyId:
-        type: integer
-      keyName:
-        type: string
-      newVariationValueData:
-        type: string
-      newVariationValueId:
-        type: integer
-      oldVariationValueData:
-        type: string
-      oldVariationValueId:
-        type: integer
-      previousFeatureVersionId:
-        type: integer
-      previousServiceVersionId:
-        type: integer
-      serviceId:
-        type: integer
-      serviceName:
-        type: string
-      serviceVersion:
-        type: integer
-      serviceVersionId:
-        type: integer
-      type:
-        $ref: '#/definitions/db.ChangesetChangeType'
-      variation:
-        additionalProperties:
-          type: string
-        type: object
-    required:
-    - id
-    - serviceName
-    - serviceVersion
-    - serviceVersionId
-    - type
-    type: object
-  service.ChangesetDto:
-    properties:
-      actions:
-        items:
-          $ref: '#/definitions/service.ChangesetAction'
-        type: array
-      canApply:
-        type: boolean
-      changes:
-        items:
-          $ref: '#/definitions/service.ChangesetChange'
-        type: array
-      id:
-        type: integer
-      state:
-        $ref: '#/definitions/db.ChangesetState'
-      userId:
-        type: integer
-      userName:
-        type: string
-      variationContext:
-        additionalProperties:
-          type: string
-        type: object
-    required:
-    - actions
-    - canApply
-    - changes
-    - id
-    - state
-    - userId
-    - userName
-    - variationContext
-    type: object
-  service.ChangesetItemDto:
-    properties:
-      actionCount:
-        type: integer
-      createdAt:
-        type: string
-      id:
-        type: integer
-      lastActionAt:
-        type: string
-      state:
-        $ref: '#/definitions/db.ChangesetState'
-      userId:
-        type: integer
-      userName:
-        type: string
-    required:
-    - actionCount
-    - createdAt
-    - id
-    - lastActionAt
-    - state
-    - userId
-    - userName
-    type: object
-  service.FeatureVersionDto:
-    properties:
-      canEdit:
-        type: boolean
-      description:
-        type: string
-      id:
-        type: integer
-      isLastVersion:
-        type: boolean
-      name:
-        type: string
-      version:
-        type: integer
-    required:
-    - canEdit
-    - description
-    - id
-    - isLastVersion
-    - name
-    - version
-    type: object
-  service.FeatureVersionItemDto:
-    properties:
-      canUnlink:
-        type: boolean
-      description:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      version:
-        type: integer
-    required:
-    - canUnlink
-    - description
-    - id
-    - name
-    - version
-    type: object
-  service.FeatureVersionLinkDto:
-    properties:
-      featureVersionId:
-        type: integer
-      serviceVersionId:
-        type: integer
-      version:
-        type: integer
-    required:
-    - featureVersionId
-    - serviceVersionId
-    - version
-    type: object
-  service.FlatVariationPropertyValueDto:
-    properties:
-      depth:
-        type: integer
-      id:
-        type: integer
-      value:
-        type: string
-    required:
-    - depth
-    - id
-    - value
-    type: object
-  service.KeyDto:
+  key.KeyDto:
     properties:
       canEdit:
         type: boolean
@@ -562,7 +553,7 @@ definitions:
         type: string
       validators:
         items:
-          $ref: '#/definitions/service.ValidatorDto'
+          $ref: '#/definitions/validation.ValidatorDto'
         type: array
       valueType:
         $ref: '#/definitions/db.ValueTypeKind'
@@ -580,7 +571,7 @@ definitions:
     - valueTypeId
     - valueTypeName
     type: object
-  service.KeyItemDto:
+  key.KeyItemDto:
     properties:
       description:
         type: string
@@ -602,41 +593,18 @@ definitions:
     - valueTypeId
     - valueTypeName
     type: object
-  service.NewValueInfo:
+  membership.UserDto:
     properties:
+      globalAdministrator:
+        type: boolean
       id:
         type: integer
-      order:
-        items:
-          type: integer
-        type: array
+      username:
+        type: string
     required:
+    - globalAdministrator
     - id
-    - order
-    type: object
-  service.PaginatedResult-service_ChangesetItemDto:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/service.ChangesetItemDto'
-        type: array
-      totalCount:
-        type: integer
-    required:
-    - items
-    - totalCount
-    type: object
-  service.PaginatedResult-service_UserDto:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/service.UserDto'
-        type: array
-      totalCount:
-        type: integer
-    required:
-    - items
-    - totalCount
+    - username
     type: object
   service.ServiceDto:
     properties:
@@ -652,64 +620,6 @@ definitions:
     - description
     - name
     - versions
-    type: object
-  service.ServiceTypeDto:
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-      properties:
-        items:
-          $ref: '#/definitions/service.ServiceTypeVariationPropertyLinkDto'
-        type: array
-      usageCount:
-        type: integer
-    required:
-    - id
-    - name
-    - properties
-    - usageCount
-    type: object
-  service.ServiceTypeVariationPropertyDto:
-    properties:
-      displayName:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      values:
-        items:
-          $ref: '#/definitions/service.FlatVariationPropertyValueDto'
-        type: array
-    required:
-    - displayName
-    - id
-    - name
-    - values
-    type: object
-  service.ServiceTypeVariationPropertyLinkDto:
-    properties:
-      displayName:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      priority:
-        type: integer
-      propertyId:
-        type: integer
-      usageCount:
-        type: integer
-    required:
-    - displayName
-    - id
-    - name
-    - priority
-    - propertyId
-    - usageCount
     type: object
   service.ServiceVersionDto:
     properties:
@@ -768,106 +678,63 @@ definitions:
     - id
     - version
     type: object
-  service.User:
+  servicetype.ServiceTypeDto:
     properties:
-      globalAdministrator:
-        type: boolean
       id:
         type: integer
-      permissions:
-        items:
-          $ref: '#/definitions/service.UserPermission'
-        type: array
-      username:
-        type: string
-    type: object
-  service.UserDto:
-    properties:
-      globalAdministrator:
-        type: boolean
-      id:
-        type: integer
-      username:
-        type: string
-    required:
-    - globalAdministrator
-    - id
-    - username
-    type: object
-  service.UserPermission:
-    properties:
-      featureID:
-        type: integer
-      keyID:
-        type: integer
-      permission:
-        $ref: '#/definitions/constants.PermissionLevel'
-      serviceID:
-        type: integer
-      variation:
-        additionalProperties:
-          type: string
-        type: object
-    type: object
-  service.ValidatorDto:
-    properties:
-      errorText:
-        type: string
-      isBuiltIn:
-        type: boolean
-      parameter:
-        type: string
-      validatorType:
-        $ref: '#/definitions/db.ValueValidatorType'
-    required:
-    - errorText
-    - isBuiltIn
-    - parameter
-    - validatorType
-    type: object
-  service.ValidatorWithParameterTypeDto:
-    properties:
-      errorText:
-        type: string
-      isBuiltIn:
-        type: boolean
-      parameter:
-        type: string
-      parameterType:
-        $ref: '#/definitions/service.ValueValidatorParameterType'
-      validatorType:
-        $ref: '#/definitions/db.ValueValidatorType'
-    required:
-    - errorText
-    - isBuiltIn
-    - parameter
-    - parameterType
-    - validatorType
-    type: object
-  service.ValueTypeDto:
-    properties:
-      allowedValidators:
-        items:
-          $ref: '#/definitions/service.AllowedValidatorDto'
-        type: array
-      id:
-        type: integer
-      kind:
-        $ref: '#/definitions/db.ValueTypeKind'
       name:
         type: string
-      validators:
+      properties:
         items:
-          $ref: '#/definitions/service.ValidatorWithParameterTypeDto'
+          $ref: '#/definitions/servicetype.ServiceTypeVariationPropertyLinkDto'
         type: array
+      usageCount:
+        type: integer
     required:
-    - allowedValidators
     - id
-    - kind
     - name
-    - validators
+    - properties
+    - usageCount
     type: object
-  service.ValueValidatorParameterType:
+  servicetype.ServiceTypeVariationPropertyLinkDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      priority:
+        type: integer
+      propertyId:
+        type: integer
+      usageCount:
+        type: integer
+    required:
+    - displayName
+    - id
+    - name
+    - priority
+    - propertyId
+    - usageCount
+    type: object
+  validation.ValidatorDto:
+    properties:
+      errorText:
+        type: string
+      isBuiltIn:
+        type: boolean
+      parameter:
+        type: string
+      validatorType:
+        $ref: '#/definitions/db.ValueValidatorType'
+    required:
+    - errorText
+    - isBuiltIn
+    - parameter
+    - validatorType
+    type: object
+  validation.ValueValidatorParameterType:
     enum:
     - none
     - integer
@@ -881,62 +748,19 @@ definitions:
     - ValueValidatorParameterTypeFloat
     - ValueValidatorParameterTypeRegex
     - ValueValidatorParameterTypeJsonSchema
-  service.VariationPropertyDto:
+  value.NewValueInfo:
     properties:
-      displayName:
-        type: string
       id:
         type: integer
-      name:
-        type: string
-      usageCount:
-        type: integer
-      values:
+      order:
         items:
-          $ref: '#/definitions/service.VariationPropertyValueDto'
+          type: integer
         type: array
     required:
-    - displayName
     - id
-    - name
-    - usageCount
-    - values
+    - order
     type: object
-  service.VariationPropertyItemDto:
-    properties:
-      displayName:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-    required:
-    - displayName
-    - id
-    - name
-    type: object
-  service.VariationPropertyValueDto:
-    properties:
-      archived:
-        type: boolean
-      children:
-        items:
-          $ref: '#/definitions/service.VariationPropertyValueDto'
-        type: array
-      id:
-        type: integer
-      usageCount:
-        type: integer
-      value:
-        type: string
-    required:
-    - archived
-    - children
-    - id
-    - usageCount
-    - value
-    type: object
-  service.VariationValue:
+  value.VariationValueDto:
     properties:
       canEdit:
         type: boolean
@@ -961,6 +785,144 @@ definitions:
     - order
     - rank
     - variation
+    type: object
+  valuetype.AllowedValidatorDto:
+    properties:
+      parameterType:
+        $ref: '#/definitions/validation.ValueValidatorParameterType'
+      validatorType:
+        $ref: '#/definitions/db.ValueValidatorType'
+    required:
+    - parameterType
+    - validatorType
+    type: object
+  valuetype.ValidatorWithParameterTypeDto:
+    properties:
+      errorText:
+        type: string
+      isBuiltIn:
+        type: boolean
+      parameter:
+        type: string
+      parameterType:
+        $ref: '#/definitions/validation.ValueValidatorParameterType'
+      validatorType:
+        $ref: '#/definitions/db.ValueValidatorType'
+    required:
+    - errorText
+    - isBuiltIn
+    - parameter
+    - parameterType
+    - validatorType
+    type: object
+  valuetype.ValueTypeDto:
+    properties:
+      allowedValidators:
+        items:
+          $ref: '#/definitions/valuetype.AllowedValidatorDto'
+        type: array
+      id:
+        type: integer
+      kind:
+        $ref: '#/definitions/db.ValueTypeKind'
+      name:
+        type: string
+      validators:
+        items:
+          $ref: '#/definitions/valuetype.ValidatorWithParameterTypeDto'
+        type: array
+    required:
+    - allowedValidators
+    - id
+    - kind
+    - name
+    - validators
+    type: object
+  variationproperty.FlatVariationPropertyValueDto:
+    properties:
+      depth:
+        type: integer
+      id:
+        type: integer
+      value:
+        type: string
+    required:
+    - depth
+    - id
+    - value
+    type: object
+  variationproperty.ServiceTypeVariationPropertyDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/variationproperty.FlatVariationPropertyValueDto'
+        type: array
+    required:
+    - displayName
+    - id
+    - name
+    - values
+    type: object
+  variationproperty.VariationPropertyDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      usageCount:
+        type: integer
+      values:
+        items:
+          $ref: '#/definitions/variationproperty.VariationPropertyValueDto'
+        type: array
+    required:
+    - displayName
+    - id
+    - name
+    - usageCount
+    - values
+    type: object
+  variationproperty.VariationPropertyItemDto:
+    properties:
+      displayName:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - displayName
+    - id
+    - name
+    type: object
+  variationproperty.VariationPropertyValueDto:
+    properties:
+      archived:
+        type: boolean
+      children:
+        items:
+          $ref: '#/definitions/variationproperty.VariationPropertyValueDto'
+        type: array
+      id:
+        type: integer
+      usageCount:
+        type: integer
+      value:
+        type: string
+    required:
+    - archived
+    - children
+    - id
+    - usageCount
+    - value
     type: object
 host: localhost:1323
 info:
@@ -1086,7 +1048,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.PaginatedResult-service_ChangesetItemDto'
+            $ref: '#/definitions/core.PaginatedResult-changeset_ChangesetItemDto'
         "400":
           description: Bad Request
           schema:
@@ -1157,7 +1119,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.ChangesetDto'
+            $ref: '#/definitions/changeset.ChangesetDto'
         "400":
           description: Bad Request
           schema:
@@ -1472,7 +1434,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.ServiceTypeDto'
+              $ref: '#/definitions/servicetype.ServiceTypeDto'
             type: array
         "401":
           description: Unauthorized
@@ -1573,7 +1535,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.ServiceTypeDto'
+            $ref: '#/definitions/servicetype.ServiceTypeDto'
         "400":
           description: Bad Request
           schema:
@@ -1609,7 +1571,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.ServiceTypeVariationPropertyDto'
+              $ref: '#/definitions/variationproperty.ServiceTypeVariationPropertyDto'
             type: array
         "400":
           description: Bad Request
@@ -1932,7 +1894,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.FeatureVersionItemDto'
+              $ref: '#/definitions/feature.FeatureVersionItemDto'
             type: array
         "400":
           description: Bad Request
@@ -2019,7 +1981,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.FeatureVersionDto'
+            $ref: '#/definitions/feature.FeatureVersionDto'
         "400":
           description: Bad Request
           schema:
@@ -2109,7 +2071,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.KeyItemDto'
+              $ref: '#/definitions/key.KeyItemDto'
             type: array
         "400":
           description: Bad Request
@@ -2252,7 +2214,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.KeyDto'
+            $ref: '#/definitions/key.KeyDto'
         "400":
           description: Bad Request
           schema:
@@ -2352,7 +2314,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.VariationValue'
+              $ref: '#/definitions/value.VariationValueDto'
             type: array
         "400":
           description: Bad Request
@@ -2405,7 +2367,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.NewValueInfo'
+            $ref: '#/definitions/value.NewValueInfo'
         "400":
           description: Bad Request
           schema:
@@ -2522,7 +2484,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.NewValueInfo'
+            $ref: '#/definitions/value.NewValueInfo'
         "400":
           description: Bad Request
           schema:
@@ -2803,7 +2765,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.FeatureVersionLinkDto'
+              $ref: '#/definitions/feature.FeatureVersionLinkDto'
             type: array
         "400":
           description: Bad Request
@@ -2883,7 +2845,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.FeatureVersionDto'
+              $ref: '#/definitions/feature.FeatureVersionDto'
             type: array
         "400":
           description: Bad Request
@@ -3103,7 +3065,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.PaginatedResult-service_UserDto'
+            $ref: '#/definitions/core.PaginatedResult-membership_UserDto'
         "400":
           description: Bad Request
           schema:
@@ -3175,7 +3137,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.User'
+            $ref: '#/definitions/membership.UserDto'
         "400":
           description: Bad Request
           schema:
@@ -3249,7 +3211,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.ValueTypeDto'
+              $ref: '#/definitions/valuetype.ValueTypeDto'
             type: array
         "401":
           description: Unauthorized
@@ -3277,7 +3239,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.ValueTypeDto'
+            $ref: '#/definitions/valuetype.ValueTypeDto'
         "401":
           description: Unauthorized
           schema:
@@ -3303,7 +3265,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.VariationPropertyItemDto'
+              $ref: '#/definitions/variationproperty.VariationPropertyItemDto'
             type: array
         "401":
           description: Unauthorized
@@ -3404,7 +3366,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.VariationPropertyDto'
+            $ref: '#/definitions/variationproperty.VariationPropertyDto'
         "401":
           description: Unauthorized
           schema:

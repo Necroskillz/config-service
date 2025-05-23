@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
+import type { CorePaginatedResultChangesetChangesetItemDto } from './core/PaginatedResultChangesetChangesetItemDto.ts'
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServicePaginatedResultServiceChangesetItemDto } from './service/PaginatedResultServiceChangesetItemDto.ts'
 
 export type GetChangesetsQueryParams = {
   /**
@@ -32,7 +32,7 @@ export type GetChangesetsQueryParams = {
 /**
  * @description OK
  */
-export type GetChangesets200 = ServicePaginatedResultServiceChangesetItemDto
+export type GetChangesets200 = CorePaginatedResultChangesetChangesetItemDto
 
 /**
  * @description Bad Request

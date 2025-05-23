@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
+import type { ChangesetChangesetDto } from './changeset/ChangesetDto.ts'
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceChangesetDto } from './service/ChangesetDto.ts'
 
 export type GetChangesetsChangesetIdPathParams = {
   /**
@@ -17,7 +17,7 @@ export type GetChangesetsChangesetIdPathParams = {
 /**
  * @description OK
  */
-export type GetChangesetsChangesetId200 = ServiceChangesetDto
+export type GetChangesetsChangesetId200 = ChangesetChangesetDto
 
 /**
  * @description Bad Request

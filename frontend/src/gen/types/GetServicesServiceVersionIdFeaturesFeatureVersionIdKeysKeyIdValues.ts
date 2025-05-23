@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceVariationValue } from './service/VariationValue.ts'
+import type { ValueVariationValueDto } from './value/VariationValueDto.ts'
 
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPathParams = {
   /**
@@ -27,7 +27,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPa
 /**
  * @description OK
  */
-export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200 = ServiceVariationValue[]
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200 = ValueVariationValueDto[]
 
 /**
  * @description Bad Request

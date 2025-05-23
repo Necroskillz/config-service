@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/necroskillz/config-service/service"
+	_ "github.com/necroskillz/config-service/services/core"
+	"github.com/necroskillz/config-service/services/membership"
 )
 
 type UsersRequest struct {
@@ -19,7 +20,7 @@ type UsersRequest struct {
 // @Security BearerAuth
 // @Param limit query int false "Limit"
 // @Param offset query int false "Offset"
-// @Success 200 {object} service.PaginatedResult[service.UserDto]
+// @Success 200 {object} core.PaginatedResult[membership.UserDto]
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
@@ -31,7 +32,7 @@ func (h *Handler) Users(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	users, err := h.UserService.GetUsers(c.Request().Context(), service.UsersFilter{
+	users, err := h.UserService.GetUsers(c.Request().Context(), membership.UsersFilter{
 		Limit:  request.Limit,
 		Offset: request.Offset,
 	})
@@ -53,7 +54,7 @@ type GetUserResponse struct {
 // @Produce json
 // @Security BearerAuth
 // @Param user_id path uint true "User ID"
-// @Success 200 {object} service.User
+// @Success 200 {object} membership.UserDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -71,7 +72,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	return c.JSON(http.StatusOK, service.UserDto{
+	return c.JSON(http.StatusOK, membership.UserDto{
 		ID:                  user.ID,
 		Username:            user.Username,
 		GlobalAdministrator: user.GlobalAdministrator,
@@ -104,7 +105,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	userID, err := h.UserService.CreateUser(c.Request().Context(), service.CreateUserParams{
+	userID, err := h.UserService.CreateUser(c.Request().Context(), membership.CreateUserParams{
 		Username:            request.Username,
 		Password:            request.Password,
 		GlobalAdministrator: request.GlobalAdministrator,
@@ -147,7 +148,7 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	err = h.UserService.UpdateUser(c.Request().Context(), userID, service.UpdateUserParams{
+	err = h.UserService.UpdateUser(c.Request().Context(), userID, membership.UpdateUserParams{
 		GlobalAdministrator: request.GlobalAdministrator,
 	})
 	if err != nil {

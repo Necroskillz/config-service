@@ -4,12 +4,12 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceValueTypeDto } from './service/ValueTypeDto.ts'
+import type { ValuetypeValueTypeDto } from './valuetype/ValueTypeDto.ts'
 
 /**
  * @description OK
  */
-export type GetValueTypes200 = ServiceValueTypeDto[]
+export type GetValueTypes200 = ValuetypeValueTypeDto[]
 
 /**
  * @description Unauthorized

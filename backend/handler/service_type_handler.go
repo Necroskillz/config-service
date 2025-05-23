@@ -4,14 +4,14 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/servicetype"
 )
 
 // @Summary Get service types
 // @Description Get all service types
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {array} service.ServiceTypeDto
+// @Success 200 {array} servicetype.ServiceTypeDto
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /service-types [get]
@@ -29,7 +29,7 @@ func (h *Handler) GetServiceTypes(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param service_type_id path uint true "Service type ID"
-// @Success 200 {object} service.ServiceTypeDto
+// @Success 200 {object} servicetype.ServiceTypeDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -54,7 +54,7 @@ func (h *Handler) GetServiceType(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param service_type_id path uint true "Service type ID"
-// @Success 200 {array} service.ServiceTypeVariationPropertyDto
+// @Success 200 {array} variationproperty.ServiceTypeVariationPropertyDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -96,7 +96,7 @@ func (h *Handler) CreateServiceType(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	serviceTypeID, err := h.ServiceTypeService.CreateServiceType(c.Request().Context(), service.CreateServiceTypeParams{
+	serviceTypeID, err := h.ServiceTypeService.CreateServiceType(c.Request().Context(), servicetype.CreateServiceTypeParams{
 		Name: data.Name,
 	})
 	if err != nil {
@@ -161,7 +161,7 @@ func (h *Handler) LinkVariationPropertyToServiceType(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err := h.ServiceTypeService.LinkVariationPropertyToServiceType(c.Request().Context(), service.LinkVariationPropertyToServiceTypeParams{
+	err := h.ServiceTypeService.LinkVariationPropertyToServiceType(c.Request().Context(), servicetype.LinkVariationPropertyToServiceTypeParams{
 		ServiceTypeID:       serviceTypeId,
 		VariationPropertyID: data.VariationPropertyID,
 	})
@@ -193,7 +193,7 @@ func (h *Handler) UnlinkVariationPropertyFromServiceType(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err := h.ServiceTypeService.UnlinkVariationPropertyToServiceType(c.Request().Context(), service.LinkVariationPropertyToServiceTypeParams{
+	err := h.ServiceTypeService.UnlinkVariationPropertyToServiceType(c.Request().Context(), servicetype.LinkVariationPropertyToServiceTypeParams{
 		ServiceTypeID:       serviceTypeId,
 		VariationPropertyID: variationPropertyId,
 	})
@@ -235,7 +235,7 @@ func (h *Handler) UpdateServiceTypeVariationPropertyPriority(c echo.Context) err
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err := h.ServiceTypeService.UpdateServiceTypeVariationPropertyPriority(c.Request().Context(), service.UpdateServiceTypeVariationPropertyPriorityParams{
+	err := h.ServiceTypeService.UpdateServiceTypeVariationPropertyPriority(c.Request().Context(), servicetype.UpdateServiceTypeVariationPropertyPriorityParams{
 		ServiceTypeID:       serviceTypeId,
 		VariationPropertyID: variationPropertyId,
 		Priority:            data.Priority,

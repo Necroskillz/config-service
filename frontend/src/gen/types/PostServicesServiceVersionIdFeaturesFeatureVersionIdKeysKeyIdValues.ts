@@ -5,7 +5,7 @@
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
 import type { HandlerValueRequest } from './handler/ValueRequest.ts'
-import type { ServiceNewValueInfo } from './service/NewValueInfo.ts'
+import type { ValueNewValueInfo } from './value/NewValueInfo.ts'
 
 export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesPathParams = {
   /**
@@ -28,7 +28,7 @@ export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesP
 /**
  * @description OK
  */
-export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200 = ServiceNewValueInfo
+export type PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues200 = ValueNewValueInfo
 
 /**
  * @description Bad Request

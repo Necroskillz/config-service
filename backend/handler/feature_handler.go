@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/feature"
 )
 
 // @Summary Get features for a service version
@@ -12,7 +12,7 @@ import (
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
-// @Success 200 {object} []service.FeatureVersionItemDto
+// @Success 200 {object} []feature.FeatureVersionItemDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -66,7 +66,7 @@ func (h *Handler) CreateFeature(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	featureVersionID, err := h.FeatureService.CreateFeature(c.Request().Context(), service.CreateFeatureParams{
+	featureVersionID, err := h.FeatureService.CreateFeature(c.Request().Context(), feature.CreateFeatureParams{
 		ServiceVersionID: serviceVersionID,
 		Name:             data.Name,
 		Description:      data.Description,
@@ -112,7 +112,7 @@ func (h *Handler) UpdateFeature(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	err = h.FeatureService.UpdateFeature(c.Request().Context(), service.UpdateFeatureParams{
+	err = h.FeatureService.UpdateFeature(c.Request().Context(), feature.UpdateFeatureParams{
 		ServiceVersionID: serviceVersionID,
 		FeatureVersionID: featureVersionID,
 		Description:      data.Description,
@@ -130,7 +130,7 @@ func (h *Handler) UpdateFeature(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
-// @Success 200 {object} service.FeatureVersionDto
+// @Success 200 {object} feature.FeatureVersionDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -184,7 +184,7 @@ func (h *Handler) IsFeatureNameTaken(c echo.Context) error {
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
 // @Param feature_version_id path int true "Feature version ID"
-// @Success 200 {object} []service.FeatureVersionLinkDto
+// @Success 200 {object} []feature.FeatureVersionLinkDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -211,7 +211,7 @@ func (h *Handler) FeatureVersions(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param service_version_id path int true "Service version ID"
-// @Success 200 {object} []service.FeatureVersionDto
+// @Success 200 {object} []feature.FeatureVersionDto
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 404 {object} echo.HTTPError
@@ -310,7 +310,7 @@ func (h *Handler) CreateFeatureVersion(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	newId, err := h.FeatureService.CreateFeatureVersion(c.Request().Context(), service.CreateFeatureVersionParams{
+	newId, err := h.FeatureService.CreateFeatureVersion(c.Request().Context(), feature.CreateFeatureVersionParams{
 		ServiceVersionID: serviceVersionID,
 		FeatureVersionID: featureVersionID,
 	})

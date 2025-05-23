@@ -1,0 +1,1 @@
+{"properties":{"featureVersionId":{"type":"integer"},"serviceVersionId":{"type":"integer"},"version":{"type":"integer"}},"required":["featureVersionId","serviceVersionId","version"],"type":"object","x-readme-ref-name":"feature.FeatureVersionLinkDto"}

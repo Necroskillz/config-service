@@ -7,10 +7,11 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/necroskillz/config-service/service"
+	"github.com/necroskillz/config-service/services/core"
+	"github.com/necroskillz/config-service/services/variation"
 )
 
-func getVariation(serviceTypeID uint, variationHierarchy *service.VariationHierarchy, getter func(string) string) map[string]string {
+func getVariation(serviceTypeID uint, variationHierarchy *variation.Hierarchy, getter func(string) string) map[string]string {
 	properties := variationHierarchy.GetProperties(serviceTypeID)
 	variation := make(map[string]string)
 
@@ -24,13 +25,13 @@ func getVariation(serviceTypeID uint, variationHierarchy *service.VariationHiera
 	return variation
 }
 
-func GetVariationFromForm(c echo.Context, serviceTypeID uint, variationHierarchy *service.VariationHierarchy) map[string]string {
+func GetVariationFromForm(c echo.Context, serviceTypeID uint, variationHierarchy *variation.Hierarchy) map[string]string {
 	return getVariation(serviceTypeID, variationHierarchy, func(name string) string {
 		return c.FormValue(name)
 	})
 }
 
-func GetVariationFromQuery(c echo.Context, serviceTypeID uint, variationHierarchy *service.VariationHierarchy) map[string]string {
+func GetVariationFromQuery(c echo.Context, serviceTypeID uint, variationHierarchy *variation.Hierarchy) map[string]string {
 	return getVariation(serviceTypeID, variationHierarchy, func(name string) string {
 		return c.QueryParam(name)
 	})
@@ -56,27 +57,27 @@ func GetVariationFromQueryIds(c echo.Context) (map[uint]string, error) {
 }
 
 func ToHTTPError(err error) *echo.HTTPError {
-	if errors.Is(err, service.ErrPermissionDenied) {
+	if errors.Is(err, core.ErrPermissionDenied) {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
 
-	if errors.Is(err, service.ErrRecordNotFound) {
+	if errors.Is(err, core.ErrRecordNotFound) {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
-	if errors.Is(err, service.ErrInvalidOperation) {
+	if errors.Is(err, core.ErrInvalidOperation) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if errors.Is(err, service.ErrInvalidInput) {
+	if errors.Is(err, core.ErrInvalidInput) {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	if errors.Is(err, service.ErrDuplicateVariation) {
+	if errors.Is(err, core.ErrDuplicateVariation) {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
-	if errors.Is(err, service.ErrUnknownError) {
+	if errors.Is(err, core.ErrUnknownError) {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error()).WithInternal(err)
 	}
 

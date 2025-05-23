@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
+import type { CorePaginatedResultMembershipUserDto } from './core/PaginatedResultMembershipUserDto.ts'
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServicePaginatedResultServiceUserDto } from './service/PaginatedResultServiceUserDto.ts'
 
 export type GetUsersQueryParams = {
   /**
@@ -22,7 +22,7 @@ export type GetUsersQueryParams = {
 /**
  * @description OK
  */
-export type GetUsers200 = ServicePaginatedResultServiceUserDto
+export type GetUsers200 = CorePaginatedResultMembershipUserDto
 
 /**
  * @description Bad Request

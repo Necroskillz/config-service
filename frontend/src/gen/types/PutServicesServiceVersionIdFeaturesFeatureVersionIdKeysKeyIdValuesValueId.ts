@@ -5,7 +5,7 @@
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
 import type { HandlerValueRequest } from './handler/ValueRequest.ts'
-import type { ServiceNewValueInfo } from './service/NewValueInfo.ts'
+import type { ValueNewValueInfo } from './value/NewValueInfo.ts'
 
 export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdPathParams = {
   /**
@@ -33,7 +33,7 @@ export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesVa
 /**
  * @description OK
  */
-export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId200 = ServiceNewValueInfo
+export type PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId200 = ValueNewValueInfo
 
 /**
  * @description Bad Request

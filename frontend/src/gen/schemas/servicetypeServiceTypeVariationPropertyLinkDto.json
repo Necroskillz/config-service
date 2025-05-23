@@ -1,0 +1,1 @@
+{"properties":{"displayName":{"type":"string"},"id":{"type":"integer"},"name":{"type":"string"},"priority":{"type":"integer"},"propertyId":{"type":"integer"},"usageCount":{"type":"integer"}},"required":["displayName","id","name","priority","propertyId","usageCount"],"type":"object","x-readme-ref-name":"servicetype.ServiceTypeVariationPropertyLinkDto"}

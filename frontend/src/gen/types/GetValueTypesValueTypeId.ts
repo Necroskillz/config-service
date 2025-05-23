@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceValueTypeDto } from './service/ValueTypeDto.ts'
+import type { ValuetypeValueTypeDto } from './valuetype/ValueTypeDto.ts'
 
 export type GetValueTypesValueTypeIdPathParams = {
   /**
@@ -17,7 +17,7 @@ export type GetValueTypesValueTypeIdPathParams = {
 /**
  * @description OK
  */
-export type GetValueTypesValueTypeId200 = ServiceValueTypeDto
+export type GetValueTypesValueTypeId200 = ValuetypeValueTypeDto
 
 /**
  * @description Unauthorized

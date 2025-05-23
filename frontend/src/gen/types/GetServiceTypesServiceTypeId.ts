@@ -4,7 +4,7 @@
  */
 
 import type { EchoHTTPError } from './echo/HTTPError.ts'
-import type { ServiceServiceTypeDto } from './service/ServiceTypeDto.ts'
+import type { ServicetypeServiceTypeDto } from './servicetype/ServiceTypeDto.ts'
 
 export type GetServiceTypesServiceTypeIdPathParams = {
   /**
@@ -17,7 +17,7 @@ export type GetServiceTypesServiceTypeIdPathParams = {
 /**
  * @description OK
  */
-export type GetServiceTypesServiceTypeId200 = ServiceServiceTypeDto
+export type GetServiceTypesServiceTypeId200 = ServicetypeServiceTypeDto
 
 /**
  * @description Bad Request

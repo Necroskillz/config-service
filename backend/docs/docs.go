@@ -198,7 +198,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.PaginatedResult-service_ChangesetItemDto"
+                            "$ref": "#/definitions/core.PaginatedResult-changeset_ChangesetItemDto"
                         }
                     },
                     "400": {
@@ -327,7 +327,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.ChangesetDto"
+                            "$ref": "#/definitions/changeset.ChangesetDto"
                         }
                     },
                     "400": {
@@ -804,7 +804,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.ServiceTypeDto"
+                                "$ref": "#/definitions/servicetype.ServiceTypeDto"
                             }
                         }
                     },
@@ -906,7 +906,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.ServiceTypeDto"
+                            "$ref": "#/definitions/servicetype.ServiceTypeDto"
                         }
                     },
                     "400": {
@@ -1019,7 +1019,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.ServiceTypeVariationPropertyDto"
+                                "$ref": "#/definitions/variationproperty.ServiceTypeVariationPropertyDto"
                             }
                         }
                     },
@@ -1569,7 +1569,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.FeatureVersionItemDto"
+                                "$ref": "#/definitions/feature.FeatureVersionItemDto"
                             }
                         }
                     },
@@ -1698,7 +1698,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.FeatureVersionDto"
+                                "$ref": "#/definitions/feature.FeatureVersionDto"
                             }
                         }
                     },
@@ -1817,7 +1817,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.FeatureVersionDto"
+                            "$ref": "#/definitions/feature.FeatureVersionDto"
                         }
                     },
                     "400": {
@@ -1956,7 +1956,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.KeyItemDto"
+                                "$ref": "#/definitions/key.KeyItemDto"
                             }
                         }
                     },
@@ -2173,7 +2173,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.KeyDto"
+                            "$ref": "#/definitions/key.KeyDto"
                         }
                     },
                     "400": {
@@ -2396,7 +2396,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.VariationValue"
+                                "$ref": "#/definitions/value.VariationValueDto"
                             }
                         }
                     },
@@ -2476,7 +2476,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.NewValueInfo"
+                            "$ref": "#/definitions/value.NewValueInfo"
                         }
                     },
                     "400": {
@@ -2654,7 +2654,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.NewValueInfo"
+                            "$ref": "#/definitions/value.NewValueInfo"
                         }
                     },
                     "400": {
@@ -3016,7 +3016,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.FeatureVersionLinkDto"
+                                "$ref": "#/definitions/feature.FeatureVersionLinkDto"
                             }
                         }
                     },
@@ -3321,7 +3321,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.PaginatedResult-service_UserDto"
+                            "$ref": "#/definitions/core.PaginatedResult-membership_UserDto"
                         }
                     },
                     "400": {
@@ -3434,7 +3434,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.User"
+                            "$ref": "#/definitions/membership.UserDto"
                         }
                     },
                     "400": {
@@ -3550,7 +3550,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.ValueTypeDto"
+                                "$ref": "#/definitions/valuetype.ValueTypeDto"
                             }
                         }
                     },
@@ -3594,7 +3594,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.ValueTypeDto"
+                            "$ref": "#/definitions/valuetype.ValueTypeDto"
                         }
                     },
                     "401": {
@@ -3636,7 +3636,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.VariationPropertyItemDto"
+                                "$ref": "#/definitions/variationproperty.VariationPropertyItemDto"
                             }
                         }
                     },
@@ -3787,7 +3787,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.VariationPropertyDto"
+                            "$ref": "#/definitions/variationproperty.VariationPropertyDto"
                         }
                     },
                     "401": {
@@ -4355,18 +4355,229 @@ const docTemplate = `{
                 }
             }
         },
-        "constants.PermissionLevel": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2
+        "changeset.ChangesetAction": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "id",
+                "type",
+                "userId",
+                "userName"
             ],
-            "x-enum-varnames": [
-                "PermissionViewer",
-                "PermissionEditor",
-                "PermissionAdmin"
-            ]
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.ChangesetActionType"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "changeset.ChangesetChange": {
+            "type": "object",
+            "required": [
+                "id",
+                "serviceName",
+                "serviceVersion",
+                "serviceVersionId",
+                "type"
+            ],
+            "properties": {
+                "featureId": {
+                    "type": "integer"
+                },
+                "featureName": {
+                    "type": "string"
+                },
+                "featureVersion": {
+                    "type": "integer"
+                },
+                "featureVersionId": {
+                    "type": "integer"
+                },
+                "featureVersionServiceVersionId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keyId": {
+                    "type": "integer"
+                },
+                "keyName": {
+                    "type": "string"
+                },
+                "newVariationValueData": {
+                    "type": "string"
+                },
+                "newVariationValueId": {
+                    "type": "integer"
+                },
+                "oldVariationValueData": {
+                    "type": "string"
+                },
+                "oldVariationValueId": {
+                    "type": "integer"
+                },
+                "previousFeatureVersionId": {
+                    "type": "integer"
+                },
+                "previousServiceVersionId": {
+                    "type": "integer"
+                },
+                "serviceId": {
+                    "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "serviceVersion": {
+                    "type": "integer"
+                },
+                "serviceVersionId": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.ChangesetChangeType"
+                },
+                "variation": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "changeset.ChangesetDto": {
+            "type": "object",
+            "required": [
+                "actions",
+                "canApply",
+                "changes",
+                "id",
+                "state",
+                "userId",
+                "userName",
+                "variationContext"
+            ],
+            "properties": {
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/changeset.ChangesetAction"
+                    }
+                },
+                "canApply": {
+                    "type": "boolean"
+                },
+                "changes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/changeset.ChangesetChange"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "state": {
+                    "$ref": "#/definitions/db.ChangesetState"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
+                },
+                "variationContext": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "changeset.ChangesetItemDto": {
+            "type": "object",
+            "required": [
+                "actionCount",
+                "createdAt",
+                "id",
+                "lastActionAt",
+                "state",
+                "userId",
+                "userName"
+            ],
+            "properties": {
+                "actionCount": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastActionAt": {
+                    "type": "string"
+                },
+                "state": {
+                    "$ref": "#/definitions/db.ChangesetState"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.PaginatedResult-changeset_ChangesetItemDto": {
+            "type": "object",
+            "required": [
+                "items",
+                "totalCount"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/changeset.ChangesetItemDto"
+                    }
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "core.PaginatedResult-membership_UserDto": {
+            "type": "object",
+            "required": [
+                "items",
+                "totalCount"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/membership.UserDto"
+                    }
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
         },
         "db.ChangesetActionType": {
             "type": "string",
@@ -4473,6 +4684,83 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {}
+            }
+        },
+        "feature.FeatureVersionDto": {
+            "type": "object",
+            "required": [
+                "canEdit",
+                "description",
+                "id",
+                "isLastVersion",
+                "name",
+                "version"
+            ],
+            "properties": {
+                "canEdit": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isLastVersion": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "feature.FeatureVersionItemDto": {
+            "type": "object",
+            "required": [
+                "canUnlink",
+                "description",
+                "id",
+                "name",
+                "version"
+            ],
+            "properties": {
+                "canUnlink": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "feature.FeatureVersionLinkDto": {
+            "type": "object",
+            "required": [
+                "featureVersionId",
+                "serviceVersionId",
+                "version"
+            ],
+            "properties": {
+                "featureVersionId": {
+                    "type": "integer"
+                },
+                "serviceVersionId": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
             }
         },
         "handler.AddCommentRequest": {
@@ -4820,306 +5108,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.AllowedValidatorDto": {
-            "type": "object",
-            "required": [
-                "parameterType",
-                "validatorType"
-            ],
-            "properties": {
-                "parameterType": {
-                    "$ref": "#/definitions/service.ValueValidatorParameterType"
-                },
-                "validatorType": {
-                    "$ref": "#/definitions/db.ValueValidatorType"
-                }
-            }
-        },
-        "service.ChangesetAction": {
-            "type": "object",
-            "required": [
-                "createdAt",
-                "id",
-                "type",
-                "userId",
-                "userName"
-            ],
-            "properties": {
-                "comment": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.ChangesetActionType"
-                },
-                "userId": {
-                    "type": "integer"
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.ChangesetChange": {
-            "type": "object",
-            "required": [
-                "id",
-                "serviceName",
-                "serviceVersion",
-                "serviceVersionId",
-                "type"
-            ],
-            "properties": {
-                "featureId": {
-                    "type": "integer"
-                },
-                "featureName": {
-                    "type": "string"
-                },
-                "featureVersion": {
-                    "type": "integer"
-                },
-                "featureVersionId": {
-                    "type": "integer"
-                },
-                "featureVersionServiceVersionId": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "keyId": {
-                    "type": "integer"
-                },
-                "keyName": {
-                    "type": "string"
-                },
-                "newVariationValueData": {
-                    "type": "string"
-                },
-                "newVariationValueId": {
-                    "type": "integer"
-                },
-                "oldVariationValueData": {
-                    "type": "string"
-                },
-                "oldVariationValueId": {
-                    "type": "integer"
-                },
-                "previousFeatureVersionId": {
-                    "type": "integer"
-                },
-                "previousServiceVersionId": {
-                    "type": "integer"
-                },
-                "serviceId": {
-                    "type": "integer"
-                },
-                "serviceName": {
-                    "type": "string"
-                },
-                "serviceVersion": {
-                    "type": "integer"
-                },
-                "serviceVersionId": {
-                    "type": "integer"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.ChangesetChangeType"
-                },
-                "variation": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "service.ChangesetDto": {
-            "type": "object",
-            "required": [
-                "actions",
-                "canApply",
-                "changes",
-                "id",
-                "state",
-                "userId",
-                "userName",
-                "variationContext"
-            ],
-            "properties": {
-                "actions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.ChangesetAction"
-                    }
-                },
-                "canApply": {
-                    "type": "boolean"
-                },
-                "changes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.ChangesetChange"
-                    }
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "state": {
-                    "$ref": "#/definitions/db.ChangesetState"
-                },
-                "userId": {
-                    "type": "integer"
-                },
-                "userName": {
-                    "type": "string"
-                },
-                "variationContext": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "service.ChangesetItemDto": {
-            "type": "object",
-            "required": [
-                "actionCount",
-                "createdAt",
-                "id",
-                "lastActionAt",
-                "state",
-                "userId",
-                "userName"
-            ],
-            "properties": {
-                "actionCount": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "lastActionAt": {
-                    "type": "string"
-                },
-                "state": {
-                    "$ref": "#/definitions/db.ChangesetState"
-                },
-                "userId": {
-                    "type": "integer"
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.FeatureVersionDto": {
-            "type": "object",
-            "required": [
-                "canEdit",
-                "description",
-                "id",
-                "isLastVersion",
-                "name",
-                "version"
-            ],
-            "properties": {
-                "canEdit": {
-                    "type": "boolean"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "isLastVersion": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "integer"
-                }
-            }
-        },
-        "service.FeatureVersionItemDto": {
-            "type": "object",
-            "required": [
-                "canUnlink",
-                "description",
-                "id",
-                "name",
-                "version"
-            ],
-            "properties": {
-                "canUnlink": {
-                    "type": "boolean"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "integer"
-                }
-            }
-        },
-        "service.FeatureVersionLinkDto": {
-            "type": "object",
-            "required": [
-                "featureVersionId",
-                "serviceVersionId",
-                "version"
-            ],
-            "properties": {
-                "featureVersionId": {
-                    "type": "integer"
-                },
-                "serviceVersionId": {
-                    "type": "integer"
-                },
-                "version": {
-                    "type": "integer"
-                }
-            }
-        },
-        "service.FlatVariationPropertyValueDto": {
-            "type": "object",
-            "required": [
-                "depth",
-                "id",
-                "value"
-            ],
-            "properties": {
-                "depth": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.KeyDto": {
+        "key.KeyDto": {
             "type": "object",
             "required": [
                 "canEdit",
@@ -5147,7 +5136,7 @@ const docTemplate = `{
                 "validators": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/service.ValidatorDto"
+                        "$ref": "#/definitions/validation.ValidatorDto"
                     }
                 },
                 "valueType": {
@@ -5161,7 +5150,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.KeyItemDto": {
+        "key.KeyItemDto": {
             "type": "object",
             "required": [
                 "description",
@@ -5192,57 +5181,22 @@ const docTemplate = `{
                 }
             }
         },
-        "service.NewValueInfo": {
+        "membership.UserDto": {
             "type": "object",
             "required": [
+                "globalAdministrator",
                 "id",
-                "order"
+                "username"
             ],
             "properties": {
+                "globalAdministrator": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "order": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "service.PaginatedResult-service_ChangesetItemDto": {
-            "type": "object",
-            "required": [
-                "items",
-                "totalCount"
-            ],
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.ChangesetItemDto"
-                    }
-                },
-                "totalCount": {
-                    "type": "integer"
-                }
-            }
-        },
-        "service.PaginatedResult-service_UserDto": {
-            "type": "object",
-            "required": [
-                "items",
-                "totalCount"
-            ],
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.UserDto"
-                    }
-                },
-                "totalCount": {
-                    "type": "integer"
+                "username": {
+                    "type": "string"
                 }
             }
         },
@@ -5265,89 +5219,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/service.ServiceVersionInfoDto"
                     }
-                }
-            }
-        },
-        "service.ServiceTypeDto": {
-            "type": "object",
-            "required": [
-                "id",
-                "name",
-                "properties",
-                "usageCount"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "properties": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.ServiceTypeVariationPropertyLinkDto"
-                    }
-                },
-                "usageCount": {
-                    "type": "integer"
-                }
-            }
-        },
-        "service.ServiceTypeVariationPropertyDto": {
-            "type": "object",
-            "required": [
-                "displayName",
-                "id",
-                "name",
-                "values"
-            ],
-            "properties": {
-                "displayName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "values": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.FlatVariationPropertyValueDto"
-                    }
-                }
-            }
-        },
-        "service.ServiceTypeVariationPropertyLinkDto": {
-            "type": "object",
-            "required": [
-                "displayName",
-                "id",
-                "name",
-                "priority",
-                "propertyId",
-                "usageCount"
-            ],
-            "properties": {
-                "displayName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "priority": {
-                    "type": "integer"
-                },
-                "propertyId": {
-                    "type": "integer"
-                },
-                "usageCount": {
-                    "type": "integer"
                 }
             }
         },
@@ -5432,152 +5303,87 @@ const docTemplate = `{
                 }
             }
         },
-        "service.User": {
-            "type": "object",
-            "properties": {
-                "globalAdministrator": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "permissions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.UserPermission"
-                    }
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.UserDto": {
+        "servicetype.ServiceTypeDto": {
             "type": "object",
             "required": [
-                "globalAdministrator",
                 "id",
-                "username"
-            ],
-            "properties": {
-                "globalAdministrator": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.UserPermission": {
-            "type": "object",
-            "properties": {
-                "featureID": {
-                    "type": "integer"
-                },
-                "keyID": {
-                    "type": "integer"
-                },
-                "permission": {
-                    "$ref": "#/definitions/constants.PermissionLevel"
-                },
-                "serviceID": {
-                    "type": "integer"
-                },
-                "variation": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "service.ValidatorDto": {
-            "type": "object",
-            "required": [
-                "errorText",
-                "isBuiltIn",
-                "parameter",
-                "validatorType"
-            ],
-            "properties": {
-                "errorText": {
-                    "type": "string"
-                },
-                "isBuiltIn": {
-                    "type": "boolean"
-                },
-                "parameter": {
-                    "type": "string"
-                },
-                "validatorType": {
-                    "$ref": "#/definitions/db.ValueValidatorType"
-                }
-            }
-        },
-        "service.ValidatorWithParameterTypeDto": {
-            "type": "object",
-            "required": [
-                "errorText",
-                "isBuiltIn",
-                "parameter",
-                "parameterType",
-                "validatorType"
-            ],
-            "properties": {
-                "errorText": {
-                    "type": "string"
-                },
-                "isBuiltIn": {
-                    "type": "boolean"
-                },
-                "parameter": {
-                    "type": "string"
-                },
-                "parameterType": {
-                    "$ref": "#/definitions/service.ValueValidatorParameterType"
-                },
-                "validatorType": {
-                    "$ref": "#/definitions/db.ValueValidatorType"
-                }
-            }
-        },
-        "service.ValueTypeDto": {
-            "type": "object",
-            "required": [
-                "allowedValidators",
-                "id",
-                "kind",
                 "name",
-                "validators"
+                "properties",
+                "usageCount"
             ],
             "properties": {
-                "allowedValidators": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.AllowedValidatorDto"
-                    }
-                },
                 "id": {
                     "type": "integer"
-                },
-                "kind": {
-                    "$ref": "#/definitions/db.ValueTypeKind"
                 },
                 "name": {
                     "type": "string"
                 },
-                "validators": {
+                "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/service.ValidatorWithParameterTypeDto"
+                        "$ref": "#/definitions/servicetype.ServiceTypeVariationPropertyLinkDto"
                     }
+                },
+                "usageCount": {
+                    "type": "integer"
                 }
             }
         },
-        "service.ValueValidatorParameterType": {
+        "servicetype.ServiceTypeVariationPropertyLinkDto": {
+            "type": "object",
+            "required": [
+                "displayName",
+                "id",
+                "name",
+                "priority",
+                "propertyId",
+                "usageCount"
+            ],
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "propertyId": {
+                    "type": "integer"
+                },
+                "usageCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "validation.ValidatorDto": {
+            "type": "object",
+            "required": [
+                "errorText",
+                "isBuiltIn",
+                "parameter",
+                "validatorType"
+            ],
+            "properties": {
+                "errorText": {
+                    "type": "string"
+                },
+                "isBuiltIn": {
+                    "type": "boolean"
+                },
+                "parameter": {
+                    "type": "string"
+                },
+                "validatorType": {
+                    "$ref": "#/definitions/db.ValueValidatorType"
+                }
+            }
+        },
+        "validation.ValueValidatorParameterType": {
             "type": "string",
             "enum": [
                 "none",
@@ -5594,86 +5400,25 @@ const docTemplate = `{
                 "ValueValidatorParameterTypeJsonSchema"
             ]
         },
-        "service.VariationPropertyDto": {
+        "value.NewValueInfo": {
             "type": "object",
             "required": [
-                "displayName",
                 "id",
-                "name",
-                "usageCount",
-                "values"
+                "order"
             ],
             "properties": {
-                "displayName": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
-                },
-                "usageCount": {
-                    "type": "integer"
-                },
-                "values": {
+                "order": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/service.VariationPropertyValueDto"
+                        "type": "integer"
                     }
                 }
             }
         },
-        "service.VariationPropertyItemDto": {
-            "type": "object",
-            "required": [
-                "displayName",
-                "id",
-                "name"
-            ],
-            "properties": {
-                "displayName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.VariationPropertyValueDto": {
-            "type": "object",
-            "required": [
-                "archived",
-                "children",
-                "id",
-                "usageCount",
-                "value"
-            ],
-            "properties": {
-                "archived": {
-                    "type": "boolean"
-                },
-                "children": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.VariationPropertyValueDto"
-                    }
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "usageCount": {
-                    "type": "integer"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.VariationValue": {
+        "value.VariationValueDto": {
             "type": "object",
             "required": [
                 "canEdit",
@@ -5707,6 +5452,205 @@ const docTemplate = `{
                     "additionalProperties": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "valuetype.AllowedValidatorDto": {
+            "type": "object",
+            "required": [
+                "parameterType",
+                "validatorType"
+            ],
+            "properties": {
+                "parameterType": {
+                    "$ref": "#/definitions/validation.ValueValidatorParameterType"
+                },
+                "validatorType": {
+                    "$ref": "#/definitions/db.ValueValidatorType"
+                }
+            }
+        },
+        "valuetype.ValidatorWithParameterTypeDto": {
+            "type": "object",
+            "required": [
+                "errorText",
+                "isBuiltIn",
+                "parameter",
+                "parameterType",
+                "validatorType"
+            ],
+            "properties": {
+                "errorText": {
+                    "type": "string"
+                },
+                "isBuiltIn": {
+                    "type": "boolean"
+                },
+                "parameter": {
+                    "type": "string"
+                },
+                "parameterType": {
+                    "$ref": "#/definitions/validation.ValueValidatorParameterType"
+                },
+                "validatorType": {
+                    "$ref": "#/definitions/db.ValueValidatorType"
+                }
+            }
+        },
+        "valuetype.ValueTypeDto": {
+            "type": "object",
+            "required": [
+                "allowedValidators",
+                "id",
+                "kind",
+                "name",
+                "validators"
+            ],
+            "properties": {
+                "allowedValidators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/valuetype.AllowedValidatorDto"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "$ref": "#/definitions/db.ValueTypeKind"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "validators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/valuetype.ValidatorWithParameterTypeDto"
+                    }
+                }
+            }
+        },
+        "variationproperty.FlatVariationPropertyValueDto": {
+            "type": "object",
+            "required": [
+                "depth",
+                "id",
+                "value"
+            ],
+            "properties": {
+                "depth": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "variationproperty.ServiceTypeVariationPropertyDto": {
+            "type": "object",
+            "required": [
+                "displayName",
+                "id",
+                "name",
+                "values"
+            ],
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/variationproperty.FlatVariationPropertyValueDto"
+                    }
+                }
+            }
+        },
+        "variationproperty.VariationPropertyDto": {
+            "type": "object",
+            "required": [
+                "displayName",
+                "id",
+                "name",
+                "usageCount",
+                "values"
+            ],
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "usageCount": {
+                    "type": "integer"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/variationproperty.VariationPropertyValueDto"
+                    }
+                }
+            }
+        },
+        "variationproperty.VariationPropertyItemDto": {
+            "type": "object",
+            "required": [
+                "displayName",
+                "id",
+                "name"
+            ],
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "variationproperty.VariationPropertyValueDto": {
+            "type": "object",
+            "required": [
+                "archived",
+                "children",
+                "id",
+                "usageCount",
+                "value"
+            ],
+            "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/variationproperty.VariationPropertyValueDto"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "usageCount": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         }
