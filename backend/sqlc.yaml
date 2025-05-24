@@ -3,6 +3,7 @@ sql:
   - engine: 'postgresql'
     queries: 
       - 'db/queries/changeset.sql'
+      - 'db/queries/configuration.sql'
       - 'db/queries/features.sql'
       - 'db/queries/keys.sql'
       - 'db/queries/services.sql'

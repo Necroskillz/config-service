@@ -3,6 +3,8 @@ package variation
 import (
 	"fmt"
 
+	"slices"
+
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/services/core"
 )
@@ -275,6 +277,36 @@ func (v *Hierarchy) VariationMapToIDs(serviceTypeID uint, variation map[uint]str
 	return ids, nil
 }
 
+func (v *Hierarchy) GetVariationStringMap(variation map[uint]string) map[string]string {
+	variationMap := make(map[string]string)
+
+	for propertyID, value := range variation {
+		property, err := v.GetProperty(propertyID)
+		if err != nil {
+			continue
+		}
+
+		variationMap[property.Name] = value
+	}
+
+	return variationMap
+}
+
+func (v *Hierarchy) GetVariationIDMap(variation map[string]string) map[uint]string {
+	variationIDMap := make(map[uint]string)
+
+	for propertyName, value := range variation {
+		propertyID, err := v.GetPropertyID(propertyName)
+		if err != nil {
+			continue
+		}
+
+		variationIDMap[propertyID] = value
+	}
+
+	return variationIDMap
+}
+
 func (v *Hierarchy) GetRank(serviceTypeID uint, variation map[uint]string) int {
 	if _, ok := v.serviceTypes[serviceTypeID]; !ok {
 		panic(fmt.Sprintf("Service type %d not found", serviceTypeID))
@@ -312,6 +344,37 @@ func (v *Hierarchy) GetOrder(serviceTypeID uint, variation map[uint]string) []in
 	}
 
 	return order
+}
+
+func (v *Hierarchy) Filter(valueVariation map[uint]string, filterVariation map[uint]string) (bool, map[uint]string, error) {
+	unresolved := make(map[uint]string)
+
+	for propertyID, value := range valueVariation {
+		_, err := v.GetProperty(propertyID)
+		if err != nil {
+			return false, nil, err
+		}
+
+		filterValue, ok := filterVariation[propertyID]
+		if !ok {
+			unresolved[propertyID] = value
+		} else {
+			match := value == filterValue
+
+			if !match {
+				parents := v.GetParents(propertyID, value)
+				if slices.Contains(parents, filterValue) {
+					match = true
+				}
+			}
+
+			if !match {
+				return false, nil, nil
+			}
+		}
+	}
+
+	return true, unresolved, nil
 }
 
 type ServiceTypePropertyPriority struct {

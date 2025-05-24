@@ -380,6 +380,7 @@ type Changeset struct {
 	UpdatedAt time.Time
 	UserID    uint
 	State     ChangesetState
+	AppliedAt *time.Time
 }
 
 type ChangesetAction struct {

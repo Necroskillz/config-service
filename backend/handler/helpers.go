@@ -12,8 +12,8 @@ import (
 	"github.com/necroskillz/config-service/util/validator"
 )
 
-func getVariation(serviceTypeID uint, variationHierarchy *variation.Hierarchy, getter func(string) string) map[string]string {
-	properties := variationHierarchy.GetProperties(serviceTypeID)
+func getVariation(variationHierarchy *variation.Hierarchy, getter func(string) string) map[string]string {
+	properties := variationHierarchy.GetAllProperties()
 	variation := make(map[string]string)
 
 	for _, property := range properties {
@@ -26,16 +26,26 @@ func getVariation(serviceTypeID uint, variationHierarchy *variation.Hierarchy, g
 	return variation
 }
 
-func GetVariationFromForm(c echo.Context, serviceTypeID uint, variationHierarchy *variation.Hierarchy) map[string]string {
-	return getVariation(serviceTypeID, variationHierarchy, func(name string) string {
+func (h *Handler) GetVariationFromForm(c echo.Context) (map[string]string, error) {
+	variationHierarchy, err := h.VariationHierarchyService.GetVariationHierarchy(c.Request().Context())
+	if err != nil {
+		return nil, err
+	}
+
+	return getVariation(variationHierarchy, func(name string) string {
 		return c.FormValue(name)
-	})
+	}), nil
 }
 
-func GetVariationFromQuery(c echo.Context, serviceTypeID uint, variationHierarchy *variation.Hierarchy) map[string]string {
-	return getVariation(serviceTypeID, variationHierarchy, func(name string) string {
+func (h *Handler) GetVariationFromQuery(c echo.Context) (map[string]string, error) {
+	variationHierarchy, err := h.VariationHierarchyService.GetVariationHierarchy(c.Request().Context())
+	if err != nil {
+		return nil, err
+	}
+
+	return getVariation(variationHierarchy, func(name string) string {
 		return c.QueryParam(name)
-	})
+	}), nil
 }
 
 func GetVariationFromQueryIds(c echo.Context) (map[uint]string, error) {

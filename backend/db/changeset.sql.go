@@ -444,6 +444,7 @@ const getChangeset = `-- name: GetChangeset :one
 SELECT
     cs.id,
     cs.state,
+    cs.applied_at,
     u.id AS user_id,
     u.name AS user_name
 FROM
@@ -455,10 +456,11 @@ LIMIT 1
 `
 
 type GetChangesetRow struct {
-	ID       uint
-	State    ChangesetState
-	UserID   uint
-	UserName string
+	ID        uint
+	State     ChangesetState
+	AppliedAt *time.Time
+	UserID    uint
+	UserName  string
 }
 
 func (q *Queries) GetChangeset(ctx context.Context, changesetID uint) (GetChangesetRow, error) {
@@ -467,6 +469,7 @@ func (q *Queries) GetChangeset(ctx context.Context, changesetID uint) (GetChange
 	err := row.Scan(
 		&i.ID,
 		&i.State,
+		&i.AppliedAt,
 		&i.UserID,
 		&i.UserName,
 	)
@@ -711,7 +714,7 @@ action_counts AS (
         changeset_id
 )
 SELECT
-    cs.id, cs.created_at, cs.updated_at, cs.user_id, cs.state,
+    cs.id, cs.created_at, cs.updated_at, cs.user_id, cs.state, cs.applied_at,
     COALESCE(la.last_action_at, cs.created_at) AS last_action_at,
     COALESCE(ac.action_count, 0)::integer AS action_count,
     u.name AS user_name,
@@ -740,6 +743,7 @@ type GetChangesetsRow struct {
 	UpdatedAt    time.Time
 	UserID       uint
 	State        ChangesetState
+	AppliedAt    *time.Time
 	LastActionAt time.Time
 	ActionCount  int
 	UserName     string
@@ -766,6 +770,7 @@ func (q *Queries) GetChangesets(ctx context.Context, arg GetChangesetsParams) ([
 			&i.UpdatedAt,
 			&i.UserID,
 			&i.State,
+			&i.AppliedAt,
 			&i.LastActionAt,
 			&i.ActionCount,
 			&i.UserName,
@@ -818,6 +823,47 @@ func (q *Queries) GetDeleteChangeForVariationContextID(ctx context.Context, arg 
 		&i.VariationValueData,
 	)
 	return i, err
+}
+
+const getNextChangesetsRelatedToServiceVersions = `-- name: GetNextChangesetsRelatedToServiceVersions :many
+SELECT
+    cs.id AS changeset_id
+FROM
+    changesets cs
+    JOIN changeset_changes csc ON csc.changeset_id = cs.id
+WHERE
+    csc.service_version_id = ANY ($1::bigint[])
+    AND cs.applied_at > $2
+GROUP BY
+    cs.id
+HAVING
+    COUNT(csc.id) > 0
+LIMIT 100
+`
+
+type GetNextChangesetsRelatedToServiceVersionsParams struct {
+	ServiceVersionIds []uint
+	AppliedAfter      *time.Time
+}
+
+func (q *Queries) GetNextChangesetsRelatedToServiceVersions(ctx context.Context, arg GetNextChangesetsRelatedToServiceVersionsParams) ([]uint, error) {
+	rows, err := q.db.Query(ctx, getNextChangesetsRelatedToServiceVersions, arg.ServiceVersionIds, arg.AppliedAfter)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uint
+	for rows.Next() {
+		var changeset_id uint
+		if err := rows.Scan(&changeset_id); err != nil {
+			return nil, err
+		}
+		items = append(items, changeset_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOpenChangesetIDForUser = `-- name: GetOpenChangesetIDForUser :one
@@ -911,17 +957,19 @@ const setChangesetState = `-- name: SetChangesetState :exec
 UPDATE
     changesets
 SET
-    state = $1
+    state = $1,
+    applied_at = $2
 WHERE
-    id = $2
+    id = $3
 `
 
 type SetChangesetStateParams struct {
 	State       ChangesetState
+	AppliedAt   *time.Time
 	ChangesetID uint
 }
 
 func (q *Queries) SetChangesetState(ctx context.Context, arg SetChangesetStateParams) error {
-	_, err := q.db.Exec(ctx, setChangesetState, arg.State, arg.ChangesetID)
+	_, err := q.db.Exec(ctx, setChangesetState, arg.State, arg.AppliedAt, arg.ChangesetID)
 	return err
 }

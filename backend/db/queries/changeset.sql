@@ -127,6 +127,7 @@ WHERE
 SELECT
     cs.id,
     cs.state,
+    cs.applied_at,
     u.id AS user_id,
     u.name AS user_name
 FROM
@@ -140,7 +141,8 @@ LIMIT 1;
 UPDATE
     changesets
 SET
-    state = @state
+    state = @state,
+    applied_at = @applied_at
 WHERE
     id = @changeset_id;
 
@@ -355,4 +357,19 @@ INSERT INTO changeset_changes(changeset_id, old_variation_value_id, feature_vers
 -- name: AddUpdateVariationValueChange :exec
 INSERT INTO changeset_changes(changeset_id, new_variation_value_id, old_variation_value_id, feature_version_id, key_id, service_version_id, type, kind)
     VALUES (@changeset_id, @new_variation_value_id::bigint, @old_variation_value_id::bigint, @feature_version_id::bigint, @key_id::bigint, @service_version_id::bigint, 'update', 'variation_value');
+
+-- name: GetNextChangesetsRelatedToServiceVersions :many
+SELECT
+    cs.id AS changeset_id
+FROM
+    changesets cs
+    JOIN changeset_changes csc ON csc.changeset_id = cs.id
+WHERE
+    csc.service_version_id = ANY (@service_version_ids::bigint[])
+    AND cs.applied_at > @applied_after
+GROUP BY
+    cs.id
+HAVING
+    COUNT(csc.id) > 0
+LIMIT 100;
 

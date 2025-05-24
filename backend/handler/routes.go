@@ -120,4 +120,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	variationPropertyValueGroup.PUT("/order", h.UpdateVariationPropertyValueOrder)
 	variationPropertyValueGroup.PUT("/archive", h.ArchiveVariationPropertyValue)
 	variationPropertyValueGroup.PUT("/unarchive", h.UnarchiveVariationPropertyValue)
+
+	configurationGroup := apiGroup.Group("/configuration")
+	configurationGroup.GET("", h.GetConfiguration)
+	configurationGroup.GET("/changesets", h.GetNextChangesets)
 }

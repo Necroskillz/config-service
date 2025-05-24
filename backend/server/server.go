@@ -19,6 +19,7 @@ import (
 	"github.com/necroskillz/config-service/handler"
 	"github.com/necroskillz/config-service/middleware"
 	"github.com/necroskillz/config-service/services/changeset"
+	"github.com/necroskillz/config-service/services/configuration"
 	"github.com/necroskillz/config-service/services/core"
 	"github.com/necroskillz/config-service/services/feature"
 	"github.com/necroskillz/config-service/services/key"
@@ -95,6 +96,7 @@ func (s *Server) Start() error {
 	keyService := key.NewService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService, variationHierarchyService, validationService)
 	valueService := value.NewService(unitOfWorkRunner, variationContextService, variationHierarchyService, queries, changesetService, currentUserAccessor, validator, coreService, validationService, valueValidatorService)
 	variationPropertyService := variationproperty.NewService(queries, variationHierarchyService, validator, validationService, currentUserAccessor, unitOfWorkRunner)
+	configurationService := configuration.NewService(queries, variationContextService, variationHierarchyService)
 
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
@@ -113,6 +115,7 @@ func (s *Server) Start() error {
 			skippedPaths := []string{
 				"/api/auth/login",
 				"/api/auth/refresh_token",
+				"/api/configuration",
 				"/swagger",
 			}
 
@@ -163,6 +166,7 @@ func (s *Server) Start() error {
 		valueTypeService,
 		variationPropertyService,
 		serviceTypeService,
+		configurationService,
 	)
 	handler.RegisterRoutes(e)
 

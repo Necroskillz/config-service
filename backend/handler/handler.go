@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/services/changeset"
+	"github.com/necroskillz/config-service/services/configuration"
 	"github.com/necroskillz/config-service/services/feature"
 	"github.com/necroskillz/config-service/services/key"
 	"github.com/necroskillz/config-service/services/membership"
@@ -28,6 +29,7 @@ type Handler struct {
 	ValueTypeService          *valuetype.Service
 	VariationPropertyService  *variationproperty.Service
 	ServiceTypeService        *servicetype.Service
+	ConfigurationService      *configuration.Service
 }
 
 func NewHandler(
@@ -43,6 +45,7 @@ func NewHandler(
 	valueTypeService *valuetype.Service,
 	variationPropertyService *variationproperty.Service,
 	serviceTypeService *servicetype.Service,
+	configurationService *configuration.Service,
 ) *Handler {
 	return &Handler{
 		ServiceService:            serviceService,
@@ -57,5 +60,6 @@ func NewHandler(
 		ValueTypeService:          valueTypeService,
 		VariationPropertyService:  variationPropertyService,
 		ServiceTypeService:        serviceTypeService,
+		ConfigurationService:      configurationService,
 	}
 }

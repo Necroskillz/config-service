@@ -183,6 +183,41 @@ func (q *Queries) GetServiceVersion(ctx context.Context, arg GetServiceVersionPa
 	return i, err
 }
 
+const getServiceVersionByNameAndVersion = `-- name: GetServiceVersionByNameAndVersion :one
+SELECT
+    sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published
+FROM
+    service_versions sv
+    JOIN services s ON s.id = sv.service_id
+WHERE
+    s.name = $1
+    AND sv.version = $2
+    AND sv.valid_from IS NOT NULL
+    AND sv.valid_to IS NULL
+LIMIT 1
+`
+
+type GetServiceVersionByNameAndVersionParams struct {
+	Name    string
+	Version int
+}
+
+func (q *Queries) GetServiceVersionByNameAndVersion(ctx context.Context, arg GetServiceVersionByNameAndVersionParams) (ServiceVersion, error) {
+	row := q.db.QueryRow(ctx, getServiceVersionByNameAndVersion, arg.Name, arg.Version)
+	var i ServiceVersion
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ValidFrom,
+		&i.ValidTo,
+		&i.ServiceID,
+		&i.Version,
+		&i.Published,
+	)
+	return i, err
+}
+
 const getServiceVersions = `-- name: GetServiceVersions :many
 SELECT
     sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,

@@ -3,6 +3,8 @@ package core
 import (
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -76,4 +78,30 @@ var (
 type PaginatedResult[T any] struct {
 	Items      []T `json:"items" validate:"required"`
 	TotalCount int `json:"totalCount" validate:"required"`
+}
+
+type ServiceVersionSpecifier struct {
+	Name    string
+	Version int
+}
+
+func ParseServiceVersionSpecifier(s string) (ServiceVersionSpecifier, error) {
+	parts := strings.Split(s, ":")
+	if len(parts) != 2 {
+		return ServiceVersionSpecifier{}, fmt.Errorf("invalid service version specifier: %s", s)
+	}
+
+	version, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return ServiceVersionSpecifier{}, fmt.Errorf("invalid service version specifier: %s", s)
+	}
+
+	return ServiceVersionSpecifier{
+		Name:    parts[0],
+		Version: version,
+	}, nil
+}
+
+func (s *ServiceVersionSpecifier) String() string {
+	return fmt.Sprintf("%s:%d", s.Name, s.Version)
 }

@@ -147,6 +147,46 @@ definitions:
     - userId
     - userName
     type: object
+  configuration.ConfigurationDto:
+    properties:
+      changesetId:
+        type: integer
+      features:
+        items:
+          $ref: '#/definitions/configuration.FeatureConfigurationDto'
+        type: array
+    type: object
+  configuration.FeatureConfigurationDto:
+    properties:
+      keys:
+        items:
+          $ref: '#/definitions/configuration.KeyConfigurationDto'
+        type: array
+      name:
+        type: string
+    type: object
+  configuration.KeyConfigurationDto:
+    properties:
+      dataType:
+        type: string
+      name:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/configuration.ValueConfigurationDto'
+        type: array
+    type: object
+  configuration.ValueConfigurationDto:
+    properties:
+      rank:
+        type: integer
+      value:
+        type: string
+      variation:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
   core.PaginatedResult-changeset_ChangesetItemDto:
     properties:
       items:
@@ -1424,6 +1464,98 @@ paths:
       security:
       - BearerAuth: []
       summary: Get the current changeset info
+  /configuration:
+    get:
+      consumes:
+      - application/json
+      description: Get configuration
+      parameters:
+      - description: Changeset ID
+        in: query
+        name: changeset_id
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Service versions
+        in: query
+        items:
+          type: string
+        name: service
+        required: true
+        type: array
+      - description: Mode
+        in: query
+        name: mode
+        required: true
+        type: string
+      - description: Variation
+        in: query
+        name: variation
+        required: true
+        type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/configuration.ConfigurationDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get configuration
+  /configuration/changesets:
+    get:
+      consumes:
+      - application/json
+      description: Get next changesets
+      parameters:
+      - description: After changeset ID
+        in: query
+        name: after
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Service versions
+        in: query
+        items:
+          type: string
+        name: service
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                type: integer
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get next changesets
   /service-types:
     get:
       description: Get all service types

@@ -121,3 +121,16 @@ WHERE id = @service_version_id;
 DELETE FROM services
 WHERE id = @service_id;
 
+-- name: GetServiceVersionByNameAndVersion :one
+SELECT
+    sv.*
+FROM
+    service_versions sv
+    JOIN services s ON s.id = sv.service_id
+WHERE
+    s.name = @name
+    AND sv.version = @version
+    AND sv.valid_from IS NOT NULL
+    AND sv.valid_to IS NULL
+LIMIT 1;
+

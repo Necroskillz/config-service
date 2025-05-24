@@ -177,7 +177,8 @@ CREATE TABLE changesets(
     created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_id bigint NOT NULL REFERENCES users(id),
-    state changeset_state NOT NULL
+    state changeset_state NOT NULL,
+    applied_at timestamp with time zone
 );
 
 CREATE TABLE changeset_changes(
