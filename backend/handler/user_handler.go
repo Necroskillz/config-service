@@ -38,7 +38,7 @@ func (h *Handler) Users(c echo.Context) error {
 	users, err := h.UserService.GetUsers(c.Request().Context(), membership.UsersFilter{
 		Limit:  limit,
 		Offset: offset,
-		Name:   &name,
+		Name:   name,
 	})
 	if err != nil {
 		return ToHTTPError(err)
