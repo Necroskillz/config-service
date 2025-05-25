@@ -4,7 +4,6 @@
  */
 
 import client from '~/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationRequest,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationResponse,
@@ -16,6 +15,7 @@ import type {
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId422,
   PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId500,
 } from '../types/PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 

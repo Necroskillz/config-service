@@ -37,7 +37,8 @@ WITH filtered_users AS (
     FROM
         users
     WHERE
-        deleted_at IS NULL
+        deleted_at IS NULL AND
+        (sqlc.narg('name')::text IS NULL OR name ILIKE sqlc.narg('name')::text || '%')
 )
 SELECT
     filtered_users.*,

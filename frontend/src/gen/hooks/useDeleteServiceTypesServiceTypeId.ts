@@ -4,7 +4,6 @@
  */
 
 import client from '~/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   DeleteServiceTypesServiceTypeIdMutationResponse,
   DeleteServiceTypesServiceTypeIdPathParams,
@@ -14,6 +13,7 @@ import type {
   DeleteServiceTypesServiceTypeId404,
   DeleteServiceTypesServiceTypeId500,
 } from '../types/DeleteServiceTypesServiceTypeId.ts'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 

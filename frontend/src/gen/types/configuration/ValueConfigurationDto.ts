@@ -5,13 +5,13 @@
 
 export type ConfigurationValueConfigurationDto = {
   /**
+   * @type string | undefined
+   */
+  data?: string
+  /**
    * @type integer | undefined
    */
   rank?: number
-  /**
-   * @type string | undefined
-   */
-  value?: string
   /**
    * @type object | undefined
    */

@@ -4,7 +4,6 @@
  */
 
 import client from '~/axios'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetServicesServiceVersionIdFeaturesLinkableQueryResponse,
   GetServicesServiceVersionIdFeaturesLinkablePathParams,
@@ -13,6 +12,7 @@ import type {
   GetServicesServiceVersionIdFeaturesLinkable404,
   GetServicesServiceVersionIdFeaturesLinkable500,
 } from '../types/GetServicesServiceVersionIdFeaturesLinkable.ts'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 

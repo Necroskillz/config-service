@@ -170,7 +170,8 @@ WITH filtered_users AS (
     FROM
         users
     WHERE
-        deleted_at IS NULL
+        deleted_at IS NULL AND
+        ($3::text IS NULL OR name ILIKE $3::text || '%')
 )
 SELECT
     filtered_users.id, filtered_users.created_at, filtered_users.updated_at, filtered_users.deleted_at, filtered_users.name, filtered_users.password, filtered_users.global_administrator,
@@ -185,6 +186,7 @@ LIMIT $2::integer OFFSET $1::integer
 type GetUsersParams struct {
 	Offset int
 	Limit  int
+	Name   *string
 }
 
 type GetUsersRow struct {
@@ -199,7 +201,7 @@ type GetUsersRow struct {
 }
 
 func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersRow, error) {
-	rows, err := q.db.Query(ctx, getUsers, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, getUsers, arg.Offset, arg.Limit, arg.Name)
 	if err != nil {
 		return nil, err
 	}
