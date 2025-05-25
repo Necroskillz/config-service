@@ -17,6 +17,11 @@ export type GetUsersQueryParams = {
    * @type integer | undefined
    */
   offset?: number
+  /**
+   * @description Name
+   * @type string | undefined
+   */
+  name?: string
 }
 
 /**

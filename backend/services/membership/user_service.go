@@ -114,6 +114,7 @@ func (s *UserService) Get(ctx context.Context, id uint) (User, error) {
 type UsersFilter struct {
 	Limit  int
 	Offset int
+	Name   *string
 }
 
 func (s *UserService) GetUsers(ctx context.Context, filter UsersFilter) (core.PaginatedResult[UserDto], error) {
@@ -124,6 +125,7 @@ func (s *UserService) GetUsers(ctx context.Context, filter UsersFilter) (core.Pa
 	users, err := s.queries.GetUsers(ctx, db.GetUsersParams{
 		Limit:  filter.Limit,
 		Offset: filter.Offset,
+		Name:   filter.Name,
 	})
 	if err != nil {
 		return core.PaginatedResult[UserDto]{}, core.NewDbError(err, "Users")

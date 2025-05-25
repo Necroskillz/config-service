@@ -4,7 +4,6 @@
  */
 
 import client from '~/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdVersionsMutationResponse,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdVersionsPathParams,
@@ -14,6 +13,7 @@ import type {
   PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions404,
   PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions500,
 } from '../types/PostServicesServiceVersionIdFeaturesFeatureVersionIdVersions.ts'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 

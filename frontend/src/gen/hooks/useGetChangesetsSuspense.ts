@@ -4,7 +4,6 @@
  */
 
 import client from '~/axios'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetChangesetsQueryResponse,
   GetChangesetsQueryParams,
@@ -13,6 +12,7 @@ import type {
   GetChangesets404,
   GetChangesets500,
 } from '../types/GetChangesets.ts'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 

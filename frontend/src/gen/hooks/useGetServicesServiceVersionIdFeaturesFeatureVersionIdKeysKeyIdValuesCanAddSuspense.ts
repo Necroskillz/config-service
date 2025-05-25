@@ -4,7 +4,6 @@
  */
 
 import client from '~/axios'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams,
@@ -15,6 +14,7 @@ import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd409,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd500,
 } from '../types/GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd.ts'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 

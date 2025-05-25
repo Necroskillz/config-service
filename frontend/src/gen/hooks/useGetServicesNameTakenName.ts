@@ -4,7 +4,6 @@
  */
 
 import client from '~/axios'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import type {
   GetServicesNameTakenNameQueryResponse,
   GetServicesNameTakenNamePathParams,
@@ -12,6 +11,7 @@ import type {
   GetServicesNameTakenName401,
   GetServicesNameTakenName500,
 } from '../types/GetServicesNameTakenName.ts'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 

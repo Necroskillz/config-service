@@ -1,5 +1,7 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { z } from 'zod';
+import { useState } from 'react';
+import { useDebounce } from 'use-debounce';
 import { buttonVariants } from '~/components/ui/button';
 import { getUsersQueryOptions, useGetUsers, useGetUsersSuspense } from '~/gen';
 import { seo, appTitle } from '~/utils/seo';
@@ -13,6 +15,7 @@ import {
   PaginationPrevious,
 } from '~/components/ui/pagination';
 import { Spinner } from '~/components/ui/spinner';
+import SearchBox from '~/components/ui/search-box';
 
 const PAGE_SIZE = 20;
 
@@ -33,15 +36,18 @@ export const Route = createFileRoute('/(admin)/admin/(users)/users/')({
 
 function RouteComponent() {
   const { page } = Route.useSearch();
+  const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 200);
   const { data: users, isLoading } = useGetUsers({
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
+    name: debouncedSearch.length > 0 ? debouncedSearch : undefined,
   });
 
   return (
     <div className="w-[720px] p-4 flex flex-row">
       <div className="w-full flex flex-col gap-2">
-        <h2 className="text-lg font-semibold mb-2">Users</h2>
+        <SearchBox value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search users" />
         {isLoading ? (
           <div className="flex justify-center items-center h-full mt-16">
             <Spinner />

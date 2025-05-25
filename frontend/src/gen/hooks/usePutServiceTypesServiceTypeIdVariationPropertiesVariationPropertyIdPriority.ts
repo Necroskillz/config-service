@@ -4,7 +4,6 @@
  */
 
 import client from '~/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriorityMutationRequest,
   PutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriorityMutationResponse,
@@ -15,6 +14,7 @@ import type {
   PutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority404,
   PutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority500,
 } from '../types/PutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority.ts'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 

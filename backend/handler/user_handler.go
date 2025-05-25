@@ -9,8 +9,9 @@ import (
 )
 
 type UsersRequest struct {
-	Limit  int `query:"limit" validate:"required"`
-	Offset int `query:"offset" validate:"required"`
+	Limit  int    `query:"limit" validate:"required"`
+	Offset int    `query:"offset" validate:"required"`
+	Name   string `query:"name"`
 }
 
 // @Summary Get users
@@ -20,6 +21,7 @@ type UsersRequest struct {
 // @Security BearerAuth
 // @Param limit query int false "Limit"
 // @Param offset query int false "Offset"
+// @Param name query string false "Name"
 // @Success 200 {object} core.PaginatedResult[membership.UserDto]
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
@@ -35,6 +37,7 @@ func (h *Handler) Users(c echo.Context) error {
 	users, err := h.UserService.GetUsers(c.Request().Context(), membership.UsersFilter{
 		Limit:  request.Limit,
 		Offset: request.Offset,
+		Name:   &request.Name,
 	})
 	if err != nil {
 		return ToHTTPError(err)
