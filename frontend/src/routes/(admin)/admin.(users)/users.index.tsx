@@ -15,7 +15,7 @@ import {
   PaginationPrevious,
 } from '~/components/ui/pagination';
 import { Spinner } from '~/components/ui/spinner';
-import SearchBox from '~/components/ui/search-box';
+import { SearchBox } from '~/components/ui/search-box';
 
 const PAGE_SIZE = 20;
 

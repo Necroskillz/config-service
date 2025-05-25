@@ -9,6 +9,7 @@ import (
 	"github.com/necroskillz/config-service/services/core"
 	"github.com/necroskillz/config-service/services/validation"
 	"github.com/necroskillz/config-service/services/variation"
+	"github.com/necroskillz/config-service/util/ptr"
 	"github.com/necroskillz/config-service/util/validator"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -125,12 +126,7 @@ func (s *UserService) GetUsers(ctx context.Context, filter UsersFilter) (core.Pa
 	users, err := s.queries.GetUsers(ctx, db.GetUsersParams{
 		Limit:  filter.Limit,
 		Offset: filter.Offset,
-		Name: func() *string {
-			if filter.Name == "" {
-				return nil
-			}
-			return &filter.Name
-		}(),
+		Name:   ptr.To(filter.Name, ptr.NilIfZero()),
 	})
 	if err != nil {
 		return core.PaginatedResult[UserDto]{}, core.NewDbError(err, "Users")
