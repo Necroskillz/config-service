@@ -1,17 +1,10 @@
-import { UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useAuth } from '~/auth';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import {
-  getChangesetsChangesetIdQueryKey,
-  ServiceChangesetChange,
-  ServiceChangesetDto,
-  useDeleteChangesetsChangesetIdChangesChangeId,
-} from '~/gen';
-import { useChangeset } from '~/hooks/useChangeset';
+import { ChangesetChangesetChange, ChangesetChangesetDto } from '~/gen';
 
-function getChangeTypeText(type: ServiceChangesetChange['type']) {
+function getChangeTypeText(type: ChangesetChangesetChange['type']) {
   switch (type) {
     case 'create':
       return 'Created';
@@ -36,8 +29,8 @@ export function ChangesetChange({
   change,
   onDiscard,
 }: {
-  changeset: ServiceChangesetDto;
-  change: ServiceChangesetChange;
+  changeset: ChangesetChangesetDto;
+  change: ChangesetChangesetChange;
   onDiscard: () => void;
 }) {
   const { user } = useAuth();
@@ -63,7 +56,7 @@ export function ChangesetChange({
   );
 }
 
-function ChangesetChangeDescription({ change }: { change: ServiceChangesetChange }) {
+function ChangesetChangeDescription({ change }: { change: ChangesetChangesetChange }) {
   if (change.newVariationValueId || change.oldVariationValueId) {
     return <ValueChange change={change} />;
   } else if (change.keyId) {
@@ -79,7 +72,7 @@ function ChangesetChangeDescription({ change }: { change: ServiceChangesetChange
   return <div>{change.type}</div>;
 }
 
-function ValueChange({ change }: { change: ServiceChangesetChange }) {
+function ValueChange({ change }: { change: ChangesetChangesetChange }) {
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -125,7 +118,7 @@ function ValueChange({ change }: { change: ServiceChangesetChange }) {
   );
 }
 
-function getChangeTypeClass(type: ServiceChangesetChange['type']) {
+function getChangeTypeClass(type: ChangesetChangesetChange['type']) {
   switch (type) {
     case 'create':
       return 'bg-diff-add text-diff-add-foreground';
@@ -134,7 +127,7 @@ function getChangeTypeClass(type: ServiceChangesetChange['type']) {
   }
 }
 
-function KeyChange({ change }: { change: ServiceChangesetChange }) {
+function KeyChange({ change }: { change: ChangesetChangesetChange }) {
   return (
     <div>
       {getChangeTypeText(change.type)}
@@ -166,7 +159,7 @@ function KeyChange({ change }: { change: ServiceChangesetChange }) {
   );
 }
 
-function FeatureVersionServiceVersionChange({ change }: { change: ServiceChangesetChange }) {
+function FeatureVersionServiceVersionChange({ change }: { change: ChangesetChangesetChange }) {
   return (
     <div>
       {getChangeTypeText(change.type)}
@@ -195,7 +188,7 @@ function FeatureVersionServiceVersionChange({ change }: { change: ServiceChanges
   );
 }
 
-function FeatureVersionChange({ change }: { change: ServiceChangesetChange }) {
+function FeatureVersionChange({ change }: { change: ChangesetChangesetChange }) {
   return (
     <div>
       {getChangeTypeText(change.type)}
@@ -215,7 +208,7 @@ function FeatureVersionChange({ change }: { change: ServiceChangesetChange }) {
   );
 }
 
-function ServiceVersionChange({ change }: { change: ServiceChangesetChange }) {
+function ServiceVersionChange({ change }: { change: ChangesetChangesetChange }) {
   return (
     <div>
       {getChangeTypeText(change.type)}

@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   DeleteVariationPropertiesPropertyIdValuesValueIdMutationResponse,
   DeleteVariationPropertiesPropertyIdValuesValueIdPathParams,
@@ -13,7 +14,6 @@ import type {
   DeleteVariationPropertiesPropertyIdValuesValueId404,
   DeleteVariationPropertiesPropertyIdValuesValueId500,
 } from '../types/DeleteVariationPropertiesPropertyIdValuesValueId.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 

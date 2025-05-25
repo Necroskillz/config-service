@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { buttonVariants } from '~/components/ui/button';
-import { getUsersQueryOptions, useGetUsers, useGetUsersSuspense } from '~/gen';
+import { getUsersQueryOptions, useGetUsers } from '~/gen';
 import { seo, appTitle } from '~/utils/seo';
 import { zodValidator } from '@tanstack/zod-adapter';
 import {
@@ -27,7 +27,7 @@ export const Route = createFileRoute('/(admin)/admin/(users)/users/')({
     })
   ),
   loader: async ({ context }) => {
-    return context.queryClient.ensureQueryData(getUsersQueryOptions({ limit: PAGE_SIZE, offset: 0 }));
+    return context.queryClient.ensureQueryData(getUsersQueryOptions({ page: 1, pageSize: PAGE_SIZE }));
   },
   head: () => ({
     meta: [...seo({ title: appTitle(['Users', 'Admin']) })],
@@ -39,8 +39,8 @@ function RouteComponent() {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 200);
   const { data: users, isLoading } = useGetUsers({
-    limit: PAGE_SIZE,
-    offset: (page - 1) * PAGE_SIZE,
+    page: page,
+    pageSize: PAGE_SIZE,
     name: debouncedSearch.length > 0 ? debouncedSearch : undefined,
   });
 

@@ -9,7 +9,6 @@ import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Textarea } from '~/components/ui/textarea';
 import {
   DbChangesetActionTypeEnum,
-  ServiceChangesetDto,
   useDeleteChangesetsChangesetId,
   getChangesetsChangesetIdQueryKey,
   usePostChangesetsChangesetIdComment,
@@ -17,6 +16,7 @@ import {
   usePutChangesetsChangesetIdCommit,
   usePutChangesetsChangesetIdReopen,
   usePutChangesetsChangesetIdStash,
+  ChangesetChangesetDto,
 } from '~/gen';
 import { useChangeset } from '~/hooks/useChangeset';
 
@@ -39,7 +39,7 @@ function getActionText(type: DbChangesetActionTypeEnum): string {
   }
 }
 
-export function ChangesetActions({ changeset }: { changeset: ServiceChangesetDto }) {
+export function ChangesetActions({ changeset }: { changeset: ChangesetChangesetDto }) {
   const { user } = useAuth();
   const { refresh } = useChangeset();
 

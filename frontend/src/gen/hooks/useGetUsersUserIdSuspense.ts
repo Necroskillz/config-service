@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetUsersUserIdQueryResponse,
   GetUsersUserIdPathParams,
@@ -12,7 +13,6 @@ import type {
   GetUsersUserId404,
   GetUsersUserId500,
 } from '../types/GetUsersUserId.ts'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 

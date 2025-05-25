@@ -88,25 +88,25 @@ func (s *Service) GetNextChangesets(ctx context.Context, serviceVersionSpecifier
 }
 
 type ConfigurationDto struct {
-	ChangesetID uint                      `json:"changesetId"`
-	Features    []FeatureConfigurationDto `json:"features"`
+	ChangesetID uint                      `json:"changesetId" validate:"required"`
+	Features    []FeatureConfigurationDto `json:"features" validate:"required"`
 }
 
 type FeatureConfigurationDto struct {
-	Name string                `json:"name"`
-	Keys []KeyConfigurationDto `json:"keys"`
+	Name string                `json:"name" validate:"required"`
+	Keys []KeyConfigurationDto `json:"keys" validate:"required"`
 }
 
 type KeyConfigurationDto struct {
-	Name     string                  `json:"name"`
-	DataType string                  `json:"dataType"`
-	Values   []ValueConfigurationDto `json:"values"`
+	Name     string                  `json:"name" validate:"required"`
+	DataType string                  `json:"dataType" validate:"required"`
+	Values   []ValueConfigurationDto `json:"values" validate:"required"`
 }
 
 type ValueConfigurationDto struct {
-	Data      string            `json:"data"`
+	Data      string            `json:"data" validate:"required"`
 	Variation map[string]string `json:"variation,omitempty"`
-	Rank      int               `json:"rank"`
+	Rank      int               `json:"rank" validate:"required"`
 }
 
 func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers []core.ServiceVersionSpecifier, changesetID uint, mode string, variation map[string]string) (ConfigurationDto, error) {

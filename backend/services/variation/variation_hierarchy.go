@@ -200,6 +200,21 @@ func (v *Hierarchy) GetValue(valueID uint) (*HierarchyValue, error) {
 	return value, nil
 }
 
+func (v *Hierarchy) GetPropertyValue(propertyID uint, value string) (*HierarchyValue, error) {
+	property, err := v.GetProperty(propertyID)
+	if err != nil {
+		return nil, err
+	}
+
+	hierarchyValue, ok := v.lookup[propertyID][value]
+
+	if !ok {
+		return nil, core.NewServiceError(core.ErrorCodeRecordNotFound, fmt.Sprintf("Value %s not found for property %s", value, property.Name))
+	}
+
+	return hierarchyValue, nil
+}
+
 type GetValuesWithSameParentOptions struct {
 	ValueID  uint
 	ParentID uint
@@ -258,7 +273,7 @@ func (v *Hierarchy) VariationMapToIDs(serviceTypeID uint, variation map[uint]str
 	for _, property := range properties {
 		value, ok := variation[property.ID]
 
-		if !ok || value == "any" {
+		if !ok {
 			continue
 		}
 

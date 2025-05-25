@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { ServiceValueValidatorParameterType } from '~/gen';
 import Ajv from 'ajv';
+import { ValidationValueValidatorParameterType } from '~/gen';
 
-export function createParameterValidator(parameterType: ServiceValueValidatorParameterType): z.ZodType<string | undefined> {
+export function createParameterValidator(parameterType: ValidationValueValidatorParameterType): z.ZodType<string | undefined> {
   switch (parameterType) {
     case 'none':
       return z

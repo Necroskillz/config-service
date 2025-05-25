@@ -10,12 +10,12 @@ import {
   getServicesServiceVersionIdQueryOptions,
   getValueTypesQueryOptions,
   HandlerValidatorRequest,
-  ServiceValueTypeDto,
-  ServiceValueValidatorParameterType,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
   useGetValueTypesSuspense,
   usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys,
   useGetServicesServiceVersionIdSuspense,
+  ValuetypeValueTypeDto,
+  ValidationValueValidatorParameterType,
 } from '~/gen';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select';
 import { useEffect, useMemo, useState } from 'react';
@@ -83,14 +83,14 @@ function RouteComponent() {
     },
   });
 
-  const [selectedValueType, setSelectedValueType] = useState<ServiceValueTypeDto>(valueTypes[0]);
+  const [selectedValueType, setSelectedValueType] = useState<ValuetypeValueTypeDto>(valueTypes[0]);
   const [availableValidators, setAvailableValidators] = useState(selectedValueType.allowedValidators);
   const [selectedValidator, setSelectedValidator] = useState<DbValueValidatorType | null>(null);
   const validatorParameterTypes = useMemo(() => {
     return selectedValueType.allowedValidators.reduce((acc, validator) => {
       acc[validator.validatorType] = validator.parameterType;
       return acc;
-    }, {} as Record<DbValueValidatorType, ServiceValueValidatorParameterType>);
+    }, {} as Record<DbValueValidatorType, ValidationValueValidatorParameterType>);
   }, [selectedValueType]);
 
   function addValidator(validatorType: DbValueValidatorType) {

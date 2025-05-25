@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostVariationPropertiesPropertyIdValuesMutationRequest,
   PostVariationPropertiesPropertyIdValuesMutationResponse,
@@ -14,7 +15,6 @@ import type {
   PostVariationPropertiesPropertyIdValues404,
   PostVariationPropertiesPropertyIdValues500,
 } from '../types/PostVariationPropertiesPropertyIdValues.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 

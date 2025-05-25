@@ -15,7 +15,7 @@ export type GetConfigurationChangesetsQueryParams = {
    * @description Service versions
    * @type array
    */
-  service: string[]
+  'services[]': string[]
 }
 
 /**

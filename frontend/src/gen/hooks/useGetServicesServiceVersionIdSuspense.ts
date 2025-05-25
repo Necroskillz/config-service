@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetServicesServiceVersionIdQueryResponse,
   GetServicesServiceVersionIdPathParams,
@@ -12,7 +13,6 @@ import type {
   GetServicesServiceVersionId404,
   GetServicesServiceVersionId500,
 } from '../types/GetServicesServiceVersionId.ts'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 

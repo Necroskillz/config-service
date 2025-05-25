@@ -155,6 +155,9 @@ definitions:
         items:
           $ref: '#/definitions/configuration.FeatureConfigurationDto'
         type: array
+    required:
+    - changesetId
+    - features
     type: object
   configuration.FeatureConfigurationDto:
     properties:
@@ -164,6 +167,9 @@ definitions:
         type: array
       name:
         type: string
+    required:
+    - keys
+    - name
     type: object
   configuration.KeyConfigurationDto:
     properties:
@@ -175,17 +181,24 @@ definitions:
         items:
           $ref: '#/definitions/configuration.ValueConfigurationDto'
         type: array
+    required:
+    - dataType
+    - name
+    - values
     type: object
   configuration.ValueConfigurationDto:
     properties:
+      data:
+        type: string
       rank:
         type: integer
-      value:
-        type: string
       variation:
         additionalProperties:
           type: string
         type: object
+    required:
+    - data
+    - rank
     type: object
   core.PaginatedResult-changeset_ChangesetItemDto:
     properties:
@@ -1066,13 +1079,15 @@ paths:
       - application/json
       description: Get changesets
       parameters:
-      - description: Limit
+      - default: 1
+        description: Page
         in: query
-        name: limit
+        name: page
         type: integer
-      - description: Offset
+      - default: 20
+        description: Page Size
         in: query
-        name: offset
+        name: pageSize
         type: integer
       - description: Author ID
         in: query
@@ -1473,26 +1488,30 @@ paths:
       - description: Changeset ID
         in: query
         name: changeset_id
-        required: true
         type: integer
-      - collectionFormat: csv
-        description: Service versions
+      - collectionFormat: multi
+        description: Service versions in format service:version
+        example: TestService:1
         in: query
         items:
           type: string
-        name: service
+        name: services[]
         required: true
         type: array
       - description: Mode
+        enum:
+        - production
         in: query
         name: mode
-        required: true
         type: string
-      - description: Variation
+      - collectionFormat: multi
+        description: Variation
+        example: env:prod
         in: query
-        name: variation
-        required: true
-        type: object
+        items:
+          type: string
+        name: variation[]
+        type: array
       produces:
       - application/json
       responses:
@@ -1529,7 +1548,7 @@ paths:
         in: query
         items:
           type: string
-        name: service
+        name: services[]
         required: true
         type: array
       produces:
@@ -3183,13 +3202,15 @@ paths:
       - application/json
       description: Get list of users
       parameters:
-      - description: Limit
+      - default: 1
+        description: Page
         in: query
-        name: limit
+        name: page
         type: integer
-      - description: Offset
+      - default: 20
+        description: Page size
         in: query
-        name: offset
+        name: pageSize
         type: integer
       - description: Name
         in: query

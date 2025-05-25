@@ -1,5 +1,5 @@
 import { z, ZodType } from 'zod';
-import { DbValueTypeKind, DbValueValidatorType, HandlerValidatorRequest, ServiceValidatorDto } from '~/gen';
+import { DbValueTypeKind, DbValueValidatorType } from '~/gen';
 import { Validator } from 'jsonschema';
 
 export function createDefaultValue(valueType: DbValueTypeKind) {

@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type {
   GetVariationPropertiesNameTakenNameQueryResponse,
   GetVariationPropertiesNameTakenNamePathParams,
@@ -11,7 +12,6 @@ import type {
   GetVariationPropertiesNameTakenName401,
   GetVariationPropertiesNameTakenName500,
 } from '../types/GetVariationPropertiesNameTakenName.ts'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 

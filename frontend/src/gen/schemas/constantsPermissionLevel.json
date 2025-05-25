@@ -1,1 +1,0 @@
-{"enum":[0,1,2],"type":"integer","x-enum-varnames":["PermissionViewer","PermissionEditor","PermissionAdmin"],"x-readme-ref-name":"constants.PermissionLevel"}

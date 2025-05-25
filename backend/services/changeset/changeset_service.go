@@ -72,8 +72,8 @@ func (s *Service) EnsureChangesetForUser(ctx context.Context) (uint, error) {
 }
 
 type Filter struct {
-	Limit      int
-	Offset     int
+	Page       int
+	PageSize   int
 	AuthorID   *uint
 	Approvable bool
 }
@@ -89,8 +89,12 @@ type ChangesetItemDto struct {
 }
 
 func (s *Service) GetChangesets(ctx context.Context, filter Filter) (core.PaginatedResult[ChangesetItemDto], error) {
-	if filter.Limit > 100 {
-		return core.PaginatedResult[ChangesetItemDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "Limit cannot be greater than 100")
+	if filter.Page < 1 {
+		return core.PaginatedResult[ChangesetItemDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "Page must be 1 or greater")
+	}
+
+	if filter.PageSize < 1 || filter.PageSize > 100 {
+		return core.PaginatedResult[ChangesetItemDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "Page size must be between 1 and 100")
 	}
 
 	var approverID *uint
@@ -100,8 +104,8 @@ func (s *Service) GetChangesets(ctx context.Context, filter Filter) (core.Pagina
 	}
 
 	changesets, err := s.queries.GetChangesets(ctx, db.GetChangesetsParams{
-		Limit:      filter.Limit,
-		Offset:     filter.Offset,
+		Limit:      filter.PageSize,
+		Offset:     (filter.Page - 1) * filter.PageSize,
 		UserID:     filter.AuthorID,
 		ApproverID: approverID,
 	})

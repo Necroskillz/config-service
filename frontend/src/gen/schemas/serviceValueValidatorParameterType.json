@@ -1,1 +1,0 @@
-{"enum":["none","integer","float","regex","json_schema"],"type":"string","x-enum-varnames":["ValueValidatorParameterTypeNone","ValueValidatorParameterTypeInteger","ValueValidatorParameterTypeFloat","ValueValidatorParameterTypeRegex","ValueValidatorParameterTypeJsonSchema"],"x-readme-ref-name":"service.ValueValidatorParameterType"}

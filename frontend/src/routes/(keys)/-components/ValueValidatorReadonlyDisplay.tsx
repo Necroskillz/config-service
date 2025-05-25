@@ -1,10 +1,10 @@
 import { Label } from '~/components/ui/label';
-import { ServiceValidatorWithParameterTypeDto } from '~/gen';
+import { ValuetypeValidatorWithParameterTypeDto } from '~/gen';
 import { ValidatorParameterEditor } from './ValidatorParameterEditor';
 import { Input } from '~/components/ui/input';
 import { Button } from '~/components/ui/button';
 
-export function ValueValidatorReadonlyDisplay({ validator }: { validator: ServiceValidatorWithParameterTypeDto }) {
+export function ValueValidatorReadonlyDisplay({ validator }: { validator: ValuetypeValidatorWithParameterTypeDto }) {
   return (
     <div key={validator.validatorType} className="flex flex-row gap-4 w-full">
       <div className="flex flex-3/12 flex-col gap-2">

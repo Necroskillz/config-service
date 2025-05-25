@@ -8,15 +8,17 @@ import type { EchoHTTPError } from './echo/HTTPError.ts'
 
 export type GetChangesetsQueryParams = {
   /**
-   * @description Limit
+   * @description Page
+   * @default 1
    * @type integer | undefined
    */
-  limit?: number
+  page?: number
   /**
-   * @description Offset
+   * @description Page Size
+   * @default 20
    * @type integer | undefined
    */
-  offset?: number
+  pageSize?: number
   /**
    * @description Author ID
    * @type integer | undefined

@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostAuthRefreshTokenMutationRequest,
   PostAuthRefreshTokenMutationResponse,
@@ -11,7 +12,6 @@ import type {
   PostAuthRefreshToken401,
   PostAuthRefreshToken500,
 } from '../types/PostAuthRefreshToken.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 

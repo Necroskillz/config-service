@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PutChangesetsChangesetIdApplyMutationResponse,
   PutChangesetsChangesetIdApplyPathParams,
@@ -13,7 +14,6 @@ import type {
   PutChangesetsChangesetIdApply404,
   PutChangesetsChangesetIdApply500,
 } from '../types/PutChangesetsChangesetIdApply.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 

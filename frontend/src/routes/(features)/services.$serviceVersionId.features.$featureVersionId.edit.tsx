@@ -1,7 +1,13 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { SlimPage } from '~/components/SlimPage';
 import { PageTitle } from '~/components/PageTitle';
-import { getServicesServiceVersionIdQueryOptions, getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions, usePutServicesServiceVersionIdFeaturesFeatureVersionId, useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense, useGetServicesServiceVersionIdSuspense } from '~/gen';
+import {
+  getServicesServiceVersionIdQueryOptions,
+  getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
+  usePutServicesServiceVersionIdFeaturesFeatureVersionId,
+  useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
+  useGetServicesServiceVersionIdSuspense,
+} from '~/gen';
 import { z } from 'zod';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { MutationErrors } from '~/components/MutationErrors';
@@ -23,7 +29,9 @@ export const Route = createFileRoute('/(features)/services/$serviceVersionId/fea
   loader: async ({ context, params }) => {
     return Promise.all([
       context.queryClient.ensureQueryData(getServicesServiceVersionIdQueryOptions(params.serviceVersionId)),
-      context.queryClient.ensureQueryData(getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions(params.serviceVersionId, params.featureVersionId)),
+      context.queryClient.ensureQueryData(
+        getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions(params.serviceVersionId, params.featureVersionId)
+      ),
     ]);
   },
   head: (ctx) => {

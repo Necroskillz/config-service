@@ -7,11 +7,11 @@ import type { ConfigurationKeyConfigurationDto } from './KeyConfigurationDto.ts'
 
 export type ConfigurationFeatureConfigurationDto = {
   /**
-   * @type array | undefined
+   * @type array
    */
-  keys?: ConfigurationKeyConfigurationDto[]
+  keys: ConfigurationKeyConfigurationDto[]
   /**
-   * @type string | undefined
+   * @type string
    */
-  name?: string
+  name: string
 }

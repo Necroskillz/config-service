@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/necroskillz/config-service/services/core"
 	"github.com/necroskillz/config-service/services/membership"
+	"github.com/necroskillz/config-service/util/ptr"
 )
 
 // @Summary Get users
@@ -13,8 +14,8 @@ import (
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param limit query int false "Limit"
-// @Param offset query int false "Offset"
+// @Param page query int false "Page" default(1)
+// @Param pageSize query int false "Page size" default(20)
 // @Param name query string false "Name"
 // @Success 200 {object} core.PaginatedResult[membership.UserDto]
 // @Failure 400 {object} echo.HTTPError
@@ -22,12 +23,13 @@ import (
 // @Failure 500 {object} echo.HTTPError
 // @Router /users [get]
 func (h *Handler) Users(c echo.Context) error {
-	var limit, offset int
+	page := 1
+	pageSize := 20
 	var name string
 
-	binder := echo.QueryParamsBinder(c)
-	err := binder.MustInt("limit", &limit).
-		MustInt("offset", &offset).
+	err := echo.QueryParamsBinder(c).
+		Int("page", &page).
+		Int("pageSize", &pageSize).
 		String("name", &name).
 		BindError()
 
@@ -36,9 +38,9 @@ func (h *Handler) Users(c echo.Context) error {
 	}
 
 	users, err := h.UserService.GetUsers(c.Request().Context(), membership.UsersFilter{
-		Limit:  limit,
-		Offset: offset,
-		Name:   name,
+		Page:     page,
+		PageSize: pageSize,
+		Name:     ptr.To(name, ptr.NilIfZero()),
 	})
 	if err != nil {
 		return ToHTTPError(err)

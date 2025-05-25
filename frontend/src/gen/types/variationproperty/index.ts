@@ -1,5 +1,0 @@
-export type { VariationpropertyFlatVariationPropertyValueDto } from './FlatVariationPropertyValueDto.ts'
-export type { VariationpropertyServiceTypeVariationPropertyDto } from './ServiceTypeVariationPropertyDto.ts'
-export type { VariationpropertyVariationPropertyDto } from './VariationPropertyDto.ts'
-export type { VariationpropertyVariationPropertyItemDto } from './VariationPropertyItemDto.ts'
-export type { VariationpropertyVariationPropertyValueDto } from './VariationPropertyValueDto.ts'

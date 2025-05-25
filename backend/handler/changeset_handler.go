@@ -6,22 +6,16 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/services/changeset"
 	_ "github.com/necroskillz/config-service/services/core"
+	"github.com/necroskillz/config-service/util/ptr"
 )
-
-type ChangesetsRequest struct {
-	Limit      int   `query:"limit" validate:"required"`
-	Offset     int   `query:"offset" validate:"required"`
-	AuthorID   *uint `query:"authorId"`
-	Approvable bool  `query:"approvable"`
-}
 
 // @Summary Get changesets
 // @Description Get changesets
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param limit query int false "Limit"
-// @Param offset query int false "Offset"
+// @Param page query int false "Page" default(1)
+// @Param pageSize query int false "Page Size" default(20)
 // @Param authorId query uint false "Author ID"
 // @Param approvable query bool false "Approvable"
 // @Success 200 {object} core.PaginatedResult[changeset.ChangesetItemDto]
@@ -31,17 +25,26 @@ type ChangesetsRequest struct {
 // @Failure 500 {object} echo.HTTPError
 // @Router /changesets [get]
 func (h *Handler) Changesets(c echo.Context) error {
-	var request ChangesetsRequest
-	err := c.Bind(&request)
+	page := 1
+	pageSize := 20
+	var authorID uint
+	var approvable bool
+
+	err := echo.QueryParamsBinder(c).
+		Int("page", &page).
+		Int("pageSize", &pageSize).
+		Uint("authorId", &authorID).
+		Bool("approvable", &approvable).
+		BindError()
 	if err != nil {
 		return ToHTTPError(err)
 	}
 
 	changesets, err := h.ChangesetService.GetChangesets(c.Request().Context(), changeset.Filter{
-		AuthorID:   request.AuthorID,
-		Approvable: request.Approvable,
-		Limit:      request.Limit,
-		Offset:     request.Offset,
+		AuthorID:   ptr.To(authorID, ptr.NilIfZero()),
+		Approvable: approvable,
+		Page:       page,
+		PageSize:   pageSize,
 	})
 	if err != nil {
 		return ToHTTPError(err)

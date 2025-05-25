@@ -33,7 +33,7 @@ export const Route = createFileRoute('/(changesets)/changesets/')({
     })
   ),
   loader: async ({ context }) => {
-    return context.queryClient.ensureQueryData(getChangesetsQueryOptions({ limit: PAGE_SIZE, offset: 0 }));
+    return context.queryClient.ensureQueryData(getChangesetsQueryOptions({ page: 1, pageSize: PAGE_SIZE, approvable: false }));
   },
 });
 
@@ -42,8 +42,8 @@ function RouteComponent() {
   const { page, mode } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const { data: changesets, isLoading } = useGetChangesets({
-    limit: PAGE_SIZE,
-    offset: (page - 1) * PAGE_SIZE,
+    page: page,
+    pageSize: PAGE_SIZE,
     authorId: mode === 'my' ? user?.id : undefined,
     approvable: mode === 'approvable',
   });

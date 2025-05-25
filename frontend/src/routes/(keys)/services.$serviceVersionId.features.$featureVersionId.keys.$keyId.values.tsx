@@ -9,8 +9,6 @@ import {
   getServicesServiceVersionIdQueryOptions,
   getServiceTypesServiceTypeIdVariationPropertiesQueryOptions,
   HandlerValueRequest,
-  HandlerVariationValueSelectOption,
-  ServiceNewValueInfo,
   useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesSuspense,
@@ -18,10 +16,12 @@ import {
   useGetServiceTypesServiceTypeIdVariationPropertiesSuspense,
   usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues,
   usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId,
-  ServiceVariationValue,
   getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
   useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
+  ValueVariationValueDto,
+  ValueNewValueInfo,
+  VariationpropertyFlatVariationPropertyValueDto,
 } from '~/gen';
 import { ColumnDef, useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import { HttpError } from '~/axios';
@@ -31,14 +31,14 @@ import { Button } from '~/components/ui/button';
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter, Table } from '~/components/ui/table';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { VariationSelect } from '~/components/VariationSelect';
-import { cn } from '~/lib/utils';
+import { cn, variationToParams } from '~/lib/utils';
 import { useChangeset } from '~/hooks/useChangeset';
 import { versionedTitle } from '~/utils/seo';
 import { appTitle } from '~/utils/seo';
 import { seo } from '~/utils/seo';
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 import { DropdownMenu } from '~/components/ui/dropdown-menu';
-import { CircleAlert, EllipsisIcon, InfoIcon } from 'lucide-react';
+import { CircleAlert, EllipsisIcon } from 'lucide-react';
 import { createDefaultValue, createValueValidator } from './-components/value';
 import { ValueEditor } from './-components/ValueEditor';
 import { ValueViewer } from './-components/ValueViewer';
@@ -120,7 +120,7 @@ function RouteComponent() {
     },
   });
 
-  const [data, setData] = useState<ServiceVariationValue[]>(values);
+  const [data, setData] = useState<ValueVariationValueDto[]>(values);
 
   useEffect(() => {
     setData(values);
@@ -139,8 +139,8 @@ function RouteComponent() {
     return 0;
   }
 
-  function updateData(newItem: ServiceVariationValue, removeId?: number) {
-    const newData: ServiceVariationValue[] = [];
+  function updateData(newItem: ValueVariationValueDto, removeId?: number) {
+    const newData: ValueVariationValueDto[] = [];
     let foundInsert = false;
 
     for (let i = 0; i < data.length; i++) {
@@ -166,7 +166,7 @@ function RouteComponent() {
     );
   }
 
-  function createNewItem(info: ServiceNewValueInfo, data: HandlerValueRequest) {
+  function createNewItem(info: ValueNewValueInfo, data: HandlerValueRequest) {
     return {
       id: info.id,
       data: data.data,
@@ -180,7 +180,7 @@ function RouteComponent() {
   const updateMutation = usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId({
     mutation: {
       onSuccess: (info, variables) => {
-        const newItem: ServiceVariationValue = createNewItem(info, variables.data);
+        const newItem: ValueVariationValueDto = createNewItem(info, variables.data);
 
         updateData(newItem, editingValueId!);
         refresh();
@@ -193,7 +193,7 @@ function RouteComponent() {
   const createMutation = usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues({
     mutation: {
       onSuccess: (info, variables) => {
-        const newItem: ServiceVariationValue = createNewItem(info, variables.data);
+        const newItem: ValueVariationValueDto = createNewItem(info, variables.data);
 
         updateData(newItem);
         refresh();
@@ -225,7 +225,7 @@ function RouteComponent() {
     return properties.reduce((acc, property) => {
       acc[property.id] = property.values;
       return acc;
-    }, {} as Record<number, HandlerVariationValueSelectOption[]>);
+    }, {} as Record<number, VariationpropertyFlatVariationPropertyValueDto[]>);
   }, [properties]);
 
   const [editingValueId, setEditingValueId] = useState<number | null>(null);
@@ -243,22 +243,22 @@ function RouteComponent() {
     return httpError.message;
   }
 
-  function cachePerVariation(fn: (value: ValueFormData) => Promise<string | undefined>) {
+  function cachePerVariation(fn: (variation: Record<number, string>) => Promise<string | undefined>) {
     const cache = new Map<string, string | undefined>();
 
-    return async (value: ValueFormData): Promise<string | undefined> => {
-      const key = JSON.stringify(value.variation);
+    return async (variation: Record<number, string>): Promise<string | undefined> => {
+      const key = JSON.stringify(variation);
       if (cache.has(key)) {
         return cache.get(key);
       }
 
-      const result = await fn(value);
+      const result = await fn(variation);
       cache.set(key, result);
       return result;
     };
   }
 
-  const editValidationFn = cachePerVariation(async (value) => {
+  const editValidationFn = cachePerVariation(async (variation) => {
     try {
       await getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit(
         serviceVersionId,
@@ -266,7 +266,7 @@ function RouteComponent() {
         keyId,
         editingValueId!,
         {
-          params: value.variation,
+          params: variationToParams(variation),
         }
       );
     } catch (err: any) {
@@ -280,16 +280,11 @@ function RouteComponent() {
       variation: {},
     } as ValueFormData,
     validators: {
+      // triggers twice the first time, https://github.com/TanStack/form/issues/1431
       onChangeAsync: z.object({
         data: createValueValidator(key.validators),
         variation: z.record(z.string(), z.string()).superRefine(async (value, ctx) => {
-          const error = await editValidationFn({
-            data: editForm.state.values.data,
-            variation: {
-              ...editForm.state.values.variation,
-              ...value,
-            },
-          });
+          const error = await editValidationFn(value);
 
           if (error) {
             ctx.addIssue({
@@ -311,13 +306,12 @@ function RouteComponent() {
     },
   });
 
-  const addValidationFn = cachePerVariation(async (value) => {
+  const addValidationFn = cachePerVariation(async (variation) => {
     try {
       await getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd(serviceVersionId, featureVersionId, keyId, {
-        params: value.variation,
+        params: variationToParams(variation),
       });
     } catch (err: any) {
-      console.log(err);
       return asyncValidatorErrorMessage(err);
     }
   });
@@ -331,13 +325,7 @@ function RouteComponent() {
       onChangeAsync: z.object({
         data: createValueValidator(key.validators),
         variation: z.record(z.string(), z.string()).superRefine(async (value, ctx) => {
-          const error = await addValidationFn({
-            data: addForm.state.values.data,
-            variation: {
-              ...addForm.state.values.variation,
-              ...value,
-            },
-          });
+          const error = await addValidationFn(value);
 
           if (error) {
             ctx.addIssue({
@@ -358,7 +346,7 @@ function RouteComponent() {
     },
   });
 
-  const columns = useMemo<ColumnDef<ServiceVariationValue, any>[]>(
+  const columns = useMemo<ColumnDef<ValueVariationValueDto, any>[]>(
     () => [
       {
         header: 'Value',
@@ -421,7 +409,7 @@ function RouteComponent() {
           );
         },
       },
-      ...properties.map<ColumnDef<ServiceVariationValue, any>>((property) => ({
+      ...properties.map<ColumnDef<ValueVariationValueDto, any>>((property) => ({
         header: property.displayName,
         id: property.name,
         accessorFn: (row) => row.variation[property.id] ?? 'any',

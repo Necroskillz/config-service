@@ -4,8 +4,8 @@
  */
 
 import client from '~/axios'
-import type { GetUsersQueryResponse, GetUsersQueryParams, GetUsers400, GetUsers401, GetUsers500 } from '../types/GetUsers.ts'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
+import type { GetUsersQueryResponse, GetUsersQueryParams, GetUsers400, GetUsers401, GetUsers500 } from '../types/GetUsers.ts'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 

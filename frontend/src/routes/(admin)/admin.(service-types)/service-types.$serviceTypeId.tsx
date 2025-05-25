@@ -13,14 +13,14 @@ import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import {
   getServiceTypesQueryOptions,
   getServiceTypesServiceTypeIdQueryOptions,
-  ServiceServiceTypeVariationPropertyLinkDto,
-  ServiceVariationPropertyItemDto,
+  ServicetypeServiceTypeVariationPropertyLinkDto,
   useDeleteServiceTypesServiceTypeId,
   useDeleteServiceTypesServiceTypeIdVariationPropertiesVariationPropertyId,
   useGetServiceTypesServiceTypeIdSuspense,
   useGetVariationProperties,
   usePostServiceTypesServiceTypeIdVariationProperties,
   usePutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority,
+  VariationpropertyVariationPropertyItemDto,
 } from '~/gen';
 import { cn } from '~/lib/utils';
 import { appTitle } from '~/utils/seo';
@@ -49,7 +49,7 @@ function RouteComponent() {
   const { data: serviceType } = useGetServiceTypesServiceTypeIdSuspense(serviceTypeId);
   const { data: variationProperties, isLoading: isVariationPropertiesLoading } = useGetVariationProperties();
 
-  const [availableProperties, setAvailableProperties] = useState<ServiceVariationPropertyItemDto[]>([]);
+  const [availableProperties, setAvailableProperties] = useState<VariationpropertyVariationPropertyItemDto[]>([]);
 
   useEffect(() => {
     if (variationProperties) {
@@ -219,7 +219,7 @@ function ServiceTypeVariationPropertyLink({
   onDelete,
   disabled,
 }: {
-  link: ServiceServiceTypeVariationPropertyLinkDto;
+  link: ServicetypeServiceTypeVariationPropertyLinkDto;
   isLast: boolean;
   disabled: boolean;
   onOrderChange: (priority: number) => void;

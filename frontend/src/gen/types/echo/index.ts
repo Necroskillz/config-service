@@ -1,1 +1,0 @@
-export type { EchoHTTPError } from './HTTPError.ts'

@@ -7,15 +7,15 @@ import type { ConfigurationValueConfigurationDto } from './ValueConfigurationDto
 
 export type ConfigurationKeyConfigurationDto = {
   /**
-   * @type string | undefined
+   * @type string
    */
-  dataType?: string
+  dataType: string
   /**
-   * @type string | undefined
+   * @type string
    */
-  name?: string
+  name: string
   /**
-   * @type array | undefined
+   * @type array
    */
-  values?: ConfigurationValueConfigurationDto[]
+  values: ConfigurationValueConfigurationDto[]
 }

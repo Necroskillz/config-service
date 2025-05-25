@@ -226,7 +226,7 @@ func (h *Handler) CanAddValue(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	variation, err := GetVariationFromQueryIds(c)
+	variation, err := h.GetVariationFromQueryIds(c)
 	if err != nil {
 		return err
 	}
@@ -271,7 +271,7 @@ func (h *Handler) CanEditValue(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	variation, err := GetVariationFromQueryIds(c)
+	variation, err := h.GetVariationFromQueryIds(c)
 	if err != nil {
 		return err
 	}

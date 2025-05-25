@@ -5,36 +5,53 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/services/core"
-	"github.com/necroskillz/config-service/services/variation"
 	"github.com/necroskillz/config-service/util/validator"
 )
 
-func getVariation(variationHierarchy *variation.Hierarchy, getter func(string) string) map[string]string {
-	properties := variationHierarchy.GetAllProperties()
-	variation := make(map[string]string)
+func parseVariationParams[T comparable](c echo.Context, keyFunc func(string) (T, error), validator func(T, string) error) (map[T]string, error) {
+	variation := make(map[T]string)
+	var variationParams []string
 
-	for _, property := range properties {
-		propertyValue := getter(property.Name)
-		if propertyValue != "" && propertyValue != "any" {
-			variation[property.Name] = propertyValue
-		}
-	}
-
-	return variation
-}
-
-func (h *Handler) GetVariationFromForm(c echo.Context) (map[string]string, error) {
-	variationHierarchy, err := h.VariationHierarchyService.GetVariationHierarchy(c.Request().Context())
+	err := echo.QueryParamsBinder(c).Strings("variation[]", &variationParams).BindError()
 	if err != nil {
 		return nil, err
 	}
 
-	return getVariation(variationHierarchy, func(name string) string {
-		return c.FormValue(name)
-	}), nil
+	for i, param := range variationParams {
+		parts := strings.SplitN(param, ":", 2)
+		if len(parts) != 2 {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid variation parameter at index %d: '%s'. Expected format: key:value", i, param))
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+		if key == "" {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Variation parameter key cannot be empty at index %d: '%s'", i, param))
+		}
+
+		processedKey, err := keyFunc(key)
+		if err != nil {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		err = validator(processedKey, value)
+		if err != nil {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		// Check for duplicate keys
+		if _, exists := variation[processedKey]; exists {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Duplicate variation parameter key: '%s'", key))
+		}
+
+		variation[processedKey] = value
+	}
+
+	return variation, nil
 }
 
 func (h *Handler) GetVariationFromQuery(c echo.Context) (map[string]string, error) {
@@ -43,28 +60,44 @@ func (h *Handler) GetVariationFromQuery(c echo.Context) (map[string]string, erro
 		return nil, err
 	}
 
-	return getVariation(variationHierarchy, func(name string) string {
-		return c.QueryParam(name)
-	}), nil
+	return parseVariationParams(c, func(name string) (string, error) {
+		return name, nil
+	}, func(propertyName string, value string) error {
+		propertyID, err := variationHierarchy.GetPropertyID(propertyName)
+		if err != nil {
+			return err
+		}
+
+		_, err = variationHierarchy.GetPropertyValue(propertyID, value)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
-func GetVariationFromQueryIds(c echo.Context) (map[uint]string, error) {
-	variation := make(map[uint]string)
-
-	for key, value := range c.QueryParams() {
-		propertyID, err := strconv.ParseUint(key, 10, 32)
-		if err != nil {
-			return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid property ID %s", key)).WithInternal(err)
-		}
-
-		if len(value) != 1 {
-			return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid value %s", value)).WithInternal(err)
-		}
-
-		variation[uint(propertyID)] = value[0]
+func (h *Handler) GetVariationFromQueryIds(c echo.Context) (map[uint]string, error) {
+	variationHierarchy, err := h.VariationHierarchyService.GetVariationHierarchy(c.Request().Context())
+	if err != nil {
+		return nil, err
 	}
 
-	return variation, nil
+	return parseVariationParams(c, func(id string) (uint, error) {
+		propertyID, err := strconv.ParseUint(id, 10, 32)
+		if err != nil {
+			return 0, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid property ID %s", id)).WithInternal(err)
+		}
+
+		return uint(propertyID), nil
+	}, func(propertyID uint, value string) error {
+		_, err = variationHierarchy.GetPropertyValue(propertyID, value)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func ToHTTPError(err error) *echo.HTTPError {

@@ -6,27 +6,33 @@
 import type { ConfigurationConfigurationDto } from './configuration/ConfigurationDto.ts'
 import type { EchoHTTPError } from './echo/HTTPError.ts'
 
+export const getConfigurationQueryParamsModeEnum = {
+  production: 'production',
+} as const
+
+export type GetConfigurationQueryParamsModeEnum = (typeof getConfigurationQueryParamsModeEnum)[keyof typeof getConfigurationQueryParamsModeEnum]
+
 export type GetConfigurationQueryParams = {
   /**
    * @description Changeset ID
-   * @type integer
+   * @type integer | undefined
    */
-  changeset_id: number
+  changeset_id?: number
   /**
-   * @description Service versions
+   * @description Service versions in format service:version
    * @type array
    */
-  service: string[]
+  'services[]': string[]
   /**
    * @description Mode
-   * @type string
+   * @type string | undefined
    */
-  mode: string
+  mode?: GetConfigurationQueryParamsModeEnum
   /**
    * @description Variation
-   * @type object
+   * @type array | undefined
    */
-  variation: object
+  'variation[]'?: string[]
 }
 
 /**

@@ -4,8 +4,8 @@
  */
 
 import client from '~/axios'
-import type { GetServiceTypesQueryResponse, GetServiceTypes401, GetServiceTypes500 } from '../types/GetServiceTypes.ts'
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { GetServiceTypesQueryResponse, GetServiceTypes401, GetServiceTypes500 } from '../types/GetServiceTypes.ts'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 

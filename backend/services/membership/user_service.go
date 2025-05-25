@@ -9,7 +9,6 @@ import (
 	"github.com/necroskillz/config-service/services/core"
 	"github.com/necroskillz/config-service/services/validation"
 	"github.com/necroskillz/config-service/services/variation"
-	"github.com/necroskillz/config-service/util/ptr"
 	"github.com/necroskillz/config-service/util/validator"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -113,20 +112,24 @@ func (s *UserService) Get(ctx context.Context, id uint) (User, error) {
 }
 
 type UsersFilter struct {
-	Limit  int
-	Offset int
-	Name   string
+	Page     int
+	PageSize int
+	Name     *string
 }
 
 func (s *UserService) GetUsers(ctx context.Context, filter UsersFilter) (core.PaginatedResult[UserDto], error) {
-	if filter.Limit > 100 {
-		return core.PaginatedResult[UserDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "Limit cannot be greater than 100")
+	if filter.Page < 1 {
+		return core.PaginatedResult[UserDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "Page must be 1 or greater")
+	}
+
+	if filter.PageSize < 1 || filter.PageSize > 100 {
+		return core.PaginatedResult[UserDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "Page size must be between 1 and 100")
 	}
 
 	users, err := s.queries.GetUsers(ctx, db.GetUsersParams{
-		Limit:  filter.Limit,
-		Offset: filter.Offset,
-		Name:   ptr.To(filter.Name, ptr.NilIfZero()),
+		Limit:  filter.PageSize,
+		Offset: (filter.Page - 1) * filter.PageSize,
+		Name:   filter.Name,
 	})
 	if err != nil {
 		return core.PaginatedResult[UserDto]{}, core.NewDbError(err, "Users")

@@ -9,11 +9,8 @@ import {
   getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesQueryOptions,
   getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
   getServicesServiceVersionIdQueryOptions,
-  getValueTypesQueryOptions,
   getValueTypesValueTypeIdQueryOptions,
   HandlerValidatorRequest,
-  HandlerVariationProperty,
-  ServiceValueValidatorParameterType,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesSuspense,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
@@ -21,6 +18,8 @@ import {
   useGetServiceTypesServiceTypeIdVariationPropertiesSuspense,
   useGetValueTypesValueTypeIdSuspense,
   usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
+  ValidationValueValidatorParameterType,
+  VariationpropertyServiceTypeVariationPropertyDto,
 } from '~/gen';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select';
 import { useEffect, useState } from 'react';
@@ -115,7 +114,7 @@ function RouteComponent() {
   const propertyMap = properties.reduce((acc, property) => {
     acc[property.id] = property;
     return acc;
-  }, {} as Record<string, HandlerVariationProperty>);
+  }, {} as Record<string, VariationpropertyServiceTypeVariationPropertyDto>);
 
   const [availableValidators, setAvailableValidators] = useState(
     valueType.allowedValidators.filter((v) => !key.validators.some((kv) => kv.validatorType === v.validatorType))
@@ -124,7 +123,7 @@ function RouteComponent() {
   const validatorParameterTypes = valueType.allowedValidators.reduce((acc, validator) => {
     acc[validator.validatorType] = validator.parameterType;
     return acc;
-  }, {} as Record<DbValueValidatorType, ServiceValueValidatorParameterType>);
+  }, {} as Record<DbValueValidatorType, ValidationValueValidatorParameterType>);
 
   const mutation = usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId({
     mutation: {

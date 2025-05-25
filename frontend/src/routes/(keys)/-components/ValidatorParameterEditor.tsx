@@ -1,4 +1,4 @@
-import { ServiceValueValidatorParameterType } from '~/gen';
+import { ValidationValueValidatorParameterType } from '~/gen';
 import { Input } from '~/components/ui/input';
 import { JsonEditor } from '~/components/JsonEditor';
 
@@ -9,7 +9,7 @@ export function ValidatorParameterEditor({
   disabled,
   onBlur,
 }: {
-  parameterType: ServiceValueValidatorParameterType;
+  parameterType: ValidationValueValidatorParameterType;
   parameter: string;
   onChange?: (parameter: string) => void;
   disabled?: boolean;

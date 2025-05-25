@@ -8,15 +8,17 @@ import type { EchoHTTPError } from './echo/HTTPError.ts'
 
 export type GetUsersQueryParams = {
   /**
-   * @description Limit
+   * @description Page
+   * @default 1
    * @type integer | undefined
    */
-  limit?: number
+  page?: number
   /**
-   * @description Offset
+   * @description Page size
+   * @default 20
    * @type integer | undefined
    */
-  offset?: number
+  pageSize?: number
   /**
    * @description Name
    * @type string | undefined

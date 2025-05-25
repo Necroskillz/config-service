@@ -171,14 +171,16 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Limit",
-                        "name": "limit",
+                        "default": 1,
+                        "description": "Page",
+                        "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Offset",
-                        "name": "offset",
+                        "default": 20,
+                        "description": "Page Size",
+                        "name": "pageSize",
                         "in": "query"
                     },
                     {
@@ -801,33 +803,39 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Changeset ID",
                         "name": "changeset_id",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "array",
                         "items": {
                             "type": "string"
                         },
-                        "collectionFormat": "csv",
-                        "description": "Service versions",
-                        "name": "service",
+                        "collectionFormat": "multi",
+                        "example": "TestService:1",
+                        "description": "Service versions in format service:version",
+                        "name": "services[]",
                         "in": "query",
                         "required": true
                     },
                     {
+                        "enum": [
+                            "production"
+                        ],
                         "type": "string",
                         "description": "Mode",
                         "name": "mode",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
-                        "type": "object",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "example": "env:prod",
                         "description": "Variation",
-                        "name": "variation",
-                        "in": "query",
-                        "required": true
+                        "name": "variation[]",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -883,7 +891,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "csv",
                         "description": "Service versions",
-                        "name": "service",
+                        "name": "services[]",
                         "in": "query",
                         "required": true
                     }
@@ -3442,14 +3450,16 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Limit",
-                        "name": "limit",
+                        "default": 1,
+                        "description": "Page",
+                        "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Offset",
-                        "name": "offset",
+                        "default": 20,
+                        "description": "Page size",
+                        "name": "pageSize",
                         "in": "query"
                     },
                     {
@@ -4687,6 +4697,10 @@ const docTemplate = `{
         },
         "configuration.ConfigurationDto": {
             "type": "object",
+            "required": [
+                "changesetId",
+                "features"
+            ],
             "properties": {
                 "changesetId": {
                     "type": "integer"
@@ -4701,6 +4715,10 @@ const docTemplate = `{
         },
         "configuration.FeatureConfigurationDto": {
             "type": "object",
+            "required": [
+                "keys",
+                "name"
+            ],
             "properties": {
                 "keys": {
                     "type": "array",
@@ -4715,6 +4733,11 @@ const docTemplate = `{
         },
         "configuration.KeyConfigurationDto": {
             "type": "object",
+            "required": [
+                "dataType",
+                "name",
+                "values"
+            ],
             "properties": {
                 "dataType": {
                     "type": "string"
@@ -4732,12 +4755,16 @@ const docTemplate = `{
         },
         "configuration.ValueConfigurationDto": {
             "type": "object",
+            "required": [
+                "data",
+                "rank"
+            ],
             "properties": {
+                "data": {
+                    "type": "string"
+                },
                 "rank": {
                     "type": "integer"
-                },
-                "value": {
-                    "type": "string"
                 },
                 "variation": {
                     "type": "object",

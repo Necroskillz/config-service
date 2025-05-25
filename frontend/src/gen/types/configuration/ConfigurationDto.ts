@@ -7,11 +7,11 @@ import type { ConfigurationFeatureConfigurationDto } from './FeatureConfiguratio
 
 export type ConfigurationConfigurationDto = {
   /**
-   * @type integer | undefined
+   * @type integer
    */
-  changesetId?: number
+  changesetId: number
   /**
-   * @type array | undefined
+   * @type array
    */
-  features?: ConfigurationFeatureConfigurationDto[]
+  features: ConfigurationFeatureConfigurationDto[]
 }

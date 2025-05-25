@@ -259,6 +259,7 @@ export type {
   GetChangesetsCurrentQuery,
 } from './types/GetChangesetsCurrent.ts'
 export type {
+  GetConfigurationQueryParamsModeEnum,
   GetConfigurationQueryParams,
   GetConfiguration200,
   GetConfiguration400,
@@ -1386,4 +1387,5 @@ export { dbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export { dbChangesetState } from './types/db/ChangesetState.ts'
 export { dbValueTypeKind } from './types/db/ValueTypeKind.ts'
 export { dbValueValidatorType } from './types/db/ValueValidatorType.ts'
+export { getConfigurationQueryParamsModeEnum } from './types/GetConfiguration.ts'
 export { validationValueValidatorParameterType } from './types/validation/ValueValidatorParameterType.ts'

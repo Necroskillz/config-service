@@ -4,6 +4,7 @@
  */
 
 import client from '~/axios'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type {
   PostUsersMutationRequest,
   PostUsersMutationResponse,
@@ -13,7 +14,6 @@ import type {
   PostUsers422,
   PostUsers500,
 } from '../types/PostUsers.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '~/axios'
 import { useMutation } from '@tanstack/react-query'
 
