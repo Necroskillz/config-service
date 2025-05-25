@@ -8,12 +8,6 @@ import (
 	"github.com/necroskillz/config-service/services/membership"
 )
 
-type UsersRequest struct {
-	Limit  int    `query:"limit" validate:"required"`
-	Offset int    `query:"offset" validate:"required"`
-	Name   string `query:"name"`
-}
-
 // @Summary Get users
 // @Description Get list of users
 // @Accept json
@@ -28,16 +22,23 @@ type UsersRequest struct {
 // @Failure 500 {object} echo.HTTPError
 // @Router /users [get]
 func (h *Handler) Users(c echo.Context) error {
-	var request UsersRequest
-	err := c.Bind(&request)
+	var limit, offset int
+	var name string
+
+	binder := echo.QueryParamsBinder(c)
+	err := binder.MustInt("limit", &limit).
+		MustInt("offset", &offset).
+		String("name", &name).
+		BindError()
+
 	if err != nil {
 		return ToHTTPError(err)
 	}
 
 	users, err := h.UserService.GetUsers(c.Request().Context(), membership.UsersFilter{
-		Limit:  request.Limit,
-		Offset: request.Offset,
-		Name:   &request.Name,
+		Limit:  limit,
+		Offset: offset,
+		Name:   &name,
 	})
 	if err != nil {
 		return ToHTTPError(err)
