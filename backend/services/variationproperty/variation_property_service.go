@@ -131,18 +131,15 @@ func (s *Service) getFlatValues(property *variation.HierarchyProperty) []FlatVar
 }
 
 func (s *Service) GetVariationPropertiesForServiceType(ctx context.Context, serviceTypeID uint) ([]ServiceTypeVariationPropertyDto, error) {
-	// 404 check
-	_, err := s.queries.GetServiceType(ctx, serviceTypeID)
-	if err != nil {
-		return nil, err
-	}
-
 	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	properties := variationHierarchy.GetProperties(serviceTypeID)
+	properties, err := variationHierarchy.GetProperties(serviceTypeID)
+	if err != nil {
+		return nil, err
+	}
 
 	response := []ServiceTypeVariationPropertyDto{}
 

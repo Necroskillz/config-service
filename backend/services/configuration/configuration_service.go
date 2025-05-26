@@ -119,7 +119,10 @@ func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers
 		return ConfigurationDto{}, err
 	}
 
-	filterVariation := variationHierarchy.GetVariationIDMap(variation)
+	filterVariation, err := variationHierarchy.GetVariationIDMap(variation)
+	if err != nil {
+		return ConfigurationDto{}, err
+	}
 
 	if changesetID != 0 {
 		changeset, err := s.queries.GetChangeset(ctx, changesetID)
@@ -196,10 +199,20 @@ func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers
 			continue
 		}
 
+		rank, err := variationHierarchy.GetRank(value.ServiceTypeID, valueVariation)
+		if err != nil {
+			return ConfigurationDto{}, err
+		}
+
+		variationMap, err := variationHierarchy.GetVariationStringMap(unresolved)
+		if err != nil {
+			return ConfigurationDto{}, err
+		}
+
 		valueDto := ValueConfigurationDto{
 			Data:      value.Data,
-			Variation: variationHierarchy.GetVariationStringMap(unresolved),
-			Rank:      variationHierarchy.GetRank(value.ServiceTypeID, valueVariation),
+			Variation: variationMap,
+			Rank:      rank,
 		}
 
 		features[fi].Keys[ki].Values = append(features[fi].Keys[ki].Values, valueDto)

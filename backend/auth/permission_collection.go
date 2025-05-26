@@ -5,7 +5,7 @@ import (
 )
 
 type VariationPropertyValueParentsProvider interface {
-	GetParents(propertyId uint, value string) []string
+	GetParents(propertyId uint, value string) ([]string, error)
 }
 
 type PermissionCollection struct {
@@ -65,7 +65,12 @@ func (p *PermissionCollection) GetPermissionLevelFor(serviceId uint, featureId *
 		variationPropertyValuesWithParents = make(map[uint][]string, len(variationPropertyValues))
 
 		for propertyId, propertyValue := range variationPropertyValues {
-			parents := p.parentsProvider.GetParents(propertyId, propertyValue)
+			parents, err := p.parentsProvider.GetParents(propertyId, propertyValue)
+			if err != nil {
+				// TODO: log error
+				return constants.PermissionViewer
+			}
+
 			variationPropertyValuesWithParents[propertyId] = append(parents, propertyValue)
 		}
 	}

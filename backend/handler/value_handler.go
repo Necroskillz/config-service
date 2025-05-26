@@ -81,7 +81,7 @@ func (h *Handler) CreateValue(c echo.Context) error {
 	var data ValueRequest
 	err = c.Bind(&data)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to bind form data")
+		return ToHTTPError(err)
 	}
 
 	info, err := h.ValueService.CreateValue(c.Request().Context(), value.CreateValueParams{
@@ -129,13 +129,13 @@ func (h *Handler) UpdateValue(c echo.Context) error {
 		MustUint("value_id", &valueID).
 		BindError()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to bind path params").WithInternal(err)
+		return ToHTTPError(err)
 	}
 
 	var data ValueRequest
 	err = c.Bind(&data)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to bind form data")
+		return ToHTTPError(err)
 	}
 
 	info, err := h.ValueService.UpdateValue(c.Request().Context(), value.UpdateValueParams{
@@ -181,7 +181,7 @@ func (h *Handler) DeleteValue(c echo.Context) error {
 		MustUint("value_id", &valueID).
 		BindError()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to bind path params").WithInternal(err)
+		return ToHTTPError(err)
 	}
 
 	err = h.ValueService.DeleteValue(c.Request().Context(), value.DeleteValueParams{

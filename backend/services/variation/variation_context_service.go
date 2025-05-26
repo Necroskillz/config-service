@@ -10,19 +10,22 @@ import (
 	"github.com/dgraph-io/ristretto/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/necroskillz/config-service/db"
+	"github.com/necroskillz/config-service/services/core"
 )
 
 type ContextService struct {
-	queries          *db.Queries
-	unitOfWorkRunner db.UnitOfWorkRunner
-	cache            *ristretto.Cache[string, any]
+	queries                   *db.Queries
+	variationHierarchyService *HierarchyService
+	unitOfWorkRunner          db.UnitOfWorkRunner
+	cache                     *ristretto.Cache[string, any]
 }
 
-func NewContextService(queries *db.Queries, unitOfWorkRunner db.UnitOfWorkRunner, cache *ristretto.Cache[string, any]) *ContextService {
+func NewContextService(queries *db.Queries, variationHierarchyService *HierarchyService, unitOfWorkRunner db.UnitOfWorkRunner, cache *ristretto.Cache[string, any]) *ContextService {
 	return &ContextService{
-		queries:          queries,
-		unitOfWorkRunner: unitOfWorkRunner,
-		cache:            cache,
+		queries:                   queries,
+		variationHierarchyService: variationHierarchyService,
+		unitOfWorkRunner:          unitOfWorkRunner,
+		cache:                     cache,
 	}
 }
 
@@ -40,6 +43,29 @@ func getVariationContextIdCacheKey(variationValues []uint) string {
 
 func getVariationContextValuesCacheKey(variationContextID uint) string {
 	return fmt.Sprintf("variation_context_values:%d", variationContextID)
+}
+
+func (v *ContextService) getIDsFromVariation(ctx context.Context, variation map[uint]string) ([]uint, error) {
+	variationHierarchy, err := v.variationHierarchyService.GetVariationHierarchy(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make([]uint, 0, len(variation))
+	for propertyID, value := range variation {
+		value, err := variationHierarchy.GetPropertyValue(propertyID, value)
+		if err != nil {
+			return nil, err
+		}
+
+		if value.Archived {
+			return nil, core.NewServiceError(core.ErrorCodeInvalidOperation, fmt.Sprintf("Value %s for property with ID %d is archived", value.Value, propertyID))
+		}
+
+		ids = append(ids, value.ID)
+	}
+
+	return ids, nil
 }
 
 func (v *ContextService) GetVariationContextValues(ctx context.Context, variationContextID uint) (map[uint]string, error) {
@@ -68,8 +94,13 @@ func (v *ContextService) GetVariationContextValues(ctx context.Context, variatio
 	return variationContext, nil
 }
 
-func (v *ContextService) GetVariationContextID(ctx context.Context, variationContextValues []uint) (uint, error) {
-	cacheKey := getVariationContextIdCacheKey(variationContextValues)
+func (v *ContextService) GetVariationContextID(ctx context.Context, variation map[uint]string) (uint, error) {
+	ids, err := v.getIDsFromVariation(ctx, variation)
+	if err != nil {
+		return 0, err
+	}
+
+	cacheKey := getVariationContextIdCacheKey(ids)
 	cachedID, exists := v.cache.Get(cacheKey)
 
 	if exists {
@@ -77,10 +108,10 @@ func (v *ContextService) GetVariationContextID(ctx context.Context, variationCon
 	}
 
 	var contextID uint
-	err := v.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+	err = v.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
 		id, err := tx.GetVariationContextId(ctx, db.GetVariationContextIdParams{
-			VariationPropertyValueIds: variationContextValues,
-			PropertyCount:             len(variationContextValues),
+			VariationPropertyValueIds: ids,
+			PropertyCount:             len(ids),
 		})
 
 		if err != nil {
@@ -90,7 +121,7 @@ func (v *ContextService) GetVariationContextID(ctx context.Context, variationCon
 					return err
 				}
 
-				for _, valueID := range variationContextValues {
+				for _, valueID := range ids {
 					if err := tx.CreateVariationContextValue(ctx, db.CreateVariationContextValueParams{
 						VariationContextID:       newContextID,
 						VariationPropertyValueID: valueID,
@@ -114,7 +145,7 @@ func (v *ContextService) GetVariationContextID(ctx context.Context, variationCon
 		return 0, err
 	}
 
-	v.cache.Set(getVariationContextIdCacheKey(variationContextValues), contextID, 1)
+	v.cache.Set(cacheKey, contextID, 1)
 
 	return contextID, nil
 }

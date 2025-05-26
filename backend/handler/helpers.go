@@ -35,12 +35,12 @@ func parseVariationParams[T comparable](c echo.Context, keyFunc func(string) (T,
 
 		processedKey, err := keyFunc(key)
 		if err != nil {
-			return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
+			return nil, echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 		}
 
 		err = validator(processedKey, value)
 		if err != nil {
-			return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
+			return nil, echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 		}
 
 		// Check for duplicate keys
@@ -121,7 +121,7 @@ func ToHTTPError(err error) *echo.HTTPError {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
-	if errors.Is(err, core.ErrUnknownError) {
+	if errors.Is(err, core.ErrUnexpectedError) {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error()).WithInternal(err)
 	}
 

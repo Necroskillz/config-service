@@ -92,13 +92,23 @@ func (s *Service) GetKeyValues(ctx context.Context, serviceVersionID uint, featu
 			return nil, err
 		}
 
+		order, err := variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, variation)
+		if err != nil {
+			return nil, err
+		}
+
+		rank, err := variationHierarchy.GetRank(serviceVersion.ServiceTypeID, variation)
+		if err != nil {
+			return nil, err
+		}
+
 		variationValues[i] = VariationValueDto{
 			ID:        value.ID,
 			Data:      value.Data,
 			Variation: variation,
 			CanEdit:   user.GetPermissionForValue(serviceVersion.ServiceID, featureVersion.FeatureID, key.ID, variation) >= constants.PermissionEditor,
-			Rank:      variationHierarchy.GetRank(serviceVersion.ServiceTypeID, variation),
-			Order:     variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, variation),
+			Rank:      rank,
+			Order:     order,
 		}
 	}
 
@@ -155,7 +165,6 @@ func (s *Service) validateCreateValue(ctx context.Context, data CreateValueParam
 
 	return s.validator.
 		Validate(data.Data, "Data").Func(validatorFunc).
-		Validate(data.Variation, "Variation").Required().
 		Error(ctx)
 }
 
@@ -167,21 +176,16 @@ func (s *Service) CreateValue(ctx context.Context, data CreateValueParams) (NewV
 		return NewValueInfo{}, err
 	}
 
-	if err := s.validateCreateValue(ctx, data, serviceVersion, featureVersion, key); err != nil {
-		return NewValueInfo{}, err
-	}
-
 	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
 	if err != nil {
 		return NewValueInfo{}, err
 	}
 
-	variationIds, err := variationHierarchy.VariationMapToIDs(serviceVersion.ServiceTypeID, data.Variation)
-	if err != nil {
+	if err := s.validateCreateValue(ctx, data, serviceVersion, featureVersion, key); err != nil {
 		return NewValueInfo{}, err
 	}
 
-	variationContextID, err := s.variationContextService.GetVariationContextID(ctx, variationIds)
+	variationContextID, err := s.variationContextService.GetVariationContextID(ctx, data.Variation)
 	if err != nil {
 		return NewValueInfo{}, err
 	}
@@ -257,7 +261,12 @@ func (s *Service) CreateValue(ctx context.Context, data CreateValueParams) (NewV
 		return NewValueInfo{}, err
 	}
 
-	return NewValueInfo{ID: variationValueID, Order: variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, data.Variation)}, nil
+	order, err := variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, data.Variation)
+	if err != nil {
+		return NewValueInfo{}, err
+	}
+
+	return NewValueInfo{ID: variationValueID, Order: order}, nil
 }
 
 type DeleteValueParams struct {
@@ -662,27 +671,27 @@ func (s *Service) UpdateValue(ctx context.Context, params UpdateValueParams) (Ne
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	if err := s.validateUpdateValue(ctx, params, serviceVersion, featureVersion, key, value); err != nil {
-		return NewValueInfo{}, err
-	}
-
 	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
 	if err != nil {
 		return NewValueInfo{}, err
 	}
 
-	variationIds, err := variationHierarchy.VariationMapToIDs(serviceVersion.ServiceTypeID, params.Variation)
-	if err != nil {
+	if err := s.validateUpdateValue(ctx, params, serviceVersion, featureVersion, key, value); err != nil {
 		return NewValueInfo{}, err
 	}
 
-	variationContextID, err := s.variationContextService.GetVariationContextID(ctx, variationIds)
+	variationContextID, err := s.variationContextService.GetVariationContextID(ctx, params.Variation)
 	if err != nil {
 		return NewValueInfo{}, err
 	}
 
 	if value.VariationContextID == variationContextID && value.Data == params.Data {
-		return NewValueInfo{ID: value.ID, Order: variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, params.Variation)}, nil
+		order, err := variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, params.Variation)
+		if err != nil {
+			return NewValueInfo{}, err
+		}
+
+		return NewValueInfo{ID: value.ID, Order: order}, nil
 	}
 
 	existingChange, err := s.queries.GetChangeForVariationValue(ctx, db.GetChangeForVariationValueParams{
@@ -771,5 +780,10 @@ func (s *Service) UpdateValue(ctx context.Context, params UpdateValueParams) (Ne
 		return NewValueInfo{}, err
 	}
 
-	return NewValueInfo{ID: variationValueID, Order: variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, params.Variation)}, nil
+	order, err := variationHierarchy.GetOrder(serviceVersion.ServiceTypeID, params.Variation)
+	if err != nil {
+		return NewValueInfo{}, err
+	}
+
+	return NewValueInfo{ID: variationValueID, Order: order}, nil
 }

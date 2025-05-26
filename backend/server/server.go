@@ -86,7 +86,7 @@ func (s *Server) Start() error {
 	valueTypeService := valuetype.NewService(queries, valueValidatorService)
 	coreService := core.NewService(queries, currentUserAccessor)
 	variationHierarchyService := variation.NewHierarchyService(queries, cache)
-	variationContextService := variation.NewContextService(queries, unitOfWorkRunner, cache)
+	variationContextService := variation.NewContextService(queries, variationHierarchyService, unitOfWorkRunner, cache)
 	validationService := validation.NewService(queries, variationContextService, variationHierarchyService, currentUserAccessor, coreService)
 	serviceTypeService := servicetype.NewService(unitOfWorkRunner, queries, validator, validationService, currentUserAccessor)
 	changesetService := changeset.NewService(queries, variationContextService, unitOfWorkRunner, currentUserAccessor, validator)

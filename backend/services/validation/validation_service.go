@@ -112,18 +112,8 @@ func (s *Service) IsVariationPropertyValueTaken(ctx context.Context, variationPr
 	return true, nil
 }
 
-func (s *Service) DoesVariationExist(ctx context.Context, keyID uint, serviceTypeID uint, variation map[uint]string) (uint, error) {
-	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
-	if err != nil {
-		return 0, err
-	}
-
-	variationIDs, err := variationHierarchy.VariationMapToIDs(serviceTypeID, variation)
-	if err != nil {
-		return 0, err
-	}
-
-	variationContextID, err := s.variationContextService.GetVariationContextID(ctx, variationIDs)
+func (s *Service) DoesVariationExist(ctx context.Context, keyID uint, variation map[uint]string) (uint, error) {
+	variationContextID, err := s.variationContextService.GetVariationContextID(ctx, variation)
 	if err != nil {
 		return 0, err
 	}
@@ -151,7 +141,17 @@ func (s *Service) CanAddValueInternal(ctx context.Context, serviceVersion db.Get
 		return core.NewServiceError(core.ErrorCodePermissionDenied, "You are not authorized to add a value to this key")
 	}
 
-	valueID, err := s.DoesVariationExist(ctx, key.ID, serviceVersion.ServiceTypeID, variation)
+	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = variationHierarchy.ValidateIDVariation(serviceVersion.ServiceTypeID, variation)
+	if err != nil {
+		return err
+	}
+
+	valueID, err := s.DoesVariationExist(ctx, key.ID, variation)
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,17 @@ func (s *Service) CanEditValueInternal(ctx context.Context, serviceVersion db.Ge
 		return core.NewServiceError(core.ErrorCodePermissionDenied, "You are not authorized to save value with this variation")
 	}
 
-	existingValueWithVariation, err := s.DoesVariationExist(ctx, key.ID, serviceVersion.ServiceTypeID, variation)
+	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = variationHierarchy.ValidateIDVariation(serviceVersion.ServiceTypeID, variation)
+	if err != nil {
+		return err
+	}
+
+	existingValueWithVariation, err := s.DoesVariationExist(ctx, key.ID, variation)
 	if err != nil {
 		return err
 	}

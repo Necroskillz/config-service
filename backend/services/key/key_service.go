@@ -259,7 +259,7 @@ func (s *Service) CreateKey(ctx context.Context, params CreateKeyParams) (uint, 
 			return err
 		}
 
-		defaultVariationContextID, err := s.variationContextService.GetVariationContextID(ctx, []uint{})
+		defaultVariationContextID, err := s.variationContextService.GetVariationContextID(ctx, map[uint]string{})
 		if err != nil {
 			return err
 		}

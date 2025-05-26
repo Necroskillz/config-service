@@ -18,7 +18,7 @@ const (
 	ErrorCodeInvalidInput       ErrorCode = "INVALID_INPUT"
 	ErrorCodePermissionDenied   ErrorCode = "PERMISSION_DENIED"
 	ErrorCodeDuplicateVariation ErrorCode = "DUPLICATE_VARIATION"
-	ErrorCodeUnknownError       ErrorCode = "UNKNOWN_ERROR"
+	ErrorCodeUnexpectedError    ErrorCode = "UNEXPECTED_ERROR"
 )
 
 const (
@@ -36,7 +36,7 @@ func NewDbError(err error, entityType string) *ServiceError {
 		return NewServiceError(ErrorCodeRecordNotFound, fmt.Sprintf("%s not found", entityType))
 	}
 
-	return NewServiceError(ErrorCodeUnknownError, err.Error())
+	return NewServiceError(ErrorCodeUnexpectedError, err.Error())
 }
 
 func NewServiceError(code ErrorCode, message string) *ServiceError {
@@ -72,7 +72,7 @@ var (
 	ErrInvalidInput       = NewSentinelServiceError(ErrorCodeInvalidInput)
 	ErrPermissionDenied   = NewSentinelServiceError(ErrorCodePermissionDenied)
 	ErrDuplicateVariation = NewSentinelServiceError(ErrorCodeDuplicateVariation)
-	ErrUnknownError       = NewSentinelServiceError(ErrorCodeUnknownError)
+	ErrUnexpectedError    = NewSentinelServiceError(ErrorCodeUnexpectedError)
 )
 
 type PaginatedResult[T any] struct {
