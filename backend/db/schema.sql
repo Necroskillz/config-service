@@ -459,7 +459,8 @@ CREATE TABLE public.changesets (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     user_id bigint NOT NULL,
-    state public.changeset_state NOT NULL
+    state public.changeset_state NOT NULL,
+    applied_at timestamp with time zone
 );
 
 
@@ -577,7 +578,7 @@ ALTER SEQUENCE public.keys_id_seq OWNED BY public.keys.id;
 --
 
 CREATE TABLE public.schema_migrations (
-    version character varying NOT NULL
+    version character varying(128) NOT NULL
 );
 
 
@@ -1523,7 +1524,7 @@ ALTER TABLE ONLY public.keys
 --
 
 ALTER TABLE ONLY public.service_type_variation_properties
-    ADD CONSTRAINT service_type_variation_properties_service_type_id_fkey FOREIGN KEY (service_type_id) REFERENCES public.service_types(id);
+    ADD CONSTRAINT service_type_variation_properties_service_type_id_fkey FOREIGN KEY (service_type_id) REFERENCES public.service_types(id) ON DELETE CASCADE;
 
 
 --
@@ -1627,7 +1628,7 @@ ALTER TABLE ONLY public.variation_context_variation_property_values
 --
 
 ALTER TABLE ONLY public.variation_property_values
-    ADD CONSTRAINT variation_property_values_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.variation_property_values(id);
+    ADD CONSTRAINT variation_property_values_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.variation_property_values(id) ON DELETE CASCADE;
 
 
 --
@@ -1635,7 +1636,7 @@ ALTER TABLE ONLY public.variation_property_values
 --
 
 ALTER TABLE ONLY public.variation_property_values
-    ADD CONSTRAINT variation_property_values_variation_property_id_fkey FOREIGN KEY (variation_property_id) REFERENCES public.variation_properties(id);
+    ADD CONSTRAINT variation_property_values_variation_property_id_fkey FOREIGN KEY (variation_property_id) REFERENCES public.variation_properties(id) ON DELETE CASCADE;
 
 
 --

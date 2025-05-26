@@ -65,7 +65,13 @@ func (s *Server) Start() error {
 		return fmt.Errorf("failed to initialize cache: %w", err)
 	}
 
-	dbpool, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
+	connectionString := os.Getenv("DATABASE_URL")
+
+	if err := db.Migrate(connectionString); err != nil {
+		return fmt.Errorf("failed to migrate database: %w", err)
+	}
+
+	dbpool, err := pgxpool.New(ctx, connectionString)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
