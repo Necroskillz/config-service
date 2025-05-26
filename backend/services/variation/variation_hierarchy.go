@@ -133,8 +133,8 @@ func assignOrderToPropertyValues(propertyValues []*HierarchyValue, order *int) {
 	}
 }
 
-func (v *Hierarchy) GetParents(propertyId uint, value string) ([]string, error) {
-	hierachyValue, err := v.GetPropertyValue(propertyId, value)
+func (h *Hierarchy) GetParents(propertyId uint, value string) ([]string, error) {
+	hierachyValue, err := h.GetPropertyValue(propertyId, value)
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +149,8 @@ func (v *Hierarchy) GetParents(propertyId uint, value string) ([]string, error) 
 	return values, nil
 }
 
-func (v *Hierarchy) GetServiceType(serviceTypeID uint) (*HierarchyServiceType, error) {
-	serviceType, ok := v.serviceTypes[serviceTypeID]
+func (h *Hierarchy) GetServiceType(serviceTypeID uint) (*HierarchyServiceType, error) {
+	serviceType, ok := h.serviceTypes[serviceTypeID]
 	if !ok {
 		return nil, core.NewServiceError(core.ErrorCodeRecordNotFound, fmt.Sprintf("Service type with ID %d not found", serviceTypeID))
 	}
@@ -158,16 +158,16 @@ func (v *Hierarchy) GetServiceType(serviceTypeID uint) (*HierarchyServiceType, e
 	return serviceType, nil
 }
 
-func (v *Hierarchy) GetProperties(serviceTypeID uint) ([]*HierarchyProperty, error) {
+func (h *Hierarchy) GetProperties(serviceTypeID uint) ([]*HierarchyProperty, error) {
 	properties := []*HierarchyProperty{}
 
-	serviceType, err := v.GetServiceType(serviceTypeID)
+	serviceType, err := h.GetServiceType(serviceTypeID)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, propertyID := range serviceType.Order {
-		property, err := v.GetProperty(propertyID)
+		property, err := h.GetProperty(propertyID)
 		if err != nil {
 			return nil, err
 		}
@@ -178,18 +178,18 @@ func (v *Hierarchy) GetProperties(serviceTypeID uint) ([]*HierarchyProperty, err
 	return properties, nil
 }
 
-func (v *Hierarchy) GetAllProperties() []*HierarchyProperty {
+func (h *Hierarchy) GetAllProperties() []*HierarchyProperty {
 	properties := []*HierarchyProperty{}
 
-	for _, property := range v.properties {
+	for _, property := range h.properties {
 		properties = append(properties, property)
 	}
 
 	return properties
 }
 
-func (v *Hierarchy) GetProperty(propertyID uint) (*HierarchyProperty, error) {
-	property, ok := v.properties[propertyID]
+func (h *Hierarchy) GetProperty(propertyID uint) (*HierarchyProperty, error) {
+	property, ok := h.properties[propertyID]
 
 	if !ok {
 		return nil, core.NewServiceError(core.ErrorCodeRecordNotFound, fmt.Sprintf("Property with ID %d not found", propertyID))
@@ -198,8 +198,8 @@ func (v *Hierarchy) GetProperty(propertyID uint) (*HierarchyProperty, error) {
 	return property, nil
 }
 
-func (v *Hierarchy) GetPropertyID(property string) (uint, error) {
-	propertyID, ok := v.propertyLookup[property]
+func (h *Hierarchy) GetPropertyID(property string) (uint, error) {
+	propertyID, ok := h.propertyLookup[property]
 
 	if !ok {
 		return 0, core.NewServiceError(core.ErrorCodeRecordNotFound, fmt.Sprintf("Property %s not found", property))
@@ -208,8 +208,8 @@ func (v *Hierarchy) GetPropertyID(property string) (uint, error) {
 	return propertyID, nil
 }
 
-func (v *Hierarchy) GetValue(valueID uint) (*HierarchyValue, error) {
-	value, ok := v.values[valueID]
+func (h *Hierarchy) GetValue(valueID uint) (*HierarchyValue, error) {
+	value, ok := h.values[valueID]
 
 	if !ok {
 		return nil, core.NewServiceError(core.ErrorCodeRecordNotFound, fmt.Sprintf("Value with ID %d not found", valueID))
@@ -218,13 +218,13 @@ func (v *Hierarchy) GetValue(valueID uint) (*HierarchyValue, error) {
 	return value, nil
 }
 
-func (v *Hierarchy) GetPropertyValue(propertyID uint, value string) (*HierarchyValue, error) {
-	property, err := v.GetProperty(propertyID)
+func (h *Hierarchy) GetPropertyValue(propertyID uint, value string) (*HierarchyValue, error) {
+	property, err := h.GetProperty(propertyID)
 	if err != nil {
 		return nil, err
 	}
 
-	hierarchyValue, ok := v.lookup[propertyID][value]
+	hierarchyValue, ok := h.lookup[propertyID][value]
 
 	if !ok {
 		return nil, core.NewServiceError(core.ErrorCodeRecordNotFound, fmt.Sprintf("Value %s not found for property %s", value, property.Name))
@@ -252,13 +252,13 @@ func ByParentID(parentID uint) GetValuesWithSameParentOptionsFunc {
 	}
 }
 
-func (v *Hierarchy) GetValuesWithSameParent(propertyID uint, by GetValuesWithSameParentOptionsFunc) ([]*HierarchyValue, error) {
+func (h *Hierarchy) GetValuesWithSameParent(propertyID uint, by GetValuesWithSameParentOptionsFunc) ([]*HierarchyValue, error) {
 	opts := GetValuesWithSameParentOptions{}
 
 	by(&opts)
 
 	if opts.ValueID != 0 {
-		value, err := v.GetValue(opts.ValueID)
+		value, err := h.GetValue(opts.ValueID)
 		if err != nil {
 			return nil, err
 		}
@@ -267,7 +267,7 @@ func (v *Hierarchy) GetValuesWithSameParent(propertyID uint, by GetValuesWithSam
 			return value.Parent.Children, nil
 		}
 	} else if opts.ParentID != 0 {
-		parent, err := v.GetValue(opts.ParentID)
+		parent, err := h.GetValue(opts.ParentID)
 		if err != nil {
 			return nil, err
 		}
@@ -275,7 +275,7 @@ func (v *Hierarchy) GetValuesWithSameParent(propertyID uint, by GetValuesWithSam
 		return parent.Children, nil
 	}
 
-	property, err := v.GetProperty(propertyID)
+	property, err := h.GetProperty(propertyID)
 	if err != nil {
 		return nil, err
 	}
@@ -283,11 +283,11 @@ func (v *Hierarchy) GetValuesWithSameParent(propertyID uint, by GetValuesWithSam
 	return property.Values, nil
 }
 
-func (v *Hierarchy) GetVariationStringMap(variation map[uint]string) (map[string]string, error) {
+func (h *Hierarchy) GetVariationStringMap(variation map[uint]string) (map[string]string, error) {
 	variationMap := make(map[string]string)
 
 	for propertyID, value := range variation {
-		property, err := v.GetProperty(propertyID)
+		property, err := h.GetProperty(propertyID)
 		if err != nil {
 			return nil, core.NewServiceError(core.ErrorCodeUnexpectedError, err.Error())
 		}
@@ -298,11 +298,11 @@ func (v *Hierarchy) GetVariationStringMap(variation map[uint]string) (map[string
 	return variationMap, nil
 }
 
-func (v *Hierarchy) GetVariationIDMap(variation map[string]string) (map[uint]string, error) {
+func (h *Hierarchy) GetVariationIDMap(variation map[string]string) (map[uint]string, error) {
 	variationIDMap := make(map[uint]string)
 
 	for propertyName, value := range variation {
-		propertyID, err := v.GetPropertyID(propertyName)
+		propertyID, err := h.GetPropertyID(propertyName)
 		if err != nil {
 			return nil, core.NewServiceError(core.ErrorCodeUnexpectedError, err.Error())
 		}
@@ -313,8 +313,8 @@ func (v *Hierarchy) GetVariationIDMap(variation map[string]string) (map[uint]str
 	return variationIDMap, nil
 }
 
-func (v *Hierarchy) GetRank(serviceTypeID uint, variation map[uint]string) (int, error) {
-	serviceType, err := v.GetServiceType(serviceTypeID)
+func (h *Hierarchy) GetRank(serviceTypeID uint, variation map[uint]string) (int, error) {
+	serviceType, err := h.GetServiceType(serviceTypeID)
 	if err != nil {
 		return 0, core.NewServiceError(core.ErrorCodeUnexpectedError, err.Error())
 	}
@@ -327,7 +327,7 @@ func (v *Hierarchy) GetRank(serviceTypeID uint, variation map[uint]string) (int,
 			return 0, core.NewServiceError(core.ErrorCodeUnexpectedError, fmt.Sprintf("Property with ID %d not found in RankMap of service type %d", propertyID, serviceTypeID))
 		}
 
-		value, err := v.GetPropertyValue(propertyID, value)
+		value, err := h.GetPropertyValue(propertyID, value)
 		if err != nil {
 			return 0, core.NewServiceError(core.ErrorCodeUnexpectedError, err.Error())
 		}
@@ -338,8 +338,8 @@ func (v *Hierarchy) GetRank(serviceTypeID uint, variation map[uint]string) (int,
 	return rank, nil
 }
 
-func (v *Hierarchy) GetOrder(serviceTypeID uint, variation map[uint]string) ([]int, error) {
-	serviceType, err := v.GetServiceType(serviceTypeID)
+func (h *Hierarchy) GetOrder(serviceTypeID uint, variation map[uint]string) ([]int, error) {
+	serviceType, err := h.GetServiceType(serviceTypeID)
 	if err != nil {
 		return nil, core.NewServiceError(core.ErrorCodeUnexpectedError, err.Error())
 	}
@@ -352,13 +352,13 @@ func (v *Hierarchy) GetOrder(serviceTypeID uint, variation map[uint]string) ([]i
 			return nil, core.NewServiceError(core.ErrorCodeUnexpectedError, fmt.Sprintf("Property with ID %d not found in OrderMap of service type %d", propertyID, serviceTypeID))
 		}
 
-		order[orderIndex] = v.lookup[propertyID][value].Order
+		order[orderIndex] = h.lookup[propertyID][value].Order
 	}
 
 	return order, nil
 }
 
-func (v *Hierarchy) Filter(valueVariation map[uint]string, filterVariation map[uint]string) (bool, map[uint]string, error) {
+func (h *Hierarchy) Filter(valueVariation map[uint]string, filterVariation map[uint]string) (bool, map[uint]string, error) {
 	unresolved := make(map[uint]string)
 
 	for propertyID, value := range valueVariation {
@@ -369,7 +369,7 @@ func (v *Hierarchy) Filter(valueVariation map[uint]string, filterVariation map[u
 			match := value == filterValue
 
 			if !match {
-				parents, err := v.GetParents(propertyID, value)
+				parents, err := h.GetParents(propertyID, value)
 				if err != nil {
 					return false, nil, core.NewServiceError(core.ErrorCodeUnexpectedError, err.Error())
 				}
@@ -388,12 +388,12 @@ func (v *Hierarchy) Filter(valueVariation map[uint]string, filterVariation map[u
 	return true, unresolved, nil
 }
 
-func validateVariation[T comparable](v *Hierarchy, serviceTypeID uint, variation map[T]string, selector func(property *HierarchyProperty) T) error {
+func validateVariation[T comparable](h *Hierarchy, serviceTypeID uint, variation map[T]string, selector func(property *HierarchyProperty) T) error {
 	if variation == nil {
 		return core.NewServiceError(core.ErrorCodeInvalidInput, "Variation is required")
 	}
 
-	properties, err := v.GetProperties(serviceTypeID)
+	properties, err := h.GetProperties(serviceTypeID)
 	if err != nil {
 		return core.NewServiceError(core.ErrorCodeUnexpectedError, err.Error())
 	}
@@ -406,7 +406,7 @@ func validateVariation[T comparable](v *Hierarchy, serviceTypeID uint, variation
 			continue
 		}
 
-		_, err := v.GetPropertyValue(property.ID, variationValue)
+		_, err := h.GetPropertyValue(property.ID, variationValue)
 		if err != nil {
 			return core.NewServiceError(core.ErrorCodeInvalidInput, err.Error())
 		}
@@ -421,14 +421,14 @@ func validateVariation[T comparable](v *Hierarchy, serviceTypeID uint, variation
 	return nil
 }
 
-func (v *Hierarchy) ValidateIDVariation(serviceTypeID uint, variation map[uint]string) error {
-	return validateVariation(v, serviceTypeID, variation, func(property *HierarchyProperty) uint {
+func (h *Hierarchy) ValidateIDVariation(serviceTypeID uint, variation map[uint]string) error {
+	return validateVariation(h, serviceTypeID, variation, func(property *HierarchyProperty) uint {
 		return property.ID
 	})
 }
 
-func (v *Hierarchy) ValidateStringVariation(serviceTypeID uint, variation map[string]string) error {
-	return validateVariation(v, serviceTypeID, variation, func(property *HierarchyProperty) string {
+func (h *Hierarchy) ValidateStringVariation(serviceTypeID uint, variation map[string]string) error {
+	return validateVariation(h, serviceTypeID, variation, func(property *HierarchyProperty) string {
 		return property.Name
 	})
 }

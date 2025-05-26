@@ -45,8 +45,8 @@ func getVariationContextValuesCacheKey(variationContextID uint) string {
 	return fmt.Sprintf("variation_context_values:%d", variationContextID)
 }
 
-func (v *ContextService) getIDsFromVariation(ctx context.Context, variation map[uint]string) ([]uint, error) {
-	variationHierarchy, err := v.variationHierarchyService.GetVariationHierarchy(ctx)
+func (s *ContextService) getIDsFromVariation(ctx context.Context, variation map[uint]string) ([]uint, error) {
+	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -68,15 +68,15 @@ func (v *ContextService) getIDsFromVariation(ctx context.Context, variation map[
 	return ids, nil
 }
 
-func (v *ContextService) GetVariationContextValues(ctx context.Context, variationContextID uint) (map[uint]string, error) {
+func (s *ContextService) GetVariationContextValues(ctx context.Context, variationContextID uint) (map[uint]string, error) {
 	valuesCacheKey := getVariationContextValuesCacheKey(variationContextID)
-	cachedValues, exists := v.cache.Get(valuesCacheKey)
+	cachedValues, exists := s.cache.Get(valuesCacheKey)
 
 	if exists {
 		return cachedValues.(map[uint]string), nil
 	}
 
-	variationContextValues, err := v.queries.GetVariationContextValues(ctx, variationContextID)
+	variationContextValues, err := s.queries.GetVariationContextValues(ctx, variationContextID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,27 +88,27 @@ func (v *ContextService) GetVariationContextValues(ctx context.Context, variatio
 		valueIds[i] = variationContextValue.ValueID
 	}
 
-	v.cache.Set(valuesCacheKey, variationContext, int64(len(valueIds)*3))
-	v.cache.Set(getVariationContextIdCacheKey(valueIds), variationContextID, 1)
+	s.cache.Set(valuesCacheKey, variationContext, int64(len(valueIds)*3))
+	s.cache.Set(getVariationContextIdCacheKey(valueIds), variationContextID, 1)
 
 	return variationContext, nil
 }
 
-func (v *ContextService) GetVariationContextID(ctx context.Context, variation map[uint]string) (uint, error) {
-	ids, err := v.getIDsFromVariation(ctx, variation)
+func (s *ContextService) GetVariationContextID(ctx context.Context, variation map[uint]string) (uint, error) {
+	ids, err := s.getIDsFromVariation(ctx, variation)
 	if err != nil {
 		return 0, err
 	}
 
 	cacheKey := getVariationContextIdCacheKey(ids)
-	cachedID, exists := v.cache.Get(cacheKey)
+	cachedID, exists := s.cache.Get(cacheKey)
 
 	if exists {
 		return cachedID.(uint), nil
 	}
 
 	var contextID uint
-	err = v.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
 		id, err := tx.GetVariationContextId(ctx, db.GetVariationContextIdParams{
 			VariationPropertyValueIds: ids,
 			PropertyCount:             len(ids),
@@ -145,7 +145,7 @@ func (v *ContextService) GetVariationContextID(ctx context.Context, variation ma
 		return 0, err
 	}
 
-	v.cache.Set(cacheKey, contextID, 1)
+	s.cache.Set(cacheKey, contextID, 1)
 
 	return contextID, nil
 }
