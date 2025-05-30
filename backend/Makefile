@@ -15,7 +15,7 @@ dev:
 	air
 
 testdata:
-	go run cmd/datagenerator/main.go $(if $(SEED),--seed=$(SEED))
+	go run cmd/datagenerator/main.go $(if $(SEED),--seed=$(SEED)) $(if $(ITERATIONS),--iterations=$(ITERATIONS))
 
 swag:
 	swag init -g ./routes.go -d ./handler --parseDependency

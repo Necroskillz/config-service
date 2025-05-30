@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dgraph-io/ristretto/v2"
+	"github.com/hashicorp/go-metrics"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
@@ -31,9 +32,10 @@ import (
 )
 
 type Manager struct {
-	DbPool *pgxpool.Pool
-	Cache  *ristretto.Cache[string, any]
-	DB     *db.Queries
+	DbPool  *pgxpool.Pool
+	Cache   *ristretto.Cache[string, any]
+	DB      *db.Queries
+	Metrics *metrics.Metrics
 
 	Registry     *Registry
 	Rng          *Rng
@@ -54,7 +56,7 @@ type Manager struct {
 	ServiceTypeService        *servicetype.Service
 }
 
-func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any]) *Manager {
+func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any], metrics *metrics.Metrics) *Manager {
 	svc := services.InitializeServices(dbpool, cache)
 
 	changeScopes := make([]*ChangeScope, 3)
@@ -67,8 +69,8 @@ func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any]) *Mana
 
 	changeScopes[1] = &ChangeScope{
 		Weight:               4,
-		CreateValue:          NewChangeAmount(2, 5),
-		UpdateValue:          NewChangeAmount(10, 20),
+		CreateValue:          NewChangeAmount(10, 20),
+		UpdateValue:          NewChangeAmount(5, 10),
 		DeleteValue:          NewChangeAmount(0, 1),
 		CreateKey:            NewChangeAmount(1, 2),
 		CreateFeatureVersion: NewChangeAmount(0, 1),
@@ -76,8 +78,8 @@ func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any]) *Mana
 
 	changeScopes[2] = &ChangeScope{
 		Weight:               1,
-		CreateValue:          NewChangeAmount(5, 10),
-		UpdateValue:          NewChangeAmount(30, 50),
+		CreateValue:          NewChangeAmount(30, 50),
+		UpdateValue:          NewChangeAmount(10, 20),
 		DeleteValue:          NewChangeAmount(1, 3),
 		CreateKey:            NewChangeAmount(1, 2),
 		DeleteKey:            NewChangeAmount(1, 2),
@@ -91,6 +93,7 @@ func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any]) *Mana
 	return &Manager{
 		DbPool:                    dbpool,
 		Cache:                     cache,
+		Metrics:                   metrics,
 		DB:                        db.New(dbpool),
 		ChangeScopes:              changeScopes,
 		ServiceService:            svc.ServiceService,
@@ -109,7 +112,8 @@ func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any]) *Mana
 }
 
 type RunOptions struct {
-	Seed int64
+	Seed       int64
+	Iterations int
 }
 
 type RunOptionFunc func(*RunOptions)
@@ -120,17 +124,21 @@ func WithSeed(seed int64) RunOptionFunc {
 	}
 }
 
-func (m *Manager) Run(ctx context.Context, opts ...RunOptionFunc) error {
-	runOpts := RunOptions{
-		Seed: time.Now().UnixNano(),
+func WithIterationCount(count int) RunOptionFunc {
+	return func(opts *RunOptions) {
+		opts.Iterations = count
 	}
+}
+
+func (m *Manager) Run(ctx context.Context, opts ...RunOptionFunc) error {
+	runOpts := RunOptions{}
 	for _, opt := range opts {
 		opt(&runOpts)
 	}
 	m.Rng = NewRng(runOpts.Seed)
 	m.Registry = NewRegistry(m.Rng)
 
-	log.Printf("Manager starting with seed %d\n", runOpts.Seed)
+	log.Printf("Manager starting with seed %d and %d iterations\n", runOpts.Seed, runOpts.Iterations)
 
 	user, err := m.DB.GetUserByName(ctx, "admin")
 	if err != nil {
@@ -202,8 +210,8 @@ func (m *Manager) Run(ctx context.Context, opts ...RunOptionFunc) error {
 		return err
 	}
 
-	bar = progressbar.Default(10000, "Making changes")
-	for i := 0; i < 10000; i++ {
+	bar = progressbar.Default(int64(runOpts.Iterations), "Making changes")
+	for i := 0; i < runOpts.Iterations; i++ {
 		err = m.makeChanges(ctx)
 		if err != nil {
 			return err
@@ -397,6 +405,8 @@ func (m *Manager) createServiceTypes(ctx context.Context) error {
 }
 
 func (m *Manager) createService(ctx context.Context) error {
+	defer m.Metrics.MeasureSince([]string{"createService"}, time.Now())
+
 	name := fmt.Sprintf("%sService", m.Rng.CapitalizedAdjective())
 
 	serviceVersionID, err := m.ServiceService.CreateService(ctx, service.CreateServiceParams{
@@ -447,6 +457,8 @@ func (m *Manager) createService(ctx context.Context) error {
 }
 
 func (m *Manager) createServiceVersion(ctx context.Context, service *TestDataService) error {
+	defer m.Metrics.MeasureSince([]string{"createServiceVersion"}, time.Now())
+
 	newId, err := m.ServiceService.CreateServiceVersion(ctx, service.ServiceVersionID)
 	if err != nil {
 		return fmt.Errorf("error creating service version from %d: %w", service.ServiceVersionID, err)
@@ -458,6 +470,8 @@ func (m *Manager) createServiceVersion(ctx context.Context, service *TestDataSer
 }
 
 func (m *Manager) createFeature(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"createFeature"}, time.Now())
+
 	serviceVersion, err := m.ServiceService.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -475,6 +489,8 @@ func (m *Manager) createFeature(ctx context.Context, serviceVersionID uint) erro
 }
 
 func (m *Manager) createFeatureVersion(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"createFeatureVersion"}, time.Now())
+
 	featureVersion, err := m.getRandomFeature(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -584,6 +600,8 @@ func (m *Manager) getRandomValue(ctx context.Context, serviceVersionID uint) (*f
 }
 
 func (m *Manager) unlinkFeature(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"unlinkFeature"}, time.Now())
+
 	featureVersion, err := m.getRandomFeature(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -602,6 +620,8 @@ func (m *Manager) unlinkFeature(ctx context.Context, serviceVersionID uint) erro
 }
 
 func (m *Manager) linkFeature(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"linkFeature"}, time.Now())
+
 	featureVersions, err := m.FeatureService.GetFeatureVersionsLinkableToServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -622,6 +642,8 @@ func (m *Manager) linkFeature(ctx context.Context, serviceVersionID uint) error 
 }
 
 func (m *Manager) createKey(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"createKey"}, time.Now())
+
 	featureVersion, err := m.getRandomFeature(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -652,6 +674,8 @@ func (m *Manager) createKey(ctx context.Context, serviceVersionID uint) error {
 }
 
 func (m *Manager) deleteKey(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"deleteKey"}, time.Now())
+
 	featureVersion, key, err := m.getRandomKey(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -684,6 +708,8 @@ func (m *Manager) deleteKey(ctx context.Context, serviceVersionID uint) error {
 }
 
 func (m *Manager) deleteValue(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"deleteValue"}, time.Now())
+
 	feature, key, val, err := m.getRandomValue(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -735,6 +761,8 @@ func (m *Manager) getRandomVariation(ctx context.Context, serviceTypeID uint) (m
 }
 
 func (m *Manager) createValue(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"createValue"}, time.Now())
+
 	serviceVersion, err := m.ServiceService.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -781,6 +809,8 @@ func (m *Manager) createValue(ctx context.Context, serviceVersionID uint) error 
 }
 
 func (m *Manager) updateValue(ctx context.Context, serviceVersionID uint) error {
+	defer m.Metrics.MeasureSince([]string{"updateValue"}, time.Now())
+
 	serviceVersion, err := m.ServiceService.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return err
@@ -842,6 +872,8 @@ func (m *Manager) getUserOpenChangesetID(ctx context.Context) (uint, error) {
 }
 
 func (m *Manager) applyChangeset(ctx context.Context, changesetID uint) error {
+	defer m.Metrics.MeasureSince([]string{"applyChangeset"}, time.Now())
+
 	return m.ChangesetService.ApplyChangeset(ctx, changesetID, nil)
 }
 
