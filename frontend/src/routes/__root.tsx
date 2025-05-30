@@ -9,7 +9,7 @@ import { seo } from '~/utils/seo';
 import { isServer, QueryClient } from '@tanstack/react-query';
 import { AnonymousUser, AuthProvider, getAccessToken, getRefreshToken, refreshFn, setRequestAccessToken } from '~/auth';
 import { useState } from 'react';
-import { ChangesetProvider } from '~/hooks/useChangeset';
+import { ChangesetProvider } from '~/hooks/use-changeset';
 import { ThemeProvider } from '~/ThemeProvider';
 import { AuthUser, getAuthUser, getChangesetsCurrent, HandlerChangesetInfoResponse } from '~/gen';
 

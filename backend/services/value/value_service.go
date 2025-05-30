@@ -704,6 +704,7 @@ func (s *Service) UpdateValue(ctx context.Context, params UpdateValueParams) (Ne
 
 	existingDeleteChange, err := s.queries.GetDeleteChangeForVariationContextID(ctx, db.GetDeleteChangeForVariationContextIDParams{
 		ChangesetID:        user.ChangesetID,
+		KeyID:              key.ID,
 		VariationContextID: variationContextID,
 	})
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {

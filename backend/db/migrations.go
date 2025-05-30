@@ -12,11 +12,26 @@ import (
 var fs embed.FS
 
 func Migrate(connectionString string) error {
-	u, _ := url.Parse(connectionString)
+	u, err := url.Parse(connectionString)
+	if err != nil {
+		return err
+	}
+
 	db := dbmate.New(u)
 	db.FS = fs
 	db.MigrationsDir = []string{"migrations"}
 	db.AutoDumpSchema = true // TODO: Change for production
 
 	return db.CreateAndMigrate()
+}
+
+func Drop(connectionString string) error {
+	u, err := url.Parse(connectionString)
+	if err != nil {
+		return err
+	}
+
+	db := dbmate.New(u)
+
+	return db.Drop()
 }

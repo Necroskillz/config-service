@@ -48,7 +48,7 @@ func AuthMiddleware(userService *membership.UserService, variationHierarchyServi
 
 			userBuilder := auth.NewUserBuilder(variationHierarchy)
 			userBuilder.WithBasicInfo(user.ID, user.Username, user.GlobalAdministrator)
-			userBuilder.WithChangesetId(changesetId)
+			userBuilder.WithChangesetID(changesetId)
 
 			for _, permission := range user.Permissions {
 				userBuilder.WithPermission(permission.ServiceID, permission.FeatureID, permission.KeyID, permission.Variation, permission.Permission)

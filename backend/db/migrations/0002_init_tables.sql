@@ -11,16 +11,18 @@ CREATE TABLE users(
 
 CREATE INDEX idx_users_deleted_at ON users(deleted_at);
 
+CREATE INDEX idx_users_name ON users USING btree(name);
+
 CREATE TABLE value_types(
     id bigserial PRIMARY KEY,
     kind value_type_kind NOT NULL,
-    name text NOT NULL
+    name text NOT NULL UNIQUE
 );
 
 CREATE TABLE service_types(
     id bigserial PRIMARY KEY,
     created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    name text NOT NULL
+    name text NOT NULL UNIQUE
 );
 
 CREATE TABLE services(
@@ -51,6 +53,8 @@ CREATE TABLE feature_versions(
     feature_id bigint NOT NULL REFERENCES features(id) ON DELETE CASCADE
 );
 
+CREATE UNIQUE INDEX idx_feature_versions_unique_version_per_feature ON feature_versions(feature_id, version) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
+
 CREATE INDEX idx_feature_versions_valid_from ON feature_versions(valid_from);
 
 CREATE INDEX idx_feature_versions_valid_to ON feature_versions(valid_to);
@@ -66,6 +70,8 @@ CREATE TABLE service_versions(
     published boolean NOT NULL DEFAULT FALSE
 );
 
+CREATE UNIQUE INDEX idx_service_versions_unique_version_per_service ON service_versions(service_id, version) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
+
 CREATE INDEX idx_service_versions_valid_from ON service_versions(valid_from);
 
 CREATE INDEX idx_service_versions_valid_to ON service_versions(valid_to);
@@ -78,6 +84,8 @@ CREATE TABLE feature_version_service_versions(
     feature_version_id bigint NOT NULL REFERENCES feature_versions(id) ON DELETE CASCADE,
     service_version_id bigint NOT NULL REFERENCES service_versions(id) ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX idx_feature_version_service_versions_unique ON feature_version_service_versions(feature_version_id, service_version_id) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
 
 CREATE INDEX idx_fvsv_valid_from ON feature_version_service_versions(valid_from);
 
@@ -96,6 +104,8 @@ CREATE TABLE keys(
     validators_updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE UNIQUE INDEX idx_keys_unique_name_per_feature_version ON keys(feature_version_id, name) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
+
 CREATE INDEX idx_keys_valid_from ON keys(valid_from);
 
 CREATE INDEX idx_keys_valid_to ON keys(valid_to);
@@ -112,7 +122,7 @@ CREATE TABLE value_validators(
 
 CREATE TABLE variation_properties(
     id bigserial PRIMARY KEY,
-    name text NOT NULL,
+    name text NOT NULL UNIQUE,
     display_name text NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -123,7 +133,8 @@ CREATE TABLE service_type_variation_properties(
     updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     priority integer NOT NULL,
     service_type_id bigint NOT NULL REFERENCES service_types(id) ON DELETE CASCADE,
-    variation_property_id bigint NOT NULL REFERENCES variation_properties(id)
+    variation_property_id bigint NOT NULL REFERENCES variation_properties(id),
+    UNIQUE (service_type_id, variation_property_id)
 );
 
 CREATE TABLE variation_property_values(
@@ -132,7 +143,8 @@ CREATE TABLE variation_property_values(
     value text NOT NULL,
     parent_id bigint REFERENCES variation_property_values(id) ON DELETE CASCADE,
     order_index integer NOT NULL,
-    archived boolean NOT NULL DEFAULT FALSE
+    archived boolean NOT NULL DEFAULT FALSE,
+    UNIQUE (variation_property_id, value)
 );
 
 CREATE INDEX idx_variation_property_values_order_index ON variation_property_values(order_index);
@@ -150,6 +162,8 @@ CREATE TABLE variation_values(
     variation_context_id bigint NOT NULL REFERENCES variation_contexts(id),
     data text NOT NULL
 );
+
+CREATE UNIQUE INDEX idx_one_value_per_key_and_context ON variation_values(key_id, variation_context_id) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
 
 CREATE INDEX idx_variation_values_valid_from ON variation_values(valid_from);
 
@@ -169,8 +183,11 @@ CREATE TABLE user_permissions(
     feature_id bigint REFERENCES features(id),
     key_id bigint REFERENCES keys(id),
     variation_context_id bigint REFERENCES variation_contexts(id),
-    permission permission_level NOT NULL
+    permission permission_level NOT NULL,
+    UNIQUE (user_id, service_id, feature_id, key_id, variation_context_id)
 );
+
+CREATE INDEX idx_user_permissions_kind ON user_permissions(kind);
 
 CREATE TABLE changesets(
     id bigserial PRIMARY KEY,
@@ -180,6 +197,8 @@ CREATE TABLE changesets(
     state changeset_state NOT NULL,
     applied_at timestamp with time zone
 );
+
+CREATE UNIQUE INDEX idx_changesets_one_open_per_user ON changesets(user_id) WHERE state = 'open';
 
 CREATE TABLE changeset_changes(
     id bigserial PRIMARY KEY,

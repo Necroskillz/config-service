@@ -55,7 +55,7 @@ func (c ChangesetWithChanges) CanBeAppliedBy(user *auth.User) bool {
 	}
 
 	for _, change := range c.ChangesetChanges {
-		if user.GetPermissionForService(change.ServiceVersionID) != constants.PermissionAdmin {
+		if user.GetPermissionForService(change.ServiceID) != constants.PermissionAdmin {
 			return false
 		}
 	}

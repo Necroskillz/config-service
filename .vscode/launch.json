@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Data Generator",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/backend/cmd/datagenerator",
+            "cwd": "${workspaceFolder}/backend",
+            "args": []
+        },
+        {
             "name": "Attach to Process",
             "type": "go",
             "request": "attach",

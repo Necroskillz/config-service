@@ -62,6 +62,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uint, e
 	return id, err
 }
 
+type CreateUsersParams struct {
+	Name                string
+	Password            string
+	GlobalAdministrator bool
+	CreatedAt           time.Time
+}
+
 const getUserByID = `-- name: GetUserByID :one
 SELECT
     id, created_at, updated_at, deleted_at, name, password, global_administrator
@@ -170,9 +177,9 @@ WITH filtered_users AS (
     FROM
         users
     WHERE
-        deleted_at IS NULL AND
-        ($3::text IS NULL OR name ILIKE $3::text || '%')
-)
+        deleted_at IS NULL
+        AND ($3::text IS NULL
+            OR name ILIKE $3::text || '%'))
 SELECT
     filtered_users.id, filtered_users.created_at, filtered_users.updated_at, filtered_users.deleted_at, filtered_users.name, filtered_users.password, filtered_users.global_administrator,
     COUNT(*) OVER ()::integer AS total_count

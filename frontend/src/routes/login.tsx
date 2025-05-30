@@ -6,7 +6,7 @@ import { Input } from '~/components/ui/input';
 import { Button } from '~/components/ui/button';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { Alert, AlertDescription } from '~/components/ui/alert';
-
+import { useChangeset } from '~/hooks/use-changeset';
 export const Route = createFileRoute('/login')({
   component: RouteComponent,
 });
@@ -19,9 +19,12 @@ const Schema = z.object({
 function RouteComponent() {
   const router = useRouter();
   const { login } = useAuth();
+  const { refresh } = useChangeset();
+
   const mutation = useMutation({
     mutationFn: async (data: { username: string; password: string }) => {
       await login(data.username, data.password);
+      await refresh();
       router.navigate({ to: '/' });
     },
   });
@@ -37,7 +40,6 @@ function RouteComponent() {
     onSubmit: async ({ value }) => {
       try {
         await mutation.mutateAsync(value);
-        router.navigate({ to: '/' });
       } catch (error: any) {
         console.error(error);
       }

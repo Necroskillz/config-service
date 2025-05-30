@@ -1,5 +1,5 @@
 -- migrate:up
-CREATE FUNCTION is_service_version_valid_in_changeset(sv service_versions, changeset_id bigint)
+CREATE FUNCTION is_service_version_valid_in_changeset(sv service_versions, in_changeset_id bigint)
     RETURNS boolean
     AS $$
     SELECT
@@ -11,7 +11,7 @@ CREATE FUNCTION is_service_version_valid_in_changeset(sv service_versions, chang
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'service_version'
                         AND csc.type = 'delete'
                         AND csc.service_version_id = sv.id
@@ -23,7 +23,7 @@ CREATE FUNCTION is_service_version_valid_in_changeset(sv service_versions, chang
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'service_version'
                 AND csc.service_version_id = sv.id
@@ -32,7 +32,7 @@ $$
 LANGUAGE sql
 IMMUTABLE;
 
-CREATE FUNCTION is_feature_version_valid_in_changeset(fv feature_versions, changeset_id bigint)
+CREATE FUNCTION is_feature_version_valid_in_changeset(fv feature_versions, in_changeset_id bigint)
     RETURNS boolean
     AS $$
     SELECT
@@ -44,7 +44,7 @@ CREATE FUNCTION is_feature_version_valid_in_changeset(fv feature_versions, chang
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'feature_version'
                         AND csc.type = 'delete'
                         AND csc.feature_version_id = fv.id
@@ -56,7 +56,7 @@ CREATE FUNCTION is_feature_version_valid_in_changeset(fv feature_versions, chang
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'feature_version'
                 AND csc.feature_version_id = fv.id
@@ -65,7 +65,7 @@ $$
 LANGUAGE sql
 IMMUTABLE;
 
-CREATE FUNCTION is_link_valid_in_changeset(fvsv feature_version_service_versions, changeset_id bigint)
+CREATE FUNCTION is_link_valid_in_changeset(fvsv feature_version_service_versions, in_changeset_id bigint)
     RETURNS boolean
     AS $$
     SELECT
@@ -77,7 +77,7 @@ CREATE FUNCTION is_link_valid_in_changeset(fvsv feature_version_service_versions
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'feature_version_service_version'
                         AND csc.type = 'delete'
                         AND csc.feature_version_service_version_id = fvsv.id
@@ -89,7 +89,7 @@ CREATE FUNCTION is_link_valid_in_changeset(fvsv feature_version_service_versions
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'feature_version_service_version'
                 AND csc.feature_version_service_version_id = fvsv.id
@@ -98,7 +98,7 @@ $$
 LANGUAGE sql
 IMMUTABLE;
 
-CREATE FUNCTION is_key_valid_in_changeset(k keys, changeset_id bigint)
+CREATE FUNCTION is_key_valid_in_changeset(k keys, in_changeset_id bigint)
     RETURNS boolean
     AS $$
     SELECT
@@ -110,7 +110,7 @@ CREATE FUNCTION is_key_valid_in_changeset(k keys, changeset_id bigint)
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'key'
                         AND csc.type = 'delete'
                         AND csc.key_id = k.id
@@ -122,7 +122,7 @@ CREATE FUNCTION is_key_valid_in_changeset(k keys, changeset_id bigint)
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'key'
                 AND csc.key_id = k.id
@@ -131,7 +131,7 @@ $$
 LANGUAGE sql
 IMMUTABLE;
 
-CREATE FUNCTION is_variation_value_valid_in_changeset(vv variation_values, changeset_id bigint)
+CREATE FUNCTION is_variation_value_valid_in_changeset(vv variation_values, in_changeset_id bigint)
     RETURNS boolean
     AS $$
     SELECT
@@ -143,7 +143,7 @@ CREATE FUNCTION is_variation_value_valid_in_changeset(vv variation_values, chang
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'variation_value'
                         AND csc.old_variation_value_id = vv.id
                     LIMIT 1)))
@@ -154,7 +154,7 @@ CREATE FUNCTION is_variation_value_valid_in_changeset(vv variation_values, chang
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.kind = 'variation_value'
                 AND csc.new_variation_value_id = vv.id
             LIMIT 1))

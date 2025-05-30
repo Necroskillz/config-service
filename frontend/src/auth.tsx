@@ -1,10 +1,9 @@
 import { createServerFn } from '@tanstack/react-start';
 import { getCookie, setCookie, deleteCookie, getContext, setContext } from '@tanstack/react-start/server';
-import { createContext, useState, useEffect, use } from 'react';
+import { createContext, useState, use, useEffect } from 'react';
 import { z } from 'zod';
-import { AuthUser, postAuthLogin, postAuthRefreshToken, getAuthUser, getAuthUserQueryKey, useGetAuthUserSuspense } from './gen';
+import { AuthUser, postAuthLogin, postAuthRefreshToken, getAuthUser } from './gen';
 import { isServer } from './utils/is-server';
-import { useQueryClient } from '@tanstack/react-query';
 
 export type User = AuthUser;
 
@@ -37,12 +36,14 @@ function setTokenCookies(accessToken: string, refreshToken: string) {
   });
 }
 
-export function setRequestAccessToken(accessToken: string) {
-  setContext('access_token', accessToken);
+export function setRequestAccessToken(accessToken: string | null) {
+  if (accessToken) {
+    setContext('access_token', accessToken);
+  }
 }
 
-export function getRequestAccessToken() {
-  return getContext('access_token');
+export function getRequestAccessToken(): string | null {
+  return getContext('access_token') ?? null;
 }
 
 const loginFn = createServerFn({ method: 'POST' })
@@ -84,16 +85,16 @@ export const refreshFn = createServerFn({ method: 'POST' }).handler(async () => 
   return { accessToken };
 });
 
-export function getAccessToken() {
+export function getAccessToken(): string | null {
   if (isServer) {
-    return getRequestAccessToken() ?? getCookie('access_token');
+    return getRequestAccessToken() ?? getCookie('access_token') ?? null;
   }
   return localStorage.getItem('access_token');
 }
 
-export function getRefreshToken() {
+export function getRefreshToken(): string | null {
   if (isServer) {
-    return getCookie('refresh_token');
+    return getCookie('refresh_token') ?? null;
   }
 
   throw new Error('refresh_token is not available on the client');
@@ -104,6 +105,7 @@ export function setAccessToken(accessToken: string | null) {
     return;
   }
 
+  
   if (accessToken) {
     localStorage.setItem('access_token', accessToken);
   } else {
@@ -112,8 +114,18 @@ export function setAccessToken(accessToken: string | null) {
 }
 const AuthContext = createContext<AuthContextType>(undefined as unknown as AuthContextType);
 
-export const AuthProvider = ({ children, accessToken, initialUser }: { children: React.ReactNode; accessToken: string | null; initialUser: AuthUser }) => {
-  setAccessToken(accessToken);
+export const AuthProvider = ({
+  children,
+  accessToken,
+  initialUser,
+}: {
+  children: React.ReactNode;
+  accessToken: string | null;
+  initialUser: AuthUser;
+}) => {
+  useEffect(() => {
+    setAccessToken(accessToken);
+  }, []);
   const [userState, setUserState] = useState<User>(initialUser);
 
   async function login(username: string, password: string) {
@@ -125,6 +137,7 @@ export const AuthProvider = ({ children, accessToken, initialUser }: { children:
   async function logout() {
     await logoutFn();
     setUserState(AnonymousUser);
+    setAccessToken(null);
   }
 
   return <AuthContext value={{ user: userState, login, logout }}>{children}</AuthContext>;

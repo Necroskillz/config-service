@@ -184,13 +184,13 @@ SELECT
     f.description AS feature_description,
     f.service_id,
     lfv.last_version AS last_version,
-    l.published AS linked_to_published_service_version,
-    l.link_count AS service_version_link_count
+    COALESCE(l.published, false) AS linked_to_published_service_version,
+    COALESCE(l.link_count, 0) AS service_version_link_count
 FROM
     feature_versions fv
     JOIN features f ON f.id = fv.feature_id
     JOIN last_feature_versions lfv ON lfv.feature_id = fv.feature_id
-    JOIN links l ON l.feature_version_id = fv.id
+    LEFT JOIN links l ON l.feature_version_id = fv.id
 WHERE
     fv.id = $1
     AND is_feature_version_valid_in_changeset(fv, $2)

@@ -26,8 +26,8 @@ func (u *UserBuilder) WithBasicInfo(id uint, username string, isGlobalAdmin bool
 	return u
 }
 
-func (u *UserBuilder) WithChangesetId(changesetId uint) *UserBuilder {
-	u.user.ChangesetID = changesetId
+func (u *UserBuilder) WithChangesetID(changesetID uint) *UserBuilder {
+	u.user.ChangesetID = changesetID
 	return u
 }
 

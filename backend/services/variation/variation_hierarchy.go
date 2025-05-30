@@ -17,6 +17,21 @@ type HierarchyProperty struct {
 	Values      []*HierarchyValue
 }
 
+func (p *HierarchyProperty) GetAllValues() []*HierarchyValue {
+	values := []*HierarchyValue{}
+	stack := make([]*HierarchyValue, len(p.Values))
+	copy(stack, p.Values)
+
+	for len(stack) > 0 {
+		value := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		values = append(values, value)
+		stack = append(stack, value.Children...)
+	}
+
+	return values
+}
+
 type HierarchyValue struct {
 	ID         uint
 	PropertyID uint
@@ -414,7 +429,7 @@ func validateVariation[T comparable](h *Hierarchy, serviceTypeID uint, variation
 		validated++
 	}
 
-	if validated != len(properties) {
+	if validated != len(variation) {
 		return core.NewServiceError(core.ErrorCodeInvalidInput, fmt.Sprintf("Variation %+v contains invalid properties for service type %d", variation, serviceTypeID))
 	}
 

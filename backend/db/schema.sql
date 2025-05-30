@@ -141,7 +141,7 @@ CREATE TABLE public.feature_versions (
 -- Name: is_feature_version_valid_in_changeset(public.feature_versions, bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.is_feature_version_valid_in_changeset(fv public.feature_versions, changeset_id bigint) RETURNS boolean
+CREATE FUNCTION public.is_feature_version_valid_in_changeset(fv public.feature_versions, in_changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
     SELECT
@@ -153,7 +153,7 @@ CREATE FUNCTION public.is_feature_version_valid_in_changeset(fv public.feature_v
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'feature_version'
                         AND csc.type = 'delete'
                         AND csc.feature_version_id = fv.id
@@ -165,7 +165,7 @@ CREATE FUNCTION public.is_feature_version_valid_in_changeset(fv public.feature_v
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'feature_version'
                 AND csc.feature_version_id = fv.id
@@ -195,7 +195,7 @@ CREATE TABLE public.keys (
 -- Name: is_key_valid_in_changeset(public.keys, bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.is_key_valid_in_changeset(k public.keys, changeset_id bigint) RETURNS boolean
+CREATE FUNCTION public.is_key_valid_in_changeset(k public.keys, in_changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
     SELECT
@@ -207,7 +207,7 @@ CREATE FUNCTION public.is_key_valid_in_changeset(k public.keys, changeset_id big
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'key'
                         AND csc.type = 'delete'
                         AND csc.key_id = k.id
@@ -219,7 +219,7 @@ CREATE FUNCTION public.is_key_valid_in_changeset(k public.keys, changeset_id big
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'key'
                 AND csc.key_id = k.id
@@ -245,7 +245,7 @@ CREATE TABLE public.feature_version_service_versions (
 -- Name: is_link_valid_in_changeset(public.feature_version_service_versions, bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.is_link_valid_in_changeset(fvsv public.feature_version_service_versions, changeset_id bigint) RETURNS boolean
+CREATE FUNCTION public.is_link_valid_in_changeset(fvsv public.feature_version_service_versions, in_changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
     SELECT
@@ -257,7 +257,7 @@ CREATE FUNCTION public.is_link_valid_in_changeset(fvsv public.feature_version_se
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'feature_version_service_version'
                         AND csc.type = 'delete'
                         AND csc.feature_version_service_version_id = fvsv.id
@@ -269,7 +269,7 @@ CREATE FUNCTION public.is_link_valid_in_changeset(fvsv public.feature_version_se
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'feature_version_service_version'
                 AND csc.feature_version_service_version_id = fvsv.id
@@ -297,7 +297,7 @@ CREATE TABLE public.service_versions (
 -- Name: is_service_version_valid_in_changeset(public.service_versions, bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.is_service_version_valid_in_changeset(sv public.service_versions, changeset_id bigint) RETURNS boolean
+CREATE FUNCTION public.is_service_version_valid_in_changeset(sv public.service_versions, in_changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
     SELECT
@@ -309,7 +309,7 @@ CREATE FUNCTION public.is_service_version_valid_in_changeset(sv public.service_v
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'service_version'
                         AND csc.type = 'delete'
                         AND csc.service_version_id = sv.id
@@ -321,7 +321,7 @@ CREATE FUNCTION public.is_service_version_valid_in_changeset(sv public.service_v
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.type = 'create'
                 AND csc.kind = 'service_version'
                 AND csc.service_version_id = sv.id
@@ -347,7 +347,7 @@ CREATE TABLE public.variation_values (
 -- Name: is_variation_value_valid_in_changeset(public.variation_values, bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.is_variation_value_valid_in_changeset(vv public.variation_values, changeset_id bigint) RETURNS boolean
+CREATE FUNCTION public.is_variation_value_valid_in_changeset(vv public.variation_values, in_changeset_id bigint) RETURNS boolean
     LANGUAGE sql IMMUTABLE
     AS $$
     SELECT
@@ -359,7 +359,7 @@ CREATE FUNCTION public.is_variation_value_valid_in_changeset(vv public.variation
                     FROM
                         changeset_changes csc
                     WHERE
-                        csc.changeset_id = @changeset_id
+                        csc.changeset_id = in_changeset_id
                         AND csc.kind = 'variation_value'
                         AND csc.old_variation_value_id = vv.id
                     LIMIT 1)))
@@ -370,7 +370,7 @@ CREATE FUNCTION public.is_variation_value_valid_in_changeset(vv public.variation
             FROM
                 changeset_changes csc
             WHERE
-                csc.changeset_id = @changeset_id
+                csc.changeset_id = in_changeset_id
                 AND csc.kind = 'variation_value'
                 AND csc.new_variation_value_id = vv.id
             LIMIT 1))
@@ -578,7 +578,7 @@ ALTER SEQUENCE public.keys_id_seq OWNED BY public.keys.id;
 --
 
 CREATE TABLE public.schema_migrations (
-    version character varying(128) NOT NULL
+    version character varying NOT NULL
 );
 
 
@@ -1158,11 +1158,27 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: service_type_variation_properties service_type_variation_proper_service_type_id_variation_pro_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.service_type_variation_properties
+    ADD CONSTRAINT service_type_variation_proper_service_type_id_variation_pro_key UNIQUE (service_type_id, variation_property_id);
+
+
+--
 -- Name: service_type_variation_properties service_type_variation_properties_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.service_type_variation_properties
     ADD CONSTRAINT service_type_variation_properties_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: service_types service_types_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.service_types
+    ADD CONSTRAINT service_types_name_key UNIQUE (name);
 
 
 --
@@ -1206,6 +1222,14 @@ ALTER TABLE ONLY public.user_permissions
 
 
 --
+-- Name: user_permissions user_permissions_user_id_service_id_feature_id_key_id_varia_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_permissions
+    ADD CONSTRAINT user_permissions_user_id_service_id_feature_id_key_id_varia_key UNIQUE (user_id, service_id, feature_id, key_id, variation_context_id);
+
+
+--
 -- Name: users users_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1219,6 +1243,14 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: value_types value_types_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.value_types
+    ADD CONSTRAINT value_types_name_key UNIQUE (name);
 
 
 --
@@ -1254,6 +1286,14 @@ ALTER TABLE ONLY public.variation_contexts
 
 
 --
+-- Name: variation_properties variation_properties_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.variation_properties
+    ADD CONSTRAINT variation_properties_name_key UNIQUE (name);
+
+
+--
 -- Name: variation_properties variation_properties_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1270,6 +1310,14 @@ ALTER TABLE ONLY public.variation_property_values
 
 
 --
+-- Name: variation_property_values variation_property_values_variation_property_id_value_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.variation_property_values
+    ADD CONSTRAINT variation_property_values_variation_property_id_value_key UNIQUE (variation_property_id, value);
+
+
+--
 -- Name: variation_values variation_values_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1282,6 +1330,27 @@ ALTER TABLE ONLY public.variation_values
 --
 
 CREATE INDEX idx_changeset_changes_kind ON public.changeset_changes USING btree (kind);
+
+
+--
+-- Name: idx_changesets_one_open_per_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_changesets_one_open_per_user ON public.changesets USING btree (user_id) WHERE (state = 'open'::public.changeset_state);
+
+
+--
+-- Name: idx_feature_version_service_versions_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_feature_version_service_versions_unique ON public.feature_version_service_versions USING btree (feature_version_id, service_version_id) WHERE ((valid_from IS NOT NULL) AND (valid_to IS NULL));
+
+
+--
+-- Name: idx_feature_versions_unique_version_per_feature; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_feature_versions_unique_version_per_feature ON public.feature_versions USING btree (feature_id, version) WHERE ((valid_from IS NOT NULL) AND (valid_to IS NULL));
 
 
 --
@@ -1313,6 +1382,13 @@ CREATE INDEX idx_fvsv_valid_to ON public.feature_version_service_versions USING 
 
 
 --
+-- Name: idx_keys_unique_name_per_feature_version; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_keys_unique_name_per_feature_version ON public.keys USING btree (feature_version_id, name) WHERE ((valid_from IS NOT NULL) AND (valid_to IS NULL));
+
+
+--
 -- Name: idx_keys_valid_from; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1327,6 +1403,20 @@ CREATE INDEX idx_keys_valid_to ON public.keys USING btree (valid_to);
 
 
 --
+-- Name: idx_one_value_per_key_and_context; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_one_value_per_key_and_context ON public.variation_values USING btree (key_id, variation_context_id) WHERE ((valid_from IS NOT NULL) AND (valid_to IS NULL));
+
+
+--
+-- Name: idx_service_versions_unique_version_per_service; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_service_versions_unique_version_per_service ON public.service_versions USING btree (service_id, version) WHERE ((valid_from IS NOT NULL) AND (valid_to IS NULL));
+
+
+--
 -- Name: idx_service_versions_valid_from; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1338,6 +1428,13 @@ CREATE INDEX idx_service_versions_valid_from ON public.service_versions USING bt
 --
 
 CREATE INDEX idx_service_versions_valid_to ON public.service_versions USING btree (valid_to);
+
+
+--
+-- Name: idx_user_permissions_kind; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_user_permissions_kind ON public.user_permissions USING btree (kind);
 
 
 --

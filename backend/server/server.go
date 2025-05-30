@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dgraph-io/ristretto/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
@@ -18,23 +19,8 @@ import (
 	_ "github.com/necroskillz/config-service/docs"
 	"github.com/necroskillz/config-service/handler"
 	"github.com/necroskillz/config-service/middleware"
-	"github.com/necroskillz/config-service/services/changeset"
-	"github.com/necroskillz/config-service/services/configuration"
-	"github.com/necroskillz/config-service/services/core"
-	"github.com/necroskillz/config-service/services/feature"
-	"github.com/necroskillz/config-service/services/key"
-	"github.com/necroskillz/config-service/services/membership"
-	"github.com/necroskillz/config-service/services/service"
-	"github.com/necroskillz/config-service/services/servicetype"
-	"github.com/necroskillz/config-service/services/validation"
-	"github.com/necroskillz/config-service/services/value"
-	"github.com/necroskillz/config-service/services/valuetype"
-	"github.com/necroskillz/config-service/services/variation"
-	"github.com/necroskillz/config-service/services/variationproperty"
-	"github.com/necroskillz/config-service/util/validator"
+	"github.com/necroskillz/config-service/services"
 	echoSwagger "github.com/swaggo/echo-swagger"
-
-	"github.com/dgraph-io/ristretto/v2"
 )
 
 type Server struct {
@@ -80,29 +66,7 @@ func (s *Server) Start() error {
 	s.echo = e
 	s.cache = cache
 
-	queries := db.New(dbpool)
-
-	e.Static("/assets", "views/assets")
-
-	currentUserAccessor := auth.NewCurrentUserAccessor()
-
-	unitOfWorkRunner := db.NewPgxUnitOfWorkRunner(dbpool, queries)
-	valueValidatorService := validation.NewValueValidatorService(queries)
-	validator := validator.New()
-	valueTypeService := valuetype.NewService(queries, valueValidatorService)
-	coreService := core.NewService(queries, currentUserAccessor)
-	variationHierarchyService := variation.NewHierarchyService(queries, cache)
-	variationContextService := variation.NewContextService(queries, variationHierarchyService, unitOfWorkRunner, cache)
-	validationService := validation.NewService(queries, variationContextService, variationHierarchyService, currentUserAccessor, coreService)
-	serviceTypeService := servicetype.NewService(unitOfWorkRunner, queries, validator, validationService, currentUserAccessor)
-	changesetService := changeset.NewService(queries, variationContextService, unitOfWorkRunner, currentUserAccessor, validator)
-	serviceService := service.NewService(queries, unitOfWorkRunner, changesetService, currentUserAccessor, validator, coreService, validationService)
-	userService := membership.NewUserService(queries, variationContextService, validationService, validator)
-	featureService := feature.NewService(unitOfWorkRunner, queries, changesetService, currentUserAccessor, validator, coreService, validationService)
-	keyService := key.NewService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService, variationHierarchyService, validationService)
-	valueService := value.NewService(unitOfWorkRunner, variationContextService, variationHierarchyService, queries, changesetService, currentUserAccessor, validator, coreService, validationService, valueValidatorService)
-	variationPropertyService := variationproperty.NewService(queries, variationHierarchyService, validator, validationService, currentUserAccessor, unitOfWorkRunner)
-	configurationService := configuration.NewService(queries, variationContextService, variationHierarchyService)
+	svc := services.InitializeServices(dbpool, cache)
 
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
@@ -138,7 +102,7 @@ func (s *Server) Start() error {
 		},
 		ContextKey: "claims",
 	}))
-	e.Use(middleware.AuthMiddleware(userService, variationHierarchyService, changesetService))
+	e.Use(middleware.AuthMiddleware(svc.UserService, svc.VariationHierarchyService, svc.ChangesetService))
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
@@ -149,6 +113,8 @@ func (s *Server) Start() error {
 
 			if he.Internal != nil {
 				c.Logger().Error(he.Internal)
+			} else if code == http.StatusInternalServerError {
+				c.Logger().Error(err)
 			}
 
 			c.JSON(code, err)
@@ -160,19 +126,19 @@ func (s *Server) Start() error {
 	}
 
 	handler := handler.NewHandler(
-		serviceService,
-		userService,
-		featureService,
-		keyService,
-		changesetService,
-		validationService,
-		valueService,
-		variationHierarchyService,
-		currentUserAccessor,
-		valueTypeService,
-		variationPropertyService,
-		serviceTypeService,
-		configurationService,
+		svc.ServiceService,
+		svc.UserService,
+		svc.FeatureService,
+		svc.KeyService,
+		svc.ChangesetService,
+		svc.ValidationService,
+		svc.ValueService,
+		svc.VariationHierarchyService,
+		svc.CurrentUserAccessor,
+		svc.ValueTypeService,
+		svc.VariationPropertyService,
+		svc.ServiceTypeService,
+		svc.ConfigurationService,
 	)
 	handler.RegisterRoutes(e)
 

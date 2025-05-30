@@ -4,15 +4,15 @@ import { routeTree } from './routeTree.gen';
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary';
 import { NotFound } from './components/NotFound';
 import { QueryClient } from '@tanstack/react-query';
-import { AnonymousUser } from './auth';
 import { Pending } from './components/Pending';
+
 export function createRouter() {
   const queryClient = new QueryClient();
 
   return routerWithQueryClient(
     createTanStackRouter({
       routeTree,
-      context: { queryClient, accessToken: null, user: AnonymousUser },
+      context: { queryClient, accessToken: null, user: undefined!, changeset: undefined! },
       defaultPreload: 'intent',
       defaultPendingMs: 200,
       defaultPreloadStaleTime: 0,

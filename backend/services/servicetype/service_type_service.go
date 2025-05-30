@@ -8,19 +8,35 @@ import (
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/services/core"
 	"github.com/necroskillz/config-service/services/validation"
+	"github.com/necroskillz/config-service/services/variation"
 	"github.com/necroskillz/config-service/util/validator"
 )
 
 type Service struct {
-	unitOfWorkRunner    db.UnitOfWorkRunner
-	queries             *db.Queries
-	validator           *validator.Validator
-	validationService   *validation.Service
-	currentUserAccessor *auth.CurrentUserAccessor
+	unitOfWorkRunner          db.UnitOfWorkRunner
+	queries                   *db.Queries
+	validator                 *validator.Validator
+	validationService         *validation.Service
+	currentUserAccessor       *auth.CurrentUserAccessor
+	variationHierarchyService *variation.HierarchyService
 }
 
-func NewService(unitOfWorkRunner db.UnitOfWorkRunner, queries *db.Queries, validator *validator.Validator, validationService *validation.Service, currentUserAccessor *auth.CurrentUserAccessor) *Service {
-	return &Service{unitOfWorkRunner: unitOfWorkRunner, queries: queries, validator: validator, validationService: validationService, currentUserAccessor: currentUserAccessor}
+func NewService(
+	unitOfWorkRunner db.UnitOfWorkRunner,
+	queries *db.Queries,
+	validator *validator.Validator,
+	validationService *validation.Service,
+	currentUserAccessor *auth.CurrentUserAccessor,
+	variationHierarchyService *variation.HierarchyService,
+) *Service {
+	return &Service{
+		unitOfWorkRunner:          unitOfWorkRunner,
+		queries:                   queries,
+		validator:                 validator,
+		validationService:         validationService,
+		currentUserAccessor:       currentUserAccessor,
+		variationHierarchyService: variationHierarchyService,
+	}
 }
 
 type ServiceTypeItemDto struct {
@@ -131,6 +147,8 @@ func (s *Service) CreateServiceType(ctx context.Context, params CreateServiceTyp
 		return 0, core.NewDbError(err, "ServiceType")
 	}
 
+	s.variationHierarchyService.ClearCache(ctx)
+
 	return serviceTypeID, nil
 }
 
@@ -175,12 +193,16 @@ func (s *Service) LinkVariationPropertyToServiceType(ctx context.Context, params
 		return err
 	}
 
-	_, err := s.queries.CreateServiceTypeVariationPropertyLink(ctx, db.CreateServiceTypeVariationPropertyLinkParams{
+	if _, err := s.queries.CreateServiceTypeVariationPropertyLink(ctx, db.CreateServiceTypeVariationPropertyLinkParams{
 		ServiceTypeID:       params.ServiceTypeID,
 		VariationPropertyID: params.VariationPropertyID,
-	})
+	}); err != nil {
+		return err
+	}
 
-	return err
+	s.variationHierarchyService.ClearCache(ctx)
+
+	return nil
 }
 
 func (s *Service) validateUnlinkVariationPropertyToServiceType(ctx context.Context, params LinkVariationPropertyToServiceTypeParams) error {
@@ -222,12 +244,16 @@ func (s *Service) UnlinkVariationPropertyToServiceType(ctx context.Context, para
 		return err
 	}
 
-	err := s.queries.DeleteServiceTypeVariationPropertyLink(ctx, db.DeleteServiceTypeVariationPropertyLinkParams{
+	if err := s.queries.DeleteServiceTypeVariationPropertyLink(ctx, db.DeleteServiceTypeVariationPropertyLinkParams{
 		ServiceTypeID:       params.ServiceTypeID,
 		VariationPropertyID: params.VariationPropertyID,
-	})
+	}); err != nil {
+		return err
+	}
 
-	return err
+	s.variationHierarchyService.ClearCache(ctx)
+
+	return nil
 }
 
 type UpdateServiceTypeVariationPropertyPriorityParams struct {
@@ -283,6 +309,8 @@ func (s *Service) UpdateServiceTypeVariationPropertyPriority(ctx context.Context
 		return err
 	}
 
+	s.variationHierarchyService.ClearCache(ctx)
+
 	return nil
 }
 
@@ -309,5 +337,11 @@ func (s *Service) DeleteServiceType(ctx context.Context, id uint) error {
 		return err
 	}
 
-	return s.queries.DeleteServiceType(ctx, id)
+	if err := s.queries.DeleteServiceType(ctx, id); err != nil {
+		return err
+	}
+
+	s.variationHierarchyService.ClearCache(ctx)
+
+	return nil
 }

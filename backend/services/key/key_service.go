@@ -186,7 +186,12 @@ func (s *Service) validateCreateKey(ctx context.Context, data CreateKeyParams, s
 
 	s.validateValidators(vc, data.Validators)
 
-	validatorFunc, err := s.valueValidatorService.CreateValueValidatorFunc(data.Validators)
+	valueTypeValidators, err := s.valueValidatorService.GetValueValidators(ctx, nil, &data.ValueTypeID)
+	if err != nil {
+		return err
+	}
+
+	validatorFunc, err := s.valueValidatorService.CreateValueValidatorFunc(slices.Concat(valueTypeValidators, data.Validators))
 	if err != nil {
 		return err
 	}
@@ -338,12 +343,17 @@ func (s *Service) validateUpdateKey(ctx context.Context, data UpdateKeyParams, s
 			return err
 		}
 
-		for _, variationValue := range variationValues {
-			validatorFunc, err := s.valueValidatorService.CreateValueValidatorFunc(data.Validators)
-			if err != nil {
-				return err
-			}
+		valueTypeValidators, err := s.valueValidatorService.GetValueValidators(ctx, nil, &key.ValueTypeID)
+		if err != nil {
+			return err
+		}
 
+		validatorFunc, err := s.valueValidatorService.CreateValueValidatorFunc(slices.Concat(valueTypeValidators, data.Validators))
+		if err != nil {
+			return err
+		}
+
+		for _, variationValue := range variationValues {
 			variationContextValues, err := s.variationContextService.GetVariationContextValues(ctx, variationValue.VariationContextID)
 			if err != nil {
 				return err

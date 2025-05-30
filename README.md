@@ -81,7 +81,11 @@ This installs frontend and backend dependencies.
 ```
 cd backend
 dbmate create
-make seed
+```
+
+to create a lot of data:
+```
+make testdata
 ```
 
 ## Running the Project

@@ -37,9 +37,9 @@ WITH filtered_users AS (
     FROM
         users
     WHERE
-        deleted_at IS NULL AND
-        (sqlc.narg('name')::text IS NULL OR name ILIKE sqlc.narg('name')::text || '%')
-)
+        deleted_at IS NULL
+        AND (sqlc.narg('name')::text IS NULL
+            OR name ILIKE sqlc.narg('name')::text || '%'))
 SELECT
     filtered_users.*,
     COUNT(*) OVER ()::integer AS total_count
@@ -54,6 +54,10 @@ INSERT INTO users(name, password, global_administrator, created_at)
     VALUES (@name, @password, @global_administrator, now())
 RETURNING
     id;
+
+-- name: CreateUsers :copyfrom
+INSERT INTO users(name, password, global_administrator, created_at)
+    VALUES ($1, $2, $3, $4);
 
 -- name: UpdateUser :exec
 UPDATE

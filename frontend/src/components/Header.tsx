@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '~/auth';
 import { Badge } from './ui/badge';
 import {
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuTriggerLabel,
 } from './ui/dropdown-menu';
-import { useChangeset } from '~/hooks/useChangeset';
+import { useChangeset } from '~/hooks/use-changeset';
 import { useGetChangesetsApprovableCount } from '~/gen';
 import { useTheme } from '~/ThemeProvider';
 import { Sun, Moon, Monitor, Check } from 'lucide-react';
@@ -63,7 +63,16 @@ export function Header() {
 
 function UserMenu() {
   const { user, logout } = useAuth();
+  const { refresh } = useChangeset();
   const { setTheme, theme } = useTheme();
+  const navigate = useNavigate();
+
+
+  async function handleLogout() {
+    await logout();
+    await refresh();
+    navigate({ to: '/login' });
+  }
 
   return (
     <DropdownMenu>
@@ -106,7 +115,7 @@ function UserMenu() {
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
-        <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

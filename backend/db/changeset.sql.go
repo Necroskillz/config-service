@@ -798,12 +798,14 @@ FROM
 WHERE
     csc.changeset_id = $1
     AND vv.variation_context_id = $2
+    AND vv.key_id = $3
 LIMIT 1
 `
 
 type GetDeleteChangeForVariationContextIDParams struct {
 	ChangesetID        uint
 	VariationContextID uint
+	KeyID              uint
 }
 
 type GetDeleteChangeForVariationContextIDRow struct {
@@ -814,7 +816,7 @@ type GetDeleteChangeForVariationContextIDRow struct {
 }
 
 func (q *Queries) GetDeleteChangeForVariationContextID(ctx context.Context, arg GetDeleteChangeForVariationContextIDParams) (GetDeleteChangeForVariationContextIDRow, error) {
-	row := q.db.QueryRow(ctx, getDeleteChangeForVariationContextID, arg.ChangesetID, arg.VariationContextID)
+	row := q.db.QueryRow(ctx, getDeleteChangeForVariationContextID, arg.ChangesetID, arg.VariationContextID, arg.KeyID)
 	var i GetDeleteChangeForVariationContextIDRow
 	err := row.Scan(
 		&i.ID,

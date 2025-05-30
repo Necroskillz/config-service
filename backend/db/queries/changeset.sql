@@ -298,6 +298,7 @@ FROM
 WHERE
     csc.changeset_id = @changeset_id
     AND vv.variation_context_id = @variation_context_id
+    AND vv.key_id = @key_id
 LIMIT 1;
 
 -- name: GetChangeForFeatureVersionServiceVersion :one

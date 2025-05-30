@@ -1,4 +1,4 @@
-.PHONY: dev build test clean install-deps seed sqlc swag
+.PHONY: dev build test clean install-deps seed sqlc swag testdata
 
 # Default target
 all: build
@@ -14,8 +14,8 @@ sqlc:
 dev:
 	air
 
-seed:
-	go run cmd/seed/main.go
+testdata:
+	go run cmd/datagenerator/main.go $(if $(SEED),--seed=$(SEED))
 
 swag:
 	swag init -g ./routes.go -d ./handler --parseDependency

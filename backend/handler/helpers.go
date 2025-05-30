@@ -126,7 +126,7 @@ func ToHTTPError(err error) *echo.HTTPError {
 	}
 
 	if errors.Is(err, &echo.BindingError{}) {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error()).WithInternal(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return echo.NewHTTPError(http.StatusInternalServerError, err.Error()).WithInternal(err)

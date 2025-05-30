@@ -65,8 +65,6 @@ func (s *HierarchyService) GetVariationHierarchy(ctx context.Context, options ..
 	return variationHierarchy, nil
 }
 
-func (s *HierarchyService) ClearCache(ctx context.Context) error {
+func (s *HierarchyService) ClearCache(ctx context.Context) {
 	s.cache.Del(variationHierarchyCacheKey)
-
-	return nil
 }

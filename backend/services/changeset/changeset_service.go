@@ -291,6 +291,15 @@ func (s *Service) ApplyChangeset(ctx context.Context, changesetID uint, comment 
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
 		for _, change := range changeset.ChangesetChanges {
 			if change.NewVariationValueID != nil || change.OldVariationValueID != nil {
+				if change.OldVariationValueID != nil {
+					if err := tx.EndValueValidity(ctx, db.EndValueValidityParams{
+						VariationValueID: *change.OldVariationValueID,
+						ValidTo:          &endTime,
+					}); err != nil {
+						return err
+					}
+				}
+
 				if change.NewVariationValueID != nil {
 					if err := tx.StartValueValidity(ctx, db.StartValueValidityParams{
 						VariationValueID: *change.NewVariationValueID,
@@ -300,14 +309,6 @@ func (s *Service) ApplyChangeset(ctx context.Context, changesetID uint, comment 
 					}
 				}
 
-				if change.OldVariationValueID != nil {
-					if err := tx.EndValueValidity(ctx, db.EndValueValidityParams{
-						VariationValueID: *change.OldVariationValueID,
-						ValidTo:          &endTime,
-					}); err != nil {
-						return err
-					}
-				}
 			} else if change.KeyID != nil {
 				if change.Type == db.ChangesetChangeTypeCreate {
 					if err := tx.StartKeyValidity(ctx, db.StartKeyValidityParams{
@@ -342,14 +343,6 @@ func (s *Service) ApplyChangeset(ctx context.Context, changesetID uint, comment 
 				}
 			} else if change.FeatureVersionID != nil {
 				if change.Type == db.ChangesetChangeTypeCreate {
-					if change.PreviousFeatureVersionID != nil {
-						if err := tx.EndFeatureVersionValidity(ctx, db.EndFeatureVersionValidityParams{
-							FeatureVersionID: *change.PreviousFeatureVersionID,
-							ValidTo:          &endTime,
-						}); err != nil {
-							return err
-						}
-					}
 					if err := tx.StartFeatureVersionValidity(ctx, db.StartFeatureVersionValidityParams{
 						FeatureVersionID: *change.FeatureVersionID,
 						ValidFrom:        &startTime,
@@ -366,15 +359,6 @@ func (s *Service) ApplyChangeset(ctx context.Context, changesetID uint, comment 
 				}
 			} else {
 				if change.Type == db.ChangesetChangeTypeCreate {
-					if change.PreviousServiceVersionID != nil {
-						if err := tx.EndServiceVersionValidity(ctx, db.EndServiceVersionValidityParams{
-							ServiceVersionID: *change.PreviousServiceVersionID,
-							ValidTo:          &endTime,
-						}); err != nil {
-							return err
-						}
-					}
-
 					if err := tx.StartServiceVersionValidity(ctx, db.StartServiceVersionValidityParams{
 						ServiceVersionID: change.ServiceVersionID,
 						ValidFrom:        &startTime,
