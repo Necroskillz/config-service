@@ -110,7 +110,7 @@ type ValueConfigurationDto struct {
 }
 
 func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers []core.ServiceVersionSpecifier, changesetID uint, mode string, variation map[string]string) (ConfigurationDto, error) {
-	timestamp := time.Now()
+	var timestamp time.Time
 	isProduction := mode == "production"
 	isChangesetApplied := false
 
@@ -139,6 +139,14 @@ func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers
 		}
 
 		timestamp = *changeset.AppliedAt
+	} else {
+		lastAppliedChangeset, err := s.queries.GetLastAppliedChangeset(ctx)
+		if err != nil {
+			return ConfigurationDto{}, err
+		}
+
+		timestamp = *lastAppliedChangeset.AppliedAt
+		isChangesetApplied = true
 	}
 
 	serviceVersions, err := s.getServiceVersions(ctx, serviceVersionSpecifiers)

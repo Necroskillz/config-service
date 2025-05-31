@@ -5,8 +5,7 @@ WITH last_feature_versions AS (
         MAX(fv.version)::int AS last_version
     FROM
         feature_versions fv
-    WHERE
-        is_feature_version_valid_in_changeset(fv, @changeset_id)
+        JOIN valid_feature_versions_in_changeset(@changeset_id) vfv ON vfv.id = fv.id
     GROUP BY
         fv.feature_id
 ),
@@ -18,8 +17,7 @@ links AS (
     FROM
         feature_version_service_versions fvsv
         JOIN service_versions sv ON sv.id = fvsv.service_version_id
-    WHERE
-        is_link_valid_in_changeset(fvsv, @changeset_id)
+        JOIN valid_links_in_changeset(@changeset_id) vl ON vl.id = fvsv.id
     GROUP BY
         fvsv.feature_version_id
 )
@@ -35,10 +33,10 @@ FROM
     feature_versions fv
     JOIN features f ON f.id = fv.feature_id
     JOIN last_feature_versions lfv ON lfv.feature_id = fv.feature_id
+    JOIN valid_feature_versions_in_changeset(@changeset_id) vfv ON vfv.id = fv.id
     LEFT JOIN links l ON l.feature_version_id = fv.id
 WHERE
     fv.id = @feature_version_id
-    AND is_feature_version_valid_in_changeset(fv, @changeset_id)
 LIMIT 1;
 
 -- name: GetFeatureIDByName :one
@@ -64,9 +62,9 @@ FROM
     JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id
         AND csc.type = 'create'
         AND csc.kind = 'feature_version_service_version'
+    JOIN valid_links_in_changeset(@changeset_id) vl ON vl.id = fvsv.id
 WHERE
     fvsv.service_version_id = @service_version_id
-    AND is_link_valid_in_changeset(fvsv, @changeset_id)
 ORDER BY
     f.name;
 
@@ -77,8 +75,7 @@ WITH latest_links AS (
         MAX(fvsv.service_version_id)::bigint AS service_version_id
     FROM
         feature_version_service_versions fvsv
-    WHERE
-        is_link_valid_in_changeset(fvsv, @changeset_id)
+        JOIN valid_links_in_changeset(@changeset_id) vl ON vl.id = fvsv.id
     GROUP BY
         fvsv.feature_version_id
 )
@@ -89,9 +86,9 @@ SELECT
 FROM
     feature_versions fv
     JOIN latest_links ll ON ll.feature_version_id = fv.id
+    JOIN valid_feature_versions_in_changeset(@changeset_id) vfv ON vfv.id = fv.id
 WHERE
     fv.feature_id = @feature_id
-    AND is_feature_version_valid_in_changeset(fv, @changeset_id)
 ORDER BY
     fv.version;
 
@@ -104,19 +101,19 @@ SELECT
 FROM
     feature_versions fv
     JOIN features f ON f.id = fv.feature_id
+    JOIN valid_feature_versions_in_changeset(@changeset_id) vfv ON vfv.id = fv.id
 WHERE
     f.service_id = @service_id
-    AND is_feature_version_valid_in_changeset(fv, @changeset_id)
     AND NOT EXISTS (
         SELECT
             1
         FROM
             feature_version_service_versions ifvsv
             JOIN feature_versions ifv ON ifv.id = ifvsv.feature_version_id
+            JOIN valid_links_in_changeset(@changeset_id) vl ON vl.id = ifvsv.id
         WHERE
             ifv.feature_id = f.id
-            AND ifvsv.service_version_id = @service_version_id
-            AND is_link_valid_in_changeset(ifvsv, @changeset_id))
+            AND ifvsv.service_version_id = @service_version_id)
 ORDER BY
     f.name,
     fv.version;
@@ -130,10 +127,10 @@ FROM
     JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id
         AND csc.type = 'create'
         AND csc.kind = 'feature_version_service_version'
+    JOIN valid_links_in_changeset(@changeset_id) vl ON vl.id = fvsv.id
 WHERE
     fvsv.feature_version_id = @feature_version_id
-    AND fvsv.service_version_id = @service_version_id
-    AND is_link_valid_in_changeset(fvsv, @changeset_id);
+    AND fvsv.service_version_id = @service_version_id;
 
 -- name: IsFeatureLinkedToServiceVersion :one
 SELECT
@@ -143,10 +140,10 @@ SELECT
         FROM
             feature_version_service_versions fvsv
             JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
+            JOIN valid_links_in_changeset(@changeset_id) vl ON vl.id = fvsv.id
         WHERE
             fv.feature_id = @feature_id
-            AND fvsv.service_version_id = @service_version_id
-            AND is_link_valid_in_changeset(fvsv, @changeset_id));
+            AND fvsv.service_version_id = @service_version_id);
 
 -- name: CreateFeature :one
 INSERT INTO features(name, description, service_id)
@@ -229,10 +226,10 @@ SELECT
 FROM
     variation_values vv
     JOIN keys k ON k.id = vv.key_id
+    JOIN valid_keys_in_changeset(@changeset_id) vk ON vk.id = k.id
+    JOIN valid_variation_values_in_changeset(@changeset_id) vvv ON vvv.id = vv.id
 WHERE
-    k.feature_version_id = @feature_version_id
-    AND is_key_valid_in_changeset(k, @changeset_id)
-    AND is_variation_value_valid_in_changeset(vv, @changeset_id);
+    k.feature_version_id = @feature_version_id;
 
 -- name: GetFeatureVersionValidatorData :many
 SELECT
@@ -243,7 +240,7 @@ SELECT
 FROM
     value_validators v
     JOIN keys k ON k.id = v.key_id
+    JOIN valid_keys_in_changeset(@changeset_id) vk ON vk.id = k.id
 WHERE
-    k.feature_version_id = @feature_version_id
-    AND is_key_valid_in_changeset(k, @changeset_id);
+    k.feature_version_id = @feature_version_id;
 

@@ -53,7 +53,9 @@ CREATE TABLE feature_versions(
     feature_id bigint NOT NULL REFERENCES features(id) ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX idx_feature_versions_unique_version_per_feature ON feature_versions(feature_id, version) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
+CREATE UNIQUE INDEX idx_feature_versions_unique_version_per_feature ON feature_versions(feature_id, version)
+WHERE
+    valid_from IS NOT NULL AND valid_to IS NULL;
 
 CREATE INDEX idx_feature_versions_valid_from ON feature_versions(valid_from);
 
@@ -70,7 +72,9 @@ CREATE TABLE service_versions(
     published boolean NOT NULL DEFAULT FALSE
 );
 
-CREATE UNIQUE INDEX idx_service_versions_unique_version_per_service ON service_versions(service_id, version) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
+CREATE UNIQUE INDEX idx_service_versions_unique_version_per_service ON service_versions(service_id, version)
+WHERE
+    valid_from IS NOT NULL AND valid_to IS NULL;
 
 CREATE INDEX idx_service_versions_valid_from ON service_versions(valid_from);
 
@@ -85,7 +89,9 @@ CREATE TABLE feature_version_service_versions(
     service_version_id bigint NOT NULL REFERENCES service_versions(id) ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX idx_feature_version_service_versions_unique ON feature_version_service_versions(feature_version_id, service_version_id) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
+CREATE UNIQUE INDEX idx_feature_version_service_versions_unique ON feature_version_service_versions(feature_version_id, service_version_id)
+WHERE
+    valid_from IS NOT NULL AND valid_to IS NULL;
 
 CREATE INDEX idx_fvsv_valid_from ON feature_version_service_versions(valid_from);
 
@@ -104,7 +110,9 @@ CREATE TABLE keys(
     validators_updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE INDEX idx_keys_unique_name_per_feature_version ON keys(feature_version_id, name) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
+CREATE UNIQUE INDEX idx_keys_unique_name_per_feature_version ON keys(feature_version_id, name)
+WHERE
+    valid_from IS NOT NULL AND valid_to IS NULL;
 
 CREATE INDEX idx_keys_valid_from ON keys(valid_from);
 
@@ -163,7 +171,9 @@ CREATE TABLE variation_values(
     data text NOT NULL
 );
 
-CREATE UNIQUE INDEX idx_one_value_per_key_and_context ON variation_values(key_id, variation_context_id) WHERE valid_from IS NOT NULL AND valid_to IS NULL;
+CREATE UNIQUE INDEX idx_one_value_per_key_and_context ON variation_values(key_id, variation_context_id)
+WHERE
+    valid_from IS NOT NULL AND valid_to IS NULL;
 
 CREATE INDEX idx_variation_values_valid_from ON variation_values(valid_from);
 
@@ -198,7 +208,9 @@ CREATE TABLE changesets(
     applied_at timestamp with time zone
 );
 
-CREATE UNIQUE INDEX idx_changesets_one_open_per_user ON changesets(user_id) WHERE state = 'open';
+CREATE UNIQUE INDEX idx_changesets_one_open_per_user ON changesets(user_id)
+WHERE
+    state = 'open';
 
 CREATE TABLE changeset_changes(
     id bigserial PRIMARY KEY,
@@ -216,7 +228,45 @@ CREATE TABLE changeset_changes(
     old_variation_value_id bigint REFERENCES variation_values(id)
 );
 
-CREATE INDEX idx_changeset_changes_kind ON changeset_changes(kind);
+CREATE INDEX idx_changeset_changes_service_version_delete ON changeset_changes(changeset_id, service_version_id)
+WHERE
+    kind = 'service_version' AND type = 'delete';
+
+CREATE INDEX idx_changeset_changes_service_version_create ON changeset_changes(changeset_id, service_version_id)
+WHERE
+    kind = 'service_version' AND type = 'create';
+
+CREATE INDEX idx_changeset_changes_feature_version_delete ON changeset_changes(changeset_id, feature_version_id)
+WHERE
+    kind = 'feature_version' AND type = 'delete';
+
+CREATE INDEX idx_changeset_changes_feature_version_create ON changeset_changes(changeset_id, feature_version_id)
+WHERE
+    kind = 'feature_version' AND type = 'create';
+
+CREATE INDEX idx_changeset_changes_link_delete ON changeset_changes(changeset_id, feature_version_service_version_id)
+WHERE
+    kind = 'feature_version_service_version' AND type = 'delete';
+
+CREATE INDEX idx_changeset_changes_link_create ON changeset_changes(changeset_id, feature_version_service_version_id)
+WHERE
+    kind = 'feature_version_service_version' AND type = 'create';
+
+CREATE INDEX idx_changeset_changes_key_delete ON changeset_changes(changeset_id, key_id)
+WHERE
+    kind = 'key' AND type = 'delete';
+
+CREATE INDEX idx_changeset_changes_key_create ON changeset_changes(changeset_id, key_id)
+WHERE
+    kind = 'key' AND type = 'create';
+
+CREATE INDEX idx_changeset_changes_variation_value_old ON changeset_changes(changeset_id, old_variation_value_id)
+WHERE
+    kind = 'variation_value';
+
+CREATE INDEX idx_changeset_changes_variation_value_new ON changeset_changes(changeset_id, new_variation_value_id)
+WHERE
+    kind = 'variation_value';
 
 CREATE TABLE changeset_actions(
     id bigserial PRIMARY KEY,

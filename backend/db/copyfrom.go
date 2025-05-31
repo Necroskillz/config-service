@@ -9,6 +9,80 @@ import (
 	"context"
 )
 
+// iteratorForAddChanges implements pgx.CopyFromSource.
+type iteratorForAddChanges struct {
+	rows                 []AddChangesParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForAddChanges) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForAddChanges) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].ChangesetID,
+		r.rows[0].NewVariationValueID,
+		r.rows[0].OldVariationValueID,
+		r.rows[0].KeyID,
+		r.rows[0].FeatureVersionID,
+		r.rows[0].ServiceVersionID,
+		r.rows[0].Type,
+		r.rows[0].Kind,
+	}, nil
+}
+
+func (r iteratorForAddChanges) Err() error {
+	return nil
+}
+
+func (q *Queries) AddChanges(ctx context.Context, arg []AddChangesParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"changeset_changes"}, []string{"changeset_id", "new_variation_value_id", "old_variation_value_id", "key_id", "feature_version_id", "service_version_id", "type", "kind"}, &iteratorForAddChanges{rows: arg})
+}
+
+// iteratorForCreateKeys implements pgx.CopyFromSource.
+type iteratorForCreateKeys struct {
+	rows                 []CreateKeysParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForCreateKeys) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForCreateKeys) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].Name,
+		r.rows[0].Description,
+		r.rows[0].ValueTypeID,
+		r.rows[0].FeatureVersionID,
+	}, nil
+}
+
+func (r iteratorForCreateKeys) Err() error {
+	return nil
+}
+
+func (q *Queries) CreateKeys(ctx context.Context, arg []CreateKeysParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"keys"}, []string{"name", "description", "value_type_id", "feature_version_id"}, &iteratorForCreateKeys{rows: arg})
+}
+
 // iteratorForCreateUsers implements pgx.CopyFromSource.
 type iteratorForCreateUsers struct {
 	rows                 []CreateUsersParams
@@ -42,4 +116,74 @@ func (r iteratorForCreateUsers) Err() error {
 
 func (q *Queries) CreateUsers(ctx context.Context, arg []CreateUsersParams) (int64, error) {
 	return q.db.CopyFrom(ctx, []string{"users"}, []string{"name", "password", "global_administrator", "created_at"}, &iteratorForCreateUsers{rows: arg})
+}
+
+// iteratorForCreateValueValidators implements pgx.CopyFromSource.
+type iteratorForCreateValueValidators struct {
+	rows                 []CreateValueValidatorsParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForCreateValueValidators) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForCreateValueValidators) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].KeyID,
+		r.rows[0].ValueTypeID,
+		r.rows[0].ValidatorType,
+		r.rows[0].Parameter,
+		r.rows[0].ErrorText,
+	}, nil
+}
+
+func (r iteratorForCreateValueValidators) Err() error {
+	return nil
+}
+
+func (q *Queries) CreateValueValidators(ctx context.Context, arg []CreateValueValidatorsParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"value_validators"}, []string{"key_id", "value_type_id", "validator_type", "parameter", "error_text"}, &iteratorForCreateValueValidators{rows: arg})
+}
+
+// iteratorForCreateVariationValues implements pgx.CopyFromSource.
+type iteratorForCreateVariationValues struct {
+	rows                 []CreateVariationValuesParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForCreateVariationValues) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForCreateVariationValues) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].KeyID,
+		r.rows[0].VariationContextID,
+		r.rows[0].Data,
+	}, nil
+}
+
+func (r iteratorForCreateVariationValues) Err() error {
+	return nil
+}
+
+func (q *Queries) CreateVariationValues(ctx context.Context, arg []CreateVariationValuesParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"variation_values"}, []string{"key_id", "variation_context_id", "data"}, &iteratorForCreateVariationValues{rows: arg})
 }

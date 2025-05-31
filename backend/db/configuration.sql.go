@@ -45,10 +45,10 @@ WHERE
         AND ($3::timestamptz < sv.valid_to
             OR sv.valid_to IS NULL)
     ELSE
-        is_variation_value_valid_in_changeset(vv, $4)
-        AND is_feature_version_valid_in_changeset(fv, $4)
-        AND is_link_valid_in_changeset(fvsv, $4)
-        AND is_service_version_valid_in_changeset(sv, $4)
+        EXISTS(SELECT 1 FROM valid_variation_values_in_changeset($4) vvv WHERE vvv.id = vv.id)
+        AND EXISTS(SELECT 1 FROM valid_feature_versions_in_changeset($4) vfv WHERE vfv.id = fv.id)
+        AND EXISTS(SELECT 1 FROM valid_links_in_changeset($4) vl WHERE vl.id = fvsv.id)
+        AND EXISTS(SELECT 1 FROM valid_service_versions_in_changeset($4) vsv WHERE vsv.id = sv.id)
     END
 ORDER BY
     f.name,

@@ -36,6 +36,13 @@ func (q *Queries) CreateKey(ctx context.Context, arg CreateKeyParams) (uint, err
 	return id, err
 }
 
+type CreateKeysParams struct {
+	Name             string
+	Description      *string
+	ValueTypeID      uint
+	FeatureVersionID uint
+}
+
 const createValueType = `-- name: CreateValueType :one
 INSERT INTO value_types(name, kind)
     VALUES ($1, $2)
@@ -107,6 +114,14 @@ func (q *Queries) CreateValueValidatorForValueType(ctx context.Context, arg Crea
 	return id, err
 }
 
+type CreateValueValidatorsParams struct {
+	KeyID         *uint
+	ValueTypeID   *uint
+	ValidatorType ValueValidatorType
+	Parameter     *string
+	ErrorText     *string
+}
+
 const deleteKey = `-- name: DeleteKey :exec
 DELETE FROM keys
 WHERE id = $1
@@ -158,15 +173,15 @@ FROM
     JOIN changeset_changes csc ON csc.key_id = k.id
         AND csc.type = 'create'
         AND csc.kind = 'key'
+    JOIN valid_keys_in_changeset($1) vk ON vk.id = k.id
 WHERE
-    k.id = $1
-    AND is_key_valid_in_changeset(k, $2)
+    k.id = $2
 LIMIT 1
 `
 
 type GetKeyParams struct {
-	KeyID       uint
 	ChangesetID uint
+	KeyID       uint
 }
 
 type GetKeyRow struct {
@@ -186,7 +201,7 @@ type GetKeyRow struct {
 }
 
 func (q *Queries) GetKey(ctx context.Context, arg GetKeyParams) (GetKeyRow, error) {
-	row := q.db.QueryRow(ctx, getKey, arg.KeyID, arg.ChangesetID)
+	row := q.db.QueryRow(ctx, getKey, arg.ChangesetID, arg.KeyID)
 	var i GetKeyRow
 	err := row.Scan(
 		&i.ID,
@@ -237,16 +252,16 @@ SELECT
 FROM
     keys k
     JOIN value_types vt ON vt.id = k.value_type_id
+    JOIN valid_keys_in_changeset($1) vk ON vk.id = k.id
 WHERE
-    k.feature_version_id = $1
-    AND is_key_valid_in_changeset(k, $2)
+    k.feature_version_id = $2
 ORDER BY
     k.name
 `
 
 type GetKeysForFeatureVersionParams struct {
-	FeatureVersionID uint
 	ChangesetID      uint
+	FeatureVersionID uint
 }
 
 type GetKeysForFeatureVersionRow struct {
@@ -265,7 +280,7 @@ type GetKeysForFeatureVersionRow struct {
 }
 
 func (q *Queries) GetKeysForFeatureVersion(ctx context.Context, arg GetKeysForFeatureVersionParams) ([]GetKeysForFeatureVersionRow, error) {
-	rows, err := q.db.Query(ctx, getKeysForFeatureVersion, arg.FeatureVersionID, arg.ChangesetID)
+	rows, err := q.db.Query(ctx, getKeysForFeatureVersion, arg.ChangesetID, arg.FeatureVersionID)
 	if err != nil {
 		return nil, err
 	}
@@ -286,6 +301,46 @@ func (q *Queries) GetKeysForFeatureVersion(ctx context.Context, arg GetKeysForFe
 			&i.ValidatorsUpdatedAt,
 			&i.ValueTypeKind,
 			&i.ValueTypeName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getKeysForWipFeatureVersion = `-- name: GetKeysForWipFeatureVersion :many
+SELECT
+    id, created_at, updated_at, valid_from, valid_to, name, description, value_type_id, feature_version_id, validators_updated_at
+FROM
+    keys
+WHERE
+    feature_version_id = $1
+`
+
+func (q *Queries) GetKeysForWipFeatureVersion(ctx context.Context, featureVersionID uint) ([]Key, error) {
+	rows, err := q.db.Query(ctx, getKeysForWipFeatureVersion, featureVersionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Key
+	for rows.Next() {
+		var i Key
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ValidFrom,
+			&i.ValidTo,
+			&i.Name,
+			&i.Description,
+			&i.ValueTypeID,
+			&i.FeatureVersionID,
+			&i.ValidatorsUpdatedAt,
 		); err != nil {
 			return nil, err
 		}

@@ -359,6 +359,10 @@ INSERT INTO changeset_changes(changeset_id, old_variation_value_id, feature_vers
 INSERT INTO changeset_changes(changeset_id, new_variation_value_id, old_variation_value_id, feature_version_id, key_id, service_version_id, type, kind)
     VALUES (@changeset_id, @new_variation_value_id::bigint, @old_variation_value_id::bigint, @feature_version_id::bigint, @key_id::bigint, @service_version_id::bigint, 'update', 'variation_value');
 
+-- name: AddChanges :copyfrom
+INSERT INTO changeset_changes(changeset_id, new_variation_value_id, old_variation_value_id, key_id, feature_version_id, service_version_id, type, kind)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+
 -- name: GetNextChangesetsRelatedToServiceVersions :many
 SELECT
     cs.id AS changeset_id
@@ -373,4 +377,15 @@ GROUP BY
 HAVING
     COUNT(csc.id) > 0
 LIMIT 100;
+
+-- name: GetLastAppliedChangeset :one
+SELECT
+    *
+FROM
+    changesets
+WHERE
+    applied_at IS NOT NULL
+ORDER BY
+    applied_at DESC
+LIMIT 1;
 

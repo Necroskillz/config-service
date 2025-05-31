@@ -627,58 +627,94 @@ func (s *Service) CreateFeatureVersion(ctx context.Context, params CreateFeature
 			return err
 		}
 
+		newKeys := []db.CreateKeysParams{}
+		newVariationValues := []db.CreateVariationValuesParams{}
+		newChanges := []db.AddChangesParams{}
+		newValueValidators := []db.CreateValueValidatorsParams{}
+
 		for _, key := range keyData {
-			keyID, err := tx.CreateKey(ctx, db.CreateKeyParams{
+			newKeys = append(newKeys, db.CreateKeysParams{
 				FeatureVersionID: newFeatureVersionID,
 				Name:             key.Name,
 				Description:      key.Description,
 				ValueTypeID:      key.ValueTypeID,
 			})
-			if err != nil {
-				return err
-			}
+		}
 
-			if err = tx.AddCreateKeyChange(ctx, db.AddCreateKeyChangeParams{
-				ChangesetID:      changesetID,
-				KeyID:            keyID,
-				ServiceVersionID: serviceVersion.ID,
-				FeatureVersionID: newFeatureVersionID,
-			}); err != nil {
-				return err
-			}
+		if _, err := tx.CreateKeys(ctx, newKeys); err != nil {
+			return err
+		}
 
-			for _, value := range key.Values {
-				valueID, err := tx.CreateVariationValue(ctx, db.CreateVariationValueParams{
-					KeyID:              keyID,
-					VariationContextID: value.VariationContextID,
-					Data:               value.Data,
-				})
-				if err != nil {
-					return err
-				}
+		createdKeys, err := tx.GetKeysForWipFeatureVersion(ctx, newFeatureVersionID)
+		if err != nil {
+			return err
+		}
 
-				if err = tx.AddCreateVariationValueChange(ctx, db.AddCreateVariationValueChangeParams{
-					ChangesetID:         changesetID,
-					NewVariationValueID: valueID,
-					ServiceVersionID:    serviceVersion.ID,
-					FeatureVersionID:    newFeatureVersionID,
-					KeyID:               keyID,
-				}); err != nil {
-					return err
-				}
+		keyMap := make(map[string]uint)
+		for _, key := range createdKeys {
+			keyMap[key.Name] = key.ID
+		}
+
+		for _, key := range keyData {
+			keyID, ok := keyMap[key.Name]
+			if !ok {
+				return core.NewServiceError(core.ErrorCodeUnexpectedError, "Key that should have been created was not found")
 			}
 
 			for _, validator := range key.Validators {
-				_, err := tx.CreateValueValidatorForKey(ctx, db.CreateValueValidatorForKeyParams{
+				newValueValidators = append(newValueValidators, db.CreateValueValidatorsParams{
 					KeyID:         &keyID,
 					ValidatorType: validator.ValidatorType,
 					Parameter:     validator.Parameter,
 					ErrorText:     validator.ErrorText,
 				})
-				if err != nil {
-					return err
-				}
 			}
+
+			newChanges = append(newChanges, db.AddChangesParams{
+				ChangesetID:      changesetID,
+				ServiceVersionID: serviceVersion.ID,
+				FeatureVersionID: &newFeatureVersionID,
+				KeyID:            &keyID,
+				Type:             db.ChangesetChangeTypeCreate,
+				Kind:             db.ChangesetChangeKindKey,
+			})
+
+			for _, value := range key.Values {
+				newVariationValues = append(newVariationValues, db.CreateVariationValuesParams{
+					KeyID:              keyID,
+					VariationContextID: value.VariationContextID,
+					Data:               value.Data,
+				})
+			}
+		}
+
+		if _, err := tx.CreateVariationValues(ctx, newVariationValues); err != nil {
+			return err
+		}
+
+		if _, err := tx.CreateValueValidators(ctx, newValueValidators); err != nil {
+			return err
+		}
+
+		createdVariationValues, err := tx.GetVariationValuesForWipFeatureVersion(ctx, newFeatureVersionID)
+		if err != nil {
+			return err
+		}
+
+		for _, variationValue := range createdVariationValues {
+			newChanges = append(newChanges, db.AddChangesParams{
+				ChangesetID:         changesetID,
+				ServiceVersionID:    serviceVersion.ID,
+				FeatureVersionID:    &newFeatureVersionID,
+				KeyID:               &variationValue.KeyID,
+				NewVariationValueID: &variationValue.ID,
+				Type:                db.ChangesetChangeTypeCreate,
+				Kind:                db.ChangesetChangeKindVariationValue,
+			})
+		}
+
+		if _, err := tx.AddChanges(ctx, newChanges); err != nil {
+			return err
 		}
 
 		return nil

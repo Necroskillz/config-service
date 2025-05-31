@@ -10,9 +10,9 @@ FROM
     JOIN changeset_changes csc ON csc.key_id = k.id
         AND csc.type = 'create'
         AND csc.kind = 'key'
+    JOIN valid_keys_in_changeset(@changeset_id) vk ON vk.id = k.id
 WHERE
     k.id = @key_id
-    AND is_key_valid_in_changeset(k, @changeset_id)
 LIMIT 1;
 
 -- name: GetKeysForFeatureVersion :many
@@ -23,11 +23,19 @@ SELECT
 FROM
     keys k
     JOIN value_types vt ON vt.id = k.value_type_id
+    JOIN valid_keys_in_changeset(@changeset_id) vk ON vk.id = k.id
 WHERE
     k.feature_version_id = @feature_version_id
-    AND is_key_valid_in_changeset(k, @changeset_id)
 ORDER BY
     k.name;
+
+-- name: GetKeysForWipFeatureVersion :many
+SELECT
+    *
+FROM
+    keys
+WHERE
+    feature_version_id = @feature_version_id;
 
 -- name: GetValueTypes :many
 SELECT
@@ -48,6 +56,10 @@ INSERT INTO keys(name, description, value_type_id, feature_version_id)
     VALUES (@name, @description, @value_type_id, @feature_version_id)
 RETURNING
     id;
+
+-- name: CreateKeys :copyfrom
+INSERT INTO keys(name, description, value_type_id, feature_version_id)
+    VALUES ($1, $2, $3, $4);
 
 -- name: UpdateKey :exec
 UPDATE
@@ -102,6 +114,10 @@ INSERT INTO value_validators(key_id, validator_type, parameter, error_text)
     VALUES (@key_id, @validator_type, sqlc.narg('parameter'), sqlc.narg('error_text'))
 RETURNING
     id;
+
+-- name: CreateValueValidators :copyfrom
+INSERT INTO value_validators(key_id, value_type_id, validator_type, parameter, error_text)
+    VALUES ($1, $2, $3, $4, $5);
 
 -- name: DeleteValueValidatorsForKey :exec
 DELETE FROM value_validators

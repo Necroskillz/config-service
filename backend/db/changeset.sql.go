@@ -10,6 +10,17 @@ import (
 	"time"
 )
 
+type AddChangesParams struct {
+	ChangesetID         uint
+	NewVariationValueID *uint
+	OldVariationValueID *uint
+	KeyID               *uint
+	FeatureVersionID    *uint
+	ServiceVersionID    uint
+	Type                ChangesetChangeType
+	Kind                ChangesetChangeKind
+}
+
 const addChangesetAction = `-- name: AddChangesetAction :exec
 INSERT INTO changeset_actions(changeset_id, user_id, type, comment)
     VALUES ($1, $2, $3, $4)
@@ -823,6 +834,32 @@ func (q *Queries) GetDeleteChangeForVariationContextID(ctx context.Context, arg 
 		&i.Type,
 		&i.VariationValueID,
 		&i.VariationValueData,
+	)
+	return i, err
+}
+
+const getLastAppliedChangeset = `-- name: GetLastAppliedChangeset :one
+SELECT
+    id, created_at, updated_at, user_id, state, applied_at
+FROM
+    changesets
+WHERE
+    applied_at IS NOT NULL
+ORDER BY
+    applied_at DESC
+LIMIT 1
+`
+
+func (q *Queries) GetLastAppliedChangeset(ctx context.Context) (Changeset, error) {
+	row := q.db.QueryRow(ctx, getLastAppliedChangeset)
+	var i Changeset
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
+		&i.State,
+		&i.AppliedAt,
 	)
 	return i, err
 }

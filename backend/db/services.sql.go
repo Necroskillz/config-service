@@ -112,8 +112,7 @@ WITH last_service_versions AS (
         MAX(sv.version)::int AS last_version
     FROM
         service_versions sv
-    WHERE
-        is_service_version_valid_in_changeset(sv, $2)
+        JOIN valid_service_versions_in_changeset($1) vsv ON vsv.id = sv.id
     GROUP BY
         sv.service_id
 )
@@ -133,15 +132,15 @@ FROM
     JOIN changeset_changes csc ON csc.service_version_id = sv.id
         AND csc.type = 'create'
         AND csc.kind = 'service_version'
+    JOIN valid_service_versions_in_changeset($1) vsv ON vsv.id = sv.id
 WHERE
-    sv.id = $1
-    AND is_service_version_valid_in_changeset(sv, $2)
+    sv.id = $2
 LIMIT 1
 `
 
 type GetServiceVersionParams struct {
-	ServiceVersionID uint
 	ChangesetID      uint
+	ServiceVersionID uint
 }
 
 type GetServiceVersionRow struct {
@@ -162,7 +161,7 @@ type GetServiceVersionRow struct {
 }
 
 func (q *Queries) GetServiceVersion(ctx context.Context, arg GetServiceVersionParams) (GetServiceVersionRow, error) {
-	row := q.db.QueryRow(ctx, getServiceVersion, arg.ServiceVersionID, arg.ChangesetID)
+	row := q.db.QueryRow(ctx, getServiceVersion, arg.ChangesetID, arg.ServiceVersionID)
 	var i GetServiceVersionRow
 	err := row.Scan(
 		&i.ID,
@@ -229,8 +228,7 @@ FROM
     service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
-WHERE
-    is_service_version_valid_in_changeset(sv, $1)
+    JOIN valid_service_versions_in_changeset($1) vsv ON vsv.id = sv.id
 ORDER BY
     s.name,
     sv.version ASC
@@ -290,16 +288,16 @@ SELECT
     sv.version
 FROM
     service_versions sv
+    JOIN valid_service_versions_in_changeset($1) vsv ON vsv.id = sv.id
 WHERE
-    sv.service_id = $1
-    AND is_service_version_valid_in_changeset(sv, $2)
+    sv.service_id = $2
 ORDER BY
     sv.version ASC
 `
 
 type GetServiceVersionsForServiceParams struct {
-	ServiceID   uint
 	ChangesetID uint
+	ServiceID   uint
 }
 
 type GetServiceVersionsForServiceRow struct {
@@ -308,7 +306,7 @@ type GetServiceVersionsForServiceRow struct {
 }
 
 func (q *Queries) GetServiceVersionsForService(ctx context.Context, arg GetServiceVersionsForServiceParams) ([]GetServiceVersionsForServiceRow, error) {
-	rows, err := q.db.Query(ctx, getServiceVersionsForService, arg.ServiceID, arg.ChangesetID)
+	rows, err := q.db.Query(ctx, getServiceVersionsForService, arg.ChangesetID, arg.ServiceID)
 	if err != nil {
 		return nil, err
 	}

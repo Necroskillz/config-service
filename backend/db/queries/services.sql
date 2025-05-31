@@ -9,8 +9,7 @@ FROM
     service_versions sv
     JOIN services s ON s.id = sv.service_id
     JOIN service_types st ON st.id = s.service_type_id
-WHERE
-    is_service_version_valid_in_changeset(sv, @changeset_id)
+    JOIN valid_service_versions_in_changeset(@changeset_id) vsv ON vsv.id = sv.id
 ORDER BY
     s.name,
     sv.version ASC;
@@ -21,9 +20,9 @@ SELECT
     sv.version
 FROM
     service_versions sv
+    JOIN valid_service_versions_in_changeset(@changeset_id) vsv ON vsv.id = sv.id
 WHERE
     sv.service_id = @service_id
-    AND is_service_version_valid_in_changeset(sv, @changeset_id)
 ORDER BY
     sv.version ASC;
 
@@ -34,8 +33,7 @@ WITH last_service_versions AS (
         MAX(sv.version)::int AS last_version
     FROM
         service_versions sv
-    WHERE
-        is_service_version_valid_in_changeset(sv, @changeset_id)
+        JOIN valid_service_versions_in_changeset(@changeset_id) vsv ON vsv.id = sv.id
     GROUP BY
         sv.service_id
 )
@@ -55,9 +53,9 @@ FROM
     JOIN changeset_changes csc ON csc.service_version_id = sv.id
         AND csc.type = 'create'
         AND csc.kind = 'service_version'
+    JOIN valid_service_versions_in_changeset(@changeset_id) vsv ON vsv.id = sv.id
 WHERE
     sv.id = @service_version_id
-    AND is_service_version_valid_in_changeset(sv, @changeset_id)
 LIMIT 1;
 
 -- name: GetServiceIDByName :one

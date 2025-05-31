@@ -30,6 +30,12 @@ func (q *Queries) CreateVariationValue(ctx context.Context, arg CreateVariationV
 	return id, err
 }
 
+type CreateVariationValuesParams struct {
+	KeyID              uint
+	VariationContextID uint
+	Data               string
+}
+
 const deleteVariationValue = `-- name: DeleteVariationValue :exec
 DELETE FROM variation_values
 WHERE id = $1
@@ -64,19 +70,19 @@ SELECT
     vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
 FROM
     variation_values vv
+    JOIN valid_variation_values_in_changeset($1) vvv ON vvv.id = vv.id
 WHERE
-    vv.id = $1
-    AND is_variation_value_valid_in_changeset(vv, $2)
+    vv.id = $2
 LIMIT 1
 `
 
 type GetVariationValueParams struct {
-	VariationValueID uint
 	ChangesetID      uint
+	VariationValueID uint
 }
 
 func (q *Queries) GetVariationValue(ctx context.Context, arg GetVariationValueParams) (VariationValue, error) {
-	row := q.db.QueryRow(ctx, getVariationValue, arg.VariationValueID, arg.ChangesetID)
+	row := q.db.QueryRow(ctx, getVariationValue, arg.ChangesetID, arg.VariationValueID)
 	var i VariationValue
 	err := row.Scan(
 		&i.ID,
@@ -91,24 +97,24 @@ func (q *Queries) GetVariationValue(ctx context.Context, arg GetVariationValuePa
 
 const getVariationValueIDByVariationContextID = `-- name: GetVariationValueIDByVariationContextID :one
 SELECT
-    id
+    vv.id
 FROM
     variation_values vv
+    JOIN valid_variation_values_in_changeset($1) vvv ON vvv.id = vv.id
 WHERE
-    vv.key_id = $1
-    AND vv.variation_context_id = $2
-    AND is_variation_value_valid_in_changeset(vv, $3)
+    vv.key_id = $2
+    AND vv.variation_context_id = $3
 LIMIT 1
 `
 
 type GetVariationValueIDByVariationContextIDParams struct {
+	ChangesetID        uint
 	KeyID              uint
 	VariationContextID uint
-	ChangesetID        uint
 }
 
 func (q *Queries) GetVariationValueIDByVariationContextID(ctx context.Context, arg GetVariationValueIDByVariationContextIDParams) (uint, error) {
-	row := q.db.QueryRow(ctx, getVariationValueIDByVariationContextID, arg.KeyID, arg.VariationContextID, arg.ChangesetID)
+	row := q.db.QueryRow(ctx, getVariationValueIDByVariationContextID, arg.ChangesetID, arg.KeyID, arg.VariationContextID)
 	var id uint
 	err := row.Scan(&id)
 	return id, err
@@ -119,18 +125,55 @@ SELECT
     vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
 FROM
     variation_values vv
+    JOIN valid_variation_values_in_changeset($1) vvv ON vvv.id = vv.id
 WHERE
-    vv.key_id = $1
-    AND is_variation_value_valid_in_changeset(vv, $2)
+    vv.key_id = $2
 `
 
 type GetVariationValuesForKeyParams struct {
-	KeyID       uint
 	ChangesetID uint
+	KeyID       uint
 }
 
 func (q *Queries) GetVariationValuesForKey(ctx context.Context, arg GetVariationValuesForKeyParams) ([]VariationValue, error) {
-	rows, err := q.db.Query(ctx, getVariationValuesForKey, arg.KeyID, arg.ChangesetID)
+	rows, err := q.db.Query(ctx, getVariationValuesForKey, arg.ChangesetID, arg.KeyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []VariationValue
+	for rows.Next() {
+		var i VariationValue
+		if err := rows.Scan(
+			&i.ID,
+			&i.ValidFrom,
+			&i.ValidTo,
+			&i.KeyID,
+			&i.VariationContextID,
+			&i.Data,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getVariationValuesForWipFeatureVersion = `-- name: GetVariationValuesForWipFeatureVersion :many
+SELECT
+    vv.id, vv.valid_from, vv.valid_to, vv.key_id, vv.variation_context_id, vv.data
+FROM
+    variation_values vv
+    JOIN keys k ON k.id = vv.key_id
+WHERE
+    k.feature_version_id = $1
+`
+
+func (q *Queries) GetVariationValuesForWipFeatureVersion(ctx context.Context, featureVersionID uint) ([]VariationValue, error) {
+	rows, err := q.db.Query(ctx, getVariationValuesForWipFeatureVersion, featureVersionID)
 	if err != nil {
 		return nil, err
 	}

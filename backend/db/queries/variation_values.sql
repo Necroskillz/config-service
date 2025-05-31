@@ -8,6 +8,10 @@ INSERT INTO variation_values(key_id, variation_context_id, data)
 RETURNING
     id;
 
+-- name: CreateVariationValues :copyfrom
+INSERT INTO variation_values(key_id, variation_context_id, data)
+    VALUES ($1, $2, $3);
+
 -- name: UpdateVariationValue :exec
 UPDATE
     variation_values
@@ -22,9 +26,9 @@ SELECT
     vv.*
 FROM
     variation_values vv
+    JOIN valid_variation_values_in_changeset(@changeset_id) vvv ON vvv.id = vv.id
 WHERE
     vv.id = @variation_value_id
-    AND is_variation_value_valid_in_changeset(vv, @changeset_id)
 LIMIT 1;
 
 -- name: GetVariationValuesForKey :many
@@ -32,19 +36,28 @@ SELECT
     vv.*
 FROM
     variation_values vv
+    JOIN valid_variation_values_in_changeset(@changeset_id) vvv ON vvv.id = vv.id
 WHERE
-    vv.key_id = @key_id
-    AND is_variation_value_valid_in_changeset(vv, @changeset_id);
+    vv.key_id = @key_id;
+
+-- name: GetVariationValuesForWipFeatureVersion :many
+SELECT
+    vv.*
+FROM
+    variation_values vv
+    JOIN keys k ON k.id = vv.key_id
+WHERE
+    k.feature_version_id = @feature_version_id;
 
 -- name: GetVariationValueIDByVariationContextID :one
 SELECT
-    id
+    vv.id
 FROM
     variation_values vv
+    JOIN valid_variation_values_in_changeset(@changeset_id) vvv ON vvv.id = vv.id
 WHERE
     vv.key_id = @key_id
     AND vv.variation_context_id = @variation_context_id
-    AND is_variation_value_valid_in_changeset(vv, @changeset_id)
 LIMIT 1;
 
 -- name: EndValueValidity :exec

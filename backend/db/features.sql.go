@@ -160,8 +160,7 @@ WITH last_feature_versions AS (
         MAX(fv.version)::int AS last_version
     FROM
         feature_versions fv
-    WHERE
-        is_feature_version_valid_in_changeset(fv, $2)
+        JOIN valid_feature_versions_in_changeset($1) vfv ON vfv.id = fv.id
     GROUP BY
         fv.feature_id
 ),
@@ -173,8 +172,7 @@ links AS (
     FROM
         feature_version_service_versions fvsv
         JOIN service_versions sv ON sv.id = fvsv.service_version_id
-    WHERE
-        is_link_valid_in_changeset(fvsv, $2)
+        JOIN valid_links_in_changeset($1) vl ON vl.id = fvsv.id
     GROUP BY
         fvsv.feature_version_id
 )
@@ -190,16 +188,16 @@ FROM
     feature_versions fv
     JOIN features f ON f.id = fv.feature_id
     JOIN last_feature_versions lfv ON lfv.feature_id = fv.feature_id
+    JOIN valid_feature_versions_in_changeset($1) vfv ON vfv.id = fv.id
     LEFT JOIN links l ON l.feature_version_id = fv.id
 WHERE
-    fv.id = $1
-    AND is_feature_version_valid_in_changeset(fv, $2)
+    fv.id = $2
 LIMIT 1
 `
 
 type GetFeatureVersionParams struct {
-	FeatureVersionID uint
 	ChangesetID      uint
+	FeatureVersionID uint
 }
 
 type GetFeatureVersionRow struct {
@@ -219,7 +217,7 @@ type GetFeatureVersionRow struct {
 }
 
 func (q *Queries) GetFeatureVersion(ctx context.Context, arg GetFeatureVersionParams) (GetFeatureVersionRow, error) {
-	row := q.db.QueryRow(ctx, getFeatureVersion, arg.FeatureVersionID, arg.ChangesetID)
+	row := q.db.QueryRow(ctx, getFeatureVersion, arg.ChangesetID, arg.FeatureVersionID)
 	var i GetFeatureVersionRow
 	err := row.Scan(
 		&i.ID,
@@ -248,16 +246,16 @@ FROM
     JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id
         AND csc.type = 'create'
         AND csc.kind = 'feature_version_service_version'
+    JOIN valid_links_in_changeset($1) vl ON vl.id = fvsv.id
 WHERE
-    fvsv.feature_version_id = $1
-    AND fvsv.service_version_id = $2
-    AND is_link_valid_in_changeset(fvsv, $3)
+    fvsv.feature_version_id = $2
+    AND fvsv.service_version_id = $3
 `
 
 type GetFeatureVersionServiceVersionLinkParams struct {
+	ChangesetID      uint
 	FeatureVersionID uint
 	ServiceVersionID uint
-	ChangesetID      uint
 }
 
 type GetFeatureVersionServiceVersionLinkRow struct {
@@ -266,7 +264,7 @@ type GetFeatureVersionServiceVersionLinkRow struct {
 }
 
 func (q *Queries) GetFeatureVersionServiceVersionLink(ctx context.Context, arg GetFeatureVersionServiceVersionLinkParams) (GetFeatureVersionServiceVersionLinkRow, error) {
-	row := q.db.QueryRow(ctx, getFeatureVersionServiceVersionLink, arg.FeatureVersionID, arg.ServiceVersionID, arg.ChangesetID)
+	row := q.db.QueryRow(ctx, getFeatureVersionServiceVersionLink, arg.ChangesetID, arg.FeatureVersionID, arg.ServiceVersionID)
 	var i GetFeatureVersionServiceVersionLinkRow
 	err := row.Scan(&i.ID, &i.CreatedInChangesetID)
 	return i, err
@@ -281,14 +279,14 @@ SELECT
 FROM
     value_validators v
     JOIN keys k ON k.id = v.key_id
+    JOIN valid_keys_in_changeset($1) vk ON vk.id = k.id
 WHERE
-    k.feature_version_id = $1
-    AND is_key_valid_in_changeset(k, $2)
+    k.feature_version_id = $2
 `
 
 type GetFeatureVersionValidatorDataParams struct {
-	FeatureVersionID uint
 	ChangesetID      uint
+	FeatureVersionID uint
 }
 
 type GetFeatureVersionValidatorDataRow struct {
@@ -299,7 +297,7 @@ type GetFeatureVersionValidatorDataRow struct {
 }
 
 func (q *Queries) GetFeatureVersionValidatorData(ctx context.Context, arg GetFeatureVersionValidatorDataParams) ([]GetFeatureVersionValidatorDataRow, error) {
-	rows, err := q.db.Query(ctx, getFeatureVersionValidatorData, arg.FeatureVersionID, arg.ChangesetID)
+	rows, err := q.db.Query(ctx, getFeatureVersionValidatorData, arg.ChangesetID, arg.FeatureVersionID)
 	if err != nil {
 		return nil, err
 	}
@@ -334,15 +332,15 @@ SELECT
 FROM
     variation_values vv
     JOIN keys k ON k.id = vv.key_id
+    JOIN valid_keys_in_changeset($1) vk ON vk.id = k.id
+    JOIN valid_variation_values_in_changeset($1) vvv ON vvv.id = vv.id
 WHERE
-    k.feature_version_id = $1
-    AND is_key_valid_in_changeset(k, $2)
-    AND is_variation_value_valid_in_changeset(vv, $2)
+    k.feature_version_id = $2
 `
 
 type GetFeatureVersionValuesDataParams struct {
-	FeatureVersionID uint
 	ChangesetID      uint
+	FeatureVersionID uint
 }
 
 type GetFeatureVersionValuesDataRow struct {
@@ -355,7 +353,7 @@ type GetFeatureVersionValuesDataRow struct {
 }
 
 func (q *Queries) GetFeatureVersionValuesData(ctx context.Context, arg GetFeatureVersionValuesDataParams) ([]GetFeatureVersionValuesDataRow, error) {
-	rows, err := q.db.Query(ctx, getFeatureVersionValuesData, arg.FeatureVersionID, arg.ChangesetID)
+	rows, err := q.db.Query(ctx, getFeatureVersionValuesData, arg.ChangesetID, arg.FeatureVersionID)
 	if err != nil {
 		return nil, err
 	}
@@ -396,16 +394,16 @@ FROM
     JOIN changeset_changes csc ON csc.feature_version_service_version_id = fvsv.id
         AND csc.type = 'create'
         AND csc.kind = 'feature_version_service_version'
+    JOIN valid_links_in_changeset($1) vl ON vl.id = fvsv.id
 WHERE
-    fvsv.service_version_id = $1
-    AND is_link_valid_in_changeset(fvsv, $2)
+    fvsv.service_version_id = $2
 ORDER BY
     f.name
 `
 
 type GetFeatureVersionsForServiceVersionParams struct {
-	ServiceVersionID uint
 	ChangesetID      uint
+	ServiceVersionID uint
 }
 
 type GetFeatureVersionsForServiceVersionRow struct {
@@ -418,7 +416,7 @@ type GetFeatureVersionsForServiceVersionRow struct {
 }
 
 func (q *Queries) GetFeatureVersionsForServiceVersion(ctx context.Context, arg GetFeatureVersionsForServiceVersionParams) ([]GetFeatureVersionsForServiceVersionRow, error) {
-	rows, err := q.db.Query(ctx, getFeatureVersionsForServiceVersion, arg.ServiceVersionID, arg.ChangesetID)
+	rows, err := q.db.Query(ctx, getFeatureVersionsForServiceVersion, arg.ChangesetID, arg.ServiceVersionID)
 	if err != nil {
 		return nil, err
 	}
@@ -453,27 +451,27 @@ SELECT
 FROM
     feature_versions fv
     JOIN features f ON f.id = fv.feature_id
+    JOIN valid_feature_versions_in_changeset($1) vfv ON vfv.id = fv.id
 WHERE
-    f.service_id = $1
-    AND is_feature_version_valid_in_changeset(fv, $2)
+    f.service_id = $2
     AND NOT EXISTS (
         SELECT
             1
         FROM
             feature_version_service_versions ifvsv
             JOIN feature_versions ifv ON ifv.id = ifvsv.feature_version_id
+            JOIN valid_links_in_changeset($1) vl ON vl.id = ifvsv.id
         WHERE
             ifv.feature_id = f.id
-            AND ifvsv.service_version_id = $3
-            AND is_link_valid_in_changeset(ifvsv, $2))
+            AND ifvsv.service_version_id = $3)
 ORDER BY
     f.name,
     fv.version
 `
 
 type GetFeatureVersionsLinkableToServiceVersionParams struct {
-	ServiceID        uint
 	ChangesetID      uint
+	ServiceID        uint
 	ServiceVersionID uint
 }
 
@@ -485,7 +483,7 @@ type GetFeatureVersionsLinkableToServiceVersionRow struct {
 }
 
 func (q *Queries) GetFeatureVersionsLinkableToServiceVersion(ctx context.Context, arg GetFeatureVersionsLinkableToServiceVersionParams) ([]GetFeatureVersionsLinkableToServiceVersionRow, error) {
-	rows, err := q.db.Query(ctx, getFeatureVersionsLinkableToServiceVersion, arg.ServiceID, arg.ChangesetID, arg.ServiceVersionID)
+	rows, err := q.db.Query(ctx, getFeatureVersionsLinkableToServiceVersion, arg.ChangesetID, arg.ServiceID, arg.ServiceVersionID)
 	if err != nil {
 		return nil, err
 	}
@@ -516,8 +514,7 @@ WITH latest_links AS (
         MAX(fvsv.service_version_id)::bigint AS service_version_id
     FROM
         feature_version_service_versions fvsv
-    WHERE
-        is_link_valid_in_changeset(fvsv, $2)
+        JOIN valid_links_in_changeset($1) vl ON vl.id = fvsv.id
     GROUP BY
         fvsv.feature_version_id
 )
@@ -528,16 +525,16 @@ SELECT
 FROM
     feature_versions fv
     JOIN latest_links ll ON ll.feature_version_id = fv.id
+    JOIN valid_feature_versions_in_changeset($1) vfv ON vfv.id = fv.id
 WHERE
-    fv.feature_id = $1
-    AND is_feature_version_valid_in_changeset(fv, $2)
+    fv.feature_id = $2
 ORDER BY
     fv.version
 `
 
 type GetVersionsOfFeatureForServiceVersionParams struct {
-	FeatureID   uint
 	ChangesetID uint
+	FeatureID   uint
 }
 
 type GetVersionsOfFeatureForServiceVersionRow struct {
@@ -547,7 +544,7 @@ type GetVersionsOfFeatureForServiceVersionRow struct {
 }
 
 func (q *Queries) GetVersionsOfFeatureForServiceVersion(ctx context.Context, arg GetVersionsOfFeatureForServiceVersionParams) ([]GetVersionsOfFeatureForServiceVersionRow, error) {
-	rows, err := q.db.Query(ctx, getVersionsOfFeatureForServiceVersion, arg.FeatureID, arg.ChangesetID)
+	rows, err := q.db.Query(ctx, getVersionsOfFeatureForServiceVersion, arg.ChangesetID, arg.FeatureID)
 	if err != nil {
 		return nil, err
 	}
@@ -574,20 +571,20 @@ SELECT
         FROM
             feature_version_service_versions fvsv
             JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
+            JOIN valid_links_in_changeset($1) vl ON vl.id = fvsv.id
         WHERE
-            fv.feature_id = $1
-            AND fvsv.service_version_id = $2
-            AND is_link_valid_in_changeset(fvsv, $3))
+            fv.feature_id = $2
+            AND fvsv.service_version_id = $3)
 `
 
 type IsFeatureLinkedToServiceVersionParams struct {
+	ChangesetID      uint
 	FeatureID        uint
 	ServiceVersionID uint
-	ChangesetID      uint
 }
 
 func (q *Queries) IsFeatureLinkedToServiceVersion(ctx context.Context, arg IsFeatureLinkedToServiceVersionParams) (bool, error) {
-	row := q.db.QueryRow(ctx, isFeatureLinkedToServiceVersion, arg.FeatureID, arg.ServiceVersionID, arg.ChangesetID)
+	row := q.db.QueryRow(ctx, isFeatureLinkedToServiceVersion, arg.ChangesetID, arg.FeatureID, arg.ServiceVersionID)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
