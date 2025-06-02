@@ -39,6 +39,8 @@ definitions:
     type: object
   changeset.ChangesetChange:
     properties:
+      conflict:
+        $ref: '#/definitions/changeset.Conflict'
       featureId:
         type: integer
       featureName:
@@ -55,6 +57,8 @@ definitions:
         type: integer
       keyName:
         type: string
+      kind:
+        $ref: '#/definitions/db.ChangesetChangeKind'
       newVariationValueData:
         type: string
       newVariationValueId:
@@ -83,6 +87,7 @@ definitions:
         type: object
     required:
     - id
+    - kind
     - serviceName
     - serviceVersion
     - serviceVersionId
@@ -100,6 +105,8 @@ definitions:
         items:
           $ref: '#/definitions/changeset.ChangesetChange'
         type: array
+      conflictCount:
+        type: integer
       id:
         type: integer
       state:
@@ -116,6 +123,7 @@ definitions:
     - actions
     - canApply
     - changes
+    - conflictCount
     - id
     - state
     - userId
@@ -147,6 +155,45 @@ definitions:
     - userId
     - userName
     type: object
+  changeset.Conflict:
+    properties:
+      existingValueData:
+        type: string
+      kind:
+        $ref: '#/definitions/changeset.ConflictKind'
+    required:
+    - kind
+    type: object
+  changeset.ConflictKind:
+    enum:
+    - new_value_duplicate_variation
+    - old_value_deleted
+    - old_value_updated
+    - value_in_deleted_key
+    - value_in_deleted_feature
+    - key_validators_updated
+    - key_in_deleted_feature
+    - key_duplicate_name
+    - duplicate_link
+    - deleted_link
+    - inconsistent_feature_version
+    - inconsistent_service_version
+    - change_in_published_service_version
+    type: string
+    x-enum-varnames:
+    - ConflictKindNewValueDuplicateVariation
+    - ConflictKindOldValueDeleted
+    - ConflictKindOldValueUpdated
+    - ConflictKindValueInDeletedKey
+    - ConflictKindValueInDeletedFeature
+    - ConflictKindKeyValidatorsUpdated
+    - ConflictKindKeyInDeletedFeature
+    - ConflictKindKeyDuplicateName
+    - ConflictKindDuplicateLink
+    - ConflictKindDeletedLink
+    - ConflictKindInconsistentFeatureVersion
+    - ConflictKindInconsistentServiceVersion
+    - ConflictKindChangeInPublishedServiceVersion
   configuration.ConfigurationDto:
     properties:
       changesetId:
@@ -240,6 +287,20 @@ definitions:
     - ChangesetActionTypeCommit
     - ChangesetActionTypeReopen
     - ChangesetActionTypeComment
+  db.ChangesetChangeKind:
+    enum:
+    - feature_version
+    - service_version
+    - feature_version_service_version
+    - key
+    - variation_value
+    type: string
+    x-enum-varnames:
+    - ChangesetChangeKindFeatureVersion
+    - ChangesetChangeKindServiceVersion
+    - ChangesetChangeKindFeatureVersionServiceVersion
+    - ChangesetChangeKindKey
+    - ChangesetChangeKindVariationValue
   db.ChangesetChangeType:
     enum:
     - create
@@ -1275,6 +1336,201 @@ paths:
       security:
       - BearerAuth: []
       summary: Discard a change
+  /changesets/{changeset_id}/changes/{change_id}/conflicts/confirm_delete:
+    put:
+      description: Confirm a delete value change to resolve conflict of deleting a
+        value of a variation that has changed
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      - description: Change ID
+        in: path
+        name: change_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Confirm delete change
+  /changesets/{changeset_id}/changes/{change_id}/conflicts/confirm_update:
+    put:
+      description: Confirm an update value change to resolve conflict of updating
+        a value of a variation that has changed
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      - description: Change ID
+        in: path
+        name: change_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Confirm update change
+  /changesets/{changeset_id}/changes/{change_id}/conflicts/create_to_update:
+    put:
+      description: Convert a create value change to an update value change to resolve
+        conflict of creating a value for a variation that already exists
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      - description: Change ID
+        in: path
+        name: change_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Convert create to update
+  /changesets/{changeset_id}/changes/{change_id}/conflicts/revalidate:
+    put:
+      description: Revalidate a value change to resolve conflict of creating a value
+        for a variation that already exists
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      - description: Change ID
+        in: path
+        name: change_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Revalidate a value change
+  /changesets/{changeset_id}/changes/{change_id}/conflicts/update_to_create:
+    put:
+      description: Convert an update value change to a create value change to resolve
+        conflict of updating a deleted value
+      parameters:
+      - description: Changeset ID
+        in: path
+        name: changeset_id
+        required: true
+        type: integer
+      - description: Change ID
+        in: path
+        name: change_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Convert update to create
   /changesets/{changeset_id}/comment:
     post:
       consumes:

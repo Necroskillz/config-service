@@ -350,3 +350,143 @@ func (h *Handler) GetApprovableChangesetCount(c echo.Context) error {
 		Count: count,
 	})
 }
+
+// @Summary Convert update to create
+// @Description Convert an update value change to a create value change to resolve conflict of updating a deleted value
+// @Produce json
+// @Security BearerAuth
+// @Param changeset_id path uint true "Changeset ID"
+// @Param change_id path uint true "Change ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets/{changeset_id}/changes/{change_id}/conflicts/update_to_create [put]
+func (h *Handler) ConvertUpdateToCreateValueChange(c echo.Context) error {
+	var changesetID uint
+	var changeID uint
+	err := echo.PathParamsBinder(c).MustUint("changeset_id", &changesetID).MustUint("change_id", &changeID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.ValueService.ConvertUpdateToCreate(c.Request().Context(), changeID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Convert create to update
+// @Description Convert a create value change to an update value change to resolve conflict of creating a value for a variation that already exists
+// @Produce json
+// @Security BearerAuth
+// @Param changeset_id path uint true "Changeset ID"
+// @Param change_id path uint true "Change ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets/{changeset_id}/changes/{change_id}/conflicts/create_to_update [put]
+func (h *Handler) ConvertCreateToUpdateValueChange(c echo.Context) error {
+	var changesetID uint
+	var changeID uint
+	err := echo.PathParamsBinder(c).MustUint("changeset_id", &changesetID).MustUint("change_id", &changeID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.ValueService.ConvertCreateToUpdate(c.Request().Context(), changeID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Confirm delete change
+// @Description Confirm a delete value change to resolve conflict of deleting a value of a variation that has changed
+// @Produce json
+// @Security BearerAuth
+// @Param changeset_id path uint true "Changeset ID"
+// @Param change_id path uint true "Change ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets/{changeset_id}/changes/{change_id}/conflicts/confirm_delete [put]
+func (h *Handler) ConfirmDeleteValueChange(c echo.Context) error {
+	var changesetID uint
+	var changeID uint
+	err := echo.PathParamsBinder(c).MustUint("changeset_id", &changesetID).MustUint("change_id", &changeID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.ValueService.ConfirmDeleteChange(c.Request().Context(), changeID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Confirm update change
+// @Description Confirm an update value change to resolve conflict of updating a value of a variation that has changed
+// @Produce json
+// @Security BearerAuth
+// @Param changeset_id path uint true "Changeset ID"
+// @Param change_id path uint true "Change ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets/{changeset_id}/changes/{change_id}/conflicts/confirm_update [put]
+func (h *Handler) ConfirmUpdateValueChange(c echo.Context) error {
+	var changesetID uint
+	var changeID uint
+	err := echo.PathParamsBinder(c).MustUint("changeset_id", &changesetID).MustUint("change_id", &changeID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.ValueService.ConfirmUpdateChange(c.Request().Context(), changeID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// @Summary Revalidate a value change
+// @Description Revalidate a value change to resolve conflict of creating a value for a variation that already exists
+// @Produce json
+// @Security BearerAuth
+// @Param changeset_id path uint true "Changeset ID"
+// @Param change_id path uint true "Change ID"
+// @Success 204
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /changesets/{changeset_id}/changes/{change_id}/conflicts/revalidate [put]
+func (h *Handler) RevalidateValueChange(c echo.Context) error {
+	var changesetID uint
+	var changeID uint
+	err := echo.PathParamsBinder(c).MustUint("changeset_id", &changesetID).MustUint("change_id", &changeID).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	err = h.ValueService.RevalidateValue(c.Request().Context(), changeID)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}

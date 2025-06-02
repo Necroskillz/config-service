@@ -89,6 +89,11 @@ export type { PostUsersMutationKey } from './hooks/usePostUsers.ts'
 export type { PostVariationPropertiesMutationKey } from './hooks/usePostVariationProperties.ts'
 export type { PostVariationPropertiesPropertyIdValuesMutationKey } from './hooks/usePostVariationPropertiesPropertyIdValues.ts'
 export type { PutChangesetsChangesetIdApplyMutationKey } from './hooks/usePutChangesetsChangesetIdApply.ts'
+export type { PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDeleteMutationKey } from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete.ts'
+export type { PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdateMutationKey } from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate.ts'
+export type { PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdateMutationKey } from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate.ts'
+export type { PutChangesetsChangesetIdChangesChangeIdConflictsRevalidateMutationKey } from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsRevalidate.ts'
+export type { PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreateMutationKey } from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate.ts'
 export type { PutChangesetsChangesetIdCommitMutationKey } from './hooks/usePutChangesetsChangesetIdCommit.ts'
 export type { PutChangesetsChangesetIdReopenMutationKey } from './hooks/usePutChangesetsChangesetIdReopen.ts'
 export type { PutChangesetsChangesetIdStashMutationKey } from './hooks/usePutChangesetsChangesetIdStash.ts'
@@ -108,6 +113,8 @@ export type { ChangesetChangesetAction } from './types/changeset/ChangesetAction
 export type { ChangesetChangesetChange } from './types/changeset/ChangesetChange.ts'
 export type { ChangesetChangesetDto } from './types/changeset/ChangesetDto.ts'
 export type { ChangesetChangesetItemDto } from './types/changeset/ChangesetItemDto.ts'
+export type { ChangesetConflict } from './types/changeset/Conflict.ts'
+export type { ChangesetConflictKindEnum, ChangesetConflictKind } from './types/changeset/ConflictKind.ts'
 export type { ConfigurationConfigurationDto } from './types/configuration/ConfigurationDto.ts'
 export type { ConfigurationFeatureConfigurationDto } from './types/configuration/FeatureConfigurationDto.ts'
 export type { ConfigurationKeyConfigurationDto } from './types/configuration/KeyConfigurationDto.ts'
@@ -115,6 +122,7 @@ export type { ConfigurationValueConfigurationDto } from './types/configuration/V
 export type { CorePaginatedResultChangesetChangesetItemDto } from './types/core/PaginatedResultChangesetChangesetItemDto.ts'
 export type { CorePaginatedResultMembershipUserDto } from './types/core/PaginatedResultMembershipUserDto.ts'
 export type { DbChangesetActionTypeEnum, DbChangesetActionType } from './types/db/ChangesetActionType.ts'
+export type { DbChangesetChangeKindEnum, DbChangesetChangeKind } from './types/db/ChangesetChangeKind.ts'
 export type { DbChangesetChangeTypeEnum, DbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export type { DbChangesetStateEnum, DbChangesetState } from './types/db/ChangesetState.ts'
 export type { DbValueTypeKindEnum, DbValueTypeKind } from './types/db/ValueTypeKind.ts'
@@ -701,6 +709,56 @@ export type {
   PutChangesetsChangesetIdApplyMutationResponse,
   PutChangesetsChangesetIdApplyMutation,
 } from './types/PutChangesetsChangesetIdApply.ts'
+export type {
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDeletePathParams,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete204,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete400,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete401,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete404,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete500,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDeleteMutationResponse,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDeleteMutation,
+} from './types/PutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete.ts'
+export type {
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdatePathParams,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate204,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate400,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate401,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate404,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate500,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdateMutationResponse,
+  PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdateMutation,
+} from './types/PutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate.ts'
+export type {
+  PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdatePathParams,
+  PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate204,
+  PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate400,
+  PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate401,
+  PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate404,
+  PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate500,
+  PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdateMutationResponse,
+  PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdateMutation,
+} from './types/PutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate.ts'
+export type {
+  PutChangesetsChangesetIdChangesChangeIdConflictsRevalidatePathParams,
+  PutChangesetsChangesetIdChangesChangeIdConflictsRevalidate204,
+  PutChangesetsChangesetIdChangesChangeIdConflictsRevalidate400,
+  PutChangesetsChangesetIdChangesChangeIdConflictsRevalidate401,
+  PutChangesetsChangesetIdChangesChangeIdConflictsRevalidate404,
+  PutChangesetsChangesetIdChangesChangeIdConflictsRevalidate500,
+  PutChangesetsChangesetIdChangesChangeIdConflictsRevalidateMutationResponse,
+  PutChangesetsChangesetIdChangesChangeIdConflictsRevalidateMutation,
+} from './types/PutChangesetsChangesetIdChangesChangeIdConflictsRevalidate.ts'
+export type {
+  PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreatePathParams,
+  PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate204,
+  PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate400,
+  PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate401,
+  PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate404,
+  PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate500,
+  PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreateMutationResponse,
+  PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreateMutation,
+} from './types/PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate.ts'
 export type {
   PutChangesetsChangesetIdCommitPathParams,
   PutChangesetsChangesetIdCommit204,
@@ -1321,6 +1379,31 @@ export {
   usePutChangesetsChangesetIdApply,
 } from './hooks/usePutChangesetsChangesetIdApply.ts'
 export {
+  putChangesetsChangesetIdChangesChangeIdConflictsConfirmDeleteMutationKey,
+  putChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete,
+} from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete.ts'
+export {
+  putChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdateMutationKey,
+  putChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate,
+} from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate.ts'
+export {
+  putChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdateMutationKey,
+  putChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate,
+} from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate.ts'
+export {
+  putChangesetsChangesetIdChangesChangeIdConflictsRevalidateMutationKey,
+  putChangesetsChangesetIdChangesChangeIdConflictsRevalidate,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsRevalidate,
+} from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsRevalidate.ts'
+export {
+  putChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreateMutationKey,
+  putChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate,
+} from './hooks/usePutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate.ts'
+export {
   putChangesetsChangesetIdCommitMutationKey,
   putChangesetsChangesetIdCommit,
   usePutChangesetsChangesetIdCommit,
@@ -1382,7 +1465,9 @@ export {
   putVariationPropertiesPropertyIdValuesValueIdUnarchive,
   usePutVariationPropertiesPropertyIdValuesValueIdUnarchive,
 } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdUnarchive.ts'
+export { changesetConflictKind } from './types/changeset/ConflictKind.ts'
 export { dbChangesetActionType } from './types/db/ChangesetActionType.ts'
+export { dbChangesetChangeKind } from './types/db/ChangesetChangeKind.ts'
 export { dbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export { dbChangesetState } from './types/db/ChangesetState.ts'
 export { dbValueTypeKind } from './types/db/ValueTypeKind.ts'

@@ -192,6 +192,7 @@ func (s *Service) CreateValue(ctx context.Context, data CreateValueParams) (NewV
 
 	existingDeleteChange, err := s.queries.GetDeleteChangeForVariationContextID(ctx, db.GetDeleteChangeForVariationContextIDParams{
 		ChangesetID:        user.ChangesetID,
+		KeyID:              key.ID,
 		VariationContextID: variationContextID,
 	})
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
@@ -787,4 +788,236 @@ func (s *Service) UpdateValue(ctx context.Context, params UpdateValueParams) (Ne
 	}
 
 	return NewValueInfo{ID: variationValueID, Order: order}, nil
+}
+
+func (s *Service) ConvertUpdateToCreate(ctx context.Context, changeID uint) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	change, err := s.queries.GetChangesetChange(ctx, changeID)
+	if err != nil {
+		return core.NewDbError(err, "ChangesetChange")
+	}
+
+	if change.ChangesetID != user.ChangesetID {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not part of your open changeset")
+	}
+
+	if change.Type != db.ChangesetChangeTypeUpdate || change.Kind != db.ChangesetChangeKindVariationValue {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not an update value change")
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		if err := tx.DeleteChange(ctx, change.ID); err != nil {
+			return err
+		}
+
+		if err := tx.AddCreateVariationValueChange(ctx, db.AddCreateVariationValueChangeParams{
+			ChangesetID:         change.ChangesetID,
+			ServiceVersionID:    change.ServiceVersionID,
+			FeatureVersionID:    *change.FeatureVersionID,
+			KeyID:               *change.KeyID,
+			NewVariationValueID: *change.NewVariationValueID,
+		}); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *Service) ConvertCreateToUpdate(ctx context.Context, changeID uint) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	change, err := s.queries.GetChangesetChange(ctx, changeID)
+	if err != nil {
+		return core.NewDbError(err, "ChangesetChange")
+	}
+
+	if change.ChangesetID != user.ChangesetID {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not part of your open changeset")
+	}
+
+	if change.Type != db.ChangesetChangeTypeCreate || change.Kind != db.ChangesetChangeKindVariationValue {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not a create value change")
+	}
+
+	variationValueID, err := s.queries.GetVariationValueIDByVariationContextID(ctx, db.GetVariationValueIDByVariationContextIDParams{
+		KeyID:              *change.KeyID,
+		VariationContextID: *change.VariationContextID,
+	})
+	if err != nil {
+		return core.NewDbError(err, "VariationValue")
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		if err := tx.DeleteChange(ctx, change.ID); err != nil {
+			return err
+		}
+
+		if err := tx.AddUpdateVariationValueChange(ctx, db.AddUpdateVariationValueChangeParams{
+			ChangesetID:         change.ChangesetID,
+			ServiceVersionID:    change.ServiceVersionID,
+			FeatureVersionID:    *change.FeatureVersionID,
+			KeyID:               *change.KeyID,
+			OldVariationValueID: *change.NewVariationValueID,
+			NewVariationValueID: variationValueID,
+		}); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *Service) RevalidateValue(ctx context.Context, changeID uint) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	change, err := s.queries.GetChangesetChange(ctx, changeID)
+	if err != nil {
+		return core.NewDbError(err, "ChangesetChange")
+	}
+
+	if change.ChangesetID != user.ChangesetID {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not part of your open changeset")
+	}
+
+	if change.Kind != db.ChangesetChangeKindVariationValue || !slices.Contains([]db.ChangesetChangeType{db.ChangesetChangeTypeCreate, db.ChangesetChangeTypeUpdate}, change.Type) {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not a create or update value change")
+	}
+
+	_, _, key, value, err := s.coreService.GetVariationValue(ctx, change.ServiceVersionID, *change.FeatureVersionID, *change.KeyID, *change.NewVariationValueID)
+	if err != nil {
+		return err
+	}
+
+	validatorFunc, err := s.valueDataValidator(ctx, key.ValueTypeID, key.ID)
+	if err != nil {
+		return err
+	}
+
+	err = s.validator.
+		Validate(value.Data, "Data").Func(validatorFunc).
+		Error(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		if err := tx.DeleteChange(ctx, change.ID); err != nil {
+			return err
+		}
+
+		if change.Type == db.ChangesetChangeTypeCreate {
+			if err := tx.AddCreateVariationValueChange(ctx, db.AddCreateVariationValueChangeParams{
+				ChangesetID:         change.ChangesetID,
+				ServiceVersionID:    change.ServiceVersionID,
+				FeatureVersionID:    *change.FeatureVersionID,
+				KeyID:               *change.KeyID,
+				NewVariationValueID: *change.NewVariationValueID,
+			}); err != nil {
+				return err
+			}
+		} else {
+			if err := tx.AddUpdateVariationValueChange(ctx, db.AddUpdateVariationValueChangeParams{
+				ChangesetID:         change.ChangesetID,
+				ServiceVersionID:    change.ServiceVersionID,
+				FeatureVersionID:    *change.FeatureVersionID,
+				KeyID:               *change.KeyID,
+				OldVariationValueID: *change.NewVariationValueID,
+				NewVariationValueID: *change.OldVariationValueID,
+			}); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func (s *Service) ConfirmUpdateChange(ctx context.Context, changeID uint) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	change, err := s.queries.GetChangesetChange(ctx, changeID)
+	if err != nil {
+		return core.NewDbError(err, "ChangesetChange")
+	}
+
+	if change.ChangesetID != user.ChangesetID {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not part of your open changeset")
+	}
+
+	if change.Type != db.ChangesetChangeTypeUpdate || change.Kind != db.ChangesetChangeKindVariationValue {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not an update value change")
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		if err := tx.DeleteChange(ctx, change.ID); err != nil {
+			return err
+		}
+
+		variationValueID, err := tx.GetVariationValueIDByVariationContextID(ctx, db.GetVariationValueIDByVariationContextIDParams{
+			KeyID:              *change.KeyID,
+			VariationContextID: *change.VariationContextID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if err := tx.AddUpdateVariationValueChange(ctx, db.AddUpdateVariationValueChangeParams{
+			ChangesetID:         change.ChangesetID,
+			ServiceVersionID:    change.ServiceVersionID,
+			FeatureVersionID:    *change.FeatureVersionID,
+			KeyID:               *change.KeyID,
+			OldVariationValueID: variationValueID,
+			NewVariationValueID: *change.NewVariationValueID,
+		}); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *Service) ConfirmDeleteChange(ctx context.Context, changeID uint) error {
+	user := s.currentUserAccessor.GetUser(ctx)
+
+	change, err := s.queries.GetChangesetChange(ctx, changeID)
+	if err != nil {
+		return core.NewDbError(err, "ChangesetChange")
+	}
+
+	if change.ChangesetID != user.ChangesetID {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not part of your open changeset")
+	}
+
+	if change.Type != db.ChangesetChangeTypeDelete || change.Kind != db.ChangesetChangeKindVariationValue {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Change is not a delete value change")
+	}
+
+	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		if err := tx.DeleteChange(ctx, change.ID); err != nil {
+			return err
+		}
+
+		variationValueID, err := tx.GetVariationValueIDByVariationContextID(ctx, db.GetVariationValueIDByVariationContextIDParams{
+			KeyID:              *change.KeyID,
+			VariationContextID: *change.VariationContextID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if err := tx.AddDeleteVariationValueChange(ctx, db.AddDeleteVariationValueChangeParams{
+			ChangesetID:         change.ChangesetID,
+			ServiceVersionID:    change.ServiceVersionID,
+			FeatureVersionID:    *change.FeatureVersionID,
+			KeyID:               *change.KeyID,
+			OldVariationValueID: variationValueID,
+		}); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

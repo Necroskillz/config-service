@@ -72,12 +72,13 @@ WHERE
 
 -- name: GetKeyIDByName :one
 SELECT
-    id
+    k.id
 FROM
-    keys
+    keys k
+    JOIN valid_keys_in_changeset(@changeset_id) vk ON vk.id = k.id
 WHERE
-    name = @name
-    AND feature_version_id = @feature_version_id
+    k.name = @name
+    AND k.feature_version_id = @feature_version_id
 LIMIT 1;
 
 -- name: CreateValueType :one

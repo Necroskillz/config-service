@@ -3,9 +3,15 @@
  * Do not edit manually.
  */
 
+import type { ChangesetConflict } from './Conflict.ts'
+import type { DbChangesetChangeKind } from '../db/ChangesetChangeKind.ts'
 import type { DbChangesetChangeType } from '../db/ChangesetChangeType.ts'
 
 export type ChangesetChangesetChange = {
+  /**
+   * @type object | undefined
+   */
+  conflict?: ChangesetConflict
   /**
    * @type integer | undefined
    */
@@ -38,6 +44,10 @@ export type ChangesetChangesetChange = {
    * @type string | undefined
    */
   keyName?: string
+  /**
+   * @type string
+   */
+  kind: DbChangesetChangeKind
   /**
    * @type string | undefined
    */

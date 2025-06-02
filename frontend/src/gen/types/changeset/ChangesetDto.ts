@@ -23,6 +23,10 @@ export type ChangesetChangesetDto = {
   /**
    * @type integer
    */
+  conflictCount: number
+  /**
+   * @type integer
+   */
   id: number
   /**
    * @type string

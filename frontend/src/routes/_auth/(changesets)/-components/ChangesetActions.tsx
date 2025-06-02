@@ -61,7 +61,7 @@ export function ChangesetActions({ changeset }: { changeset: ChangesetChangesetD
     onSubmit: async ({ value, meta }: { value: { comment: string }; meta: { action: DbChangesetActionTypeEnum } }) => {
       const mutation = mutations[meta.action];
       await mutation.mutateAsync({ changeset_id: changeset.id, data: { comment: value.comment } });
-      queryClient.refetchQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+      queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
       form.reset();
 
       if (meta.action !== 'comment') {
@@ -126,7 +126,7 @@ export function ChangesetActions({ changeset }: { changeset: ChangesetChangesetD
                 children={({ canSubmit, isSubmitting, comment }) => (
                   <div className="flex gap-2">
                     {changeset.canApply && (
-                      <Button disabled={!canSubmit || isSubmitting} onClick={() => form.handleSubmit({ action: 'apply' })}>
+                      <Button disabled={!canSubmit || isSubmitting || changeset.conflictCount > 0} onClick={() => form.handleSubmit({ action: 'apply' })}>
                         {comment ? 'Comment and Apply' : 'Apply'}
                       </Button>
                     )}
@@ -134,7 +134,7 @@ export function ChangesetActions({ changeset }: { changeset: ChangesetChangesetD
                       <>
                         <Button
                           variant={changeset.canApply ? 'secondary' : 'default'}
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || changeset.conflictCount > 0}
                           onClick={() => form.handleSubmit({ action: 'commit' })}
                         >
                           {comment ? 'Comment and Commit' : 'Commit'}

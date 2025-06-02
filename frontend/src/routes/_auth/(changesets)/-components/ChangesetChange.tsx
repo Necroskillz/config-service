@@ -1,8 +1,21 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { TriangleAlert } from 'lucide-react';
 import { useAuth } from '~/auth';
+import { MutationErrors } from '~/components/MutationErrors';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import { ChangesetChangesetChange, ChangesetChangesetDto } from '~/gen';
+import {
+  ChangesetChangesetChange,
+  ChangesetChangesetDto,
+  getChangesetsChangesetIdQueryKey,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsRevalidate,
+  usePutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate,
+} from '~/gen';
 
 function getChangeTypeText(type: ChangesetChangesetChange['type']) {
   switch (type) {
@@ -41,9 +54,10 @@ export function ChangesetChange({
     !(change.type === 'create' && change.variation != null && Object.keys(change.variation).length === 0);
 
   return (
-    <div className="flex flex-row justify-between items-center">
-      <div>
+    <div className="flex flex-row justify-between items-center gap-2">
+      <div className="flex flex-col gap-4">
         <ChangesetChangeDescription change={change} />
+        <Conflict changeset={changeset} change={change} />
       </div>
       {canDiscard && (
         <div>
@@ -225,4 +239,244 @@ function ServiceVersionChange({ change }: { change: ChangesetChangesetChange }) 
       </span>
     </div>
   );
+}
+
+function Conflict({ changeset, change }: { changeset: ChangesetChangesetDto; change: ChangesetChangesetChange }) {
+  if (!change.conflict) {
+    return null;
+  }
+
+  const queryClient = useQueryClient();
+
+  switch (change.conflict.kind) {
+    case 'new_value_duplicate_variation':
+      const createToUpdateMutation = usePutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate({
+        mutation: {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+          },
+        },
+      });
+
+      return (
+        <ConflictAlert>
+          <div>
+            {change.newVariationValueData !== change.conflict.existingValueData
+              ? `Value for this variation was already created with value "${change.conflict.existingValueData}". Either make update change instead of create, or discard this change.`
+              : `Value for this variation was already created with the same value. This change must be discarded.`}
+          </div>
+          {changeset.state === 'open' && change.newVariationValueData !== change.conflict.existingValueData && (
+            <ConflictActions>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => createToUpdateMutation.mutate({ changeset_id: changeset.id, change_id: change.id })}
+              >
+                Create &rarr; Update
+              </Button>
+            </ConflictActions>
+          )}
+          <MutationErrors mutations={[createToUpdateMutation]} />
+        </ConflictAlert>
+      );
+    case 'old_value_updated':
+      if (change.type === 'update') {
+        const mutation = usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate({
+          mutation: {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+            },
+          },
+        });
+
+        return (
+          <ConflictAlert>
+            {change.newVariationValueData !== change.conflict.existingValueData
+              ? `Value for this variation was already updated with value "${change.conflict.existingValueData}". Either confirm the update, or discard this change.`
+              : `Value for this variation was already updated with the same value. This change must be discarded.`}
+            {changeset.state === 'open' && change.newVariationValueData !== change.conflict.existingValueData && (
+              <ConflictActions>
+                <Button variant="secondary" size="sm" onClick={() => mutation.mutate({ changeset_id: changeset.id, change_id: change.id })}>
+                  Confirm update
+                </Button>
+              </ConflictActions>
+            )}
+            <MutationErrors mutations={[mutation]} />
+          </ConflictAlert>
+        );
+      } else {
+        const mutation = usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete({
+          mutation: {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+            },
+          },
+        });
+
+        return (
+          <ConflictAlert>
+            <div>
+              Value for this variation was updated with value "{change.conflict.existingValueData}". Either confirm the deletion, or discard
+              this change.
+            </div>
+            {changeset.state === 'open' && (
+              <ConflictActions>
+                <Button variant="secondary" size="sm" onClick={() => mutation.mutate({ changeset_id: changeset.id, change_id: change.id })}>
+                  Confirm deletion
+                </Button>
+              </ConflictActions>
+            )}
+            <MutationErrors mutations={[mutation]} />
+          </ConflictAlert>
+        );
+      }
+    case 'old_value_deleted':
+      if (change.type === 'update') {
+        const mutation = usePutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate({
+          mutation: {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+            },
+          },
+        });
+
+        return (
+          <ConflictAlert>
+            <div>Value for this variation was deleted. Either make create change instead of update, or discard this change.</div>
+            {changeset.state === 'open' && (
+              <ConflictActions>
+                <Button variant="secondary" size="sm" onClick={() => mutation.mutate({ changeset_id: changeset.id, change_id: change.id })}>
+                  Update &rarr; Create
+                </Button>
+              </ConflictActions>
+            )}
+            <MutationErrors mutations={[mutation]} />
+          </ConflictAlert>
+        );
+      } else {
+        return (
+          <ConflictAlert>
+            <div>Value was already deleted. This change must be discarded.</div>
+          </ConflictAlert>
+        );
+      }
+    case 'value_in_deleted_key':
+      return (
+        <ConflictAlert>
+          <div>Key of this value was deleted. This change must be discarded.</div>
+        </ConflictAlert>
+      );
+    case 'value_in_deleted_feature':
+      return (
+        <ConflictAlert>
+          <div>Feature of the key this value belongs to was deleted. This change must be discarded.</div>
+        </ConflictAlert>
+      );
+    case 'key_validators_updated':
+      const revalidateMutation = usePutChangesetsChangesetIdChangesChangeIdConflictsRevalidate({
+        mutation: {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+          },
+        },
+      });
+
+      return (
+        <ConflictAlert>
+          <div>
+            Validators for key of this value were updated. The value must be revalidated using the updated validators. If it's not valid, it
+            must be changed or discarded.
+          </div>
+          {changeset.state === 'open' && (
+            <ConflictActions>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => revalidateMutation.mutate({ changeset_id: changeset.id, change_id: change.id })}
+              >
+                Re-validate value
+              </Button>
+            </ConflictActions>
+          )}
+          <MutationErrors mutations={[revalidateMutation]} />
+        </ConflictAlert>
+      );
+    case 'key_in_deleted_feature':
+      return (
+        <ConflictAlert>
+          <div>Feature of this key was deleted. This change must be discarded.</div>
+        </ConflictAlert>
+      );
+    case 'key_duplicate_name':
+      return (
+        <ConflictAlert>
+          <div>Key with this name already exists in the feature. This change must be discarded.</div>
+        </ConflictAlert>
+      );
+    case 'duplicate_link':
+      return (
+        <ConflictAlert>
+          <div>Feature and service are already linked. This change must be discarded.</div>
+        </ConflictAlert>
+      );
+    case 'deleted_link':
+      return (
+        <ConflictAlert>
+          <div>Feature and service link was already deleted. This change must be discarded.</div>
+        </ConflictAlert>
+      );
+    case 'inconsistent_feature_version':
+      return (
+        <ConflictAlert>
+          <div>Feature version with this version number was already created. This change must be discarded.</div>
+        </ConflictAlert>
+      );
+    case 'inconsistent_service_version':
+      return (
+        <ConflictAlert>
+          <div>Service version with this version number was already created. This change must be discarded.</div>
+        </ConflictAlert>
+      );
+    case 'change_in_published_service_version':
+      switch (change.kind) {
+        case 'service_version':
+          return (
+            <ConflictAlert>
+              <div>Service version can't be deleted after is has been published. This change must be discarded.</div>
+            </ConflictAlert>
+          );
+        case 'feature_version_service_version':
+          return (
+            <ConflictAlert>
+              <div>
+                Feature version can't be unlinked from a service version after is has been published. This change must be discarded.
+              </div>
+            </ConflictAlert>
+          );
+        case 'key':
+          return (
+            <ConflictAlert>
+              <div>
+                Key can't be deleted from a feature version that is linked to a published service version. This change must be discarded.
+              </div>
+            </ConflictAlert>
+          );
+      }
+  }
+}
+
+function ConflictAlert({ children }: { children: React.ReactNode }) {
+  return (
+    <Alert variant="destructive">
+      <TriangleAlert />
+      <AlertTitle>Conflict Detected</AlertTitle>
+      <AlertDescription>
+        <div className="flex flex-col gap-2">{children}</div>
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+function ConflictActions({ children }: { children: React.ReactNode }) {
+  return <div className="flex flex-row gap-2">{children}</div>;
 }

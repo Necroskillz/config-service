@@ -68,9 +68,12 @@ func (s *Service) IsFeatureNameTaken(ctx context.Context, name string) (bool, er
 }
 
 func (s *Service) IsKeyNameTaken(ctx context.Context, featureVersionID uint, keyName string) (bool, error) {
+	user := s.currentUserAccessor.GetUser(ctx)
+
 	_, err := s.queries.GetKeyIDByName(ctx, db.GetKeyIDByNameParams{
 		Name:             keyName,
 		FeatureVersionID: featureVersionID,
+		ChangesetID:      user.ChangesetID,
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

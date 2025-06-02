@@ -1,0 +1,1 @@
+{"enum":["feature_version","service_version","feature_version_service_version","key","variation_value"],"type":"string","x-enum-varnames":["ChangesetChangeKindFeatureVersion","ChangesetChangeKindServiceVersion","ChangesetChangeKindFeatureVersionServiceVersion","ChangesetChangeKindKey","ChangesetChangeKindVariationValue"],"x-readme-ref-name":"db.ChangesetChangeKind"}

@@ -16,6 +16,8 @@ import { ChangesetState } from './-components/ChangesetState';
 import { useQueryClient } from '@tanstack/react-query';
 import { useChangeset } from '~/hooks/use-changeset';
 import { MutationErrors } from '~/components/MutationErrors';
+import { Alert, AlertDescription } from '~/components/ui/alert';
+import { TriangleAlert } from 'lucide-react';
 
 export const Route = createFileRoute('/_auth/(changesets)/changesets/$changesetId')({
   component: RouteComponent,
@@ -58,6 +60,15 @@ function RouteComponent() {
           <span className="font-semibold">State:</span>
           <ChangesetState state={changeset.state} />
         </div>
+        {changeset.conflictCount > 0 && (
+          <Alert variant="destructive">
+            <TriangleAlert />
+            <AlertDescription>
+              <div>Changeset has conflicts that need to be resolved before it can be applied or committed.</div>
+              <div>Number of conflicts: {changeset.conflictCount}</div>
+            </AlertDescription>
+          </Alert>
+        )}
         <MutationErrors mutations={[discardChangeMutation]} />
         {changeset.changes.length > 0 ? (
           <List>

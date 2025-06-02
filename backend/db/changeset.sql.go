@@ -540,39 +540,153 @@ func (q *Queries) GetChangesetActions(ctx context.Context, changesetID uint) ([]
 	return items, nil
 }
 
+const getChangesetChange = `-- name: GetChangesetChange :one
+SELECT
+    csc.id, csc.created_at, csc.changeset_id, csc.type, csc.kind, csc.feature_version_id, csc.previous_feature_version_id, csc.service_version_id, csc.previous_service_version_id, csc.feature_version_service_version_id, csc.key_id, csc.new_variation_value_id, csc.old_variation_value_id,
+    vv.variation_context_id AS variation_context_id
+FROM
+    changeset_changes csc
+    LEFT JOIN variation_values vv ON vv.id = COALESCE(csc.new_variation_value_id, csc.old_variation_value_id)
+WHERE
+    csc.id = $1
+LIMIT 1
+`
+
+type GetChangesetChangeRow struct {
+	ID                             uint
+	CreatedAt                      time.Time
+	ChangesetID                    uint
+	Type                           ChangesetChangeType
+	Kind                           ChangesetChangeKind
+	FeatureVersionID               *uint
+	PreviousFeatureVersionID       *uint
+	ServiceVersionID               uint
+	PreviousServiceVersionID       *uint
+	FeatureVersionServiceVersionID *uint
+	KeyID                          *uint
+	NewVariationValueID            *uint
+	OldVariationValueID            *uint
+	VariationContextID             *uint
+}
+
+func (q *Queries) GetChangesetChange(ctx context.Context, changeID uint) (GetChangesetChangeRow, error) {
+	row := q.db.QueryRow(ctx, getChangesetChange, changeID)
+	var i GetChangesetChangeRow
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.ChangesetID,
+		&i.Type,
+		&i.Kind,
+		&i.FeatureVersionID,
+		&i.PreviousFeatureVersionID,
+		&i.ServiceVersionID,
+		&i.PreviousServiceVersionID,
+		&i.FeatureVersionServiceVersionID,
+		&i.KeyID,
+		&i.NewVariationValueID,
+		&i.OldVariationValueID,
+		&i.VariationContextID,
+	)
+	return i, err
+}
+
 const getChangesetChanges = `-- name: GetChangesetChanges :many
+WITH links AS (
+    SELECT
+        fvsv.id AS feature_version_service_version_id,
+        fv.feature_id AS feature_id,
+        fvsv.service_version_id
+    FROM
+        feature_version_service_versions fvsv
+        JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
+    WHERE
+        fvsv.valid_from IS NOT NULL
+        AND fvsv.valid_to IS NULL
+),
+last_feature_versions AS (
+    SELECT
+        fv.feature_id,
+        MAX(fv.version)::int AS last_version
+    FROM
+        feature_versions fv
+    WHERE
+        fv.valid_from IS NOT NULL
+        AND fv.valid_to IS NULL
+    GROUP BY
+        fv.feature_id
+),
+last_service_versions AS (
+    SELECT
+        sv.service_id,
+        MAX(sv.version)::int AS last_version
+    FROM
+        service_versions sv
+    WHERE
+        sv.valid_from IS NOT NULL
+        AND sv.valid_to IS NULL
+    GROUP BY
+        sv.service_id
+)
 SELECT
     csc.id,
     csc.type,
     csc.kind,
+    csc.created_at,
     sv.id AS service_version_id,
     csc.previous_service_version_id,
     s.name AS service_name,
     s.id AS service_id,
     sv.version AS service_version,
+    sv.published AS service_version_published,
     fv.id AS feature_version_id,
     csc.previous_feature_version_id,
     f.name AS feature_name,
     f.id AS feature_id,
     fv.version AS feature_version,
+    fv.valid_to AS feature_version_valid_to,
     k.id AS key_id,
     k.name AS key_name,
+    k.valid_to AS key_valid_to,
+    k.validators_updated_at AS key_validators_updated_at,
     nv.id AS new_variation_value_id,
     nv.data AS new_variation_value_data,
     ov.id AS old_variation_value_id,
     ov.data AS old_variation_value_data,
+    ov.valid_to AS old_variation_value_valid_to,
     vc.id AS variation_context_id,
-    csc.feature_version_service_version_id
+    fvsv.id AS feature_version_service_version_id,
+    fvsv.valid_to AS feature_version_service_version_valid_to,
+    evv.variation_context_id AS existing_variation_context_id,
+    evv.data AS existing_value_data,
+    ek.id AS existing_key_id,
+    el.feature_version_service_version_id AS existing_feature_version_service_version_id,
+    COALESCE(lfv.last_version, 0) AS last_feature_version_version,
+    COALESCE(lsv.last_version, 0) AS last_service_version_version
 FROM
     changeset_changes csc
     JOIN service_versions sv ON sv.id = csc.service_version_id
     JOIN services s ON s.id = sv.service_id
+    LEFT JOIN feature_version_service_versions fvsv ON fvsv.id = csc.feature_version_service_version_id
     LEFT JOIN feature_versions fv ON fv.id = csc.feature_version_id
     LEFT JOIN features f ON f.id = fv.feature_id
     LEFT JOIN keys k ON k.id = csc.key_id
     LEFT JOIN variation_values nv ON nv.id = csc.new_variation_value_id
     LEFT JOIN variation_values ov ON ov.id = csc.old_variation_value_id
     LEFT JOIN variation_contexts vc ON vc.id = COALESCE(nv.variation_context_id, ov.variation_context_id)
+    LEFT JOIN variation_values evv ON evv.variation_context_id = vc.id
+        AND evv.key_id = k.id
+        AND evv.valid_from IS NOT NULL
+        AND evv.valid_to IS NULL
+    LEFT JOIN keys ek ON ek.id <> k.id
+        AND ek.name = k.name
+        AND ek.feature_version_id = k.feature_version_id
+        AND ek.valid_from IS NOT NULL
+        AND ek.valid_to IS NULL
+    LEFT JOIN links el ON el.service_version_id = sv.id
+        AND el.feature_id = f.id
+    LEFT JOIN last_feature_versions lfv ON lfv.feature_id = f.id
+    LEFT JOIN last_service_versions lsv ON lsv.service_id = sv.service_id
 WHERE
     changeset_id = $1
 ORDER BY
@@ -580,27 +694,40 @@ ORDER BY
 `
 
 type GetChangesetChangesRow struct {
-	ID                             uint
-	Type                           ChangesetChangeType
-	Kind                           ChangesetChangeKind
-	ServiceVersionID               uint
-	PreviousServiceVersionID       *uint
-	ServiceName                    string
-	ServiceID                      uint
-	ServiceVersion                 int
-	FeatureVersionID               *uint
-	PreviousFeatureVersionID       *uint
-	FeatureName                    *string
-	FeatureID                      *uint
-	FeatureVersion                 *int
-	KeyID                          *uint
-	KeyName                        *string
-	NewVariationValueID            *uint
-	NewVariationValueData          *string
-	OldVariationValueID            *uint
-	OldVariationValueData          *string
-	VariationContextID             *uint
-	FeatureVersionServiceVersionID *uint
+	ID                                     uint
+	Type                                   ChangesetChangeType
+	Kind                                   ChangesetChangeKind
+	CreatedAt                              time.Time
+	ServiceVersionID                       uint
+	PreviousServiceVersionID               *uint
+	ServiceName                            string
+	ServiceID                              uint
+	ServiceVersion                         int
+	ServiceVersionPublished                bool
+	FeatureVersionID                       *uint
+	PreviousFeatureVersionID               *uint
+	FeatureName                            *string
+	FeatureID                              *uint
+	FeatureVersion                         *int
+	FeatureVersionValidTo                  *time.Time
+	KeyID                                  *uint
+	KeyName                                *string
+	KeyValidTo                             *time.Time
+	KeyValidatorsUpdatedAt                 *time.Time
+	NewVariationValueID                    *uint
+	NewVariationValueData                  *string
+	OldVariationValueID                    *uint
+	OldVariationValueData                  *string
+	OldVariationValueValidTo               *time.Time
+	VariationContextID                     *uint
+	FeatureVersionServiceVersionID         *uint
+	FeatureVersionServiceVersionValidTo    *time.Time
+	ExistingVariationContextID             *uint
+	ExistingValueData                      *string
+	ExistingKeyID                          *uint
+	ExistingFeatureVersionServiceVersionID *uint
+	LastFeatureVersionVersion              int
+	LastServiceVersionVersion              int
 }
 
 func (q *Queries) GetChangesetChanges(ctx context.Context, changesetID uint) ([]GetChangesetChangesRow, error) {
@@ -616,24 +743,37 @@ func (q *Queries) GetChangesetChanges(ctx context.Context, changesetID uint) ([]
 			&i.ID,
 			&i.Type,
 			&i.Kind,
+			&i.CreatedAt,
 			&i.ServiceVersionID,
 			&i.PreviousServiceVersionID,
 			&i.ServiceName,
 			&i.ServiceID,
 			&i.ServiceVersion,
+			&i.ServiceVersionPublished,
 			&i.FeatureVersionID,
 			&i.PreviousFeatureVersionID,
 			&i.FeatureName,
 			&i.FeatureID,
 			&i.FeatureVersion,
+			&i.FeatureVersionValidTo,
 			&i.KeyID,
 			&i.KeyName,
+			&i.KeyValidTo,
+			&i.KeyValidatorsUpdatedAt,
 			&i.NewVariationValueID,
 			&i.NewVariationValueData,
 			&i.OldVariationValueID,
 			&i.OldVariationValueData,
+			&i.OldVariationValueValidTo,
 			&i.VariationContextID,
 			&i.FeatureVersionServiceVersionID,
+			&i.FeatureVersionServiceVersionValidTo,
+			&i.ExistingVariationContextID,
+			&i.ExistingValueData,
+			&i.ExistingKeyID,
+			&i.ExistingFeatureVersionServiceVersionID,
+			&i.LastFeatureVersionVersion,
+			&i.LastServiceVersionVersion,
 		); err != nil {
 			return nil, err
 		}
@@ -990,6 +1130,23 @@ func (q *Queries) GetRelatedServiceVersionChangesCount(ctx context.Context, arg 
 	var column_1 int
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const lockChangesetForUpdate = `-- name: LockChangesetForUpdate :one
+SELECT
+    cs.id
+FROM
+    changesets cs
+WHERE
+    cs.id = $1
+FOR UPDATE
+`
+
+func (q *Queries) LockChangesetForUpdate(ctx context.Context, changesetID uint) (uint, error) {
+	row := q.db.QueryRow(ctx, lockChangesetForUpdate, changesetID)
+	var id uint
+	err := row.Scan(&id)
+	return id, err
 }
 
 const setChangesetState = `-- name: SetChangesetState :exec

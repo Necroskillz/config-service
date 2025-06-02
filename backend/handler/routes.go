@@ -102,6 +102,13 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	changesetGroup.DELETE("/changes/:change_id", h.DiscardChange)
 
+	conflictsGroup := changesetGroup.Group("/changes/:change_id/conflicts")
+	conflictsGroup.PUT("/update_to_create", h.ConvertUpdateToCreateValueChange)
+	conflictsGroup.PUT("/create_to_update", h.ConvertCreateToUpdateValueChange)
+	conflictsGroup.PUT("/confirm_update", h.ConfirmUpdateValueChange)
+	conflictsGroup.PUT("/confirm_delete", h.ConfirmDeleteValueChange)
+	conflictsGroup.PUT("/revalidate", h.RevalidateValueChange)
+
 	variationPropertiesGroup := apiGroup.Group("/variation-properties")
 	variationPropertiesGroup.GET("", h.VariationProperties)
 	variationPropertiesGroup.POST("", h.CreateVariationProperty)

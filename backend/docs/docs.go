@@ -541,6 +541,301 @@ const docTemplate = `{
                 }
             }
         },
+        "/changesets/{changeset_id}/changes/{change_id}/conflicts/confirm_delete": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Confirm a delete value change to resolve conflict of deleting a value of a variation that has changed",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Confirm delete change",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Changeset ID",
+                        "name": "changeset_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Change ID",
+                        "name": "change_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/changesets/{changeset_id}/changes/{change_id}/conflicts/confirm_update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Confirm an update value change to resolve conflict of updating a value of a variation that has changed",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Confirm update change",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Changeset ID",
+                        "name": "changeset_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Change ID",
+                        "name": "change_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/changesets/{changeset_id}/changes/{change_id}/conflicts/create_to_update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Convert a create value change to an update value change to resolve conflict of creating a value for a variation that already exists",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Convert create to update",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Changeset ID",
+                        "name": "changeset_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Change ID",
+                        "name": "change_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/changesets/{changeset_id}/changes/{change_id}/conflicts/revalidate": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Revalidate a value change to resolve conflict of creating a value for a variation that already exists",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Revalidate a value change",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Changeset ID",
+                        "name": "changeset_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Change ID",
+                        "name": "change_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/changesets/{changeset_id}/changes/{change_id}/conflicts/update_to_create": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Convert an update value change to a create value change to resolve conflict of updating a deleted value",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Convert update to create",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Changeset ID",
+                        "name": "changeset_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Change ID",
+                        "name": "change_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/changesets/{changeset_id}/comment": {
             "post": {
                 "security": [
@@ -4541,12 +4836,16 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
+                "kind",
                 "serviceName",
                 "serviceVersion",
                 "serviceVersionId",
                 "type"
             ],
             "properties": {
+                "conflict": {
+                    "$ref": "#/definitions/changeset.Conflict"
+                },
                 "featureId": {
                     "type": "integer"
                 },
@@ -4570,6 +4869,9 @@ const docTemplate = `{
                 },
                 "keyName": {
                     "type": "string"
+                },
+                "kind": {
+                    "$ref": "#/definitions/db.ChangesetChangeKind"
                 },
                 "newVariationValueData": {
                     "type": "string"
@@ -4618,6 +4920,7 @@ const docTemplate = `{
                 "actions",
                 "canApply",
                 "changes",
+                "conflictCount",
                 "id",
                 "state",
                 "userId",
@@ -4639,6 +4942,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/changeset.ChangesetChange"
                     }
+                },
+                "conflictCount": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -4694,6 +5000,53 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "changeset.Conflict": {
+            "type": "object",
+            "required": [
+                "kind"
+            ],
+            "properties": {
+                "existingValueData": {
+                    "type": "string"
+                },
+                "kind": {
+                    "$ref": "#/definitions/changeset.ConflictKind"
+                }
+            }
+        },
+        "changeset.ConflictKind": {
+            "type": "string",
+            "enum": [
+                "new_value_duplicate_variation",
+                "old_value_deleted",
+                "old_value_updated",
+                "value_in_deleted_key",
+                "value_in_deleted_feature",
+                "key_validators_updated",
+                "key_in_deleted_feature",
+                "key_duplicate_name",
+                "duplicate_link",
+                "deleted_link",
+                "inconsistent_feature_version",
+                "inconsistent_service_version",
+                "change_in_published_service_version"
+            ],
+            "x-enum-varnames": [
+                "ConflictKindNewValueDuplicateVariation",
+                "ConflictKindOldValueDeleted",
+                "ConflictKindOldValueUpdated",
+                "ConflictKindValueInDeletedKey",
+                "ConflictKindValueInDeletedFeature",
+                "ConflictKindKeyValidatorsUpdated",
+                "ConflictKindKeyInDeletedFeature",
+                "ConflictKindKeyDuplicateName",
+                "ConflictKindDuplicateLink",
+                "ConflictKindDeletedLink",
+                "ConflictKindInconsistentFeatureVersion",
+                "ConflictKindInconsistentServiceVersion",
+                "ConflictKindChangeInPublishedServiceVersion"
+            ]
         },
         "configuration.ConfigurationDto": {
             "type": "object",
@@ -4827,6 +5180,23 @@ const docTemplate = `{
                 "ChangesetActionTypeCommit",
                 "ChangesetActionTypeReopen",
                 "ChangesetActionTypeComment"
+            ]
+        },
+        "db.ChangesetChangeKind": {
+            "type": "string",
+            "enum": [
+                "feature_version",
+                "service_version",
+                "feature_version_service_version",
+                "key",
+                "variation_value"
+            ],
+            "x-enum-varnames": [
+                "ChangesetChangeKindFeatureVersion",
+                "ChangesetChangeKindServiceVersion",
+                "ChangesetChangeKindFeatureVersionServiceVersion",
+                "ChangesetChangeKindKey",
+                "ChangesetChangeKindVariationValue"
             ]
         },
         "db.ChangesetChangeType": {

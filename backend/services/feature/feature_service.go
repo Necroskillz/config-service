@@ -54,7 +54,7 @@ type FeatureVersionDto struct {
 }
 
 func (s *Service) GetFeatureVersion(ctx context.Context, serviceVersionID uint, featureVersionID uint) (FeatureVersionDto, error) {
-	_, featureVersion, err := s.coreService.GetFeatureVersion(ctx, serviceVersionID, featureVersionID)
+	serviceVersion, featureVersion, err := s.coreService.GetFeatureVersion(ctx, serviceVersionID, featureVersionID)
 	if err != nil {
 		return FeatureVersionDto{}, err
 	}
@@ -66,7 +66,7 @@ func (s *Service) GetFeatureVersion(ctx context.Context, serviceVersionID uint, 
 		Version:       featureVersion.Version,
 		Description:   featureVersion.FeatureDescription,
 		Name:          featureVersion.FeatureName,
-		CanEdit:       user.GetPermissionForService(featureVersion.FeatureID) >= constants.PermissionAdmin,
+		CanEdit:       user.GetPermissionForFeature(serviceVersion.ServiceID, featureVersion.FeatureID) >= constants.PermissionAdmin,
 		IsLastVersion: featureVersion.LastVersion == featureVersion.Version,
 	}, nil
 }

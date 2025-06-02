@@ -223,22 +223,24 @@ func (q *Queries) GetKey(ctx context.Context, arg GetKeyParams) (GetKeyRow, erro
 
 const getKeyIDByName = `-- name: GetKeyIDByName :one
 SELECT
-    id
+    k.id
 FROM
-    keys
+    keys k
+    JOIN valid_keys_in_changeset($1) vk ON vk.id = k.id
 WHERE
-    name = $1
-    AND feature_version_id = $2
+    k.name = $2
+    AND k.feature_version_id = $3
 LIMIT 1
 `
 
 type GetKeyIDByNameParams struct {
+	ChangesetID      uint
 	Name             string
 	FeatureVersionID uint
 }
 
 func (q *Queries) GetKeyIDByName(ctx context.Context, arg GetKeyIDByNameParams) (uint, error) {
-	row := q.db.QueryRow(ctx, getKeyIDByName, arg.Name, arg.FeatureVersionID)
+	row := q.db.QueryRow(ctx, getKeyIDByName, arg.ChangesetID, arg.Name, arg.FeatureVersionID)
 	var id uint
 	err := row.Scan(&id)
 	return id, err

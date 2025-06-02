@@ -8,6 +8,7 @@ import (
 
 type ChangesetChange struct {
 	ID                             uint                   `json:"id" validate:"required"`
+	Kind                           db.ChangesetChangeKind `json:"kind" validate:"required"`
 	Type                           db.ChangesetChangeType `json:"type" validate:"required"`
 	ServiceVersionID               uint                   `json:"serviceVersionId" validate:"required"`
 	ServiceName                    string                 `json:"serviceName" validate:"required"`
@@ -27,6 +28,7 @@ type ChangesetChange struct {
 	OldVariationValueID            *uint                  `json:"oldVariationValueId"`
 	OldVariationValueData          *string                `json:"oldVariationValueData"`
 	Variation                      map[uint]string        `json:"variation"`
+	Conflict                       *Conflict              `json:"conflict,omitempty"`
 }
 
 type Changeset struct {
@@ -39,6 +41,16 @@ type Changeset struct {
 type ChangesetWithChanges struct {
 	Changeset
 	ChangesetChanges []ChangesetChange
+	ConflictCount    int
+}
+
+func NewChangeset(data db.GetChangesetRow) Changeset {
+	return Changeset{
+		ID:       data.ID,
+		UserID:   data.UserID,
+		UserName: data.UserName,
+		State:    data.State,
+	}
 }
 
 func (c ChangesetWithChanges) CanBeAppliedBy(user *auth.User) bool {
@@ -85,4 +97,8 @@ func (c Changeset) IsStashed() bool {
 
 func (c ChangesetWithChanges) IsEmpty() bool {
 	return len(c.ChangesetChanges) == 0
+}
+
+func (c ChangesetWithChanges) HasConflicts() bool {
+	return c.ConflictCount > 0
 }

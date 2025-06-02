@@ -137,6 +137,15 @@ WHERE
     cs.id = @changeset_id
 LIMIT 1;
 
+-- name: LockChangesetForUpdate :one
+SELECT
+    cs.id
+FROM
+    changesets cs
+WHERE
+    cs.id = @changeset_id
+FOR UPDATE;
+
 -- name: SetChangesetState :exec
 UPDATE
     changesets
@@ -167,42 +176,116 @@ ORDER BY
     ca.id;
 
 -- name: GetChangesetChanges :many
+WITH links AS (
+    SELECT
+        fvsv.id AS feature_version_service_version_id,
+        fv.feature_id AS feature_id,
+        fvsv.service_version_id
+    FROM
+        feature_version_service_versions fvsv
+        JOIN feature_versions fv ON fv.id = fvsv.feature_version_id
+    WHERE
+        fvsv.valid_from IS NOT NULL
+        AND fvsv.valid_to IS NULL
+),
+last_feature_versions AS (
+    SELECT
+        fv.feature_id,
+        MAX(fv.version)::int AS last_version
+    FROM
+        feature_versions fv
+    WHERE
+        fv.valid_from IS NOT NULL
+        AND fv.valid_to IS NULL
+    GROUP BY
+        fv.feature_id
+),
+last_service_versions AS (
+    SELECT
+        sv.service_id,
+        MAX(sv.version)::int AS last_version
+    FROM
+        service_versions sv
+    WHERE
+        sv.valid_from IS NOT NULL
+        AND sv.valid_to IS NULL
+    GROUP BY
+        sv.service_id
+)
 SELECT
     csc.id,
     csc.type,
     csc.kind,
+    csc.created_at,
     sv.id AS service_version_id,
     csc.previous_service_version_id,
     s.name AS service_name,
     s.id AS service_id,
     sv.version AS service_version,
+    sv.published AS service_version_published,
     fv.id AS feature_version_id,
     csc.previous_feature_version_id,
     f.name AS feature_name,
     f.id AS feature_id,
     fv.version AS feature_version,
+    fv.valid_to AS feature_version_valid_to,
     k.id AS key_id,
     k.name AS key_name,
+    k.valid_to AS key_valid_to,
+    k.validators_updated_at AS key_validators_updated_at,
     nv.id AS new_variation_value_id,
     nv.data AS new_variation_value_data,
     ov.id AS old_variation_value_id,
     ov.data AS old_variation_value_data,
+    ov.valid_to AS old_variation_value_valid_to,
     vc.id AS variation_context_id,
-    csc.feature_version_service_version_id
+    fvsv.id AS feature_version_service_version_id,
+    fvsv.valid_to AS feature_version_service_version_valid_to,
+    evv.variation_context_id AS existing_variation_context_id,
+    evv.data AS existing_value_data,
+    ek.id AS existing_key_id,
+    el.feature_version_service_version_id AS existing_feature_version_service_version_id,
+    COALESCE(lfv.last_version, 0) AS last_feature_version_version,
+    COALESCE(lsv.last_version, 0) AS last_service_version_version
 FROM
     changeset_changes csc
     JOIN service_versions sv ON sv.id = csc.service_version_id
     JOIN services s ON s.id = sv.service_id
+    LEFT JOIN feature_version_service_versions fvsv ON fvsv.id = csc.feature_version_service_version_id
     LEFT JOIN feature_versions fv ON fv.id = csc.feature_version_id
     LEFT JOIN features f ON f.id = fv.feature_id
     LEFT JOIN keys k ON k.id = csc.key_id
     LEFT JOIN variation_values nv ON nv.id = csc.new_variation_value_id
     LEFT JOIN variation_values ov ON ov.id = csc.old_variation_value_id
     LEFT JOIN variation_contexts vc ON vc.id = COALESCE(nv.variation_context_id, ov.variation_context_id)
+    LEFT JOIN variation_values evv ON evv.variation_context_id = vc.id
+        AND evv.key_id = k.id
+        AND evv.valid_from IS NOT NULL
+        AND evv.valid_to IS NULL
+    LEFT JOIN keys ek ON ek.id <> k.id
+        AND ek.name = k.name
+        AND ek.feature_version_id = k.feature_version_id
+        AND ek.valid_from IS NOT NULL
+        AND ek.valid_to IS NULL
+    LEFT JOIN links el ON el.service_version_id = sv.id
+        AND el.feature_id = f.id
+    LEFT JOIN last_feature_versions lfv ON lfv.feature_id = f.id
+    LEFT JOIN last_service_versions lsv ON lsv.service_id = sv.service_id
 WHERE
     changeset_id = @changeset_id
 ORDER BY
     csc.id;
+
+-- name: GetChangesetChange :one
+SELECT
+    csc.*,
+    vv.variation_context_id AS variation_context_id
+FROM
+    changeset_changes csc
+    LEFT JOIN variation_values vv ON vv.id = COALESCE(csc.new_variation_value_id, csc.old_variation_value_id)
+WHERE
+    csc.id = @change_id
+LIMIT 1;
 
 -- name: GetChangesetChangesCount :one
 SELECT

@@ -21,6 +21,7 @@ type Service struct {
 	unitOfWorkRunner        db.UnitOfWorkRunner
 	queries                 *db.Queries
 	validator               *validator.Validator
+	detector                *ConflictDetector
 }
 
 func NewService(
@@ -36,6 +37,7 @@ func NewService(
 		unitOfWorkRunner:        unitOfWorkRunner,
 		currentUserAccessor:     currentUserAccessor,
 		validator:               validator,
+		detector:                NewConflictDetector(),
 	}
 }
 
@@ -181,6 +183,7 @@ func (s *Service) getChangeset(ctx context.Context, changesetID uint) (Changeset
 	for i, change := range changes {
 		changesetChanges[i] = ChangesetChange{
 			ID:                             change.ID,
+			Kind:                           change.Kind,
 			Type:                           change.Type,
 			ServiceVersionID:               change.ServiceVersionID,
 			ServiceName:                    change.ServiceName,
@@ -211,6 +214,10 @@ func (s *Service) getChangeset(ctx context.Context, changesetID uint) (Changeset
 		}
 	}
 
+	if changeset.IsOpen() || changeset.IsCommitted() {
+		changesetWithChanges.ConflictCount = s.detector.DetectConflicts(changes, changesetChanges)
+	}
+
 	changesetWithChanges.ChangesetChanges = changesetChanges
 
 	return changesetWithChanges, nil
@@ -231,6 +238,7 @@ type ChangesetDto struct {
 	UserName         string            `json:"userName" validate:"required"`
 	State            db.ChangesetState `json:"state" validate:"required"`
 	CanApply         bool              `json:"canApply" validate:"required"`
+	ConflictCount    int               `json:"conflictCount" validate:"required"`
 	VariationContext map[uint]string   `json:"variationContext" validate:"required"`
 	Changes          []ChangesetChange `json:"changes" validate:"required"`
 	Actions          []ChangesetAction `json:"actions" validate:"required"`
@@ -250,12 +258,13 @@ func (s *Service) GetChangeset(ctx context.Context, changesetID uint) (Changeset
 	user := s.currentUserAccessor.GetUser(ctx)
 
 	dto := ChangesetDto{
-		ID:       changeset.ID,
-		UserID:   changeset.UserID,
-		UserName: changeset.UserName,
-		State:    changeset.State,
-		Changes:  changeset.ChangesetChanges,
-		CanApply: changeset.CanBeAppliedBy(user),
+		ID:            changeset.ID,
+		UserID:        changeset.UserID,
+		UserName:      changeset.UserName,
+		State:         changeset.State,
+		Changes:       changeset.ChangesetChanges,
+		CanApply:      changeset.CanBeAppliedBy(user),
+		ConflictCount: changeset.ConflictCount,
 	}
 
 	dto.Actions = make([]ChangesetAction, 0, len(actions))
@@ -274,21 +283,30 @@ func (s *Service) GetChangeset(ctx context.Context, changesetID uint) (Changeset
 }
 
 func (s *Service) ApplyChangeset(ctx context.Context, changesetID uint, comment *string) error {
-	changeset, err := s.getChangeset(ctx, changesetID)
-	if err != nil {
-		return err
-	}
-
-	user := s.currentUserAccessor.GetUser(ctx)
-
-	if !changeset.CanBeAppliedBy(user) {
-		return core.NewServiceError(core.ErrorCodePermissionDenied, "To apply changeset, it needs to be in an open or committed state and the user needs to have admin permissions for all changes")
-	}
-
-	startTime := time.Now()
-	endTime := startTime.Add(time.Microsecond * -1)
-
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
+		_, err := tx.LockChangesetForUpdate(ctx, changesetID)
+		if err != nil {
+			return err
+		}
+
+		changeset, err := s.getChangeset(ctx, changesetID)
+		if err != nil {
+			return err
+		}
+
+		user := s.currentUserAccessor.GetUser(ctx)
+
+		if !changeset.CanBeAppliedBy(user) {
+			return core.NewServiceError(core.ErrorCodePermissionDenied, "To apply changeset, it needs to be in an open or committed state and the user needs to have admin permissions for all changes")
+		}
+
+		if changeset.HasConflicts() {
+			return core.NewServiceError(core.ErrorCodeInvalidOperation, "Changeset has conflicts that need to be resolved before it can be applied")
+		}
+
+		startTime := time.Now()
+		endTime := startTime.Add(time.Microsecond * -1)
+
 		for _, change := range changeset.ChangesetChanges {
 			if change.NewVariationValueID != nil || change.OldVariationValueID != nil {
 				if change.OldVariationValueID != nil {
@@ -398,7 +416,7 @@ func (s *Service) ApplyChangeset(ctx context.Context, changesetID uint, comment 
 }
 
 func (s *Service) CommitChangeset(ctx context.Context, changesetID uint, comment *string) error {
-	changeset, err := s.getChangesetWithoutChanges(ctx, changesetID)
+	changeset, err := s.getChangeset(ctx, changesetID)
 	if err != nil {
 		return err
 	}
@@ -411,6 +429,10 @@ func (s *Service) CommitChangeset(ctx context.Context, changesetID uint, comment
 
 	if !changeset.BelongsTo(user.ID) {
 		return core.NewServiceError(core.ErrorCodePermissionDenied, "You are not allowed to commit this changeset")
+	}
+
+	if changeset.HasConflicts() {
+		return core.NewServiceError(core.ErrorCodeInvalidOperation, "Changeset has conflicts that need to be resolved before it can be committed")
 	}
 
 	return s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
