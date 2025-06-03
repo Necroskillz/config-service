@@ -82,7 +82,8 @@ RETURNING
 UPDATE
     variation_properties
 SET
-    display_name = @display_name
+    display_name = @display_name,
+    updated_at = now()
 WHERE
     id = @id;
 
@@ -168,7 +169,8 @@ SET
         vpv.order_index - 1
     ELSE
         vpv.order_index + 1
-    END
+    END,
+    updated_at = now()
 FROM
     params
 WHERE
@@ -222,7 +224,8 @@ WHERE id = @id;
 UPDATE
     variation_property_values
 SET
-    archived = @archived
+    archived = @archived,
+    updated_at = now()
 WHERE
     id = @id;
 

@@ -420,7 +420,6 @@ type Feature struct {
 type FeatureVersion struct {
 	ID        uint
 	CreatedAt time.Time
-	UpdatedAt time.Time
 	ValidFrom *time.Time
 	ValidTo   *time.Time
 	Version   int
@@ -503,6 +502,7 @@ type UserPermission struct {
 	KeyID              *uint
 	VariationContextID *uint
 	Permission         PermissionLevel
+	CreatedAt          time.Time
 }
 
 type ValueType struct {
@@ -544,6 +544,8 @@ type VariationPropertyValue struct {
 	ParentID            *uint
 	OrderIndex          int
 	Archived            bool
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 type VariationValue struct {

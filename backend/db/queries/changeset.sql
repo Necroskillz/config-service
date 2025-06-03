@@ -151,7 +151,8 @@ UPDATE
     changesets
 SET
     state = @state,
-    applied_at = @applied_at
+    applied_at = @applied_at,
+    updated_at = now()
 WHERE
     id = @changeset_id;
 

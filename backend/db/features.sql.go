@@ -177,7 +177,7 @@ links AS (
         fvsv.feature_version_id
 )
 SELECT
-    fv.id, fv.created_at, fv.updated_at, fv.valid_from, fv.valid_to, fv.version, fv.feature_id,
+    fv.id, fv.created_at, fv.valid_from, fv.valid_to, fv.version, fv.feature_id,
     f.name AS feature_name,
     f.description AS feature_description,
     f.service_id,
@@ -203,7 +203,6 @@ type GetFeatureVersionParams struct {
 type GetFeatureVersionRow struct {
 	ID                              uint
 	CreatedAt                       time.Time
-	UpdatedAt                       time.Time
 	ValidFrom                       *time.Time
 	ValidTo                         *time.Time
 	Version                         int
@@ -222,7 +221,6 @@ func (q *Queries) GetFeatureVersion(ctx context.Context, arg GetFeatureVersionPa
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
-		&i.UpdatedAt,
 		&i.ValidFrom,
 		&i.ValidTo,
 		&i.Version,
@@ -632,7 +630,8 @@ const updateFeature = `-- name: UpdateFeature :exec
 UPDATE
     features
 SET
-    description = $1
+    description = $1,
+    updated_at = now()
 WHERE
     id = $2
 `

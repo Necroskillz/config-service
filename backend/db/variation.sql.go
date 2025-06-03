@@ -432,7 +432,8 @@ const setVariationPropertyValueArchived = `-- name: SetVariationPropertyValueArc
 UPDATE
     variation_property_values
 SET
-    archived = $1
+    archived = $1,
+    updated_at = now()
 WHERE
     id = $2
 `
@@ -451,7 +452,8 @@ const updateVariationProperty = `-- name: UpdateVariationProperty :exec
 UPDATE
     variation_properties
 SET
-    display_name = $1
+    display_name = $1,
+    updated_at = now()
 WHERE
     id = $2
 `
@@ -506,7 +508,8 @@ SET
         vpv.order_index - 1
     ELSE
         vpv.order_index + 1
-    END
+    END,
+    updated_at = now()
 FROM
     params
 WHERE

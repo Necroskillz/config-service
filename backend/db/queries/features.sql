@@ -155,7 +155,8 @@ RETURNING
 UPDATE
     features
 SET
-    description = @description
+    description = @description,
+    updated_at = now()
 WHERE
     id = @feature_id;
 

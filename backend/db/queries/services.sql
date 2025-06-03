@@ -77,7 +77,8 @@ RETURNING
 UPDATE
     services
 SET
-    description = @description
+    description = @description,
+    updated_at = now()
 WHERE
     id = @service_id;
 
@@ -91,7 +92,8 @@ RETURNING
 UPDATE
     service_versions
 SET
-    published = TRUE
+    published = TRUE,
+    updated_at = now()
 WHERE
     id = @service_version_id;
 

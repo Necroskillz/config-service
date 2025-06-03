@@ -46,7 +46,6 @@ CREATE TABLE features(
 CREATE TABLE feature_versions(
     id bigserial PRIMARY KEY,
     created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     valid_from timestamp with time zone,
     valid_to timestamp with time zone,
     version integer NOT NULL,
@@ -152,6 +151,8 @@ CREATE TABLE variation_property_values(
     parent_id bigint REFERENCES variation_property_values(id) ON DELETE CASCADE,
     order_index integer NOT NULL,
     archived boolean NOT NULL DEFAULT FALSE,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (variation_property_id, value)
 );
 
@@ -194,6 +195,7 @@ CREATE TABLE user_permissions(
     key_id bigint REFERENCES keys(id),
     variation_context_id bigint REFERENCES variation_contexts(id),
     permission permission_level NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, service_id, feature_id, key_id, variation_context_id)
 );
 
@@ -211,6 +213,8 @@ CREATE TABLE changesets(
 CREATE UNIQUE INDEX idx_changesets_one_open_per_user ON changesets(user_id)
 WHERE
     state = 'open';
+
+CREATE INDEX idx_changesets_applied_at ON changesets(applied_at);
 
 CREATE TABLE changeset_changes(
     id bigserial PRIMARY KEY,

@@ -66,7 +66,8 @@ UPDATE
     keys
 SET
     description = @description,
-    validators_updated_at = @validators_updated_at
+    validators_updated_at = @validators_updated_at,
+    updated_at = now()
 WHERE
     id = @key_id;
 

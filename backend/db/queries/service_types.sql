@@ -141,7 +141,8 @@ SET
         stvp.priority - 1
     ELSE
         stvp.priority + 1
-    END
+    END,
+    updated_at = now()
 FROM
     params
 WHERE

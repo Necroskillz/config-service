@@ -499,7 +499,8 @@ UPDATE
     keys
 SET
     description = $1,
-    validators_updated_at = $2
+    validators_updated_at = $2,
+    updated_at = now()
 WHERE
     id = $3
 `
