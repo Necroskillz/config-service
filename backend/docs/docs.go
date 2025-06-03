@@ -5801,14 +5801,36 @@ const docTemplate = `{
                 }
             }
         },
+        "service.ServiceAdminDto": {
+            "type": "object",
+            "required": [
+                "userId",
+                "userName"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
         "service.ServiceDto": {
             "type": "object",
             "required": [
+                "admins",
                 "description",
                 "name",
                 "versions"
             ],
             "properties": {
+                "admins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ServiceAdminDto"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },
@@ -5826,6 +5848,7 @@ const docTemplate = `{
         "service.ServiceVersionDto": {
             "type": "object",
             "required": [
+                "admins",
                 "canEdit",
                 "description",
                 "id",
@@ -5838,6 +5861,12 @@ const docTemplate = `{
                 "version"
             ],
             "properties": {
+                "admins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ServiceAdminDto"
+                    }
+                },
                 "canEdit": {
                     "type": "boolean"
                 },

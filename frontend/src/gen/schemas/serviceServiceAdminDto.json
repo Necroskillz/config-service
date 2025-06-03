@@ -1,0 +1,1 @@
+{"properties":{"userId":{"type":"integer"},"userName":{"type":"string"}},"required":["userId","userName"],"type":"object","x-readme-ref-name":"service.ServiceAdminDto"}

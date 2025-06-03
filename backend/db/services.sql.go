@@ -88,6 +88,61 @@ func (q *Queries) EndServiceVersionValidity(ctx context.Context, arg EndServiceV
 	return err
 }
 
+const getServiceAdmins = `-- name: GetServiceAdmins :many
+SELECT
+    s.id AS service_id,
+    s.name AS service_name,
+    u.id AS user_id,
+    u.name AS user_name
+FROM
+    services s
+    JOIN user_permissions up ON up.service_id = s.id
+        AND up.kind = 'service'
+        AND up.permission = 'admin'
+    JOIN users u ON u.id = up.user_id
+WHERE ($1::bigint IS NULL
+    OR s.id = $1::bigint)
+AND ($2::bigint IS NULL
+    OR u.id = $2::bigint)
+`
+
+type GetServiceAdminsParams struct {
+	ServiceID *uint
+	UserID    *uint
+}
+
+type GetServiceAdminsRow struct {
+	ServiceID   uint
+	ServiceName string
+	UserID      uint
+	UserName    string
+}
+
+func (q *Queries) GetServiceAdmins(ctx context.Context, arg GetServiceAdminsParams) ([]GetServiceAdminsRow, error) {
+	rows, err := q.db.Query(ctx, getServiceAdmins, arg.ServiceID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetServiceAdminsRow
+	for rows.Next() {
+		var i GetServiceAdminsRow
+		if err := rows.Scan(
+			&i.ServiceID,
+			&i.ServiceName,
+			&i.UserID,
+			&i.UserName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getServiceIDByName = `-- name: GetServiceIDByName :one
 SELECT
     id
@@ -329,7 +384,8 @@ const publishServiceVersion = `-- name: PublishServiceVersion :exec
 UPDATE
     service_versions
 SET
-    published = TRUE
+    published = TRUE,
+    updated_at = now()
 WHERE
     id = $1
 `
@@ -362,7 +418,8 @@ const updateService = `-- name: UpdateService :exec
 UPDATE
     services
 SET
-    description = $1
+    description = $1,
+    updated_at = now()
 WHERE
     id = $2
 `

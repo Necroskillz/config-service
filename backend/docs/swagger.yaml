@@ -720,8 +720,22 @@ definitions:
     - id
     - username
     type: object
+  service.ServiceAdminDto:
+    properties:
+      userId:
+        type: integer
+      userName:
+        type: string
+    required:
+    - userId
+    - userName
+    type: object
   service.ServiceDto:
     properties:
+      admins:
+        items:
+          $ref: '#/definitions/service.ServiceAdminDto'
+        type: array
       description:
         type: string
       name:
@@ -731,12 +745,17 @@ definitions:
           $ref: '#/definitions/service.ServiceVersionInfoDto'
         type: array
     required:
+    - admins
     - description
     - name
     - versions
     type: object
   service.ServiceVersionDto:
     properties:
+      admins:
+        items:
+          $ref: '#/definitions/service.ServiceAdminDto'
+        type: array
       canEdit:
         type: boolean
       description:
@@ -758,6 +777,7 @@ definitions:
       version:
         type: integer
     required:
+    - admins
     - canEdit
     - description
     - id

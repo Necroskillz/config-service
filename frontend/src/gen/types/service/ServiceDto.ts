@@ -3,9 +3,14 @@
  * Do not edit manually.
  */
 
+import type { ServiceServiceAdminDto } from './ServiceAdminDto.ts'
 import type { ServiceServiceVersionInfoDto } from './ServiceVersionInfoDto.ts'
 
 export type ServiceServiceDto = {
+  /**
+   * @type array
+   */
+  admins: ServiceServiceAdminDto[]
   /**
    * @type string
    */

@@ -5795,14 +5795,36 @@
                 }
             }
         },
+        "service.ServiceAdminDto": {
+            "type": "object",
+            "required": [
+                "userId",
+                "userName"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
         "service.ServiceDto": {
             "type": "object",
             "required": [
+                "admins",
                 "description",
                 "name",
                 "versions"
             ],
             "properties": {
+                "admins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ServiceAdminDto"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },
@@ -5820,6 +5842,7 @@
         "service.ServiceVersionDto": {
             "type": "object",
             "required": [
+                "admins",
                 "canEdit",
                 "description",
                 "id",
@@ -5832,6 +5855,12 @@
                 "version"
             ],
             "properties": {
+                "admins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ServiceAdminDto"
+                    }
+                },
                 "canEdit": {
                     "type": "boolean"
                 },

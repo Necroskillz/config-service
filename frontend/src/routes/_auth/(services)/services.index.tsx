@@ -7,6 +7,8 @@ import { getServicesQueryOptions, useGetServicesSuspense } from '~/gen';
 import { List, ListItem } from '~/components/List';
 import { Badge } from '~/components/ui/badge';
 import { seo, appTitle } from '~/utils/seo';
+import { Fragment } from 'react/jsx-runtime';
+import ServiceAdministrators from './-components/ServiceAdministrators';
 
 export const Route = createFileRoute('/_auth/(services)/services/')({
   component: ServicesRouteComponent,
@@ -43,6 +45,9 @@ export function ServicesRouteComponent() {
               ))}
             </h2>
             <p className="text-sm text-muted-foreground">{service.description}</p>
+            <p className="text-sm">
+              <ServiceAdministrators admins={service.admins} />
+            </p>
           </ListItem>
         ))}
       </List>

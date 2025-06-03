@@ -14,6 +14,23 @@ ORDER BY
     s.name,
     sv.version ASC;
 
+-- name: GetServiceAdmins :many
+SELECT
+    s.id AS service_id,
+    s.name AS service_name,
+    u.id AS user_id,
+    u.name AS user_name
+FROM
+    services s
+    JOIN user_permissions up ON up.service_id = s.id
+        AND up.kind = 'service'
+        AND up.permission = 'admin'
+    JOIN users u ON u.id = up.user_id
+WHERE (sqlc.narg('service_id')::bigint IS NULL
+    OR s.id = sqlc.narg('service_id')::bigint)
+AND (sqlc.narg('user_id')::bigint IS NULL
+    OR u.id = sqlc.narg('user_id')::bigint);
+
 -- name: GetServiceVersionsForService :many
 SELECT
     sv.id,

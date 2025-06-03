@@ -922,6 +922,7 @@ export type {
   PutVariationPropertiesPropertyIdValuesValueIdUnarchiveMutationResponse,
   PutVariationPropertiesPropertyIdValuesValueIdUnarchiveMutation,
 } from './types/PutVariationPropertiesPropertyIdValuesValueIdUnarchive.ts'
+export type { ServiceServiceAdminDto } from './types/service/ServiceAdminDto.ts'
 export type { ServiceServiceDto } from './types/service/ServiceDto.ts'
 export type { ServiceServiceVersionDto } from './types/service/ServiceVersionDto.ts'
 export type { ServiceServiceVersionInfoDto } from './types/service/ServiceVersionInfoDto.ts'

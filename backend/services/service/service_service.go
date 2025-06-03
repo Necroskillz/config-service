@@ -45,23 +45,44 @@ func NewService(
 	}
 }
 
+type ServiceAdminDto struct {
+	UserID   uint   `json:"userId" validate:"required"`
+	UserName string `json:"userName" validate:"required"`
+}
+
 type ServiceVersionDto struct {
-	ID              uint   `json:"id" validate:"required"`
-	ServiceID       uint   `json:"serviceId" validate:"required"`
-	Name            string `json:"name" validate:"required"`
-	Description     string `json:"description" validate:"required"`
-	Version         int    `json:"version" validate:"required"`
-	Published       bool   `json:"published" validate:"required"`
-	CanEdit         bool   `json:"canEdit" validate:"required"`
-	ServiceTypeID   uint   `json:"serviceTypeId" validate:"required"`
-	ServiceTypeName string `json:"serviceTypeName" validate:"required"`
-	IsLastVersion   bool   `json:"isLastVersion" validate:"required"`
+	ID              uint              `json:"id" validate:"required"`
+	ServiceID       uint              `json:"serviceId" validate:"required"`
+	Name            string            `json:"name" validate:"required"`
+	Description     string            `json:"description" validate:"required"`
+	Version         int               `json:"version" validate:"required"`
+	Published       bool              `json:"published" validate:"required"`
+	CanEdit         bool              `json:"canEdit" validate:"required"`
+	ServiceTypeID   uint              `json:"serviceTypeId" validate:"required"`
+	ServiceTypeName string            `json:"serviceTypeName" validate:"required"`
+	IsLastVersion   bool              `json:"isLastVersion" validate:"required"`
+	Admins          []ServiceAdminDto `json:"admins" validate:"required"`
 }
 
 func (s *Service) GetServiceVersion(ctx context.Context, id uint) (ServiceVersionDto, error) {
 	serviceVersion, err := s.coreService.GetServiceVersion(ctx, id)
 	if err != nil {
 		return ServiceVersionDto{}, err
+	}
+
+	adminData, err := s.queries.GetServiceAdmins(ctx, db.GetServiceAdminsParams{
+		ServiceID: &serviceVersion.ServiceID,
+	})
+	if err != nil {
+		return ServiceVersionDto{}, err
+	}
+
+	admins := make([]ServiceAdminDto, len(adminData))
+	for i, admin := range adminData {
+		admins[i] = ServiceAdminDto{
+			UserID:   admin.UserID,
+			UserName: admin.UserName,
+		}
 	}
 
 	user := s.currentUserAccessor.GetUser(ctx)
@@ -77,6 +98,7 @@ func (s *Service) GetServiceVersion(ctx context.Context, id uint) (ServiceVersio
 		ServiceTypeID:   serviceVersion.ServiceTypeID,
 		ServiceTypeName: serviceVersion.ServiceTypeName,
 		IsLastVersion:   serviceVersion.LastVersion == serviceVersion.Version,
+		Admins:          admins,
 	}, nil
 }
 
@@ -122,6 +144,7 @@ type ServiceDto struct {
 	Name        string                  `json:"name" validate:"required"`
 	Description string                  `json:"description" validate:"required"`
 	Versions    []ServiceVersionInfoDto `json:"versions" validate:"required"`
+	Admins      []ServiceAdminDto       `json:"admins" validate:"required"`
 }
 
 func (s *Service) GetServices(ctx context.Context) ([]ServiceDto, error) {
@@ -130,6 +153,19 @@ func (s *Service) GetServices(ctx context.Context) ([]ServiceDto, error) {
 	serviceVersions, err := s.queries.GetServiceVersions(ctx, user.ChangesetID)
 	if err != nil {
 		return nil, err
+	}
+
+	admins, err := s.queries.GetServiceAdmins(ctx, db.GetServiceAdminsParams{})
+	if err != nil {
+		return nil, err
+	}
+
+	adminsMap := make(map[uint][]ServiceAdminDto)
+	for _, admin := range admins {
+		adminsMap[admin.ServiceID] = append(adminsMap[admin.ServiceID], ServiceAdminDto{
+			UserID:   admin.UserID,
+			UserName: admin.UserName,
+		})
 	}
 
 	services := make(map[uint]ServiceDto)
@@ -158,6 +194,7 @@ func (s *Service) GetServices(ctx context.Context) ([]ServiceDto, error) {
 			services[serviceVersion.ServiceID] = ServiceDto{
 				Name:        serviceVersion.ServiceName,
 				Description: serviceVersion.ServiceDescription,
+				Admins:      adminsMap[serviceVersion.ServiceID],
 				Versions: []ServiceVersionInfoDto{
 					{
 						ID:        serviceVersion.ID,

@@ -23,6 +23,7 @@ import { useGetServicesServiceVersionIdVersions } from '~/gen/hooks/useGetServic
 import { seo, appTitle, versionedTitle } from '~/utils/seo';
 import { MutationErrors } from '~/components/MutationErrors';
 import { useChangeset } from '~/hooks/use-changeset';
+import ServiceAdministrators from './-components/ServiceAdministrators';
 
 export const Route = createFileRoute('/_auth/(services)/services/$serviceVersionId/')({
   component: RouteComponent,
@@ -158,6 +159,9 @@ function RouteComponent() {
           </DropdownMenu>
         </div>
         <div className="text-muted-foreground">{serviceVersion.description}</div>
+        <p className="text-sm">
+          <ServiceAdministrators admins={serviceVersion.admins} />
+        </p>
         <List>
           {features.length ? (
             features.map((featureVersion) => (

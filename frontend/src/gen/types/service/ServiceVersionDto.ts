@@ -3,7 +3,13 @@
  * Do not edit manually.
  */
 
+import type { ServiceServiceAdminDto } from './ServiceAdminDto.ts'
+
 export type ServiceServiceVersionDto = {
+  /**
+   * @type array
+   */
+  admins: ServiceServiceAdminDto[]
   /**
    * @type boolean
    */

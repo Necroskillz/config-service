@@ -1154,7 +1154,8 @@ UPDATE
     changesets
 SET
     state = $1,
-    applied_at = $2
+    applied_at = $2,
+    updated_at = now()
 WHERE
     id = $3
 `
