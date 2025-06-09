@@ -102,7 +102,7 @@ func (s *Server) Start() error {
 		},
 		ContextKey: "claims",
 	}))
-	e.Use(middleware.AuthMiddleware(svc.UserService, svc.VariationHierarchyService, svc.ChangesetService))
+	e.Use(middleware.AuthMiddleware(svc.AuthService, svc.VariationHierarchyService, svc.ChangesetService))
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
@@ -127,7 +127,7 @@ func (s *Server) Start() error {
 
 	handler := handler.NewHandler(
 		svc.ServiceService,
-		svc.UserService,
+		svc.AuthService,
 		svc.FeatureService,
 		svc.KeyService,
 		svc.ChangesetService,
@@ -139,6 +139,7 @@ func (s *Server) Start() error {
 		svc.VariationPropertyService,
 		svc.ServiceTypeService,
 		svc.ConfigurationService,
+		svc.MembershipService,
 	)
 	handler.RegisterRoutes(e)
 

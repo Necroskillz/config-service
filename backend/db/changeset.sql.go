@@ -293,11 +293,14 @@ user_service_permissions AS (
     SELECT DISTINCT
         service_id
     FROM
-        user_permissions up
+        users u
+        LEFT JOIN user_group_memberships ugm ON ugm.user_id = u.id
+        JOIN permissions p ON p.user_group_id = ugm.user_group_id
+            OR p.user_id = u.id
     WHERE
-        up.kind = 'service'
-        AND up.user_id = $1
-        AND up.permission = 'admin'
+        p.kind = 'service'
+        AND u.id = $1
+        AND p.permission = 'admin'
 )
 SELECT
     COUNT(DISTINCT cs.id)::integer
@@ -817,11 +820,11 @@ user_service_permissions AS (
     SELECT DISTINCT
         service_id
     FROM
-        user_permissions up
+        permissions p
     WHERE
-        up.kind = 'service'
-        AND up.user_id = $3::bigint
-        AND up.permission = 'admin'
+        p.kind = 'service'
+        AND p.user_id = $3::bigint
+        AND p.permission = 'admin'
 ),
 filtered_changesets AS (
     SELECT

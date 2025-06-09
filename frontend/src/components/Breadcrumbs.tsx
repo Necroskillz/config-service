@@ -1,12 +1,12 @@
 import { ChevronRight } from 'lucide-react';
 import { Link, LinkComponentProps } from '@tanstack/react-router';
-import { ServiceFeatureVersionDto, ServiceKeyDto, ServiceServiceVersionDto } from '~/gen';
+import { FeatureFeatureVersionDto, KeyKeyDto, ServiceServiceVersionDto } from '~/gen';
 import { cn } from '~/lib/utils';
 export function Breadcrumbs({
   path,
   className,
 }: {
-  path: [ServiceServiceVersionDto, ServiceFeatureVersionDto?, ServiceKeyDto?];
+  path: [ServiceServiceVersionDto, FeatureFeatureVersionDto?, KeyKeyDto?];
   className?: string;
 }) {
   const [serviceVersion, featureVersion, key] = path;
@@ -17,12 +17,13 @@ export function Breadcrumbs({
 
   return (
     <div className={cn('flex gap-1 mb-2', className)}>
-      <BreadcrumbLink to="/services/$serviceVersionId" params={{ serviceVersionId: serviceVersion.id }}>
+      <BreadcrumbLink className="whitespace-nowrap link" to="/services/$serviceVersionId" params={{ serviceVersionId: serviceVersion.id }}>
         {serviceVersion.name} v{serviceVersion.version}
       </BreadcrumbLink>
       {featureVersion && (
         <>
           <BreadcrumbLink
+            className="whitespace-nowrap link"
             to="/services/$serviceVersionId/features/$featureVersionId"
             params={{ serviceVersionId: serviceVersion.id, featureVersionId: featureVersion.id }}
           >
@@ -33,6 +34,7 @@ export function Breadcrumbs({
       {key && (
         <>
           <BreadcrumbLink
+            className="whitespace-nowrap link"
             to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values"
             params={{ serviceVersionId: serviceVersion.id, featureVersionId: featureVersion!.id, keyId: key.id }}
           >

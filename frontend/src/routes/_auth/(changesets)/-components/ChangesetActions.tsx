@@ -10,13 +10,13 @@ import { Textarea } from '~/components/ui/textarea';
 import {
   DbChangesetActionTypeEnum,
   useDeleteChangesetsChangesetId,
-  getChangesetsChangesetIdQueryKey,
   usePostChangesetsChangesetIdComment,
   usePutChangesetsChangesetIdApply,
   usePutChangesetsChangesetIdCommit,
   usePutChangesetsChangesetIdReopen,
   usePutChangesetsChangesetIdStash,
   ChangesetChangesetDto,
+  getChangesetsChangesetIdQueryOptions,
 } from '~/gen';
 import { useChangeset } from '~/hooks/use-changeset';
 
@@ -61,7 +61,7 @@ export function ChangesetActions({ changeset }: { changeset: ChangesetChangesetD
     onSubmit: async ({ value, meta }: { value: { comment: string }; meta: { action: DbChangesetActionTypeEnum } }) => {
       const mutation = mutations[meta.action];
       await mutation.mutateAsync({ changeset_id: changeset.id, data: { comment: value.comment } });
-      queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+      queryClient.invalidateQueries(getChangesetsChangesetIdQueryOptions(changeset.id));
       form.reset();
 
       if (meta.action !== 'comment') {

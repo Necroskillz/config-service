@@ -1,0 +1,1 @@
+{"enum":["service","feature","key","variation"],"type":"string","x-enum-varnames":["PermissionKindService","PermissionKindFeature","PermissionKindKey","PermissionKindVariation"],"x-readme-ref-name":"db.PermissionKind"}

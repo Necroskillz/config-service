@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit403,
@@ -23,12 +24,14 @@ export const getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesV
   feature_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['feature_version_id'],
   key_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['key_id'],
   value_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['value_id'],
+  params?: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryParams,
 ) =>
   [
     {
       url: '/services/:service_version_id/features/:feature_version_id/keys/:key_id/values/:value_id/can-edit',
       params: { service_version_id: service_version_id, feature_version_id: feature_version_id, key_id: key_id, value_id: value_id },
     },
+    ...(params ? [params] : []),
   ] as const
 
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditSuspenseQueryKey = ReturnType<
@@ -45,6 +48,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   feature_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['feature_version_id'],
   key_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['key_id'],
   value_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['value_id'],
+  params?: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryParams,
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -60,7 +64,12 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit500
     >,
     unknown
-  >({ method: 'GET', url: `/services/${service_version_id}/features/${feature_version_id}/keys/${key_id}/values/${value_id}/can-edit`, ...requestConfig })
+  >({
+    method: 'GET',
+    url: `/services/${service_version_id}/features/${feature_version_id}/keys/${key_id}/values/${value_id}/can-edit`,
+    params,
+    ...requestConfig,
+  })
   return res.data
 }
 
@@ -69,6 +78,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValu
   feature_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['feature_version_id'],
   key_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['key_id'],
   value_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['value_id'],
+  params?: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryParams,
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   const queryKey = getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditSuspenseQueryKey(
@@ -76,6 +86,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValu
     feature_version_id,
     key_id,
     value_id,
+    params,
   )
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryResponse,
@@ -99,6 +110,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValu
         feature_version_id,
         key_id,
         value_id,
+        params,
         config,
       )
     },
@@ -118,6 +130,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
   feature_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['feature_version_id'],
   key_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['key_id'],
   value_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams['value_id'],
+  params?: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryParams,
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -140,7 +153,13 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
   const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey =
     queryOptions?.queryKey ??
-    getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditSuspenseQueryKey(service_version_id, feature_version_id, key_id, value_id)
+    getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditSuspenseQueryKey(
+      service_version_id,
+      feature_version_id,
+      key_id,
+      value_id,
+      params,
+    )
 
   const query = useSuspenseQuery(
     {
@@ -149,6 +168,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
         feature_version_id,
         key_id,
         value_id,
+        params,
         config,
       ) as unknown as UseSuspenseQueryOptions),
       queryKey,

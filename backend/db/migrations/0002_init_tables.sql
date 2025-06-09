@@ -13,6 +13,25 @@ CREATE INDEX idx_users_deleted_at ON users(deleted_at);
 
 CREATE INDEX idx_users_name ON users USING btree(name);
 
+CREATE TABLE user_groups(
+    id bigserial PRIMARY KEY,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at timestamp with time zone,
+    name text NOT NULL UNIQUE
+);
+
+CREATE INDEX idx_user_groups_deleted_at ON user_groups(deleted_at);
+
+CREATE INDEX idx_user_groups_name ON user_groups USING btree(name);
+
+CREATE TABLE user_group_memberships(
+    user_group_id bigint NOT NULL REFERENCES user_groups(id),
+    user_id bigint NOT NULL REFERENCES users(id),
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_group_id, user_id)
+);
+
 CREATE TABLE value_types(
     id bigserial PRIMARY KEY,
     kind value_type_kind NOT NULL,
@@ -186,20 +205,22 @@ CREATE TABLE variation_context_variation_property_values(
     PRIMARY KEY (variation_context_id, variation_property_value_id)
 );
 
-CREATE TABLE user_permissions(
+CREATE TABLE permissions(
     id bigserial PRIMARY KEY,
-    kind user_permission_kind NOT NULL,
-    user_id bigint NOT NULL REFERENCES users(id),
+    kind permission_kind NOT NULL,
+    user_id bigint REFERENCES users(id),
+    user_group_id bigint REFERENCES user_groups(id),
     service_id bigint NOT NULL REFERENCES services(id),
     feature_id bigint REFERENCES features(id),
     key_id bigint REFERENCES keys(id),
     variation_context_id bigint REFERENCES variation_contexts(id),
     permission permission_level NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (user_id, service_id, feature_id, key_id, variation_context_id)
+    UNIQUE (user_id, user_group_id, service_id, feature_id, key_id, variation_context_id),
+    CHECK ((user_id IS NOT NULL AND user_group_id IS NULL) OR (user_id IS NULL AND user_group_id IS NOT NULL))
 );
 
-CREATE INDEX idx_user_permissions_kind ON user_permissions(kind);
+CREATE INDEX idx_permissions_kind ON permissions(kind);
 
 CREATE TABLE changesets(
     id bigserial PRIMARY KEY,
@@ -290,7 +311,7 @@ DROP TABLE changeset_changes;
 
 DROP TABLE changesets;
 
-DROP TABLE user_permissions;
+DROP TABLE permissions;
 
 DROP TABLE variation_context_variation_property_values;
 

@@ -14,29 +14,36 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
+import { Route as UsersUserIdImport } from './routes/users.$userId'
+import { Route as GroupsGroupIdImport } from './routes/groups.$groupId'
 import { Route as AuthadminAdminImport } from './routes/_auth/(admin)/admin'
 import { Route as AuthservicesServicesIndexImport } from './routes/_auth/(services)/services.index'
 import { Route as AuthchangesetsChangesetsIndexImport } from './routes/_auth/(changesets)/changesets.index'
-import { Route as AuthusersUsersUserIdImport } from './routes/_auth/(users)/users.$userId'
 import { Route as AuthservicesServicesCreateImport } from './routes/_auth/(services)/services.create'
 import { Route as AuthchangesetsChangesetsEmptyImport } from './routes/_auth/(changesets)/changesets.empty'
 import { Route as AuthchangesetsChangesetsChangesetIdImport } from './routes/_auth/(changesets)/changesets.$changesetId'
 import { Route as AuthservicesServicesServiceVersionIdIndexImport } from './routes/_auth/(services)/services.$serviceVersionId.index'
+import { Route as AuthservicesServicesServiceVersionIdPermissionsImport } from './routes/_auth/(services)/services.$serviceVersionId.permissions'
 import { Route as AuthservicesServicesServiceVersionIdLinkImport } from './routes/_auth/(services)/services.$serviceVersionId.link'
 import { Route as AuthservicesServicesServiceVersionIdEditImport } from './routes/_auth/(services)/services.$serviceVersionId.edit'
 import { Route as AuthadminAdminvariationPropertiesVariationPropertiesImport } from './routes/_auth/(admin)/admin.(variation-properties)/variation-properties'
 import { Route as AuthadminAdminserviceTypesServiceTypesImport } from './routes/_auth/(admin)/admin.(service-types)/service-types'
-import { Route as AuthadminAdminusersUsersIndexImport } from './routes/_auth/(admin)/admin.(users)/users.index'
+import { Route as AuthadminAdminmembershipMembershipIndexImport } from './routes/_auth/(admin)/admin.(membership)/membership.index'
 import { Route as AuthfeaturesServicesServiceVersionIdFeaturesCreateImport } from './routes/_auth/(features)/services.$serviceVersionId.features.create'
 import { Route as AuthadminAdminvariationPropertiesVariationPropertiesCreateImport } from './routes/_auth/(admin)/admin.(variation-properties)/variation-properties.create'
 import { Route as AuthadminAdminvariationPropertiesVariationPropertiesPropertyIdImport } from './routes/_auth/(admin)/admin.(variation-properties)/variation-properties.$propertyId'
-import { Route as AuthadminAdminusersUsersUserIdImport } from './routes/_auth/(admin)/admin.(users)/users.$userId'
 import { Route as AuthadminAdminserviceTypesServiceTypesCreateImport } from './routes/_auth/(admin)/admin.(service-types)/service-types.create'
 import { Route as AuthadminAdminserviceTypesServiceTypesServiceTypeIdImport } from './routes/_auth/(admin)/admin.(service-types)/service-types.$serviceTypeId'
 import { Route as AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexImport } from './routes/_auth/(features)/services.$serviceVersionId.features.$featureVersionId.index'
+import { Route as AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsImport } from './routes/_auth/(features)/services.$serviceVersionId.features.$featureVersionId.permissions'
 import { Route as AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditImport } from './routes/_auth/(features)/services.$serviceVersionId.features.$featureVersionId.edit'
+import { Route as AuthadminAdminmembershipMembershipUsersCreateImport } from './routes/_auth/(admin)/admin.(membership)/membership.users.create'
+import { Route as AuthadminAdminmembershipMembershipUsersUserIdImport } from './routes/_auth/(admin)/admin.(membership)/membership.users.$userId'
+import { Route as AuthadminAdminmembershipMembershipGroupsCreateImport } from './routes/_auth/(admin)/admin.(membership)/membership.groups.create'
+import { Route as AuthadminAdminmembershipMembershipGroupsGroupIdImport } from './routes/_auth/(admin)/admin.(membership)/membership.groups.$groupId'
 import { Route as AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateImport } from './routes/_auth/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.create'
 import { Route as AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesImport } from './routes/_auth/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.values'
+import { Route as AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsImport } from './routes/_auth/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.permissions'
 import { Route as AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditImport } from './routes/_auth/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.edit'
 
 // Create/Update Routes
@@ -58,6 +65,18 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const UsersUserIdRoute = UsersUserIdImport.update({
+  id: '/users/$userId',
+  path: '/users/$userId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const GroupsGroupIdRoute = GroupsGroupIdImport.update({
+  id: '/groups/$groupId',
+  path: '/groups/$groupId',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AuthadminAdminRoute = AuthadminAdminImport.update({
   id: '/(admin)/admin',
   path: '/admin',
@@ -76,12 +95,6 @@ const AuthchangesetsChangesetsIndexRoute =
     path: '/changesets/',
     getParentRoute: () => AuthRoute,
   } as any)
-
-const AuthusersUsersUserIdRoute = AuthusersUsersUserIdImport.update({
-  id: '/(users)/users/$userId',
-  path: '/users/$userId',
-  getParentRoute: () => AuthRoute,
-} as any)
 
 const AuthservicesServicesCreateRoute = AuthservicesServicesCreateImport.update(
   {
@@ -109,6 +122,13 @@ const AuthservicesServicesServiceVersionIdIndexRoute =
   AuthservicesServicesServiceVersionIdIndexImport.update({
     id: '/(services)/services/$serviceVersionId/',
     path: '/services/$serviceVersionId/',
+    getParentRoute: () => AuthRoute,
+  } as any)
+
+const AuthservicesServicesServiceVersionIdPermissionsRoute =
+  AuthservicesServicesServiceVersionIdPermissionsImport.update({
+    id: '/(services)/services/$serviceVersionId/permissions',
+    path: '/services/$serviceVersionId/permissions',
     getParentRoute: () => AuthRoute,
   } as any)
 
@@ -140,10 +160,10 @@ const AuthadminAdminserviceTypesServiceTypesRoute =
     getParentRoute: () => AuthadminAdminRoute,
   } as any)
 
-const AuthadminAdminusersUsersIndexRoute =
-  AuthadminAdminusersUsersIndexImport.update({
-    id: '/(users)/users/',
-    path: '/users/',
+const AuthadminAdminmembershipMembershipIndexRoute =
+  AuthadminAdminmembershipMembershipIndexImport.update({
+    id: '/(membership)/membership/',
+    path: '/membership/',
     getParentRoute: () => AuthadminAdminRoute,
   } as any)
 
@@ -170,13 +190,6 @@ const AuthadminAdminvariationPropertiesVariationPropertiesPropertyIdRoute =
       AuthadminAdminvariationPropertiesVariationPropertiesRoute,
   } as any)
 
-const AuthadminAdminusersUsersUserIdRoute =
-  AuthadminAdminusersUsersUserIdImport.update({
-    id: '/(users)/users/$userId',
-    path: '/users/$userId',
-    getParentRoute: () => AuthadminAdminRoute,
-  } as any)
-
 const AuthadminAdminserviceTypesServiceTypesCreateRoute =
   AuthadminAdminserviceTypesServiceTypesCreateImport.update({
     id: '/create',
@@ -200,6 +213,15 @@ const AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute =
     } as any,
   )
 
+const AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsRoute =
+  AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsImport.update(
+    {
+      id: '/(features)/services/$serviceVersionId/features/$featureVersionId/permissions',
+      path: '/services/$serviceVersionId/features/$featureVersionId/permissions',
+      getParentRoute: () => AuthRoute,
+    } as any,
+  )
+
 const AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute =
   AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditImport.update(
     {
@@ -208,6 +230,34 @@ const AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute =
       getParentRoute: () => AuthRoute,
     } as any,
   )
+
+const AuthadminAdminmembershipMembershipUsersCreateRoute =
+  AuthadminAdminmembershipMembershipUsersCreateImport.update({
+    id: '/(membership)/membership/users/create',
+    path: '/membership/users/create',
+    getParentRoute: () => AuthadminAdminRoute,
+  } as any)
+
+const AuthadminAdminmembershipMembershipUsersUserIdRoute =
+  AuthadminAdminmembershipMembershipUsersUserIdImport.update({
+    id: '/(membership)/membership/users/$userId',
+    path: '/membership/users/$userId',
+    getParentRoute: () => AuthadminAdminRoute,
+  } as any)
+
+const AuthadminAdminmembershipMembershipGroupsCreateRoute =
+  AuthadminAdminmembershipMembershipGroupsCreateImport.update({
+    id: '/(membership)/membership/groups/create',
+    path: '/membership/groups/create',
+    getParentRoute: () => AuthadminAdminRoute,
+  } as any)
+
+const AuthadminAdminmembershipMembershipGroupsGroupIdRoute =
+  AuthadminAdminmembershipMembershipGroupsGroupIdImport.update({
+    id: '/(membership)/membership/groups/$groupId',
+    path: '/membership/groups/$groupId',
+    getParentRoute: () => AuthadminAdminRoute,
+  } as any)
 
 const AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute =
   AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateImport.update(
@@ -223,6 +273,15 @@ const AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRou
     {
       id: '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values',
       path: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values',
+      getParentRoute: () => AuthRoute,
+    } as any,
+  )
+
+const AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsRoute =
+  AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsImport.update(
+    {
+      id: '/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions',
+      path: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions',
       getParentRoute: () => AuthRoute,
     } as any,
   )
@@ -261,6 +320,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/groups/$groupId': {
+      id: '/groups/$groupId'
+      path: '/groups/$groupId'
+      fullPath: '/groups/$groupId'
+      preLoaderRoute: typeof GroupsGroupIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/users/$userId': {
+      id: '/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/users/$userId'
+      preLoaderRoute: typeof UsersUserIdImport
+      parentRoute: typeof rootRoute
+    }
     '/_auth/(admin)/admin': {
       id: '/_auth/(admin)/admin'
       path: '/admin'
@@ -287,13 +360,6 @@ declare module '@tanstack/react-router' {
       path: '/services/create'
       fullPath: '/services/create'
       preLoaderRoute: typeof AuthservicesServicesCreateImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/(users)/users/$userId': {
-      id: '/_auth/(users)/users/$userId'
-      path: '/users/$userId'
-      fullPath: '/users/$userId'
-      preLoaderRoute: typeof AuthusersUsersUserIdImport
       parentRoute: typeof AuthImport
     }
     '/_auth/(changesets)/changesets/': {
@@ -338,6 +404,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthservicesServicesServiceVersionIdLinkImport
       parentRoute: typeof AuthImport
     }
+    '/_auth/(services)/services/$serviceVersionId/permissions': {
+      id: '/_auth/(services)/services/$serviceVersionId/permissions'
+      path: '/services/$serviceVersionId/permissions'
+      fullPath: '/services/$serviceVersionId/permissions'
+      preLoaderRoute: typeof AuthservicesServicesServiceVersionIdPermissionsImport
+      parentRoute: typeof AuthImport
+    }
     '/_auth/(services)/services/$serviceVersionId/': {
       id: '/_auth/(services)/services/$serviceVersionId/'
       path: '/services/$serviceVersionId'
@@ -358,13 +431,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/service-types/create'
       preLoaderRoute: typeof AuthadminAdminserviceTypesServiceTypesCreateImport
       parentRoute: typeof AuthadminAdminserviceTypesServiceTypesImport
-    }
-    '/_auth/(admin)/admin/(users)/users/$userId': {
-      id: '/_auth/(admin)/admin/(users)/users/$userId'
-      path: '/users/$userId'
-      fullPath: '/admin/users/$userId'
-      preLoaderRoute: typeof AuthadminAdminusersUsersUserIdImport
-      parentRoute: typeof AuthadminAdminImport
     }
     '/_auth/(admin)/admin/(variation-properties)/variation-properties/$propertyId': {
       id: '/_auth/(admin)/admin/(variation-properties)/variation-properties/$propertyId'
@@ -387,11 +453,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthfeaturesServicesServiceVersionIdFeaturesCreateImport
       parentRoute: typeof AuthImport
     }
-    '/_auth/(admin)/admin/(users)/users/': {
-      id: '/_auth/(admin)/admin/(users)/users/'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthadminAdminusersUsersIndexImport
+    '/_auth/(admin)/admin/(membership)/membership/': {
+      id: '/_auth/(admin)/admin/(membership)/membership/'
+      path: '/membership'
+      fullPath: '/admin/membership'
+      preLoaderRoute: typeof AuthadminAdminmembershipMembershipIndexImport
+      parentRoute: typeof AuthadminAdminImport
+    }
+    '/_auth/(admin)/admin/(membership)/membership/groups/$groupId': {
+      id: '/_auth/(admin)/admin/(membership)/membership/groups/$groupId'
+      path: '/membership/groups/$groupId'
+      fullPath: '/admin/membership/groups/$groupId'
+      preLoaderRoute: typeof AuthadminAdminmembershipMembershipGroupsGroupIdImport
+      parentRoute: typeof AuthadminAdminImport
+    }
+    '/_auth/(admin)/admin/(membership)/membership/groups/create': {
+      id: '/_auth/(admin)/admin/(membership)/membership/groups/create'
+      path: '/membership/groups/create'
+      fullPath: '/admin/membership/groups/create'
+      preLoaderRoute: typeof AuthadminAdminmembershipMembershipGroupsCreateImport
+      parentRoute: typeof AuthadminAdminImport
+    }
+    '/_auth/(admin)/admin/(membership)/membership/users/$userId': {
+      id: '/_auth/(admin)/admin/(membership)/membership/users/$userId'
+      path: '/membership/users/$userId'
+      fullPath: '/admin/membership/users/$userId'
+      preLoaderRoute: typeof AuthadminAdminmembershipMembershipUsersUserIdImport
+      parentRoute: typeof AuthadminAdminImport
+    }
+    '/_auth/(admin)/admin/(membership)/membership/users/create': {
+      id: '/_auth/(admin)/admin/(membership)/membership/users/create'
+      path: '/membership/users/create'
+      fullPath: '/admin/membership/users/create'
+      preLoaderRoute: typeof AuthadminAdminmembershipMembershipUsersCreateImport
       parentRoute: typeof AuthadminAdminImport
     }
     '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/edit': {
@@ -399,6 +493,13 @@ declare module '@tanstack/react-router' {
       path: '/services/$serviceVersionId/features/$featureVersionId/edit'
       fullPath: '/services/$serviceVersionId/features/$featureVersionId/edit'
       preLoaderRoute: typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/permissions': {
+      id: '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/permissions'
+      path: '/services/$serviceVersionId/features/$featureVersionId/permissions'
+      fullPath: '/services/$serviceVersionId/features/$featureVersionId/permissions'
+      preLoaderRoute: typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsImport
       parentRoute: typeof AuthImport
     }
     '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/': {
@@ -420,6 +521,13 @@ declare module '@tanstack/react-router' {
       path: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
       fullPath: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
       preLoaderRoute: typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions': {
+      id: '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions'
+      path: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions'
+      fullPath: '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions'
+      preLoaderRoute: typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsImport
       parentRoute: typeof AuthImport
     }
     '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values': {
@@ -473,8 +581,11 @@ const AuthadminAdminvariationPropertiesVariationPropertiesRouteWithChildren =
 interface AuthadminAdminRouteChildren {
   AuthadminAdminserviceTypesServiceTypesRoute: typeof AuthadminAdminserviceTypesServiceTypesRouteWithChildren
   AuthadminAdminvariationPropertiesVariationPropertiesRoute: typeof AuthadminAdminvariationPropertiesVariationPropertiesRouteWithChildren
-  AuthadminAdminusersUsersUserIdRoute: typeof AuthadminAdminusersUsersUserIdRoute
-  AuthadminAdminusersUsersIndexRoute: typeof AuthadminAdminusersUsersIndexRoute
+  AuthadminAdminmembershipMembershipIndexRoute: typeof AuthadminAdminmembershipMembershipIndexRoute
+  AuthadminAdminmembershipMembershipGroupsGroupIdRoute: typeof AuthadminAdminmembershipMembershipGroupsGroupIdRoute
+  AuthadminAdminmembershipMembershipGroupsCreateRoute: typeof AuthadminAdminmembershipMembershipGroupsCreateRoute
+  AuthadminAdminmembershipMembershipUsersUserIdRoute: typeof AuthadminAdminmembershipMembershipUsersUserIdRoute
+  AuthadminAdminmembershipMembershipUsersCreateRoute: typeof AuthadminAdminmembershipMembershipUsersCreateRoute
 }
 
 const AuthadminAdminRouteChildren: AuthadminAdminRouteChildren = {
@@ -482,8 +593,16 @@ const AuthadminAdminRouteChildren: AuthadminAdminRouteChildren = {
     AuthadminAdminserviceTypesServiceTypesRouteWithChildren,
   AuthadminAdminvariationPropertiesVariationPropertiesRoute:
     AuthadminAdminvariationPropertiesVariationPropertiesRouteWithChildren,
-  AuthadminAdminusersUsersUserIdRoute: AuthadminAdminusersUsersUserIdRoute,
-  AuthadminAdminusersUsersIndexRoute: AuthadminAdminusersUsersIndexRoute,
+  AuthadminAdminmembershipMembershipIndexRoute:
+    AuthadminAdminmembershipMembershipIndexRoute,
+  AuthadminAdminmembershipMembershipGroupsGroupIdRoute:
+    AuthadminAdminmembershipMembershipGroupsGroupIdRoute,
+  AuthadminAdminmembershipMembershipGroupsCreateRoute:
+    AuthadminAdminmembershipMembershipGroupsCreateRoute,
+  AuthadminAdminmembershipMembershipUsersUserIdRoute:
+    AuthadminAdminmembershipMembershipUsersUserIdRoute,
+  AuthadminAdminmembershipMembershipUsersCreateRoute:
+    AuthadminAdminmembershipMembershipUsersCreateRoute,
 }
 
 const AuthadminAdminRouteWithChildren = AuthadminAdminRoute._addFileChildren(
@@ -495,17 +614,19 @@ interface AuthRouteChildren {
   AuthchangesetsChangesetsChangesetIdRoute: typeof AuthchangesetsChangesetsChangesetIdRoute
   AuthchangesetsChangesetsEmptyRoute: typeof AuthchangesetsChangesetsEmptyRoute
   AuthservicesServicesCreateRoute: typeof AuthservicesServicesCreateRoute
-  AuthusersUsersUserIdRoute: typeof AuthusersUsersUserIdRoute
   AuthchangesetsChangesetsIndexRoute: typeof AuthchangesetsChangesetsIndexRoute
   AuthservicesServicesIndexRoute: typeof AuthservicesServicesIndexRoute
   AuthservicesServicesServiceVersionIdEditRoute: typeof AuthservicesServicesServiceVersionIdEditRoute
   AuthservicesServicesServiceVersionIdLinkRoute: typeof AuthservicesServicesServiceVersionIdLinkRoute
+  AuthservicesServicesServiceVersionIdPermissionsRoute: typeof AuthservicesServicesServiceVersionIdPermissionsRoute
   AuthservicesServicesServiceVersionIdIndexRoute: typeof AuthservicesServicesServiceVersionIdIndexRoute
   AuthfeaturesServicesServiceVersionIdFeaturesCreateRoute: typeof AuthfeaturesServicesServiceVersionIdFeaturesCreateRoute
   AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute: typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
+  AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsRoute: typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsRoute
   AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute: typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
   AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute: typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
   AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute: typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute
+  AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsRoute: typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsRoute
   AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute: typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute
 }
 
@@ -515,25 +636,30 @@ const AuthRouteChildren: AuthRouteChildren = {
     AuthchangesetsChangesetsChangesetIdRoute,
   AuthchangesetsChangesetsEmptyRoute: AuthchangesetsChangesetsEmptyRoute,
   AuthservicesServicesCreateRoute: AuthservicesServicesCreateRoute,
-  AuthusersUsersUserIdRoute: AuthusersUsersUserIdRoute,
   AuthchangesetsChangesetsIndexRoute: AuthchangesetsChangesetsIndexRoute,
   AuthservicesServicesIndexRoute: AuthservicesServicesIndexRoute,
   AuthservicesServicesServiceVersionIdEditRoute:
     AuthservicesServicesServiceVersionIdEditRoute,
   AuthservicesServicesServiceVersionIdLinkRoute:
     AuthservicesServicesServiceVersionIdLinkRoute,
+  AuthservicesServicesServiceVersionIdPermissionsRoute:
+    AuthservicesServicesServiceVersionIdPermissionsRoute,
   AuthservicesServicesServiceVersionIdIndexRoute:
     AuthservicesServicesServiceVersionIdIndexRoute,
   AuthfeaturesServicesServiceVersionIdFeaturesCreateRoute:
     AuthfeaturesServicesServiceVersionIdFeaturesCreateRoute,
   AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute:
     AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute,
+  AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsRoute:
+    AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsRoute,
   AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute:
     AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute,
   AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute:
     AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute,
   AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute:
     AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute,
+  AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsRoute:
+    AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsRoute,
   AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute:
     AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute,
 }
@@ -544,29 +670,36 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/users/$userId': typeof UsersUserIdRoute
   '/admin': typeof AuthadminAdminRouteWithChildren
   '/changesets/$changesetId': typeof AuthchangesetsChangesetsChangesetIdRoute
   '/changesets/empty': typeof AuthchangesetsChangesetsEmptyRoute
   '/services/create': typeof AuthservicesServicesCreateRoute
-  '/users/$userId': typeof AuthusersUsersUserIdRoute
   '/changesets': typeof AuthchangesetsChangesetsIndexRoute
   '/services': typeof AuthservicesServicesIndexRoute
   '/admin/service-types': typeof AuthadminAdminserviceTypesServiceTypesRouteWithChildren
   '/admin/variation-properties': typeof AuthadminAdminvariationPropertiesVariationPropertiesRouteWithChildren
   '/services/$serviceVersionId/edit': typeof AuthservicesServicesServiceVersionIdEditRoute
   '/services/$serviceVersionId/link': typeof AuthservicesServicesServiceVersionIdLinkRoute
+  '/services/$serviceVersionId/permissions': typeof AuthservicesServicesServiceVersionIdPermissionsRoute
   '/services/$serviceVersionId': typeof AuthservicesServicesServiceVersionIdIndexRoute
   '/admin/service-types/$serviceTypeId': typeof AuthadminAdminserviceTypesServiceTypesServiceTypeIdRoute
   '/admin/service-types/create': typeof AuthadminAdminserviceTypesServiceTypesCreateRoute
-  '/admin/users/$userId': typeof AuthadminAdminusersUsersUserIdRoute
   '/admin/variation-properties/$propertyId': typeof AuthadminAdminvariationPropertiesVariationPropertiesPropertyIdRoute
   '/admin/variation-properties/create': typeof AuthadminAdminvariationPropertiesVariationPropertiesCreateRoute
   '/services/$serviceVersionId/features/create': typeof AuthfeaturesServicesServiceVersionIdFeaturesCreateRoute
-  '/admin/users': typeof AuthadminAdminusersUsersIndexRoute
+  '/admin/membership': typeof AuthadminAdminmembershipMembershipIndexRoute
+  '/admin/membership/groups/$groupId': typeof AuthadminAdminmembershipMembershipGroupsGroupIdRoute
+  '/admin/membership/groups/create': typeof AuthadminAdminmembershipMembershipGroupsCreateRoute
+  '/admin/membership/users/$userId': typeof AuthadminAdminmembershipMembershipUsersUserIdRoute
+  '/admin/membership/users/create': typeof AuthadminAdminmembershipMembershipUsersCreateRoute
   '/services/$serviceVersionId/features/$featureVersionId/edit': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
+  '/services/$serviceVersionId/features/$featureVersionId/permissions': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute
+  '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute
 }
 
@@ -574,29 +707,36 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/users/$userId': typeof UsersUserIdRoute
   '/admin': typeof AuthadminAdminRouteWithChildren
   '/changesets/$changesetId': typeof AuthchangesetsChangesetsChangesetIdRoute
   '/changesets/empty': typeof AuthchangesetsChangesetsEmptyRoute
   '/services/create': typeof AuthservicesServicesCreateRoute
-  '/users/$userId': typeof AuthusersUsersUserIdRoute
   '/changesets': typeof AuthchangesetsChangesetsIndexRoute
   '/services': typeof AuthservicesServicesIndexRoute
   '/admin/service-types': typeof AuthadminAdminserviceTypesServiceTypesRouteWithChildren
   '/admin/variation-properties': typeof AuthadminAdminvariationPropertiesVariationPropertiesRouteWithChildren
   '/services/$serviceVersionId/edit': typeof AuthservicesServicesServiceVersionIdEditRoute
   '/services/$serviceVersionId/link': typeof AuthservicesServicesServiceVersionIdLinkRoute
+  '/services/$serviceVersionId/permissions': typeof AuthservicesServicesServiceVersionIdPermissionsRoute
   '/services/$serviceVersionId': typeof AuthservicesServicesServiceVersionIdIndexRoute
   '/admin/service-types/$serviceTypeId': typeof AuthadminAdminserviceTypesServiceTypesServiceTypeIdRoute
   '/admin/service-types/create': typeof AuthadminAdminserviceTypesServiceTypesCreateRoute
-  '/admin/users/$userId': typeof AuthadminAdminusersUsersUserIdRoute
   '/admin/variation-properties/$propertyId': typeof AuthadminAdminvariationPropertiesVariationPropertiesPropertyIdRoute
   '/admin/variation-properties/create': typeof AuthadminAdminvariationPropertiesVariationPropertiesCreateRoute
   '/services/$serviceVersionId/features/create': typeof AuthfeaturesServicesServiceVersionIdFeaturesCreateRoute
-  '/admin/users': typeof AuthadminAdminusersUsersIndexRoute
+  '/admin/membership': typeof AuthadminAdminmembershipMembershipIndexRoute
+  '/admin/membership/groups/$groupId': typeof AuthadminAdminmembershipMembershipGroupsGroupIdRoute
+  '/admin/membership/groups/create': typeof AuthadminAdminmembershipMembershipGroupsCreateRoute
+  '/admin/membership/users/$userId': typeof AuthadminAdminmembershipMembershipUsersUserIdRoute
+  '/admin/membership/users/create': typeof AuthadminAdminmembershipMembershipUsersCreateRoute
   '/services/$serviceVersionId/features/$featureVersionId/edit': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
+  '/services/$serviceVersionId/features/$featureVersionId/permissions': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsRoute
   '/services/$serviceVersionId/features/$featureVersionId': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute
+  '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsRoute
   '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute
 }
 
@@ -605,29 +745,36 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/users/$userId': typeof UsersUserIdRoute
   '/_auth/(admin)/admin': typeof AuthadminAdminRouteWithChildren
   '/_auth/(changesets)/changesets/$changesetId': typeof AuthchangesetsChangesetsChangesetIdRoute
   '/_auth/(changesets)/changesets/empty': typeof AuthchangesetsChangesetsEmptyRoute
   '/_auth/(services)/services/create': typeof AuthservicesServicesCreateRoute
-  '/_auth/(users)/users/$userId': typeof AuthusersUsersUserIdRoute
   '/_auth/(changesets)/changesets/': typeof AuthchangesetsChangesetsIndexRoute
   '/_auth/(services)/services/': typeof AuthservicesServicesIndexRoute
   '/_auth/(admin)/admin/(service-types)/service-types': typeof AuthadminAdminserviceTypesServiceTypesRouteWithChildren
   '/_auth/(admin)/admin/(variation-properties)/variation-properties': typeof AuthadminAdminvariationPropertiesVariationPropertiesRouteWithChildren
   '/_auth/(services)/services/$serviceVersionId/edit': typeof AuthservicesServicesServiceVersionIdEditRoute
   '/_auth/(services)/services/$serviceVersionId/link': typeof AuthservicesServicesServiceVersionIdLinkRoute
+  '/_auth/(services)/services/$serviceVersionId/permissions': typeof AuthservicesServicesServiceVersionIdPermissionsRoute
   '/_auth/(services)/services/$serviceVersionId/': typeof AuthservicesServicesServiceVersionIdIndexRoute
   '/_auth/(admin)/admin/(service-types)/service-types/$serviceTypeId': typeof AuthadminAdminserviceTypesServiceTypesServiceTypeIdRoute
   '/_auth/(admin)/admin/(service-types)/service-types/create': typeof AuthadminAdminserviceTypesServiceTypesCreateRoute
-  '/_auth/(admin)/admin/(users)/users/$userId': typeof AuthadminAdminusersUsersUserIdRoute
   '/_auth/(admin)/admin/(variation-properties)/variation-properties/$propertyId': typeof AuthadminAdminvariationPropertiesVariationPropertiesPropertyIdRoute
   '/_auth/(admin)/admin/(variation-properties)/variation-properties/create': typeof AuthadminAdminvariationPropertiesVariationPropertiesCreateRoute
   '/_auth/(features)/services/$serviceVersionId/features/create': typeof AuthfeaturesServicesServiceVersionIdFeaturesCreateRoute
-  '/_auth/(admin)/admin/(users)/users/': typeof AuthadminAdminusersUsersIndexRoute
+  '/_auth/(admin)/admin/(membership)/membership/': typeof AuthadminAdminmembershipMembershipIndexRoute
+  '/_auth/(admin)/admin/(membership)/membership/groups/$groupId': typeof AuthadminAdminmembershipMembershipGroupsGroupIdRoute
+  '/_auth/(admin)/admin/(membership)/membership/groups/create': typeof AuthadminAdminmembershipMembershipGroupsCreateRoute
+  '/_auth/(admin)/admin/(membership)/membership/users/$userId': typeof AuthadminAdminmembershipMembershipUsersUserIdRoute
+  '/_auth/(admin)/admin/(membership)/membership/users/create': typeof AuthadminAdminmembershipMembershipUsersCreateRoute
   '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/edit': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdEditRoute
+  '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/permissions': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdPermissionsRoute
   '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/': typeof AuthfeaturesServicesServiceVersionIdFeaturesFeatureVersionIdIndexRoute
   '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysCreateRoute
   '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdEditRoute
+  '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPermissionsRoute
   '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values': typeof AuthkeysServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesRoute
 }
 
@@ -637,87 +784,108 @@ export interface FileRouteTypes {
     | '/'
     | ''
     | '/login'
+    | '/groups/$groupId'
+    | '/users/$userId'
     | '/admin'
     | '/changesets/$changesetId'
     | '/changesets/empty'
     | '/services/create'
-    | '/users/$userId'
     | '/changesets'
     | '/services'
     | '/admin/service-types'
     | '/admin/variation-properties'
     | '/services/$serviceVersionId/edit'
     | '/services/$serviceVersionId/link'
+    | '/services/$serviceVersionId/permissions'
     | '/services/$serviceVersionId'
     | '/admin/service-types/$serviceTypeId'
     | '/admin/service-types/create'
-    | '/admin/users/$userId'
     | '/admin/variation-properties/$propertyId'
     | '/admin/variation-properties/create'
     | '/services/$serviceVersionId/features/create'
-    | '/admin/users'
+    | '/admin/membership'
+    | '/admin/membership/groups/$groupId'
+    | '/admin/membership/groups/create'
+    | '/admin/membership/users/$userId'
+    | '/admin/membership/users/create'
     | '/services/$serviceVersionId/features/$featureVersionId/edit'
+    | '/services/$serviceVersionId/features/$featureVersionId/permissions'
     | '/services/$serviceVersionId/features/$featureVersionId'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/create'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
+    | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | ''
     | '/login'
+    | '/groups/$groupId'
+    | '/users/$userId'
     | '/admin'
     | '/changesets/$changesetId'
     | '/changesets/empty'
     | '/services/create'
-    | '/users/$userId'
     | '/changesets'
     | '/services'
     | '/admin/service-types'
     | '/admin/variation-properties'
     | '/services/$serviceVersionId/edit'
     | '/services/$serviceVersionId/link'
+    | '/services/$serviceVersionId/permissions'
     | '/services/$serviceVersionId'
     | '/admin/service-types/$serviceTypeId'
     | '/admin/service-types/create'
-    | '/admin/users/$userId'
     | '/admin/variation-properties/$propertyId'
     | '/admin/variation-properties/create'
     | '/services/$serviceVersionId/features/create'
-    | '/admin/users'
+    | '/admin/membership'
+    | '/admin/membership/groups/$groupId'
+    | '/admin/membership/groups/create'
+    | '/admin/membership/users/$userId'
+    | '/admin/membership/users/create'
     | '/services/$serviceVersionId/features/$featureVersionId/edit'
+    | '/services/$serviceVersionId/features/$featureVersionId/permissions'
     | '/services/$serviceVersionId/features/$featureVersionId'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/create'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
+    | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions'
     | '/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/login'
+    | '/groups/$groupId'
+    | '/users/$userId'
     | '/_auth/(admin)/admin'
     | '/_auth/(changesets)/changesets/$changesetId'
     | '/_auth/(changesets)/changesets/empty'
     | '/_auth/(services)/services/create'
-    | '/_auth/(users)/users/$userId'
     | '/_auth/(changesets)/changesets/'
     | '/_auth/(services)/services/'
     | '/_auth/(admin)/admin/(service-types)/service-types'
     | '/_auth/(admin)/admin/(variation-properties)/variation-properties'
     | '/_auth/(services)/services/$serviceVersionId/edit'
     | '/_auth/(services)/services/$serviceVersionId/link'
+    | '/_auth/(services)/services/$serviceVersionId/permissions'
     | '/_auth/(services)/services/$serviceVersionId/'
     | '/_auth/(admin)/admin/(service-types)/service-types/$serviceTypeId'
     | '/_auth/(admin)/admin/(service-types)/service-types/create'
-    | '/_auth/(admin)/admin/(users)/users/$userId'
     | '/_auth/(admin)/admin/(variation-properties)/variation-properties/$propertyId'
     | '/_auth/(admin)/admin/(variation-properties)/variation-properties/create'
     | '/_auth/(features)/services/$serviceVersionId/features/create'
-    | '/_auth/(admin)/admin/(users)/users/'
+    | '/_auth/(admin)/admin/(membership)/membership/'
+    | '/_auth/(admin)/admin/(membership)/membership/groups/$groupId'
+    | '/_auth/(admin)/admin/(membership)/membership/groups/create'
+    | '/_auth/(admin)/admin/(membership)/membership/users/$userId'
+    | '/_auth/(admin)/admin/(membership)/membership/users/create'
     | '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/edit'
+    | '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/permissions'
     | '/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/'
     | '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create'
     | '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit'
+    | '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions'
     | '/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values'
   fileRoutesById: FileRoutesById
 }
@@ -726,12 +894,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
+  GroupsGroupIdRoute: typeof GroupsGroupIdRoute
+  UsersUserIdRoute: typeof UsersUserIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
+  GroupsGroupIdRoute: GroupsGroupIdRoute,
+  UsersUserIdRoute: UsersUserIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -746,7 +918,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_auth",
-        "/login"
+        "/login",
+        "/groups/$groupId",
+        "/users/$userId"
       ]
     },
     "/": {
@@ -759,22 +933,30 @@ export const routeTree = rootRoute
         "/_auth/(changesets)/changesets/$changesetId",
         "/_auth/(changesets)/changesets/empty",
         "/_auth/(services)/services/create",
-        "/_auth/(users)/users/$userId",
         "/_auth/(changesets)/changesets/",
         "/_auth/(services)/services/",
         "/_auth/(services)/services/$serviceVersionId/edit",
         "/_auth/(services)/services/$serviceVersionId/link",
+        "/_auth/(services)/services/$serviceVersionId/permissions",
         "/_auth/(services)/services/$serviceVersionId/",
         "/_auth/(features)/services/$serviceVersionId/features/create",
         "/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/edit",
+        "/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/permissions",
         "/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/",
         "/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/create",
         "/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit",
+        "/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions",
         "/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values"
       ]
     },
     "/login": {
       "filePath": "login.tsx"
+    },
+    "/groups/$groupId": {
+      "filePath": "groups.$groupId.tsx"
+    },
+    "/users/$userId": {
+      "filePath": "users.$userId.tsx"
     },
     "/_auth/(admin)/admin": {
       "filePath": "_auth/(admin)/admin.tsx",
@@ -782,8 +964,11 @@ export const routeTree = rootRoute
       "children": [
         "/_auth/(admin)/admin/(service-types)/service-types",
         "/_auth/(admin)/admin/(variation-properties)/variation-properties",
-        "/_auth/(admin)/admin/(users)/users/$userId",
-        "/_auth/(admin)/admin/(users)/users/"
+        "/_auth/(admin)/admin/(membership)/membership/",
+        "/_auth/(admin)/admin/(membership)/membership/groups/$groupId",
+        "/_auth/(admin)/admin/(membership)/membership/groups/create",
+        "/_auth/(admin)/admin/(membership)/membership/users/$userId",
+        "/_auth/(admin)/admin/(membership)/membership/users/create"
       ]
     },
     "/_auth/(changesets)/changesets/$changesetId": {
@@ -796,10 +981,6 @@ export const routeTree = rootRoute
     },
     "/_auth/(services)/services/create": {
       "filePath": "_auth/(services)/services.create.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/(users)/users/$userId": {
-      "filePath": "_auth/(users)/users.$userId.tsx",
       "parent": "/_auth"
     },
     "/_auth/(changesets)/changesets/": {
@@ -834,6 +1015,10 @@ export const routeTree = rootRoute
       "filePath": "_auth/(services)/services.$serviceVersionId.link.tsx",
       "parent": "/_auth"
     },
+    "/_auth/(services)/services/$serviceVersionId/permissions": {
+      "filePath": "_auth/(services)/services.$serviceVersionId.permissions.tsx",
+      "parent": "/_auth"
+    },
     "/_auth/(services)/services/$serviceVersionId/": {
       "filePath": "_auth/(services)/services.$serviceVersionId.index.tsx",
       "parent": "/_auth"
@@ -845,10 +1030,6 @@ export const routeTree = rootRoute
     "/_auth/(admin)/admin/(service-types)/service-types/create": {
       "filePath": "_auth/(admin)/admin.(service-types)/service-types.create.tsx",
       "parent": "/_auth/(admin)/admin/(service-types)/service-types"
-    },
-    "/_auth/(admin)/admin/(users)/users/$userId": {
-      "filePath": "_auth/(admin)/admin.(users)/users.$userId.tsx",
-      "parent": "/_auth/(admin)/admin"
     },
     "/_auth/(admin)/admin/(variation-properties)/variation-properties/$propertyId": {
       "filePath": "_auth/(admin)/admin.(variation-properties)/variation-properties.$propertyId.tsx",
@@ -862,12 +1043,32 @@ export const routeTree = rootRoute
       "filePath": "_auth/(features)/services.$serviceVersionId.features.create.tsx",
       "parent": "/_auth"
     },
-    "/_auth/(admin)/admin/(users)/users/": {
-      "filePath": "_auth/(admin)/admin.(users)/users.index.tsx",
+    "/_auth/(admin)/admin/(membership)/membership/": {
+      "filePath": "_auth/(admin)/admin.(membership)/membership.index.tsx",
+      "parent": "/_auth/(admin)/admin"
+    },
+    "/_auth/(admin)/admin/(membership)/membership/groups/$groupId": {
+      "filePath": "_auth/(admin)/admin.(membership)/membership.groups.$groupId.tsx",
+      "parent": "/_auth/(admin)/admin"
+    },
+    "/_auth/(admin)/admin/(membership)/membership/groups/create": {
+      "filePath": "_auth/(admin)/admin.(membership)/membership.groups.create.tsx",
+      "parent": "/_auth/(admin)/admin"
+    },
+    "/_auth/(admin)/admin/(membership)/membership/users/$userId": {
+      "filePath": "_auth/(admin)/admin.(membership)/membership.users.$userId.tsx",
+      "parent": "/_auth/(admin)/admin"
+    },
+    "/_auth/(admin)/admin/(membership)/membership/users/create": {
+      "filePath": "_auth/(admin)/admin.(membership)/membership.users.create.tsx",
       "parent": "/_auth/(admin)/admin"
     },
     "/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/edit": {
       "filePath": "_auth/(features)/services.$serviceVersionId.features.$featureVersionId.edit.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/permissions": {
+      "filePath": "_auth/(features)/services.$serviceVersionId.features.$featureVersionId.permissions.tsx",
       "parent": "/_auth"
     },
     "/_auth/(features)/services/$serviceVersionId/features/$featureVersionId/": {
@@ -880,6 +1081,10 @@ export const routeTree = rootRoute
     },
     "/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit": {
       "filePath": "_auth/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.edit.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions": {
+      "filePath": "_auth/(keys)/services.$serviceVersionId.features.$featureVersionId.keys.$keyId.permissions.tsx",
       "parent": "/_auth"
     },
     "/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values": {

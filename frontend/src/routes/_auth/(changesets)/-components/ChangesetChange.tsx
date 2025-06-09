@@ -4,12 +4,12 @@ import { TriangleAlert } from 'lucide-react';
 import { useAuth } from '~/auth';
 import { MutationErrors } from '~/components/MutationErrors';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
-import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
+import { VariationBadges } from '~/components/VariationBadges';
 import {
   ChangesetChangesetChange,
   ChangesetChangesetDto,
-  getChangesetsChangesetIdQueryKey,
+  getChangesetsChangesetIdQueryOptions,
   usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete,
   usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate,
   usePutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate,
@@ -115,15 +115,7 @@ function ValueChange({ change }: { change: ChangesetChangesetChange }) {
           {change.featureName} v{change.featureVersion}
         </Link>
       </div>
-      {change.variation && Object.keys(change.variation).length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2">
-          {Object.values(change.variation).map((value) => (
-            <Badge key={value} variant="outline">
-              {value}
-            </Badge>
-          ))}
-        </div>
-      )}
+      {change.variation && Object.keys(change.variation).length > 0 && <VariationBadges variation={change.variation} />}
       <Diff
         added={change.newVariationValueData === '' ? '<empty>' : change.newVariationValueData}
         removed={change.oldVariationValueData === '' ? '<empty>' : change.oldVariationValueData}
@@ -253,7 +245,7 @@ function Conflict({ changeset, change }: { changeset: ChangesetChangesetDto; cha
       const createToUpdateMutation = usePutChangesetsChangesetIdChangesChangeIdConflictsCreateToUpdate({
         mutation: {
           onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+            queryClient.invalidateQueries(getChangesetsChangesetIdQueryOptions(changeset.id));
           },
         },
       });
@@ -284,7 +276,7 @@ function Conflict({ changeset, change }: { changeset: ChangesetChangesetDto; cha
         const mutation = usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmUpdate({
           mutation: {
             onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+              queryClient.invalidateQueries(getChangesetsChangesetIdQueryOptions(changeset.id));
             },
           },
         });
@@ -308,7 +300,7 @@ function Conflict({ changeset, change }: { changeset: ChangesetChangesetDto; cha
         const mutation = usePutChangesetsChangesetIdChangesChangeIdConflictsConfirmDelete({
           mutation: {
             onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+              queryClient.invalidateQueries(getChangesetsChangesetIdQueryOptions(changeset.id));
             },
           },
         });
@@ -335,7 +327,7 @@ function Conflict({ changeset, change }: { changeset: ChangesetChangesetDto; cha
         const mutation = usePutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreate({
           mutation: {
             onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+              queryClient.invalidateQueries(getChangesetsChangesetIdQueryOptions(changeset.id));
             },
           },
         });
@@ -376,7 +368,7 @@ function Conflict({ changeset, change }: { changeset: ChangesetChangesetDto; cha
       const revalidateMutation = usePutChangesetsChangesetIdChangesChangeIdConflictsRevalidate({
         mutation: {
           onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getChangesetsChangesetIdQueryKey(changeset.id) });
+            queryClient.invalidateQueries(getChangesetsChangesetIdQueryOptions(changeset.id));
           },
         },
       });

@@ -1,0 +1,1 @@
+{"enum":["editor","admin"],"type":"string","x-enum-varnames":["PermissionLevelEditor","PermissionLevelAdmin"],"x-readme-ref-name":"db.PermissionLevel"}

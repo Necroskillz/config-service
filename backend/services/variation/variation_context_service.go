@@ -109,7 +109,7 @@ func (s *ContextService) GetVariationContextID(ctx context.Context, variation ma
 
 	var contextID uint
 	err = s.unitOfWorkRunner.Run(ctx, func(tx *db.Queries) error {
-		id, err := tx.GetVariationContextId(ctx, db.GetVariationContextIdParams{
+		id, err := tx.GetVariationContextID(ctx, db.GetVariationContextIDParams{
 			VariationPropertyValueIds: ids,
 			PropertyCount:             len(ids),
 		})

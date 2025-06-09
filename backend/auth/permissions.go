@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	"github.com/necroskillz/config-service/constants"
+	"github.com/necroskillz/config-service/util/ptr"
 )
 
 type Permission interface {
@@ -35,7 +36,7 @@ type FeaturePermission struct {
 }
 
 func (p *FeaturePermission) Match(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) constants.PermissionLevel {
-	if p.ServiceID == serviceId && p.FeatureID == *featureId {
+	if p.ServiceID == serviceId && p.FeatureID == ptr.From(featureId) {
 		return p.Level
 	}
 
@@ -43,7 +44,7 @@ func (p *FeaturePermission) Match(serviceId uint, featureId *uint, keyId *uint, 
 }
 
 func (p *FeaturePermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
-	return p.ServiceID == serviceId && p.FeatureID == *featureId
+	return p.ServiceID == serviceId && p.FeatureID == ptr.From(featureId)
 }
 
 type KeyPermission struct {
@@ -54,7 +55,7 @@ type KeyPermission struct {
 }
 
 func (p *KeyPermission) Match(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) constants.PermissionLevel {
-	if p.ServiceID == serviceId && p.FeatureID == *featureId && p.KeyID == *keyId {
+	if p.ServiceID == serviceId && p.FeatureID == ptr.From(featureId) && p.KeyID == ptr.From(keyId) {
 		return p.Level
 	}
 
@@ -62,7 +63,7 @@ func (p *KeyPermission) Match(serviceId uint, featureId *uint, keyId *uint, vari
 }
 
 func (p *KeyPermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
-	return p.ServiceID == serviceId && p.FeatureID == *featureId && p.KeyID == *keyId
+	return p.ServiceID == serviceId && p.FeatureID == ptr.From(featureId) && p.KeyID == ptr.From(keyId)
 }
 
 type VariationPermission struct {
@@ -74,7 +75,7 @@ type VariationPermission struct {
 }
 
 func (p *VariationPermission) Match(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) constants.PermissionLevel {
-	if p.ServiceID == serviceId && p.FeatureID == *featureId && p.KeyID == *keyId {
+	if p.ServiceID == serviceId && p.FeatureID == ptr.From(featureId) && p.KeyID == ptr.From(keyId) {
 		for propertyId, permissionPropertyValue := range p.PropertyValues {
 			variationPropertyValue, ok := variationPropertyValues[propertyId]
 
@@ -90,5 +91,5 @@ func (p *VariationPermission) Match(serviceId uint, featureId *uint, keyId *uint
 }
 
 func (p *VariationPermission) MatchAny(serviceId uint, featureId *uint, keyId *uint, variationPropertyValues map[uint][]string) bool {
-	return p.ServiceID == serviceId && p.FeatureID == *featureId && p.KeyID == *keyId
+	return p.ServiceID == serviceId && p.FeatureID == ptr.From(featureId) && p.KeyID == ptr.From(keyId)
 }

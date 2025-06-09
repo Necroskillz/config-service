@@ -31,14 +31,13 @@ import { Button } from '~/components/ui/button';
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter, Table } from '~/components/ui/table';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { VariationSelect } from '~/components/VariationSelect';
-import { cn, variationToParams } from '~/lib/utils';
+import { cn, variationToQueryParams, variationToRequestParams } from '~/lib/utils';
 import { useChangeset } from '~/hooks/use-changeset';
 import { versionedTitle } from '~/utils/seo';
 import { appTitle } from '~/utils/seo';
 import { seo } from '~/utils/seo';
-import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
-import { DropdownMenu } from '~/components/ui/dropdown-menu';
-import { CircleAlert, EllipsisIcon } from 'lucide-react';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+import { CircleAlert } from 'lucide-react';
 import { createDefaultValue, createValueValidator } from './-components/value';
 import { ValueEditor } from './-components/ValueEditor';
 import { ValueViewer } from './-components/ValueViewer';
@@ -47,6 +46,7 @@ import { ZodErrorMessage } from '~/components/ZodErrorMessage';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+import { DotDotDot } from '~/components/DotDotDot';
 
 export const Route = createFileRoute('/_auth/(keys)/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/values')({
   component: RouteComponent,
@@ -266,7 +266,7 @@ function RouteComponent() {
         keyId,
         editingValueId!,
         {
-          params: variationToParams(variation),
+          'variation[]': variationToQueryParams(variation),
         }
       );
     } catch (err: any) {
@@ -301,7 +301,10 @@ function RouteComponent() {
         feature_version_id: featureVersionId,
         key_id: keyId,
         value_id: editingValueId!,
-        data: value,
+        data: {
+          data: value.data,
+          variation: variationToRequestParams(value.variation),
+        },
       });
     },
   });
@@ -309,7 +312,7 @@ function RouteComponent() {
   const addValidationFn = cachePerVariation(async (variation) => {
     try {
       await getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd(serviceVersionId, featureVersionId, keyId, {
-        params: variationToParams(variation),
+        'variation[]': variationToQueryParams(variation),
       });
     } catch (err: any) {
       return asyncValidatorErrorMessage(err);
@@ -341,7 +344,10 @@ function RouteComponent() {
         service_version_id: serviceVersionId,
         feature_version_id: featureVersionId,
         key_id: keyId,
-        data: value,
+        data: {
+          data: value.data,
+          variation: variationToRequestParams(value.variation),
+        },
       });
     },
   });
@@ -487,6 +493,9 @@ function RouteComponent() {
       {
         header: 'Actions',
         id: 'actions',
+        meta: {
+          hide: data.every((v) => !v.canEdit),
+        },
         cell: (info) => {
           const id = info.row.original.id;
           const isDefaultValue = Object.keys(info.row.original.variation).length === 0;
@@ -515,26 +524,28 @@ function RouteComponent() {
                 />
               ) : (
                 <>
-                  <>
-                    <Button variant="outline" onClick={setEditing}>
-                      Edit
-                    </Button>
-                    {!isDefaultValue && (
-                      <Button
-                        variant="destructive"
-                        onClick={() =>
-                          deleteMutation.mutate({
-                            service_version_id: serviceVersionId,
-                            feature_version_id: featureVersionId,
-                            key_id: keyId,
-                            value_id: id,
-                          })
-                        }
-                      >
-                        Delete
+                  {info.row.original.canEdit && (
+                    <>
+                      <Button variant="outline" onClick={setEditing}>
+                        Edit
                       </Button>
-                    )}
-                  </>
+                      {!isDefaultValue && (
+                        <Button
+                          variant="destructive"
+                          onClick={() =>
+                            deleteMutation.mutate({
+                              service_version_id: serviceVersionId,
+                              feature_version_id: featureVersionId,
+                              key_id: keyId,
+                              value_id: id,
+                            })
+                          }
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -566,7 +577,7 @@ function RouteComponent() {
         },
       },
     ],
-    [editingValueId]
+    [editingValueId, data]
   );
 
   const table = useReactTable({
@@ -583,30 +594,28 @@ function RouteComponent() {
         <PageTitle className="mb-0">Key {key.name}</PageTitle>
         <div className="flex items-center">
           {key.canEdit && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <EllipsisIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <Link
-                  className="w-full"
-                  to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit"
-                  params={{ serviceVersionId, featureVersionId, keyId }}
-                >
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                </Link>
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() =>
-                    deleteKeyMutation.mutate({ service_version_id: serviceVersionId, feature_version_id: featureVersionId, key_id: keyId })
-                  }
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DotDotDot>
+              <Link
+                to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/edit"
+                params={{ serviceVersionId, featureVersionId, keyId }}
+              >
+                <DropdownMenuItem>Edit</DropdownMenuItem>
+              </Link>
+              <Link
+                to="/services/$serviceVersionId/features/$featureVersionId/keys/$keyId/permissions"
+                params={{ serviceVersionId, featureVersionId, keyId }}
+              >
+                <DropdownMenuItem>Permissions</DropdownMenuItem>
+              </Link>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() =>
+                  deleteKeyMutation.mutate({ service_version_id: serviceVersionId, feature_version_id: featureVersionId, key_id: keyId })
+                }
+              >
+                Delete
+              </DropdownMenuItem>
+            </DotDotDot>
           )}
         </div>
       </div>
@@ -618,7 +627,11 @@ function RouteComponent() {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className={(header.column.columnDef.meta as any)?.sizeClass}>
+                  <TableHead
+                    key={header.id}
+                    className={(header.column.columnDef.meta as any)?.sizeClass}
+                    hidden={(header.column.columnDef.meta as any)?.hide}
+                  >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}

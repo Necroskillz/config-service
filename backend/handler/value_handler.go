@@ -204,6 +204,7 @@ func (h *Handler) DeleteValue(c echo.Context) error {
 // @Param service_version_id path int true "Service Version ID"
 // @Param feature_version_id path int true "Feature Version ID"
 // @Param key_id path int true "Key ID"
+// @Param variation[] query []string false "Variation" example(1:prod) collectionFormat(multi)
 // @Success 204
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
@@ -247,6 +248,7 @@ func (h *Handler) CanAddValue(c echo.Context) error {
 // @Param feature_version_id path int true "Feature Version ID"
 // @Param key_id path int true "Key ID"
 // @Param value_id path int true "Value ID"
+// @Param variation[] query []string false "Variation" example(1:prod) collectionFormat(multi)
 // @Success 204
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError

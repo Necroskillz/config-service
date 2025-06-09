@@ -3,15 +3,22 @@
  * Do not edit manually.
  */
 
+import type { MembershipPermissionDto } from './PermissionDto.ts'
+import type { MembershipUserGroupDto } from './UserGroupDto.ts'
+
 export type MembershipUserDto = {
   /**
    * @type boolean
    */
   globalAdministrator: boolean
   /**
-   * @type integer
+   * @type array
    */
-  id: number
+  groups: MembershipUserGroupDto[]
+  /**
+   * @type array
+   */
+  permissions: MembershipPermissionDto[]
   /**
    * @type string
    */

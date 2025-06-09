@@ -52,7 +52,7 @@ func (h *Handler) Login(c echo.Context) error {
 		return err
 	}
 
-	userId, err := h.UserService.Authenticate(c.Request().Context(), data.Username, data.Password)
+	userId, err := h.AuthService.Authenticate(c.Request().Context(), data.Username, data.Password)
 	if err != nil {
 		if errors.Is(err, core.ErrInvalidPassword) || errors.Is(err, core.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "Invalid username or password")

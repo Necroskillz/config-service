@@ -15,10 +15,10 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { Badge } from '~/components/ui/badge';
-import { ChevronDownIcon, EllipsisIcon } from 'lucide-react';
+import { ChevronDownIcon } from 'lucide-react';
 import { List, ListItem } from '~/components/List';
 import { PageTitle } from '~/components/PageTitle';
-import { Button, buttonVariants } from '~/components/ui/button';
+import { buttonVariants } from '~/components/ui/button';
 import { DropdownMenuTriggerLabel } from '~/components/ui/dropdown-menu';
 import { seo } from '~/utils/seo';
 import { appTitle } from '~/utils/seo';
@@ -26,6 +26,7 @@ import { versionedTitle } from '~/utils/seo';
 import { MutationErrors } from '~/components/MutationErrors';
 import { useChangeset } from '~/hooks/use-changeset';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
+import { DotDotDot } from '~/components/DotDotDot';
 
 const ParamsSchema = z.object({
   serviceVersionId: z.coerce.number(),
@@ -105,27 +106,23 @@ function RouteComponent() {
         </PageTitle>
         <div className="flex items-center">
           {featureVersion.canEdit && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <EllipsisIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <Link to="/services/$serviceVersionId/features/$featureVersionId/edit" params={{ serviceVersionId, featureVersionId }}>
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                </Link>
-                {!serviceVersion.published && featureVersion.isLastVersion && (
-                  <DropdownMenuItem
-                    onClick={() =>
-                      createNewVersionMutation.mutate({ service_version_id: serviceVersionId, feature_version_id: featureVersionId })
-                    }
-                  >
-                    Create new version
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DotDotDot>
+              <Link to="/services/$serviceVersionId/features/$featureVersionId/edit" params={{ serviceVersionId, featureVersionId }}>
+                <DropdownMenuItem>Edit</DropdownMenuItem>
+              </Link>
+              <Link to="/services/$serviceVersionId/features/$featureVersionId/permissions" params={{ serviceVersionId, featureVersionId }}>
+                <DropdownMenuItem>Permissions</DropdownMenuItem>
+              </Link>
+              {!serviceVersion.published && featureVersion.isLastVersion && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    createNewVersionMutation.mutate({ service_version_id: serviceVersionId, feature_version_id: featureVersionId })
+                  }
+                >
+                  Create new version
+                </DropdownMenuItem>
+              )}
+            </DotDotDot>
           )}
         </div>
       </div>

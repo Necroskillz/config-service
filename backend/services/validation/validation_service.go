@@ -238,3 +238,16 @@ func (s *Service) IsUsernameTaken(ctx context.Context, username string) (bool, e
 
 	return true, nil
 }
+
+func (s *Service) IsGroupNameTaken(ctx context.Context, name string) (bool, error) {
+	_, err := s.queries.GetGroupIDByName(ctx, name)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}

@@ -1,12 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { ChevronUp, ChevronDown, EllipsisIcon } from 'lucide-react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { z } from 'zod';
+import { DotDotDot } from '~/components/DotDotDot';
 import { MutationErrors } from '~/components/MutationErrors';
 import { PageTitle } from '~/components/PageTitle';
 import { Button } from '~/components/ui/button';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
@@ -15,7 +15,6 @@ import {
   getVariationPropertiesPropertyIdQueryOptions,
   getVariationPropertiesPropertyIdValueTakenValue,
   getVariationPropertiesQueryOptions,
-  ServiceVariationPropertyValueDto,
   useDeleteVariationPropertiesPropertyId,
   useDeleteVariationPropertiesPropertyIdValuesValueId,
   useGetVariationPropertiesPropertyIdSuspense,
@@ -24,6 +23,7 @@ import {
   usePutVariationPropertiesPropertyIdValuesValueIdArchive,
   usePutVariationPropertiesPropertyIdValuesValueIdOrder,
   usePutVariationPropertiesPropertyIdValuesValueIdUnarchive,
+  VariationpropertyVariationPropertyValueDto,
 } from '~/gen';
 import { cn } from '~/lib/utils';
 import { appTitle } from '~/utils/seo';
@@ -161,18 +161,11 @@ function RouteComponent() {
         </PageTitle>
         <div className="flex items-center">
           {property.usageCount === 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <EllipsisIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem variant="destructive" onClick={() => deleteMutation.mutate({ property_id: propertyId })}>
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DotDotDot>
+              <DropdownMenuItem variant="destructive" onClick={() => deleteMutation.mutate({ property_id: propertyId })}>
+                Delete
+              </DropdownMenuItem>
+            </DotDotDot>
           )}
         </div>
       </div>
@@ -290,9 +283,11 @@ function RouteComponent() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="0">(root)</SelectItem>
-                      {property.values.filter((value) => !value.archived).map((value) => (
-                        <VariationValueSelectOptions key={value.id} value={value} depth={0} isLast={false} />
-                      ))}
+                      {property.values
+                        .filter((value) => !value.archived)
+                        .map((value) => (
+                          <VariationValueSelectOptions key={value.id} value={value} depth={0} isLast={false} />
+                        ))}
                     </SelectContent>
                   </Select>
                 </field.FormControl>
@@ -326,7 +321,7 @@ function VariationPropertyValue({
   order = 0,
   isLast = false,
 }: {
-  value: ServiceVariationPropertyValueDto;
+  value: VariationpropertyVariationPropertyValueDto;
   onOrderChange: (id: number, order: number) => void;
   onDelete: (id: number) => void;
   onArchive: (id: number) => void;
@@ -357,30 +352,23 @@ function VariationPropertyValue({
           </div>
           <pre className={cn(isUnarchivable && 'line-through text-muted-foreground')}>{value.value}</pre>
           {(isDeletable || isArchivable || isUnarchivable) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <EllipsisIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {isUnarchivable && (
-                  <DropdownMenuItem disabled={disabled} onClick={() => onUnarchive(value.id)}>
-                    Unarchive
-                  </DropdownMenuItem>
-                )}
-                {isDeletable && (
-                  <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onDelete(value.id)}>
-                    Delete
-                  </DropdownMenuItem>
-                )}
-                {!isDeletable && isArchivable && (
-                  <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onArchive(value.id)}>
-                    Archive
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DotDotDot>
+              {isUnarchivable && (
+                <DropdownMenuItem disabled={disabled} onClick={() => onUnarchive(value.id)}>
+                  Unarchive
+                </DropdownMenuItem>
+              )}
+              {isDeletable && (
+                <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onDelete(value.id)}>
+                  Delete
+                </DropdownMenuItem>
+              )}
+              {!isDeletable && isArchivable && (
+                <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onArchive(value.id)}>
+                  Archive
+                </DropdownMenuItem>
+              )}
+            </DotDotDot>
           )}
         </div>
       )}
@@ -410,7 +398,7 @@ function VariationValueSelectOptions({
   depth,
   isLast,
 }: {
-  value: ServiceVariationPropertyValueDto;
+  value: VariationpropertyVariationPropertyValueDto;
   depth: number;
   isLast: boolean;
 }) {
@@ -420,9 +408,11 @@ function VariationValueSelectOptions({
         {value.value}
       </SelectItem>
       {value.children &&
-        value.children.filter((child) => !child.archived).map((child, index) => (
-          <VariationValueSelectOptions key={child.id} value={child} depth={depth + 1} isLast={index === value.children.length - 1} />
-        ))}
+        value.children
+          .filter((child) => !child.archived)
+          .map((child, index) => (
+            <VariationValueSelectOptions key={child.id} value={child} depth={depth + 1} isLast={index === value.children.length - 1} />
+          ))}
     </>
   );
 }

@@ -12,11 +12,11 @@ import { SlimPage } from '~/components/SlimPage';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { List, ListItem } from '~/components/List';
 import { PageTitle } from '~/components/PageTitle';
-import { Button, buttonVariants } from '~/components/ui/button';
+import { buttonVariants } from '~/components/ui/button';
 import { DropdownMenuTriggerLabel } from '~/components/ui/dropdown-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { Badge } from '~/components/ui/badge';
-import { ChevronDownIcon, EllipsisIcon } from 'lucide-react';
+import { ChevronDownIcon } from 'lucide-react';
 import { useGetServicesServiceVersionIdSuspense } from '~/gen/hooks/useGetServicesServiceVersionIdSuspense';
 import { useGetServicesServiceVersionIdFeaturesSuspense } from '~/gen/hooks/useGetServicesServiceVersionIdFeaturesSuspense';
 import { useGetServicesServiceVersionIdVersions } from '~/gen/hooks/useGetServicesServiceVersionIdVersions';
@@ -24,6 +24,7 @@ import { seo, appTitle, versionedTitle } from '~/utils/seo';
 import { MutationErrors } from '~/components/MutationErrors';
 import { useChangeset } from '~/hooks/use-changeset';
 import ServiceAdministrators from './-components/ServiceAdministrators';
+import { DotDotDot } from '~/components/DotDotDot';
 
 export const Route = createFileRoute('/_auth/(services)/services/$serviceVersionId/')({
   component: RouteComponent,
@@ -101,31 +102,27 @@ function RouteComponent() {
         </PageTitle>
         <div className="flex items-center">
           {serviceVersion.canEdit && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <EllipsisIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <Link to="/services/$serviceVersionId/edit" params={{ serviceVersionId }}>
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                </Link>
-                <Link to="/services/$serviceVersionId/link" params={{ serviceVersionId }}>
-                  <DropdownMenuItem>Link/Unlink features</DropdownMenuItem>
-                </Link>
-                {!serviceVersion.published && (
-                  <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
-                    Publish
-                  </DropdownMenuItem>
-                )}
-                {serviceVersion.isLastVersion && (
-                  <DropdownMenuItem onClick={() => createNewVersionMutation.mutate({ service_version_id: serviceVersionId })}>
-                    Create new version
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DotDotDot>
+              <Link to="/services/$serviceVersionId/edit" params={{ serviceVersionId }}>
+                <DropdownMenuItem>Edit</DropdownMenuItem>
+              </Link>
+              <Link to="/services/$serviceVersionId/permissions" params={{ serviceVersionId }}>
+                <DropdownMenuItem>Permissions</DropdownMenuItem>
+              </Link>
+              <Link to="/services/$serviceVersionId/link" params={{ serviceVersionId }}>
+                <DropdownMenuItem>Link/Unlink features</DropdownMenuItem>
+              </Link>
+              {!serviceVersion.published && (
+                <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
+                  Publish
+                </DropdownMenuItem>
+              )}
+              {serviceVersion.isLastVersion && (
+                <DropdownMenuItem onClick={() => createNewVersionMutation.mutate({ service_version_id: serviceVersionId })}>
+                  Create new version
+                </DropdownMenuItem>
+              )}
+            </DotDotDot>
           )}
         </div>
       </div>

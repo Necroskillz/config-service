@@ -1,4 +1,4 @@
-import { HandlerVariationValueSelectOption } from '~/gen/types/handler/VariationValueSelectOption';
+import { VariationpropertyFlatVariationPropertyValueDto } from '~/gen';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { SelectProps } from '@radix-ui/react-select';
 
@@ -24,7 +24,7 @@ export function VariationSelect({
   id,
   value,
   ...props
-}: { values: HandlerVariationValueSelectOption[]; id: string; value: string } & SelectProps) {
+}: { values: VariationpropertyFlatVariationPropertyValueDto[]; id: string; value: string } & SelectProps) {
   return (
     <Select value={value ?? 'any'} {...props}>
       <SelectTrigger id={id}>

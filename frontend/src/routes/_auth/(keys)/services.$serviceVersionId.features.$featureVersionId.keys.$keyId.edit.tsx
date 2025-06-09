@@ -75,18 +75,11 @@ export const Route = createFileRoute('/_auth/(keys)/services/$serviceVersionId/f
           params.keyId
         )
       ),
-      context.queryClient.ensureQueryData(
-        getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions(
-          params.serviceVersionId,
-          params.featureVersionId,
-          params.keyId
-        )
-      ),
     ]);
   },
   head: ({ loaderData: [serviceVersion, featureVersion, key] }) => {
     return {
-      meta: [...seo({ title: appTitle([key.name, versionedTitle(featureVersion), versionedTitle(serviceVersion)]) })],
+      meta: [...seo({ title: appTitle(['Edit', key.name, versionedTitle(featureVersion), versionedTitle(serviceVersion)]) })],
       description: key.description,
     };
   },
