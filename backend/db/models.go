@@ -517,6 +517,7 @@ type UserGroup struct {
 type UserGroupMembership struct {
 	UserGroupID uint
 	UserID      uint
+	CreatedAt   time.Time
 }
 
 type ValueType struct {

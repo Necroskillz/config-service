@@ -83,6 +83,45 @@ func (q *Queries) CreateKeys(ctx context.Context, arg []CreateKeysParams) (int64
 	return q.db.CopyFrom(ctx, []string{"keys"}, []string{"name", "description", "value_type_id", "feature_version_id"}, &iteratorForCreateKeys{rows: arg})
 }
 
+// iteratorForCreatePermissions implements pgx.CopyFromSource.
+type iteratorForCreatePermissions struct {
+	rows                 []CreatePermissionsParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForCreatePermissions) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForCreatePermissions) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].UserID,
+		r.rows[0].UserGroupID,
+		r.rows[0].Kind,
+		r.rows[0].ServiceID,
+		r.rows[0].FeatureID,
+		r.rows[0].KeyID,
+		r.rows[0].Permission,
+		r.rows[0].VariationContextID,
+	}, nil
+}
+
+func (r iteratorForCreatePermissions) Err() error {
+	return nil
+}
+
+func (q *Queries) CreatePermissions(ctx context.Context, arg []CreatePermissionsParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"permissions"}, []string{"user_id", "user_group_id", "kind", "service_id", "feature_id", "key_id", "permission", "variation_context_id"}, &iteratorForCreatePermissions{rows: arg})
+}
+
 // iteratorForCreateUsers implements pgx.CopyFromSource.
 type iteratorForCreateUsers struct {
 	rows                 []CreateUsersParams

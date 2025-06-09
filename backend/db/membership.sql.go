@@ -58,6 +58,17 @@ func (q *Queries) CreatePermission(ctx context.Context, arg CreatePermissionPara
 	return id, err
 }
 
+type CreatePermissionsParams struct {
+	UserID             *uint
+	UserGroupID        *uint
+	Kind               PermissionKind
+	ServiceID          uint
+	FeatureID          *uint
+	KeyID              *uint
+	Permission         PermissionLevel
+	VariationContextID *uint
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users(name, password, global_administrator, created_at)
     VALUES ($1, $2, $3, now())
@@ -571,7 +582,7 @@ func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) 
 
 const getUserGroupMembership = `-- name: GetUserGroupMembership :one
 SELECT
-    user_group_id, user_id
+    user_group_id, user_id, created_at
 FROM
     user_group_memberships
 WHERE
@@ -587,7 +598,7 @@ type GetUserGroupMembershipParams struct {
 func (q *Queries) GetUserGroupMembership(ctx context.Context, arg GetUserGroupMembershipParams) (UserGroupMembership, error) {
 	row := q.db.QueryRow(ctx, getUserGroupMembership, arg.UserID, arg.UserGroupID)
 	var i UserGroupMembership
-	err := row.Scan(&i.UserGroupID, &i.UserID)
+	err := row.Scan(&i.UserGroupID, &i.UserID, &i.CreatedAt)
 	return i, err
 }
 

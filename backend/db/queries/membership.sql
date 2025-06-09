@@ -217,6 +217,10 @@ INSERT INTO permissions(user_id, user_group_id, kind, service_id, feature_id, ke
 RETURNING
     id;
 
+-- name: CreatePermissions :copyfrom
+INSERT INTO permissions(user_id, user_group_id, kind, service_id, feature_id, key_id, permission, variation_context_id)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+
 -- name: DeletePermission :exec
 DELETE FROM permissions
 WHERE id = @id;

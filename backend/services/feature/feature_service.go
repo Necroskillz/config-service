@@ -471,12 +471,24 @@ type FeatureVersionKeyDataValidator struct {
 	ErrorText     *string
 }
 
+type FeatureVersionKeyDataPermission struct {
+	Kind               db.PermissionKind
+	Permission         db.PermissionLevel
+	ServiceID          uint
+	FeatureID          uint
+	KeyID              uint
+	VariationContextID *uint
+	UserID             *uint
+	UserGroupID        *uint
+}
+
 type FeatureVersionKeyData struct {
 	Name        string
 	Description *string
 	ValueTypeID uint
 	Validators  []FeatureVersionKeyDataValidator
 	Values      []FeatureVersionKeyDataValue
+	Permissions []FeatureVersionKeyDataPermission
 }
 
 func (s *Service) getFeatureVersionKeyData(ctx context.Context, featureVersionID uint) (map[uint]FeatureVersionKeyData, error) {
@@ -498,6 +510,14 @@ func (s *Service) getFeatureVersionKeyData(ctx context.Context, featureVersionID
 		return nil, err
 	}
 
+	permissionsData, err := s.queries.GetFeatureVersionPermissionData(ctx, db.GetFeatureVersionPermissionDataParams{
+		FeatureVersionID: featureVersionID,
+		ChangesetID:      user.ChangesetID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	keyMap := make(map[uint]FeatureVersionKeyData)
 	for _, key := range valuesData {
 		existingKey, ok := keyMap[key.KeyID]
@@ -512,7 +532,8 @@ func (s *Service) getFeatureVersionKeyData(ctx context.Context, featureVersionID
 						VariationContextID: key.VariationContextID,
 					},
 				},
-				Validators: []FeatureVersionKeyDataValidator{},
+				Validators:  []FeatureVersionKeyDataValidator{},
+				Permissions: []FeatureVersionKeyDataPermission{},
 			}
 		} else {
 			existingKey.Values = append(existingKey.Values, FeatureVersionKeyDataValue{
@@ -534,6 +555,22 @@ func (s *Service) getFeatureVersionKeyData(ctx context.Context, featureVersionID
 		})
 
 		keyMap[validator.KeyID] = existingKey
+	}
+
+	for _, permission := range permissionsData {
+		existingKey := keyMap[permission.KeyID]
+		existingKey.Permissions = append(existingKey.Permissions, FeatureVersionKeyDataPermission{
+			Kind:               permission.Kind,
+			Permission:         permission.Permission,
+			ServiceID:          permission.ServiceID,
+			FeatureID:          permission.FeatureID,
+			KeyID:              permission.KeyID,
+			VariationContextID: permission.VariationContextID,
+			UserID:             permission.UserID,
+			UserGroupID:        permission.UserGroupID,
+		})
+
+		keyMap[permission.KeyID] = existingKey
 	}
 
 	return keyMap, nil
@@ -631,6 +668,7 @@ func (s *Service) CreateFeatureVersion(ctx context.Context, params CreateFeature
 		newVariationValues := []db.CreateVariationValuesParams{}
 		newChanges := []db.AddChangesParams{}
 		newValueValidators := []db.CreateValueValidatorsParams{}
+		newPermissions := []db.CreatePermissionsParams{}
 
 		for _, key := range keyData {
 			newKeys = append(newKeys, db.CreateKeysParams{
@@ -686,6 +724,19 @@ func (s *Service) CreateFeatureVersion(ctx context.Context, params CreateFeature
 					Data:               value.Data,
 				})
 			}
+
+			for _, permission := range key.Permissions {
+				newPermissions = append(newPermissions, db.CreatePermissionsParams{
+					UserID:             permission.UserID,
+					UserGroupID:        permission.UserGroupID,
+					Kind:               permission.Kind,
+					ServiceID:          permission.ServiceID,
+					FeatureID:          &permission.FeatureID,
+					KeyID:              &keyID,
+					VariationContextID: permission.VariationContextID,
+					Permission:         permission.Permission,
+				})
+			}
 		}
 
 		if _, err := tx.CreateVariationValues(ctx, newVariationValues); err != nil {
@@ -693,6 +744,10 @@ func (s *Service) CreateFeatureVersion(ctx context.Context, params CreateFeature
 		}
 
 		if _, err := tx.CreateValueValidators(ctx, newValueValidators); err != nil {
+			return err
+		}
+
+		if _, err := tx.CreatePermissions(ctx, newPermissions); err != nil {
 			return err
 		}
 

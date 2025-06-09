@@ -182,7 +182,7 @@ SELECT
     f.description AS feature_description,
     f.service_id,
     lfv.last_version AS last_version,
-    COALESCE(l.published, false) AS linked_to_published_service_version,
+    COALESCE(l.published, FALSE) AS linked_to_published_service_version,
     COALESCE(l.link_count, 0) AS service_version_link_count
 FROM
     feature_versions fv
@@ -233,6 +233,73 @@ func (q *Queries) GetFeatureVersion(ctx context.Context, arg GetFeatureVersionPa
 		&i.ServiceVersionLinkCount,
 	)
 	return i, err
+}
+
+const getFeatureVersionPermissionData = `-- name: GetFeatureVersionPermissionData :many
+SELECT
+    p.id,
+    p.kind,
+    p.permission,
+    p.service_id,
+    fv.feature_id AS feature_id,
+    k.id AS key_id,
+    p.variation_context_id,
+    p.user_id,
+    p.user_group_id
+FROM
+    permissions p
+    JOIN feature_versions fv ON fv.feature_id = p.feature_id
+    JOIN keys k ON k.id = p.key_id AND k.feature_version_id = fv.id
+    JOIN valid_keys_in_changeset($1) vk ON vk.id = k.id
+WHERE
+    fv.id = $2
+`
+
+type GetFeatureVersionPermissionDataParams struct {
+	ChangesetID      uint
+	FeatureVersionID uint
+}
+
+type GetFeatureVersionPermissionDataRow struct {
+	ID                 uint
+	Kind               PermissionKind
+	Permission         PermissionLevel
+	ServiceID          uint
+	FeatureID          uint
+	KeyID              uint
+	VariationContextID *uint
+	UserID             *uint
+	UserGroupID        *uint
+}
+
+func (q *Queries) GetFeatureVersionPermissionData(ctx context.Context, arg GetFeatureVersionPermissionDataParams) ([]GetFeatureVersionPermissionDataRow, error) {
+	rows, err := q.db.Query(ctx, getFeatureVersionPermissionData, arg.ChangesetID, arg.FeatureVersionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFeatureVersionPermissionDataRow
+	for rows.Next() {
+		var i GetFeatureVersionPermissionDataRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Kind,
+			&i.Permission,
+			&i.ServiceID,
+			&i.FeatureID,
+			&i.KeyID,
+			&i.VariationContextID,
+			&i.UserID,
+			&i.UserGroupID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getFeatureVersionServiceVersionLink = `-- name: GetFeatureVersionServiceVersionLink :one

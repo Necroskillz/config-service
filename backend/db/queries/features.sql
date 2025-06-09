@@ -27,7 +27,7 @@ SELECT
     f.description AS feature_description,
     f.service_id,
     lfv.last_version AS last_version,
-    COALESCE(l.published, false) AS linked_to_published_service_version,
+    COALESCE(l.published, FALSE) AS linked_to_published_service_version,
     COALESCE(l.link_count, 0) AS service_version_link_count
 FROM
     feature_versions fv
@@ -244,4 +244,23 @@ FROM
     JOIN valid_keys_in_changeset(@changeset_id) vk ON vk.id = k.id
 WHERE
     k.feature_version_id = @feature_version_id;
+
+-- name: GetFeatureVersionPermissionData :many
+SELECT
+    p.id,
+    p.kind,
+    p.permission,
+    p.service_id,
+    fv.feature_id AS feature_id,
+    k.id AS key_id,
+    p.variation_context_id,
+    p.user_id,
+    p.user_group_id
+FROM
+    permissions p
+    JOIN feature_versions fv ON fv.feature_id = p.feature_id
+    JOIN keys k ON k.id = p.key_id AND k.feature_version_id = fv.id
+    JOIN valid_keys_in_changeset(@changeset_id) vk ON vk.id = k.id
+WHERE
+    fv.id = @feature_version_id;
 
