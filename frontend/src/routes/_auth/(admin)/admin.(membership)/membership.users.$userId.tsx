@@ -181,7 +181,7 @@ function RouteComponent() {
           <TabsTrigger value="groups">Groups</TabsTrigger>
         </TabsList>
         <TabsContent value="permissions">
-          {user.permissions.length === 0 && <div className="text-muted-foreground">Group has no permissions</div>}
+          {user.permissions.length === 0 && <div className="text-muted-foreground">User has no permissions</div>}
           {user.permissions.length > 0 && (
             <List>
               {user.permissions.map((permission) => (
