@@ -97,6 +97,7 @@ function RouteComponent() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries(getMembershipUsersUserIdQueryOptions(userId));
+        addUserToGroupForm.reset();
       },
     },
   });

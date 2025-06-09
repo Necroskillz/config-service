@@ -8,7 +8,12 @@ import { Permission } from '~/components/Permission';
 import { RenderPagedQuery } from '~/components/RenderPagedQuery';
 import { SlimPage } from '~/components/SlimPage';
 import { buttonVariants } from '~/components/ui/button';
-import { getMembershipGroupsGroupIdQueryOptions, useGetMembershipGroupsGroupIdSuspense, useGetMembershipGroupsGroupIdUsers } from '~/gen';
+import {
+  getMembershipGroupsGroupIdQueryOptions,
+  getMembershipGroupsGroupIdUsersQueryOptions,
+  useGetMembershipGroupsGroupIdSuspense,
+  useGetMembershipGroupsGroupIdUsers,
+} from '~/gen';
 import { appTitle, seo } from '~/utils/seo';
 
 export const Route = createFileRoute('/groups/$groupId')({
@@ -23,10 +28,16 @@ export const Route = createFileRoute('/groups/$groupId')({
       userListPage: z.coerce.number().optional(),
     })
   ),
-  loader: async ({ params, context }) => {
-    return context.queryClient.ensureQueryData(getMembershipGroupsGroupIdQueryOptions(params.groupId));
+  loaderDeps: ({ search: { userListPage } }) => ({ userListPage }),
+  loader: async ({ params, context, deps }) => {
+    return Promise.all([
+      context.queryClient.ensureQueryData(getMembershipGroupsGroupIdQueryOptions(params.groupId)),
+      context.queryClient.ensureQueryData(
+        getMembershipGroupsGroupIdUsersQueryOptions(params.groupId, { page: deps.userListPage ?? 1, pageSize: 20 })
+      ),
+    ]);
   },
-  head: ({ loaderData: group }) => {
+  head: ({ loaderData: [group] }) => {
     return {
       meta: [
         ...seo({
@@ -45,7 +56,7 @@ function RouteComponent() {
 
   const { data: group } = useGetMembershipGroupsGroupIdSuspense(groupId);
   const usersQuery = useGetMembershipGroupsGroupIdUsers(groupId, {
-    page: userListPage,
+    page: userListPage ?? 1,
     pageSize: 20,
   });
 

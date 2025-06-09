@@ -5,9 +5,11 @@ import { PageTitle } from '~/components/PageTitle';
 import { PermissionEditor } from '~/components/PermissionEditor';
 import { SlimPage } from '~/components/SlimPage';
 import {
+  getMembershipPermissionsQueryOptions,
   getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdQueryOptions,
   getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions,
   getServicesServiceVersionIdQueryOptions,
+  getServiceTypesServiceTypeIdVariationPropertiesQueryOptions,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdSuspense,
   useGetServicesServiceVersionIdFeaturesFeatureVersionIdSuspense,
   useGetServicesServiceVersionIdSuspense,
@@ -25,7 +27,13 @@ export const Route = createFileRoute('/_auth/(keys)/services/$serviceVersionId/f
   },
   loader: async ({ context, params }) => {
     return Promise.all([
-      context.queryClient.ensureQueryData(getServicesServiceVersionIdQueryOptions(params.serviceVersionId)),
+      context.queryClient.ensureQueryData(getServicesServiceVersionIdQueryOptions(params.serviceVersionId)).then(async (serviceVersion) => {
+        await context.queryClient.ensureQueryData(
+          getServiceTypesServiceTypeIdVariationPropertiesQueryOptions(serviceVersion.serviceTypeId)
+        );
+
+        return serviceVersion;
+      }),
       context.queryClient.ensureQueryData(
         getServicesServiceVersionIdFeaturesFeatureVersionIdQueryOptions(params.serviceVersionId, params.featureVersionId)
       ),
@@ -35,6 +43,13 @@ export const Route = createFileRoute('/_auth/(keys)/services/$serviceVersionId/f
           params.featureVersionId,
           params.keyId
         )
+      ),
+      context.queryClient.ensureQueryData(
+        getMembershipPermissionsQueryOptions({
+          serviceVersionId: params.serviceVersionId,
+          featureVersionId: params.featureVersionId,
+          keyId: params.keyId,
+        })
       ),
     ]);
   },

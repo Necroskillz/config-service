@@ -11,8 +11,10 @@ import { Button } from '~/components/ui/button';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import {
+  CorePaginatedResultMembershipGroupUserDto,
   getMembershipGroupsGroupIdQueryOptions,
   getMembershipGroupsGroupIdUsersQueryOptions,
+  MembershipGroupDto,
   MembershipMembershipObjectDto,
   useDeleteMembershipGroupsGroupId,
   useDeleteMembershipGroupsGroupIdUsersUserId,
@@ -25,6 +27,8 @@ import { appTitle, seo } from '~/utils/seo';
 import { Permission } from '~/components/Permission';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import { MemberPicker, requiredMember } from '~/components/MemberPicker';
+
+const PAGE_SIZE = 20;
 
 export const Route = createFileRoute('/_auth/(admin)/admin/(membership)/membership/groups/$groupId')({
   component: RouteComponent,
@@ -39,11 +43,21 @@ export const Route = createFileRoute('/_auth/(admin)/admin/(membership)/membersh
       groupId: z.coerce.number(),
     }).parse,
   },
-  loader: async ({ context, params }) => {
-    return context.queryClient.ensureQueryData(getMembershipGroupsGroupIdQueryOptions(params.groupId));
+  loaderDeps: ({ search: { userListPage, tab } }) => ({ userListPage, tab }),
+  loader: async ({ context, params, deps }) => {
+    const promises: [Promise<MembershipGroupDto>, Promise<CorePaginatedResultMembershipGroupUserDto> | undefined] = [
+      context.queryClient.ensureQueryData(getMembershipGroupsGroupIdQueryOptions(params.groupId)),
+      deps.tab === 'users'
+        ? context.queryClient.ensureQueryData(
+            getMembershipGroupsGroupIdUsersQueryOptions(params.groupId, { page: deps.userListPage ?? 1, pageSize: PAGE_SIZE })
+          )
+        : undefined,
+    ];
+
+    return Promise.all(promises);
   },
-  head: ({ loaderData }) => ({
-    meta: [...seo({ title: appTitle([`Edit Group ${loaderData.name}`, 'Admin']) })],
+  head: ({ loaderData: [group] }) => ({
+    meta: [...seo({ title: appTitle([`Edit Group ${group.name}`, 'Admin']) })],
   }),
 });
 
@@ -83,7 +97,7 @@ function RouteComponent() {
     groupId,
     {
       page: userListPage,
-      pageSize: 20,
+      pageSize: PAGE_SIZE,
     },
     {
       query: {
@@ -96,6 +110,7 @@ function RouteComponent() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries(getMembershipGroupsGroupIdUsersQueryOptions(groupId));
+        addUserToGroupForm.reset();
       },
     },
   });
