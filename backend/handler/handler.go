@@ -18,7 +18,7 @@ import (
 
 type Handler struct {
 	ServiceService            *service.Service
-	UserService               *membership.UserService
+	AuthService               *membership.AuthService
 	FeatureService            *feature.Service
 	KeyService                *key.Service
 	ChangesetService          *changeset.Service
@@ -30,11 +30,12 @@ type Handler struct {
 	VariationPropertyService  *variationproperty.Service
 	ServiceTypeService        *servicetype.Service
 	ConfigurationService      *configuration.Service
+	MembershipService         *membership.Service
 }
 
 func NewHandler(
 	serviceService *service.Service,
-	userService *membership.UserService,
+	authService *membership.AuthService,
 	featureService *feature.Service,
 	keyService *key.Service,
 	changesetService *changeset.Service,
@@ -46,10 +47,11 @@ func NewHandler(
 	variationPropertyService *variationproperty.Service,
 	serviceTypeService *servicetype.Service,
 	configurationService *configuration.Service,
+	membershipService *membership.Service,
 ) *Handler {
 	return &Handler{
 		ServiceService:            serviceService,
-		UserService:               userService,
+		AuthService:               authService,
 		FeatureService:            featureService,
 		KeyService:                keyService,
 		ChangesetService:          changesetService,
@@ -61,5 +63,6 @@ func NewHandler(
 		VariationPropertyService:  variationPropertyService,
 		ServiceTypeService:        serviceTypeService,
 		ConfigurationService:      configurationService,
+		MembershipService:         membershipService,
 	}
 }

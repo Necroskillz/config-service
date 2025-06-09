@@ -1,0 +1,285 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Go Testing Patterns
+
+This page documents patterns that we have found to be generally useful when writing tests in Go.
+This page is intended for a reader that is already familiar with the Go [testing] package, and
+with writing tests in Go.
+To get started with testing in Go, check out the [go.dev tutorial].
+
+[go.dev tutorial]: https://go.dev/doc/tutorial/add-a-test
+[testing]: https://pkg.go.dev/testing
+
+The patterns documented on this page are too small to be useful in a library.
+Often abstracting them into generic library code would make them harder to use.
+They are intended to be copied, or applied, in any package where they are used.
+
+Know of a common Go testing pattern that you would like to add to this page?
+Please [open an issue] to suggest adding it!
+
+[open an issue]: https://github.com/gotestyourself/gotest.tools/issues/new
+
+## Table driven tests
+
+[Table driven tests](https://dave.cheney.net/2019/05/07/prefer-table-driven-tests) are a common
+pattern in Go. Table driven tests are a great way of organizing many highly related test cases
+into a single test function.
+
+The pattern documented here refines table drive tests further by reordering the sections to make table driven tests
+easier to read from top-to-bottom. The table test is organized into the following sections:
+1. A `type testCase struct` is always first, mostly out of necessity, the type must be defined first. For more complex
+   tests you may want to use a `func(t *testing.T, ...)` as the type of fields (for example
+   `setup  func(t *testing.T, req *http.Request)`). Using a function gives you lots of flexibility when constructing test cases. 
+2. A `run(t *testing.T, tc testCase)` function which will be called for each case. This function
+   contains all of the logic for the test. This `run` function is the most relevant part of the test function,
+   it tells us which function is being tested, and how the `testCase` fields will be used. By putting it near
+   the top of the test function it becomes the first thing we see when jumping to the function definition.
+3. A list of test cases follows. The list defines the inputs and expected values for each case. The list
+   may be a `[]testCase` or `map[string]testCase`, where the map version would use the key as the name for the
+   test case instead of a struct field. Always try to choose descriptive and unique names for each case, to make
+   it easier to find the failing case.
+4. Finally there is some boilerplate at the bottom of the function to iterate over all of the test cases and call
+   `run` from `t.Run` for each.
+
+```go
+func TestSplit(t *testing.T) {
+    type testCase struct {
+        name     string
+        input    string
+        sep      string
+        expected []string
+    }
+
+    run := func(t *testing.T, tc testCase) {
+        actual := strings.Split(tc.input, tc.sep)
+        assert.DeepEqual(t, actual, tc.expected)
+    }
+
+    testCases := []testCase{
+        {
+            name:     "multiple splits",
+            input:    "a/b/c",
+            sep:      "/",
+            expected: []string{"a", "b", "c"},
+        },
+        {
+            name:     "wrong separator",
+            input:    "a/b/c",
+            sep:      ",",
+            expected: []string{"a/b/c"},
+        },
+        {
+            name:     "no separator",
+            input:    "abc",
+            sep:      "/",
+            expected: []string{"abc"},
+        },
+        {
+            name:     "trailing separator",
+            input:    "a/b/c/",
+            sep:      "/",
+            expected: []string{"a", "b", "c", ""},
+        },
+    }
+
+    for _, tc := range testCases {
+        t.Run(tc.name, func(t *testing.T) {
+            run(t, tc)
+        })
+    }
+}
+```
+
+**Example: Generic runTestCases**
+
+Using generics and the `map[string]testCase` version of the test case list, the boilerplate at the
+bottom of the function can be replaced with a call to `runTestCases`.
+
+```go
+func TestSplit(t *testing.T) {
+    type testCase struct { ... }
+
+    run := func(t *testing.T, tc testCase) { ... }
+
+    testCases := map[string]testCase{ ... }
+
+    runTestCases(t, run, testCases)
+}
+
+func runTestCases[TC any](t *testing.T, run func(*testing.T, TC), testCases map[string]TC) {
+    for name, tc := range testCases {
+        t.Run(name, func(t *testing.T) {
+            run(t, tc)
+        })
+    }
+}
+```
+
+
+See [Test suites](#test-suites) and [`runCase`] for some other variations of table driven tests.
+
+## Multi-step tests using runStep
+
+[testing.T.Run](https://pkg.go.dev/testing#T.Run) is often used to run independent test cases,
+but it can also be useful for running multi-step test cases where each step must pass before running
+the next.
+The `runStep` function accomplishes this by wrapping `t.Run` and failing the parent test with
+`t.FailNow` if the subtest fails. Use it in place of `t.Run` for a multi-step test.
+The behaviour of `runStep` is similar to a test without any subtests, but `t.Run` gives
+additional scope to the test. The scope makes test failures more obvious by including
+details about the functionality being tested in the test name, and allows for any
+`t.Cleanup` functions to run.
+
+```go
+func runStep(t *testing.T, name string, fn func(t *testing.T)) {
+    if !t.Run(name, fn) {
+        t.FailNow()
+    }
+}
+```
+
+**Example: Using runStep**
+
+```go
+runStep(t, "create a resource", func(t *testing.T) {
+    ...
+})
+runStep(t, "list resources includes the new resource", func(t *testing.T) {
+    ...
+})
+runStep(t, "delete the resource", func(t *testing.T) {
+    ...
+})
+runStep(t, "get a deleted resource returns an error", func(t *testing.T) {
+    ...
+})
+```
+
+## Test suites
+
+A test suite is a group of tests that share a function to setup dependencies, or share a
+dependency that takes a while to start. Sharing a dependency that is slow to start
+helps reduce the overall run time of the tests in a package.
+The tests in a suite will generally be closely related. They may all test the same
+function, the methods on a struct, or a set of related functions in a package.
+
+The Go [testing] package in the standard library provides all the tools necessary to
+create a test suite.
+The [testing.T.Cleanup] function allows a setup function to register any
+cleanup that is required once the test ends. This helps keep related code
+together in one place.
+
+[testing.T.Cleanup]: https://pkg.go.dev/testing#T.Cleanup
+
+**Example: Test suite with setup and teardown**
+
+A test suite can have many forms, but will generally look something like the test below.
+The comments are for example purposes only. Each section is optional, and may be omitted.
+
+```go
+
+func TestAPI(t *testing.T) {
+    // Start any shared dependencies, sometimes known as "SetupSuite".
+    // Any functions registered using t.Cleanup will act as "TearDownSuite".
+    srv := startServer(t)
+
+    // Define a setup method that will be run for each test, sometimes
+    // known as "SetupTest".
+    // Any functions registered in setup using t.Cleanup will act
+    // as "TearDownTest".
+    setup := func(t *testing.T, tc testCase) {
+        ...
+    }
+
+    // Test cases follow
+    ...
+}
+
+```
+
+The test cases can be defined in different ways. They may be:
+
+  * sequential steps using [`runStep`](#multi-step-tests-using-runstep), where each step can call `setup`.
+  * a [table driven test](#table-driven-tests), calling setup in `run`, or the
+    [`runCase`] variation.
+  * a list of test functions that accept `testCase` and that may be called by
+    other suites to test a contract or implementation of some interface.
+
+[`runCase`]: #refurbish-large-table-tests-with-runcase
+
+## Refurbish large table tests with runCase
+
+[Table driven tests](#table-driven-tests) work well to group related tests together. If the number
+of test cases in the table grows beyond some point, especially when each case is complex,
+it can become difficult to work with the test.
+
+The usual method of searching for a test case by name can become difficult with large
+numbes of test cases when:
+  * test names are too similar, there are long common prefixes on many tests
+  * there are other strings in the file that match the test names
+  * the translated test name contains many `_` characters which replaced any number of
+    non-alphabetic characters
+
+There are a few ways to address this problem. Often the test cases can be split up into different
+test functions.  If that is not an option, `runCase` can help make extremely large test functions
+easier to work with.
+
+To address the problem, the `[]testCase` or `map[string]testCase` in the table test can be
+replaced with calls to a `run` function that uses `runCase`.
+
+```go
+func runCase(t *testing.T, name string, run func(t *testing.T)) {
+    t.Helper()
+    t.Run(name, func(t *testing.T) {
+        t.Helper()
+        t.Log("case:", name)
+        run(t)
+    })
+}
+```
+
+This extra call to `t.Log`, and the two calls to `t.Helper`, add another line to the test output.
+The `case: <test case name>` log message will be prefixed with the filename and line number of the test case that
+failed.
+IDEs and text editors provide an easy
+way to jump to that file and line number. So when a test fails, the time to jump to each
+test case can be significantly reduced.
+
+The change to a test function from a list of test cases to `run` calls can often be
+automated by find and replace.
+
+**Example: Using runCase**
+
+```go
+func TestArgs(t *testing.T) {
+    type testCase struct {
+        opts      options
+        expected  []string
+    }
+
+    run := func(t *testing.T, name string, tc testCase) {
+        t.Helper()
+        runCase(t, name, func(t *testing.T) {
+            actual := Args(tc.opts)
+            assert.DeepEqual(t, actual, tc.expected)
+        })
+    }
+
+    run(t, "defaults", testCase{
+        opts: options{},
+        expected: []string{},
+    })
+    run(t, "no change", testCase{
+        opts: options{
+            args: []string{"./script", "-test.timeout=20m"},
+        },
+        expected: []string{"./script", "-test.timeout=20m"},
+    })
+ ...
+}
+```
+
+

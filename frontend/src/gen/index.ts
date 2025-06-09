@@ -1,5 +1,9 @@
 export type { DeleteChangesetsChangesetIdMutationKey } from './hooks/useDeleteChangesetsChangesetId.ts'
 export type { DeleteChangesetsChangesetIdChangesChangeIdMutationKey } from './hooks/useDeleteChangesetsChangesetIdChangesChangeId.ts'
+export type { DeleteMembershipGroupsGroupIdMutationKey } from './hooks/useDeleteMembershipGroupsGroupId.ts'
+export type { DeleteMembershipGroupsGroupIdUsersUserIdMutationKey } from './hooks/useDeleteMembershipGroupsGroupIdUsersUserId.ts'
+export type { DeleteMembershipPermissionsPermissionIdMutationKey } from './hooks/useDeleteMembershipPermissionsPermissionId.ts'
+export type { DeleteMembershipUsersUserIdMutationKey } from './hooks/useDeleteMembershipUsersUserId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { DeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlinkMutationKey } from './hooks/useDeleteServicesServiceVersionIdFeaturesFeatureVersionIdUnlink.ts'
@@ -21,6 +25,16 @@ export type { GetConfigurationQueryKey } from './hooks/useGetConfiguration.ts'
 export type { GetConfigurationChangesetsQueryKey } from './hooks/useGetConfigurationChangesets.ts'
 export type { GetConfigurationChangesetsSuspenseQueryKey } from './hooks/useGetConfigurationChangesetsSuspense.ts'
 export type { GetConfigurationSuspenseQueryKey } from './hooks/useGetConfigurationSuspense.ts'
+export type { GetMembershipQueryKey } from './hooks/useGetMembership.ts'
+export type { GetMembershipGroupsGroupIdQueryKey } from './hooks/useGetMembershipGroupsGroupId.ts'
+export type { GetMembershipGroupsGroupIdSuspenseQueryKey } from './hooks/useGetMembershipGroupsGroupIdSuspense.ts'
+export type { GetMembershipGroupsGroupIdUsersQueryKey } from './hooks/useGetMembershipGroupsGroupIdUsers.ts'
+export type { GetMembershipGroupsGroupIdUsersSuspenseQueryKey } from './hooks/useGetMembershipGroupsGroupIdUsersSuspense.ts'
+export type { GetMembershipPermissionsQueryKey } from './hooks/useGetMembershipPermissions.ts'
+export type { GetMembershipPermissionsSuspenseQueryKey } from './hooks/useGetMembershipPermissionsSuspense.ts'
+export type { GetMembershipSuspenseQueryKey } from './hooks/useGetMembershipSuspense.ts'
+export type { GetMembershipUsersUserIdQueryKey } from './hooks/useGetMembershipUsersUserId.ts'
+export type { GetMembershipUsersUserIdSuspenseQueryKey } from './hooks/useGetMembershipUsersUserIdSuspense.ts'
 export type { GetServicesQueryKey } from './hooks/useGetServices.ts'
 export type { GetServicesNameTakenNameQueryKey } from './hooks/useGetServicesNameTakenName.ts'
 export type { GetServicesNameTakenNameSuspenseQueryKey } from './hooks/useGetServicesNameTakenNameSuspense.ts'
@@ -57,10 +71,6 @@ export type { GetServiceTypesServiceTypeIdSuspenseQueryKey } from './hooks/useGe
 export type { GetServiceTypesServiceTypeIdVariationPropertiesQueryKey } from './hooks/useGetServiceTypesServiceTypeIdVariationProperties.ts'
 export type { GetServiceTypesServiceTypeIdVariationPropertiesSuspenseQueryKey } from './hooks/useGetServiceTypesServiceTypeIdVariationPropertiesSuspense.ts'
 export type { GetServiceTypesSuspenseQueryKey } from './hooks/useGetServiceTypesSuspense.ts'
-export type { GetUsersQueryKey } from './hooks/useGetUsers.ts'
-export type { GetUsersSuspenseQueryKey } from './hooks/useGetUsersSuspense.ts'
-export type { GetUsersUserIdQueryKey } from './hooks/useGetUsersUserId.ts'
-export type { GetUsersUserIdSuspenseQueryKey } from './hooks/useGetUsersUserIdSuspense.ts'
 export type { GetValueTypesQueryKey } from './hooks/useGetValueTypes.ts'
 export type { GetValueTypesSuspenseQueryKey } from './hooks/useGetValueTypesSuspense.ts'
 export type { GetValueTypesValueTypeIdQueryKey } from './hooks/useGetValueTypesValueTypeId.ts'
@@ -76,6 +86,10 @@ export type { GetVariationPropertiesSuspenseQueryKey } from './hooks/useGetVaria
 export type { PostAuthLoginMutationKey } from './hooks/usePostAuthLogin.ts'
 export type { PostAuthRefreshTokenMutationKey } from './hooks/usePostAuthRefreshToken.ts'
 export type { PostChangesetsChangesetIdCommentMutationKey } from './hooks/usePostChangesetsChangesetIdComment.ts'
+export type { PostMembershipGroupsMutationKey } from './hooks/usePostMembershipGroups.ts'
+export type { PostMembershipGroupsGroupIdUsersUserIdMutationKey } from './hooks/usePostMembershipGroupsGroupIdUsersUserId.ts'
+export type { PostMembershipPermissionsMutationKey } from './hooks/usePostMembershipPermissions.ts'
+export type { PostMembershipUsersMutationKey } from './hooks/usePostMembershipUsers.ts'
 export type { PostServicesMutationKey } from './hooks/usePostServices.ts'
 export type { PostServicesServiceVersionIdFeaturesMutationKey } from './hooks/usePostServicesServiceVersionIdFeatures.ts'
 export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdKeysMutationKey } from './hooks/usePostServicesServiceVersionIdFeaturesFeatureVersionIdKeys.ts'
@@ -85,7 +99,6 @@ export type { PostServicesServiceVersionIdFeaturesFeatureVersionIdVersionsMutati
 export type { PostServicesServiceVersionIdVersionsMutationKey } from './hooks/usePostServicesServiceVersionIdVersions.ts'
 export type { PostServiceTypesMutationKey } from './hooks/usePostServiceTypes.ts'
 export type { PostServiceTypesServiceTypeIdVariationPropertiesMutationKey } from './hooks/usePostServiceTypesServiceTypeIdVariationProperties.ts'
-export type { PostUsersMutationKey } from './hooks/usePostUsers.ts'
 export type { PostVariationPropertiesMutationKey } from './hooks/usePostVariationProperties.ts'
 export type { PostVariationPropertiesPropertyIdValuesMutationKey } from './hooks/usePostVariationPropertiesPropertyIdValues.ts'
 export type { PutChangesetsChangesetIdApplyMutationKey } from './hooks/usePutChangesetsChangesetIdApply.ts'
@@ -97,13 +110,13 @@ export type { PutChangesetsChangesetIdChangesChangeIdConflictsUpdateToCreateMuta
 export type { PutChangesetsChangesetIdCommitMutationKey } from './hooks/usePutChangesetsChangesetIdCommit.ts'
 export type { PutChangesetsChangesetIdReopenMutationKey } from './hooks/usePutChangesetsChangesetIdReopen.ts'
 export type { PutChangesetsChangesetIdStashMutationKey } from './hooks/usePutChangesetsChangesetIdStash.ts'
+export type { PutMembershipUsersUserIdMutationKey } from './hooks/usePutMembershipUsersUserId.ts'
 export type { PutServicesServiceVersionIdMutationKey } from './hooks/usePutServicesServiceVersionId.ts'
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionId.ts'
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId.ts'
 export type { PutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdMutationKey } from './hooks/usePutServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueId.ts'
 export type { PutServicesServiceVersionIdPublishMutationKey } from './hooks/usePutServicesServiceVersionIdPublish.ts'
 export type { PutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriorityMutationKey } from './hooks/usePutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority.ts'
-export type { PutUsersUserIdMutationKey } from './hooks/usePutUsersUserId.ts'
 export type { PutVariationPropertiesPropertyIdMutationKey } from './hooks/usePutVariationPropertiesPropertyId.ts'
 export type { PutVariationPropertiesPropertyIdValuesValueIdArchiveMutationKey } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdArchive.ts'
 export type { PutVariationPropertiesPropertyIdValuesValueIdOrderMutationKey } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdOrder.ts'
@@ -120,11 +133,14 @@ export type { ConfigurationFeatureConfigurationDto } from './types/configuration
 export type { ConfigurationKeyConfigurationDto } from './types/configuration/KeyConfigurationDto.ts'
 export type { ConfigurationValueConfigurationDto } from './types/configuration/ValueConfigurationDto.ts'
 export type { CorePaginatedResultChangesetChangesetItemDto } from './types/core/PaginatedResultChangesetChangesetItemDto.ts'
-export type { CorePaginatedResultMembershipUserDto } from './types/core/PaginatedResultMembershipUserDto.ts'
+export type { CorePaginatedResultMembershipGroupUserDto } from './types/core/PaginatedResultMembershipGroupUserDto.ts'
+export type { CorePaginatedResultMembershipMembershipObjectDto } from './types/core/PaginatedResultMembershipMembershipObjectDto.ts'
 export type { DbChangesetActionTypeEnum, DbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export type { DbChangesetChangeKindEnum, DbChangesetChangeKind } from './types/db/ChangesetChangeKind.ts'
 export type { DbChangesetChangeTypeEnum, DbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export type { DbChangesetStateEnum, DbChangesetState } from './types/db/ChangesetState.ts'
+export type { DbPermissionKindEnum, DbPermissionKind } from './types/db/PermissionKind.ts'
+export type { DbPermissionLevelEnum, DbPermissionLevel } from './types/db/PermissionLevel.ts'
 export type { DbValueTypeKindEnum, DbValueTypeKind } from './types/db/ValueTypeKind.ts'
 export type { DbValueValidatorTypeEnum, DbValueValidatorType } from './types/db/ValueValidatorType.ts'
 export type {
@@ -149,6 +165,50 @@ export type {
   DeleteChangesetsChangesetIdChangesChangeIdMutationResponse,
   DeleteChangesetsChangesetIdChangesChangeIdMutation,
 } from './types/DeleteChangesetsChangesetIdChangesChangeId.ts'
+export type {
+  DeleteMembershipGroupsGroupIdPathParams,
+  DeleteMembershipGroupsGroupId204,
+  DeleteMembershipGroupsGroupId400,
+  DeleteMembershipGroupsGroupId401,
+  DeleteMembershipGroupsGroupId403,
+  DeleteMembershipGroupsGroupId404,
+  DeleteMembershipGroupsGroupId500,
+  DeleteMembershipGroupsGroupIdMutationResponse,
+  DeleteMembershipGroupsGroupIdMutation,
+} from './types/DeleteMembershipGroupsGroupId.ts'
+export type {
+  DeleteMembershipGroupsGroupIdUsersUserIdPathParams,
+  DeleteMembershipGroupsGroupIdUsersUserId204,
+  DeleteMembershipGroupsGroupIdUsersUserId400,
+  DeleteMembershipGroupsGroupIdUsersUserId401,
+  DeleteMembershipGroupsGroupIdUsersUserId403,
+  DeleteMembershipGroupsGroupIdUsersUserId404,
+  DeleteMembershipGroupsGroupIdUsersUserId500,
+  DeleteMembershipGroupsGroupIdUsersUserIdMutationResponse,
+  DeleteMembershipGroupsGroupIdUsersUserIdMutation,
+} from './types/DeleteMembershipGroupsGroupIdUsersUserId.ts'
+export type {
+  DeleteMembershipPermissionsPermissionIdPathParams,
+  DeleteMembershipPermissionsPermissionId204,
+  DeleteMembershipPermissionsPermissionId400,
+  DeleteMembershipPermissionsPermissionId401,
+  DeleteMembershipPermissionsPermissionId403,
+  DeleteMembershipPermissionsPermissionId404,
+  DeleteMembershipPermissionsPermissionId500,
+  DeleteMembershipPermissionsPermissionIdMutationResponse,
+  DeleteMembershipPermissionsPermissionIdMutation,
+} from './types/DeleteMembershipPermissionsPermissionId.ts'
+export type {
+  DeleteMembershipUsersUserIdPathParams,
+  DeleteMembershipUsersUserId204,
+  DeleteMembershipUsersUserId400,
+  DeleteMembershipUsersUserId401,
+  DeleteMembershipUsersUserId403,
+  DeleteMembershipUsersUserId404,
+  DeleteMembershipUsersUserId500,
+  DeleteMembershipUsersUserIdMutationResponse,
+  DeleteMembershipUsersUserIdMutation,
+} from './types/DeleteMembershipUsersUserId.ts'
 export type {
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdPathParams,
   DeleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId204,
@@ -285,6 +345,55 @@ export type {
   GetConfigurationChangesetsQueryResponse,
   GetConfigurationChangesetsQuery,
 } from './types/GetConfigurationChangesets.ts'
+export type {
+  GetMembershipQueryParams,
+  GetMembership200,
+  GetMembership400,
+  GetMembership401,
+  GetMembership500,
+  GetMembershipQueryResponse,
+  GetMembershipQuery,
+} from './types/GetMembership.ts'
+export type {
+  GetMembershipGroupsGroupIdPathParams,
+  GetMembershipGroupsGroupId200,
+  GetMembershipGroupsGroupId400,
+  GetMembershipGroupsGroupId401,
+  GetMembershipGroupsGroupId404,
+  GetMembershipGroupsGroupId500,
+  GetMembershipGroupsGroupIdQueryResponse,
+  GetMembershipGroupsGroupIdQuery,
+} from './types/GetMembershipGroupsGroupId.ts'
+export type {
+  GetMembershipGroupsGroupIdUsersPathParams,
+  GetMembershipGroupsGroupIdUsersQueryParams,
+  GetMembershipGroupsGroupIdUsers200,
+  GetMembershipGroupsGroupIdUsers401,
+  GetMembershipGroupsGroupIdUsers404,
+  GetMembershipGroupsGroupIdUsers500,
+  GetMembershipGroupsGroupIdUsersQueryResponse,
+  GetMembershipGroupsGroupIdUsersQuery,
+} from './types/GetMembershipGroupsGroupIdUsers.ts'
+export type {
+  GetMembershipPermissionsQueryParams,
+  GetMembershipPermissions200,
+  GetMembershipPermissions400,
+  GetMembershipPermissions401,
+  GetMembershipPermissions404,
+  GetMembershipPermissions500,
+  GetMembershipPermissionsQueryResponse,
+  GetMembershipPermissionsQuery,
+} from './types/GetMembershipPermissions.ts'
+export type {
+  GetMembershipUsersUserIdPathParams,
+  GetMembershipUsersUserId200,
+  GetMembershipUsersUserId400,
+  GetMembershipUsersUserId401,
+  GetMembershipUsersUserId404,
+  GetMembershipUsersUserId500,
+  GetMembershipUsersUserIdQueryResponse,
+  GetMembershipUsersUserIdQuery,
+} from './types/GetMembershipUsersUserId.ts'
 export type { GetServices200, GetServices401, GetServices500, GetServicesQueryResponse, GetServicesQuery } from './types/GetServices.ts'
 export type {
   GetServicesNameTakenNamePathParams,
@@ -357,6 +466,7 @@ export type {
 } from './types/GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValues.ts'
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd204,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401,
@@ -369,6 +479,7 @@ export type {
 } from './types/GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd.ts'
 export type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit204,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401,
@@ -449,17 +560,6 @@ export type {
   GetServiceTypesServiceTypeIdVariationPropertiesQueryResponse,
   GetServiceTypesServiceTypeIdVariationPropertiesQuery,
 } from './types/GetServiceTypesServiceTypeIdVariationProperties.ts'
-export type { GetUsersQueryParams, GetUsers200, GetUsers400, GetUsers401, GetUsers500, GetUsersQueryResponse, GetUsersQuery } from './types/GetUsers.ts'
-export type {
-  GetUsersUserIdPathParams,
-  GetUsersUserId200,
-  GetUsersUserId400,
-  GetUsersUserId401,
-  GetUsersUserId404,
-  GetUsersUserId500,
-  GetUsersUserIdQueryResponse,
-  GetUsersUserIdQuery,
-} from './types/GetUsersUserId.ts'
 export type { GetValueTypes200, GetValueTypes401, GetValueTypes500, GetValueTypesQueryResponse, GetValueTypesQuery } from './types/GetValueTypes.ts'
 export type {
   GetValueTypesValueTypeIdPathParams,
@@ -505,10 +605,12 @@ export type {
   GetVariationPropertiesPropertyIdValueTakenValueQuery,
 } from './types/GetVariationPropertiesPropertyIdValueTakenValue.ts'
 export type { HandlerAddCommentRequest } from './types/handler/AddCommentRequest.ts'
+export type { HandlerAddPermissionRequest } from './types/handler/AddPermissionRequest.ts'
 export type { HandlerApprovableChangesetCountResponse } from './types/handler/ApprovableChangesetCountResponse.ts'
 export type { HandlerBooleanResponse } from './types/handler/BooleanResponse.ts'
 export type { HandlerChangesetInfoResponse } from './types/handler/ChangesetInfoResponse.ts'
 export type { HandlerCreateFeatureRequest } from './types/handler/CreateFeatureRequest.ts'
+export type { HandlerCreateGroupRequest } from './types/handler/CreateGroupRequest.ts'
 export type { HandlerCreateKeyRequest } from './types/handler/CreateKeyRequest.ts'
 export type { HandlerCreateResponse } from './types/handler/CreateResponse.ts'
 export type { HandlerCreateServiceRequest } from './types/handler/CreateServiceRequest.ts'
@@ -531,7 +633,14 @@ export type { HandlerValidatorRequest } from './types/handler/ValidatorRequest.t
 export type { HandlerValueRequest } from './types/handler/ValueRequest.ts'
 export type { KeyKeyDto } from './types/key/KeyDto.ts'
 export type { KeyKeyItemDto } from './types/key/KeyItemDto.ts'
+export type { MembershipEntityPermissionDto } from './types/membership/EntityPermissionDto.ts'
+export type { MembershipGroupDto } from './types/membership/GroupDto.ts'
+export type { MembershipGroupUserDto } from './types/membership/GroupUserDto.ts'
+export type { MembershipMembershipObjectDto } from './types/membership/MembershipObjectDto.ts'
+export type { MembershipMembershipObjectTypeEnum, MembershipMembershipObjectType } from './types/membership/MembershipObjectType.ts'
+export type { MembershipPermissionDto } from './types/membership/PermissionDto.ts'
 export type { MembershipUserDto } from './types/membership/UserDto.ts'
+export type { MembershipUserGroupDto } from './types/membership/UserGroupDto.ts'
 export type {
   PostAuthLogin200,
   PostAuthLogin400,
@@ -563,6 +672,51 @@ export type {
   PostChangesetsChangesetIdCommentMutationResponse,
   PostChangesetsChangesetIdCommentMutation,
 } from './types/PostChangesetsChangesetIdComment.ts'
+export type {
+  PostMembershipGroups200,
+  PostMembershipGroups400,
+  PostMembershipGroups401,
+  PostMembershipGroups403,
+  PostMembershipGroups422,
+  PostMembershipGroups500,
+  PostMembershipGroupsMutationRequest,
+  PostMembershipGroupsMutationResponse,
+  PostMembershipGroupsMutation,
+} from './types/PostMembershipGroups.ts'
+export type {
+  PostMembershipGroupsGroupIdUsersUserIdPathParams,
+  PostMembershipGroupsGroupIdUsersUserId204,
+  PostMembershipGroupsGroupIdUsersUserId400,
+  PostMembershipGroupsGroupIdUsersUserId401,
+  PostMembershipGroupsGroupIdUsersUserId403,
+  PostMembershipGroupsGroupIdUsersUserId404,
+  PostMembershipGroupsGroupIdUsersUserId500,
+  PostMembershipGroupsGroupIdUsersUserIdMutationResponse,
+  PostMembershipGroupsGroupIdUsersUserIdMutation,
+} from './types/PostMembershipGroupsGroupIdUsersUserId.ts'
+export type {
+  PostMembershipPermissions204,
+  PostMembershipPermissions400,
+  PostMembershipPermissions401,
+  PostMembershipPermissions403,
+  PostMembershipPermissions404,
+  PostMembershipPermissions422,
+  PostMembershipPermissions500,
+  PostMembershipPermissionsMutationRequest,
+  PostMembershipPermissionsMutationResponse,
+  PostMembershipPermissionsMutation,
+} from './types/PostMembershipPermissions.ts'
+export type {
+  PostMembershipUsers200,
+  PostMembershipUsers400,
+  PostMembershipUsers401,
+  PostMembershipUsers403,
+  PostMembershipUsers422,
+  PostMembershipUsers500,
+  PostMembershipUsersMutationRequest,
+  PostMembershipUsersMutationResponse,
+  PostMembershipUsersMutation,
+} from './types/PostMembershipUsers.ts'
 export type {
   PostServices200,
   PostServices400,
@@ -665,17 +819,6 @@ export type {
   PostServiceTypesServiceTypeIdVariationPropertiesMutationResponse,
   PostServiceTypesServiceTypeIdVariationPropertiesMutation,
 } from './types/PostServiceTypesServiceTypeIdVariationProperties.ts'
-export type {
-  PostUsers200,
-  PostUsers400,
-  PostUsers401,
-  PostUsers403,
-  PostUsers422,
-  PostUsers500,
-  PostUsersMutationRequest,
-  PostUsersMutationResponse,
-  PostUsersMutation,
-} from './types/PostUsers.ts'
 export type {
   PostVariationProperties200,
   PostVariationProperties400,
@@ -793,6 +936,18 @@ export type {
   PutChangesetsChangesetIdStashMutation,
 } from './types/PutChangesetsChangesetIdStash.ts'
 export type {
+  PutMembershipUsersUserIdPathParams,
+  PutMembershipUsersUserId204,
+  PutMembershipUsersUserId400,
+  PutMembershipUsersUserId401,
+  PutMembershipUsersUserId403,
+  PutMembershipUsersUserId404,
+  PutMembershipUsersUserId500,
+  PutMembershipUsersUserIdMutationRequest,
+  PutMembershipUsersUserIdMutationResponse,
+  PutMembershipUsersUserIdMutation,
+} from './types/PutMembershipUsersUserId.ts'
+export type {
   PutServicesServiceVersionIdPathParams,
   PutServicesServiceVersionId204,
   PutServicesServiceVersionId400,
@@ -866,18 +1021,6 @@ export type {
   PutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriorityMutation,
 } from './types/PutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority.ts'
 export type {
-  PutUsersUserIdPathParams,
-  PutUsersUserId204,
-  PutUsersUserId400,
-  PutUsersUserId401,
-  PutUsersUserId403,
-  PutUsersUserId404,
-  PutUsersUserId500,
-  PutUsersUserIdMutationRequest,
-  PutUsersUserIdMutationResponse,
-  PutUsersUserIdMutation,
-} from './types/PutUsersUserId.ts'
-export type {
   PutVariationPropertiesPropertyIdPathParams,
   PutVariationPropertiesPropertyId204,
   PutVariationPropertiesPropertyId400,
@@ -947,6 +1090,22 @@ export {
   deleteChangesetsChangesetIdChangesChangeId,
   useDeleteChangesetsChangesetIdChangesChangeId,
 } from './hooks/useDeleteChangesetsChangesetIdChangesChangeId.ts'
+export {
+  deleteMembershipGroupsGroupIdMutationKey,
+  deleteMembershipGroupsGroupId,
+  useDeleteMembershipGroupsGroupId,
+} from './hooks/useDeleteMembershipGroupsGroupId.ts'
+export {
+  deleteMembershipGroupsGroupIdUsersUserIdMutationKey,
+  deleteMembershipGroupsGroupIdUsersUserId,
+  useDeleteMembershipGroupsGroupIdUsersUserId,
+} from './hooks/useDeleteMembershipGroupsGroupIdUsersUserId.ts'
+export {
+  deleteMembershipPermissionsPermissionIdMutationKey,
+  deleteMembershipPermissionsPermissionId,
+  useDeleteMembershipPermissionsPermissionId,
+} from './hooks/useDeleteMembershipPermissionsPermissionId.ts'
+export { deleteMembershipUsersUserIdMutationKey, deleteMembershipUsersUserId, useDeleteMembershipUsersUserId } from './hooks/useDeleteMembershipUsersUserId.ts'
 export {
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdMutationKey,
   deleteServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyId,
@@ -1046,6 +1205,61 @@ export {
   getConfigurationSuspenseQueryOptions,
   useGetConfigurationSuspense,
 } from './hooks/useGetConfigurationSuspense.ts'
+export { getMembershipQueryKey, getMembership, getMembershipQueryOptions, useGetMembership } from './hooks/useGetMembership.ts'
+export {
+  getMembershipGroupsGroupIdQueryKey,
+  getMembershipGroupsGroupId,
+  getMembershipGroupsGroupIdQueryOptions,
+  useGetMembershipGroupsGroupId,
+} from './hooks/useGetMembershipGroupsGroupId.ts'
+export {
+  getMembershipGroupsGroupIdSuspenseQueryKey,
+  getMembershipGroupsGroupIdSuspense,
+  getMembershipGroupsGroupIdSuspenseQueryOptions,
+  useGetMembershipGroupsGroupIdSuspense,
+} from './hooks/useGetMembershipGroupsGroupIdSuspense.ts'
+export {
+  getMembershipGroupsGroupIdUsersQueryKey,
+  getMembershipGroupsGroupIdUsers,
+  getMembershipGroupsGroupIdUsersQueryOptions,
+  useGetMembershipGroupsGroupIdUsers,
+} from './hooks/useGetMembershipGroupsGroupIdUsers.ts'
+export {
+  getMembershipGroupsGroupIdUsersSuspenseQueryKey,
+  getMembershipGroupsGroupIdUsersSuspense,
+  getMembershipGroupsGroupIdUsersSuspenseQueryOptions,
+  useGetMembershipGroupsGroupIdUsersSuspense,
+} from './hooks/useGetMembershipGroupsGroupIdUsersSuspense.ts'
+export {
+  getMembershipPermissionsQueryKey,
+  getMembershipPermissions,
+  getMembershipPermissionsQueryOptions,
+  useGetMembershipPermissions,
+} from './hooks/useGetMembershipPermissions.ts'
+export {
+  getMembershipPermissionsSuspenseQueryKey,
+  getMembershipPermissionsSuspense,
+  getMembershipPermissionsSuspenseQueryOptions,
+  useGetMembershipPermissionsSuspense,
+} from './hooks/useGetMembershipPermissionsSuspense.ts'
+export {
+  getMembershipSuspenseQueryKey,
+  getMembershipSuspense,
+  getMembershipSuspenseQueryOptions,
+  useGetMembershipSuspense,
+} from './hooks/useGetMembershipSuspense.ts'
+export {
+  getMembershipUsersUserIdQueryKey,
+  getMembershipUsersUserId,
+  getMembershipUsersUserIdQueryOptions,
+  useGetMembershipUsersUserId,
+} from './hooks/useGetMembershipUsersUserId.ts'
+export {
+  getMembershipUsersUserIdSuspenseQueryKey,
+  getMembershipUsersUserIdSuspense,
+  getMembershipUsersUserIdSuspenseQueryOptions,
+  useGetMembershipUsersUserIdSuspense,
+} from './hooks/useGetMembershipUsersUserIdSuspense.ts'
 export { getServicesQueryKey, getServices, getServicesQueryOptions, useGetServices } from './hooks/useGetServices.ts'
 export {
   getServicesNameTakenNameQueryKey,
@@ -1247,15 +1461,6 @@ export {
   getServiceTypesSuspenseQueryOptions,
   useGetServiceTypesSuspense,
 } from './hooks/useGetServiceTypesSuspense.ts'
-export { getUsersQueryKey, getUsers, getUsersQueryOptions, useGetUsers } from './hooks/useGetUsers.ts'
-export { getUsersSuspenseQueryKey, getUsersSuspense, getUsersSuspenseQueryOptions, useGetUsersSuspense } from './hooks/useGetUsersSuspense.ts'
-export { getUsersUserIdQueryKey, getUsersUserId, getUsersUserIdQueryOptions, useGetUsersUserId } from './hooks/useGetUsersUserId.ts'
-export {
-  getUsersUserIdSuspenseQueryKey,
-  getUsersUserIdSuspense,
-  getUsersUserIdSuspenseQueryOptions,
-  useGetUsersUserIdSuspense,
-} from './hooks/useGetUsersUserIdSuspense.ts'
 export { getValueTypesQueryKey, getValueTypes, getValueTypesQueryOptions, useGetValueTypes } from './hooks/useGetValueTypes.ts'
 export {
   getValueTypesSuspenseQueryKey,
@@ -1330,6 +1535,14 @@ export {
   postChangesetsChangesetIdComment,
   usePostChangesetsChangesetIdComment,
 } from './hooks/usePostChangesetsChangesetIdComment.ts'
+export { postMembershipGroupsMutationKey, postMembershipGroups, usePostMembershipGroups } from './hooks/usePostMembershipGroups.ts'
+export {
+  postMembershipGroupsGroupIdUsersUserIdMutationKey,
+  postMembershipGroupsGroupIdUsersUserId,
+  usePostMembershipGroupsGroupIdUsersUserId,
+} from './hooks/usePostMembershipGroupsGroupIdUsersUserId.ts'
+export { postMembershipPermissionsMutationKey, postMembershipPermissions, usePostMembershipPermissions } from './hooks/usePostMembershipPermissions.ts'
+export { postMembershipUsersMutationKey, postMembershipUsers, usePostMembershipUsers } from './hooks/usePostMembershipUsers.ts'
 export { postServicesMutationKey, postServices, usePostServices } from './hooks/usePostServices.ts'
 export {
   postServicesServiceVersionIdFeaturesMutationKey,
@@ -1367,7 +1580,6 @@ export {
   postServiceTypesServiceTypeIdVariationProperties,
   usePostServiceTypesServiceTypeIdVariationProperties,
 } from './hooks/usePostServiceTypesServiceTypeIdVariationProperties.ts'
-export { postUsersMutationKey, postUsers, usePostUsers } from './hooks/usePostUsers.ts'
 export { postVariationPropertiesMutationKey, postVariationProperties, usePostVariationProperties } from './hooks/usePostVariationProperties.ts'
 export {
   postVariationPropertiesPropertyIdValuesMutationKey,
@@ -1419,6 +1631,7 @@ export {
   putChangesetsChangesetIdStash,
   usePutChangesetsChangesetIdStash,
 } from './hooks/usePutChangesetsChangesetIdStash.ts'
+export { putMembershipUsersUserIdMutationKey, putMembershipUsersUserId, usePutMembershipUsersUserId } from './hooks/usePutMembershipUsersUserId.ts'
 export { putServicesServiceVersionIdMutationKey, putServicesServiceVersionId, usePutServicesServiceVersionId } from './hooks/usePutServicesServiceVersionId.ts'
 export {
   putServicesServiceVersionIdFeaturesFeatureVersionIdMutationKey,
@@ -1445,7 +1658,6 @@ export {
   putServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority,
   usePutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority,
 } from './hooks/usePutServiceTypesServiceTypeIdVariationPropertiesVariationPropertyIdPriority.ts'
-export { putUsersUserIdMutationKey, putUsersUserId, usePutUsersUserId } from './hooks/usePutUsersUserId.ts'
 export {
   putVariationPropertiesPropertyIdMutationKey,
   putVariationPropertiesPropertyId,
@@ -1471,7 +1683,10 @@ export { dbChangesetActionType } from './types/db/ChangesetActionType.ts'
 export { dbChangesetChangeKind } from './types/db/ChangesetChangeKind.ts'
 export { dbChangesetChangeType } from './types/db/ChangesetChangeType.ts'
 export { dbChangesetState } from './types/db/ChangesetState.ts'
+export { dbPermissionKind } from './types/db/PermissionKind.ts'
+export { dbPermissionLevel } from './types/db/PermissionLevel.ts'
 export { dbValueTypeKind } from './types/db/ValueTypeKind.ts'
 export { dbValueValidatorType } from './types/db/ValueValidatorType.ts'
 export { getConfigurationQueryParamsModeEnum } from './types/GetConfiguration.ts'
+export { membershipMembershipObjectType } from './types/membership/MembershipObjectType.ts'
 export { validationValueValidatorParameterType } from './types/validation/ValueValidatorParameterType.ts'

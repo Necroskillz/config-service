@@ -96,10 +96,10 @@ SELECT
     u.name AS user_name
 FROM
     services s
-    JOIN user_permissions up ON up.service_id = s.id
-        AND up.kind = 'service'
-        AND up.permission = 'admin'
-    JOIN users u ON u.id = up.user_id
+    JOIN permissions p ON p.service_id = s.id
+        AND p.kind = 'service'
+        AND p.permission = 'admin'
+    JOIN users u ON u.id = p.user_id
 WHERE ($1::bigint IS NULL
     OR s.id = $1::bigint)
 AND ($2::bigint IS NULL

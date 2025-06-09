@@ -259,11 +259,23 @@ definitions:
     - items
     - totalCount
     type: object
-  core.PaginatedResult-membership_UserDto:
+  core.PaginatedResult-membership_GroupUserDto:
     properties:
       items:
         items:
-          $ref: '#/definitions/membership.UserDto'
+          $ref: '#/definitions/membership.GroupUserDto'
+        type: array
+      totalCount:
+        type: integer
+    required:
+    - items
+    - totalCount
+    type: object
+  core.PaginatedResult-membership_MembershipObjectDto:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/membership.MembershipObjectDto'
         type: array
       totalCount:
         type: integer
@@ -327,6 +339,26 @@ definitions:
     - ChangesetStateRejected
     - ChangesetStateDiscarded
     - ChangesetStateStashed
+  db.PermissionKind:
+    enum:
+    - service
+    - feature
+    - key
+    - variation
+    type: string
+    x-enum-varnames:
+    - PermissionKindService
+    - PermissionKindFeature
+    - PermissionKindKey
+    - PermissionKindVariation
+  db.PermissionLevel:
+    enum:
+    - editor
+    - admin
+    type: string
+    x-enum-varnames:
+    - PermissionLevelEditor
+    - PermissionLevelAdmin
   db.ValueTypeKind:
     enum:
     - string
@@ -436,6 +468,28 @@ definitions:
     required:
     - comment
     type: object
+  handler.AddPermissionRequest:
+    properties:
+      featureVersionId:
+        type: integer
+      groupId:
+        type: integer
+      keyId:
+        type: integer
+      permission:
+        $ref: '#/definitions/db.PermissionLevel'
+      serviceVersionId:
+        type: integer
+      userId:
+        type: integer
+      variation:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - permission
+    - serviceVersionId
+    type: object
   handler.ApprovableChangesetCountResponse:
     properties:
       count:
@@ -468,6 +522,13 @@ definitions:
         type: string
     required:
     - description
+    - name
+    type: object
+  handler.CreateGroupRequest:
+    properties:
+      name:
+        type: string
+    required:
     - name
     type: object
   handler.CreateKeyRequest:
@@ -707,18 +768,132 @@ definitions:
     - valueTypeId
     - valueTypeName
     type: object
+  membership.EntityPermissionDto:
+    properties:
+      groupId:
+        type: integer
+      groupName:
+        type: string
+      id:
+        type: integer
+      permission:
+        $ref: '#/definitions/db.PermissionLevel'
+      userId:
+        type: integer
+      userName:
+        type: string
+    required:
+    - id
+    - permission
+    type: object
+  membership.GroupDto:
+    properties:
+      name:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/membership.PermissionDto'
+        type: array
+    required:
+    - name
+    - permissions
+    type: object
+  membership.GroupUserDto:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  membership.MembershipObjectDto:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/membership.MembershipObjectType'
+    required:
+    - id
+    - name
+    - type
+    type: object
+  membership.MembershipObjectType:
+    enum:
+    - user
+    - global_administrator
+    - group
+    type: string
+    x-enum-varnames:
+    - MembershipObjectTypeUser
+    - MembershipObjectTypeGlobalAdmin
+    - MembershipObjectTypeGroup
+  membership.PermissionDto:
+    properties:
+      featureId:
+        type: integer
+      featureName:
+        type: string
+      groupId:
+        type: integer
+      groupName:
+        type: string
+      id:
+        type: integer
+      keyId:
+        type: integer
+      keyName:
+        type: string
+      kind:
+        $ref: '#/definitions/db.PermissionKind'
+      permission:
+        $ref: '#/definitions/db.PermissionLevel'
+      serviceId:
+        type: integer
+      serviceName:
+        type: string
+      variation:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - id
+    - kind
+    - serviceId
+    - serviceName
+    type: object
   membership.UserDto:
     properties:
       globalAdministrator:
         type: boolean
-      id:
-        type: integer
+      groups:
+        items:
+          $ref: '#/definitions/membership.UserGroupDto'
+        type: array
+      permissions:
+        items:
+          $ref: '#/definitions/membership.PermissionDto'
+        type: array
       username:
         type: string
     required:
     - globalAdministrator
-    - id
+    - groups
+    - permissions
     - username
+    type: object
+  membership.UserGroupDto:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    - name
     type: object
   service.ServiceAdminDto:
     properties:
@@ -1851,6 +2026,577 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Get next changesets
+  /membership:
+    get:
+      description: Get list of users and groups
+      parameters:
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Type
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.PaginatedResult-membership_MembershipObjectDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get users and groups
+  /membership/groups:
+    post:
+      consumes:
+      - application/json
+      description: Create a new group
+      parameters:
+      - description: Group
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create a group
+  /membership/groups/{group_id}:
+    delete:
+      description: Delete a group by ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: group_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Delete a group
+    get:
+      description: Get a group by ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: group_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/membership.GroupDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get a group
+  /membership/groups/{group_id}/users:
+    get:
+      description: Get group users by ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: group_id
+        required: true
+        type: integer
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.PaginatedResult-membership_GroupUserDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get group users
+  /membership/groups/{group_id}/users/{user_id}:
+    delete:
+      description: Remove a user from a group
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Group ID
+        in: path
+        name: group_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Remove a user from a group
+    post:
+      description: Add a user to a group
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Group ID
+        in: path
+        name: group_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Add a user to a group
+  /membership/permissions:
+    get:
+      description: Get permissions for a service, feature, key, or variation
+      parameters:
+      - description: Service version ID
+        in: query
+        name: serviceVersionId
+        required: true
+        type: integer
+      - description: Feature version ID
+        in: query
+        name: featureVersionId
+        type: integer
+      - description: Key ID
+        in: query
+        name: keyId
+        type: integer
+      - collectionFormat: multi
+        description: Variation
+        example: 1:prod
+        in: query
+        items:
+          type: string
+        name: variation[]
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/membership.EntityPermissionDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get permissions
+    post:
+      consumes:
+      - application/json
+      description: Add a permission to a user or group
+      parameters:
+      - description: Permission
+        in: body
+        name: permission
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AddPermissionRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Add a permission
+  /membership/permissions/{permission_id}:
+    delete:
+      description: Remove a permission from a group
+      parameters:
+      - description: Permission ID
+        in: path
+        name: permission_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Remove a permission from a group
+  /membership/users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create a user
+  /membership/users/{user_id}:
+    delete:
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Delete a user
+    get:
+      description: Get a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/membership.UserDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get a user
+    put:
+      consumes:
+      - application/json
+      description: Update a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Update a user
   /service-types:
     get:
       description: Get all service types
@@ -2963,6 +3709,14 @@ paths:
         name: value_id
         required: true
         type: integer
+      - collectionFormat: multi
+        description: Variation
+        example: 1:prod
+        in: query
+        items:
+          type: string
+        name: variation[]
+        type: array
       produces:
       - application/json
       responses:
@@ -3014,6 +3768,14 @@ paths:
         name: key_id
         required: true
         type: integer
+      - collectionFormat: multi
+        description: Variation
+        example: 1:prod
+        in: query
+        items:
+          type: string
+        name: variation[]
+        type: array
       produces:
       - application/json
       responses:
@@ -3472,168 +4234,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Check if service name is taken
-  /users:
-    get:
-      consumes:
-      - application/json
-      description: Get list of users
-      parameters:
-      - default: 1
-        description: Page
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: Page size
-        in: query
-        name: pageSize
-        type: integer
-      - description: Name
-        in: query
-        name: name
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/core.PaginatedResult-membership_UserDto'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - BearerAuth: []
-      summary: Get users
-    post:
-      consumes:
-      - application/json
-      description: Create a new user
-      parameters:
-      - description: User
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/handler.CreateUserRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.CreateResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - BearerAuth: []
-      summary: Create a user
-  /users/{user_id}:
-    get:
-      description: Get a user by ID
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/membership.UserDto'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - BearerAuth: []
-      summary: Get a user
-    put:
-      consumes:
-      - application/json
-      description: Update a user by ID
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: integer
-      - description: User
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/handler.UpdateUserRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - BearerAuth: []
-      summary: Update a user
   /value-types:
     get:
       description: Get all value types

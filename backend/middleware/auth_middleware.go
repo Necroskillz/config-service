@@ -14,7 +14,7 @@ import (
 	"github.com/necroskillz/config-service/services/variation"
 )
 
-func AuthMiddleware(userService *membership.UserService, variationHierarchyService *variation.HierarchyService, changesetService *changeset.Service) echo.MiddlewareFunc {
+func AuthMiddleware(authService *membership.AuthService, variationHierarchyService *variation.HierarchyService, changesetService *changeset.Service) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			if strings.HasPrefix(c.Request().URL.Path, "/assets/") {
@@ -31,7 +31,7 @@ func AuthMiddleware(userService *membership.UserService, variationHierarchyServi
 				return err
 			}
 
-			user, err := userService.Get(c.Request().Context(), claims.UserId)
+			user, err := authService.GetUser(c.Request().Context(), claims.UserId)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get user").WithInternal(err)
 			}

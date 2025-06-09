@@ -23,6 +23,14 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCa
   key_id: number
 }
 
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryParams = {
+  /**
+   * @description Variation
+   * @type array | undefined
+   */
+  'variation[]'?: string[]
+}
+
 /**
  * @description No Content
  */
@@ -64,6 +72,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCa
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQuery = {
   Response: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd204
   PathParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams
+  QueryParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryParams
   Errors:
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401

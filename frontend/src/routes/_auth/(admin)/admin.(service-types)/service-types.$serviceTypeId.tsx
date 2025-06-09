@@ -1,13 +1,14 @@
 import { SelectGroup, SelectLabel } from '@radix-ui/react-select';
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { ChevronDown, ChevronUp, EllipsisIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
+import { DotDotDot } from '~/components/DotDotDot';
 import { MutationErrors } from '~/components/MutationErrors';
 import { PageTitle } from '~/components/PageTitle';
 import { Button } from '~/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAppForm } from '~/components/ui/tanstack-form-hook';
 import {
@@ -117,18 +118,11 @@ function RouteComponent() {
         </PageTitle>
         <div className="flex items-center">
           {serviceType.usageCount === 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <EllipsisIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem variant="destructive" onClick={() => deleteMutation.mutate({ service_type_id: serviceTypeId })}>
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DotDotDot>
+              <DropdownMenuItem variant="destructive" onClick={() => deleteMutation.mutate({ service_type_id: serviceTypeId })}>
+                Delete
+              </DropdownMenuItem>
+            </DotDotDot>
           )}
         </div>
       </div>
@@ -246,20 +240,11 @@ function ServiceTypeVariationPropertyLink({
         <span>({link.displayName})</span>
       </div>
       {isDeletable && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <EllipsisIcon className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {isDeletable && (
-              <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onDelete()}>
-                Unlink
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <DotDotDot>
+          <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onDelete()}>
+            Unlink
+          </DropdownMenuItem>
+        </DotDotDot>
       )}
     </div>
   );

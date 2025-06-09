@@ -10,7 +10,7 @@ FROM
 WHERE
     vc.id = @variation_context_id;
 
--- name: GetVariationContextId :one
+-- name: GetVariationContextID :one
 SELECT
     vc.id
 FROM
@@ -30,6 +30,14 @@ WHERE (
         WHERE
             vcvpv.variation_context_id = vc.id
             AND vcvpv.variation_property_value_id = ANY (@variation_property_value_ids::bigint[])) = @property_count::int;
+
+-- name: GetVariationContext :one
+SELECT
+    vc.*
+FROM
+    variation_contexts vc
+WHERE
+    vc.id = @id;
 
 -- name: CreateVariationContext :one
 INSERT INTO variation_contexts DEFAULT

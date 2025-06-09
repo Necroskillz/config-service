@@ -8,7 +8,7 @@ sql:
       - 'db/queries/keys.sql'
       - 'db/queries/services.sql'
       - 'db/queries/service_types.sql'
-      - 'db/queries/users.sql'
+      - 'db/queries/membership.sql'
       - 'db/queries/variation_values.sql'
       - 'db/queries/variation.sql'
     schema: 'db/migrations'

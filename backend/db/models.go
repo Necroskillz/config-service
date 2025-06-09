@@ -190,6 +190,50 @@ func (ns NullChangesetState) Value() (driver.Value, error) {
 	return string(ns.ChangesetState), nil
 }
 
+type PermissionKind string
+
+const (
+	PermissionKindService   PermissionKind = "service"
+	PermissionKindFeature   PermissionKind = "feature"
+	PermissionKindKey       PermissionKind = "key"
+	PermissionKindVariation PermissionKind = "variation"
+)
+
+func (e *PermissionKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PermissionKind(s)
+	case string:
+		*e = PermissionKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PermissionKind: %T", src)
+	}
+	return nil
+}
+
+type NullPermissionKind struct {
+	PermissionKind PermissionKind
+	Valid          bool // Valid is true if PermissionKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPermissionKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.PermissionKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PermissionKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPermissionKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PermissionKind), nil
+}
+
 type PermissionLevel string
 
 const (
@@ -230,50 +274,6 @@ func (ns NullPermissionLevel) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.PermissionLevel), nil
-}
-
-type UserPermissionKind string
-
-const (
-	UserPermissionKindService   UserPermissionKind = "service"
-	UserPermissionKindFeature   UserPermissionKind = "feature"
-	UserPermissionKindKey       UserPermissionKind = "key"
-	UserPermissionKindVariation UserPermissionKind = "variation"
-)
-
-func (e *UserPermissionKind) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = UserPermissionKind(s)
-	case string:
-		*e = UserPermissionKind(s)
-	default:
-		return fmt.Errorf("unsupported scan type for UserPermissionKind: %T", src)
-	}
-	return nil
-}
-
-type NullUserPermissionKind struct {
-	UserPermissionKind UserPermissionKind
-	Valid              bool // Valid is true if UserPermissionKind is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullUserPermissionKind) Scan(value interface{}) error {
-	if value == nil {
-		ns.UserPermissionKind, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.UserPermissionKind.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullUserPermissionKind) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.UserPermissionKind), nil
 }
 
 type ValueTypeKind string
@@ -448,6 +448,19 @@ type Key struct {
 	ValidatorsUpdatedAt time.Time
 }
 
+type Permission struct {
+	ID                 uint
+	Kind               PermissionKind
+	UserID             *uint
+	UserGroupID        *uint
+	ServiceID          uint
+	FeatureID          *uint
+	KeyID              *uint
+	VariationContextID *uint
+	Permission         PermissionLevel
+	CreatedAt          time.Time
+}
+
 type Service struct {
 	ID            uint
 	CreatedAt     time.Time
@@ -493,16 +506,17 @@ type User struct {
 	GlobalAdministrator bool
 }
 
-type UserPermission struct {
-	ID                 uint
-	Kind               UserPermissionKind
-	UserID             uint
-	ServiceID          uint
-	FeatureID          *uint
-	KeyID              *uint
-	VariationContextID *uint
-	Permission         PermissionLevel
-	CreatedAt          time.Time
+type UserGroup struct {
+	ID        uint
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
+	Name      string
+}
+
+type UserGroupMembership struct {
+	UserGroupID uint
+	UserID      uint
 }
 
 type ValueType struct {

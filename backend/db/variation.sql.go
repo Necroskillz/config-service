@@ -160,7 +160,23 @@ func (q *Queries) GetServiceTypeVariationProperties(ctx context.Context) ([]GetS
 	return items, nil
 }
 
-const getVariationContextId = `-- name: GetVariationContextId :one
+const getVariationContext = `-- name: GetVariationContext :one
+SELECT
+    vc.id, vc.created_at
+FROM
+    variation_contexts vc
+WHERE
+    vc.id = $1
+`
+
+func (q *Queries) GetVariationContext(ctx context.Context, id uint) (VariationContext, error) {
+	row := q.db.QueryRow(ctx, getVariationContext, id)
+	var i VariationContext
+	err := row.Scan(&i.ID, &i.CreatedAt)
+	return i, err
+}
+
+const getVariationContextID = `-- name: GetVariationContextID :one
 SELECT
     vc.id
 FROM
@@ -182,13 +198,13 @@ WHERE (
             AND vcvpv.variation_property_value_id = ANY ($2::bigint[])) = $1::int
 `
 
-type GetVariationContextIdParams struct {
+type GetVariationContextIDParams struct {
 	PropertyCount             int
 	VariationPropertyValueIds []uint
 }
 
-func (q *Queries) GetVariationContextId(ctx context.Context, arg GetVariationContextIdParams) (uint, error) {
-	row := q.db.QueryRow(ctx, getVariationContextId, arg.PropertyCount, arg.VariationPropertyValueIds)
+func (q *Queries) GetVariationContextID(ctx context.Context, arg GetVariationContextIDParams) (uint, error) {
+	row := q.db.QueryRow(ctx, getVariationContextID, arg.PropertyCount, arg.VariationPropertyValueIds)
 	var id uint
 	err := row.Scan(&id)
 	return id, err

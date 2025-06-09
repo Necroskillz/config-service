@@ -18,11 +18,27 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	authGroup.POST("/refresh_token", h.RefreshToken)
 	authGroup.GET("/user", h.User)
 
-	usersGroup := apiGroup.Group("/users")
-	usersGroup.GET("", h.Users)
+	membershipGroup := apiGroup.Group("/membership")
+	membershipGroup.GET("", h.UsersAndGroups)
+
+	permissionsGroup := membershipGroup.Group("/permissions")
+	permissionsGroup.DELETE("/:permission_id", h.RemovePermission)
+	permissionsGroup.POST("", h.AddPermission)
+	permissionsGroup.GET("", h.GetPermissions)
+
+	usersGroup := membershipGroup.Group("/users")
 	usersGroup.POST("", h.CreateUser)
 	usersGroup.GET("/:user_id", h.GetUser)
 	usersGroup.PUT("/:user_id", h.UpdateUser)
+	usersGroup.DELETE("/:user_id", h.DeleteUser)
+
+	groupsGroup := membershipGroup.Group("/groups")
+	groupsGroup.POST("", h.CreateGroup)
+	groupsGroup.GET("/:group_id", h.GetGroup)
+	groupsGroup.DELETE("/:group_id", h.DeleteGroup)
+	groupsGroup.GET("/:group_id/users", h.GetGroupUsers)
+	groupsGroup.POST("/:group_id/users/:user_id", h.AddUserToGroup)
+	groupsGroup.DELETE("/:group_id/users/:user_id", h.RemoveUserFromGroup)
 
 	servicesGroup := apiGroup.Group("/services")
 	servicesGroup.GET("", h.Services)

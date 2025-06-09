@@ -43,7 +43,7 @@ type Manager struct {
 	ValueTypes   []valuetype.ValueTypeDto
 
 	ServiceService            *service.Service
-	UserService               *membership.UserService
+	MembershipService         *membership.Service
 	FeatureService            *feature.Service
 	KeyService                *key.Service
 	ChangesetService          *changeset.Service
@@ -54,6 +54,7 @@ type Manager struct {
 	ValueTypeService          *valuetype.Service
 	VariationPropertyService  *variationproperty.Service
 	ServiceTypeService        *servicetype.Service
+	AuthService               *membership.AuthService
 }
 
 func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any], metrics *metrics.Metrics) *Manager {
@@ -97,7 +98,7 @@ func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any], metri
 		DB:                        db.New(dbpool),
 		ChangeScopes:              changeScopes,
 		ServiceService:            svc.ServiceService,
-		UserService:               svc.UserService,
+		MembershipService:         svc.MembershipService,
 		FeatureService:            svc.FeatureService,
 		KeyService:                svc.KeyService,
 		ChangesetService:          svc.ChangesetService,
@@ -108,6 +109,7 @@ func NewManager(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any], metri
 		ValueTypeService:          svc.ValueTypeService,
 		VariationPropertyService:  svc.VariationPropertyService,
 		ServiceTypeService:        svc.ServiceTypeService,
+		AuthService:               svc.AuthService,
 	}
 }
 
@@ -224,7 +226,7 @@ func (m *Manager) Run(ctx context.Context, opts ...RunOptionFunc) error {
 }
 
 func (m *Manager) createUserContext(ctx context.Context, userId uint) (context.Context, error) {
-	user, err := m.UserService.Get(ctx, userId)
+	user, err := m.AuthService.GetUser(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("error creating user context for user %d: %w", userId, err)
 	}
@@ -269,7 +271,7 @@ func (m *Manager) createUsers(ctx context.Context) error {
 		return err
 	}
 
-	users, err := m.DB.GetUsers(ctx, db.GetUsersParams{
+	users, err := m.DB.GetUsersAndGroups(ctx, db.GetUsersAndGroupsParams{
 		Offset: 0,
 		Limit:  15000,
 	})
@@ -430,8 +432,8 @@ func (m *Manager) createService(ctx context.Context) error {
 		editor := m.Registry.GetRandomUser()
 
 		if _, err = m.DB.CreatePermission(ctx, db.CreatePermissionParams{
-			UserID:     admin,
-			Kind:       db.UserPermissionKindService,
+			UserID:     &admin,
+			Kind:       db.PermissionKindService,
 			ServiceID:  serviceVersion.ServiceID,
 			Permission: db.PermissionLevelAdmin,
 		}); err != nil {
@@ -439,8 +441,8 @@ func (m *Manager) createService(ctx context.Context) error {
 		}
 
 		if _, err = m.DB.CreatePermission(ctx, db.CreatePermissionParams{
-			UserID:     editor,
-			Kind:       db.UserPermissionKindService,
+			UserID:     &editor,
+			Kind:       db.PermissionKindService,
 			ServiceID:  serviceVersion.ServiceID,
 			Permission: db.PermissionLevelEditor,
 		}); err != nil {

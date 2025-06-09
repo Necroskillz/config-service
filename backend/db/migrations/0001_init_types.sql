@@ -31,7 +31,7 @@ CREATE TYPE changeset_change_type AS ENUM(
     'delete'
 );
 
-CREATE TYPE user_permission_kind AS ENUM(
+CREATE TYPE permission_kind AS ENUM(
     'service',
     'feature',
     'key',

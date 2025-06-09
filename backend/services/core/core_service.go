@@ -118,3 +118,28 @@ func (s *Service) GetVariationValue(ctx context.Context, serviceVersionID uint, 
 
 	return serviceVersion, featureVersion, key, variationValue, nil
 }
+
+func (s *Service) GetKeyOptional(ctx context.Context, serviceVersionID uint, featureVersionID *uint, keyID *uint) (db.GetServiceVersionRow, *db.GetFeatureVersionRow, *db.GetKeyRow, error) {
+	if featureVersionID != nil && keyID != nil {
+		serviceVersion, featureVersion, key, err := s.GetKey(ctx, serviceVersionID, *featureVersionID, *keyID)
+		if err != nil {
+			return serviceVersion, nil, nil, err
+		}
+
+		return serviceVersion, &featureVersion, &key, nil
+	} else if featureVersionID != nil {
+		serviceVersion, featureVersion, err := s.GetFeatureVersion(ctx, serviceVersionID, *featureVersionID)
+		if err != nil {
+			return serviceVersion, nil, nil, err
+		}
+
+		return serviceVersion, &featureVersion, nil, nil
+	} else {
+		serviceVersion, err := s.GetServiceVersion(ctx, serviceVersionID)
+		if err != nil {
+			return serviceVersion, nil, nil, err
+		}
+
+		return serviceVersion, nil, nil, nil
+	}
+}

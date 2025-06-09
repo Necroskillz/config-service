@@ -26,7 +26,7 @@ type Services struct {
 	ValueTypeService          *valuetype.Service
 	ServiceTypeService        *servicetype.Service
 	ServiceService            *service.Service
-	UserService               *membership.UserService
+	AuthService               *membership.AuthService
 	FeatureService            *feature.Service
 	KeyService                *key.Service
 	VariationPropertyService  *variationproperty.Service
@@ -39,6 +39,7 @@ type Services struct {
 	VariationContextService   *variation.ContextService
 	ValidationService         *validation.Service
 	ChangesetService          *changeset.Service
+	MembershipService         *membership.Service
 }
 
 func InitializeServices(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any]) *Services {
@@ -56,19 +57,20 @@ func InitializeServices(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any
 	serviceTypeService := servicetype.NewService(unitOfWorkRunner, queries, validator, validationService, currentUserAccessor, variationHierarchyService)
 	changesetService := changeset.NewService(queries, variationContextService, unitOfWorkRunner, currentUserAccessor, validator)
 	serviceService := service.NewService(queries, unitOfWorkRunner, changesetService, currentUserAccessor, validator, coreService, validationService)
-	userService := membership.NewUserService(queries, variationContextService, validationService, validator)
+	authService := membership.NewAuthService(queries, variationContextService, validationService, validator)
 	featureService := feature.NewService(unitOfWorkRunner, queries, changesetService, currentUserAccessor, validator, coreService, validationService)
 	keyService := key.NewService(unitOfWorkRunner, variationContextService, queries, changesetService, currentUserAccessor, validator, coreService, valueValidatorService, variationHierarchyService, validationService)
 	valueService := value.NewService(unitOfWorkRunner, variationContextService, variationHierarchyService, queries, changesetService, currentUserAccessor, validator, coreService, validationService, valueValidatorService)
 	variationPropertyService := variationproperty.NewService(queries, variationHierarchyService, validator, validationService, currentUserAccessor, unitOfWorkRunner)
 	configurationService := configuration.NewService(queries, variationContextService, variationHierarchyService)
+	membershipService := membership.NewService(queries, variationContextService, validationService, variationHierarchyService, validator, coreService)
 
 	return &Services{
 		ValueService:              valueService,
 		ValueTypeService:          valueTypeService,
 		ServiceTypeService:        serviceTypeService,
 		ServiceService:            serviceService,
-		UserService:               userService,
+		AuthService:               authService,
 		FeatureService:            featureService,
 		KeyService:                keyService,
 		VariationPropertyService:  variationPropertyService,
@@ -81,5 +83,6 @@ func InitializeServices(dbpool *pgxpool.Pool, cache *ristretto.Cache[string, any
 		VariationContextService:   variationContextService,
 		ValidationService:         validationService,
 		ChangesetService:          changesetService,
+		MembershipService:         membershipService,
 	}
 }

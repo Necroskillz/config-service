@@ -28,6 +28,14 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesVa
   value_id: number
 }
 
+export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryParams = {
+  /**
+   * @description Variation
+   * @type array | undefined
+   */
+  'variation[]'?: string[]
+}
+
 /**
  * @description No Content
  */
@@ -69,6 +77,7 @@ export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesVa
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQuery = {
   Response: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit204
   PathParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditPathParams
+  QueryParams: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEditQueryParams
   Errors:
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit400
     | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesValueIdCanEdit401

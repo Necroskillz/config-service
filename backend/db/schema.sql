@@ -63,24 +63,24 @@ CREATE TYPE public.changeset_state AS ENUM (
 
 
 --
+-- Name: permission_kind; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.permission_kind AS ENUM (
+    'service',
+    'feature',
+    'key',
+    'variation'
+);
+
+
+--
 -- Name: permission_level; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.permission_level AS ENUM (
     'editor',
     'admin'
-);
-
-
---
--- Name: user_permission_kind; Type: TYPE; Schema: public; Owner: -
---
-
-CREATE TYPE public.user_permission_kind AS ENUM (
-    'service',
-    'feature',
-    'key',
-    'variation'
 );
 
 
@@ -428,7 +428,6 @@ ALTER SEQUENCE public.feature_version_service_versions_id_seq OWNED BY public.fe
 CREATE TABLE public.feature_versions (
     id bigint NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     valid_from timestamp with time zone,
     valid_to timestamp with time zone,
     version integer NOT NULL,
@@ -523,6 +522,44 @@ CREATE SEQUENCE public.keys_id_seq
 --
 
 ALTER SEQUENCE public.keys_id_seq OWNED BY public.keys.id;
+
+
+--
+-- Name: permissions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.permissions (
+    id bigint NOT NULL,
+    kind public.permission_kind NOT NULL,
+    user_id bigint,
+    user_group_id bigint,
+    service_id bigint NOT NULL,
+    feature_id bigint,
+    key_id bigint,
+    variation_context_id bigint,
+    permission public.permission_level NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT permissions_check CHECK ((((user_id IS NOT NULL) AND (user_group_id IS NULL)) OR ((user_id IS NULL) AND (user_group_id IS NOT NULL))))
+);
+
+
+--
+-- Name: permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.permissions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: permissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.permissions_id_seq OWNED BY public.permissions.id;
 
 
 --
@@ -666,26 +703,34 @@ ALTER SEQUENCE public.services_id_seq OWNED BY public.services.id;
 
 
 --
--- Name: user_permissions; Type: TABLE; Schema: public; Owner: -
+-- Name: user_group_memberships; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.user_permissions (
-    id bigint NOT NULL,
-    kind public.user_permission_kind NOT NULL,
+CREATE TABLE public.user_group_memberships (
+    user_group_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    service_id bigint NOT NULL,
-    feature_id bigint,
-    key_id bigint,
-    variation_context_id bigint,
-    permission public.permission_level NOT NULL
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
 --
--- Name: user_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: user_groups; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.user_permissions_id_seq
+CREATE TABLE public.user_groups (
+    id bigint NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp with time zone,
+    name text NOT NULL
+);
+
+
+--
+-- Name: user_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.user_groups_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -694,10 +739,10 @@ CREATE SEQUENCE public.user_permissions_id_seq
 
 
 --
--- Name: user_permissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: user_groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.user_permissions_id_seq OWNED BY public.user_permissions.id;
+ALTER SEQUENCE public.user_groups_id_seq OWNED BY public.user_groups.id;
 
 
 --
@@ -878,7 +923,9 @@ CREATE TABLE public.variation_property_values (
     value text NOT NULL,
     parent_id bigint,
     order_index integer NOT NULL,
-    archived boolean DEFAULT false NOT NULL
+    archived boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -984,6 +1031,13 @@ ALTER TABLE ONLY public.keys ALTER COLUMN id SET DEFAULT nextval('public.keys_id
 
 
 --
+-- Name: permissions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions ALTER COLUMN id SET DEFAULT nextval('public.permissions_id_seq'::regclass);
+
+
+--
 -- Name: service_type_variation_properties id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1012,10 +1066,10 @@ ALTER TABLE ONLY public.services ALTER COLUMN id SET DEFAULT nextval('public.ser
 
 
 --
--- Name: user_permissions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: user_groups id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_permissions ALTER COLUMN id SET DEFAULT nextval('public.user_permissions_id_seq'::regclass);
+ALTER TABLE ONLY public.user_groups ALTER COLUMN id SET DEFAULT nextval('public.user_groups_id_seq'::regclass);
 
 
 --
@@ -1132,6 +1186,22 @@ ALTER TABLE ONLY public.keys
 
 
 --
+-- Name: permissions permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: permissions permissions_user_id_user_group_id_service_id_feature_id_key_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_user_id_user_group_id_service_id_feature_id_key_key UNIQUE (user_id, user_group_id, service_id, feature_id, key_id, variation_context_id);
+
+
+--
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1196,19 +1266,27 @@ ALTER TABLE ONLY public.services
 
 
 --
--- Name: user_permissions user_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_group_memberships user_group_memberships_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_permissions
-    ADD CONSTRAINT user_permissions_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.user_group_memberships
+    ADD CONSTRAINT user_group_memberships_pkey PRIMARY KEY (user_group_id, user_id);
 
 
 --
--- Name: user_permissions user_permissions_user_id_service_id_feature_id_key_id_varia_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_groups user_groups_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_permissions
-    ADD CONSTRAINT user_permissions_user_id_service_id_feature_id_key_id_varia_key UNIQUE (user_id, service_id, feature_id, key_id, variation_context_id);
+ALTER TABLE ONLY public.user_groups
+    ADD CONSTRAINT user_groups_name_key UNIQUE (name);
+
+
+--
+-- Name: user_groups user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_groups
+    ADD CONSTRAINT user_groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -1378,6 +1456,13 @@ CREATE INDEX idx_changeset_changes_variation_value_old ON public.changeset_chang
 
 
 --
+-- Name: idx_changesets_applied_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_changesets_applied_at ON public.changesets USING btree (applied_at);
+
+
+--
 -- Name: idx_changesets_one_open_per_user; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1455,6 +1540,13 @@ CREATE UNIQUE INDEX idx_one_value_per_key_and_context ON public.variation_values
 
 
 --
+-- Name: idx_permissions_kind; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_permissions_kind ON public.permissions USING btree (kind);
+
+
+--
 -- Name: idx_service_versions_unique_version_per_service; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1476,10 +1568,17 @@ CREATE INDEX idx_service_versions_valid_to ON public.service_versions USING btre
 
 
 --
--- Name: idx_user_permissions_kind; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_user_groups_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_user_permissions_kind ON public.user_permissions USING btree (kind);
+CREATE INDEX idx_user_groups_deleted_at ON public.user_groups USING btree (deleted_at);
+
+
+--
+-- Name: idx_user_groups_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_user_groups_name ON public.user_groups USING btree (name);
 
 
 --
@@ -1662,6 +1761,54 @@ ALTER TABLE ONLY public.keys
 
 
 --
+-- Name: permissions permissions_feature_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_feature_id_fkey FOREIGN KEY (feature_id) REFERENCES public.features(id);
+
+
+--
+-- Name: permissions permissions_key_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id);
+
+
+--
+-- Name: permissions permissions_service_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.services(id);
+
+
+--
+-- Name: permissions permissions_user_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_user_group_id_fkey FOREIGN KEY (user_group_id) REFERENCES public.user_groups(id);
+
+
+--
+-- Name: permissions permissions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: permissions permissions_variation_context_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_variation_context_id_fkey FOREIGN KEY (variation_context_id) REFERENCES public.variation_contexts(id);
+
+
+--
 -- Name: service_type_variation_properties service_type_variation_properties_service_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1694,43 +1841,19 @@ ALTER TABLE ONLY public.services
 
 
 --
--- Name: user_permissions user_permissions_feature_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_group_memberships user_group_memberships_user_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_permissions
-    ADD CONSTRAINT user_permissions_feature_id_fkey FOREIGN KEY (feature_id) REFERENCES public.features(id);
-
-
---
--- Name: user_permissions user_permissions_key_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_permissions
-    ADD CONSTRAINT user_permissions_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id);
+ALTER TABLE ONLY public.user_group_memberships
+    ADD CONSTRAINT user_group_memberships_user_group_id_fkey FOREIGN KEY (user_group_id) REFERENCES public.user_groups(id);
 
 
 --
--- Name: user_permissions user_permissions_service_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_group_memberships user_group_memberships_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_permissions
-    ADD CONSTRAINT user_permissions_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.services(id);
-
-
---
--- Name: user_permissions user_permissions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_permissions
-    ADD CONSTRAINT user_permissions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
--- Name: user_permissions user_permissions_variation_context_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_permissions
-    ADD CONSTRAINT user_permissions_variation_context_id_fkey FOREIGN KEY (variation_context_id) REFERENCES public.variation_contexts(id);
+ALTER TABLE ONLY public.user_group_memberships
+    ADD CONSTRAINT user_group_memberships_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --

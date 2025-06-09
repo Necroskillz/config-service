@@ -8,6 +8,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type {
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryResponse,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams,
+  GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryParams,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd400,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd401,
   GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd403,
@@ -22,12 +23,14 @@ export const getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesC
   service_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['service_version_id'],
   feature_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['feature_version_id'],
   key_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['key_id'],
+  params?: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryParams,
 ) =>
   [
     {
       url: '/services/:service_version_id/features/:feature_version_id/keys/:key_id/values/can-add',
       params: { service_version_id: service_version_id, feature_version_id: feature_version_id, key_id: key_id },
     },
+    ...(params ? [params] : []),
   ] as const
 
 export type GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryKey = ReturnType<
@@ -43,6 +46,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
   service_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['service_version_id'],
   feature_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['feature_version_id'],
   key_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['key_id'],
+  params?: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryParams,
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -58,7 +62,7 @@ export async function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKey
       | GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd500
     >,
     unknown
-  >({ method: 'GET', url: `/services/${service_version_id}/features/${feature_version_id}/keys/${key_id}/values/can-add`, ...requestConfig })
+  >({ method: 'GET', url: `/services/${service_version_id}/features/${feature_version_id}/keys/${key_id}/values/can-add`, params, ...requestConfig })
   return res.data
 }
 
@@ -66,9 +70,10 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValu
   service_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['service_version_id'],
   feature_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['feature_version_id'],
   key_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['key_id'],
+  params?: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryParams,
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const queryKey = getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryKey(service_version_id, feature_version_id, key_id)
+  const queryKey = getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryKey(service_version_id, feature_version_id, key_id, params)
   return queryOptions<
     GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryResponse,
     ResponseErrorConfig<
@@ -86,7 +91,7 @@ export function getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValu
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd(service_version_id, feature_version_id, key_id, config)
+      return getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAdd(service_version_id, feature_version_id, key_id, params, config)
     },
   })
 }
@@ -104,6 +109,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
   service_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['service_version_id'],
   feature_version_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['feature_version_id'],
   key_id: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddPathParams['key_id'],
+  params?: GetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryParams,
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -126,7 +132,8 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
 ) {
   const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ?? getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryKey(service_version_id, feature_version_id, key_id)
+    queryOptions?.queryKey ??
+    getServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdValuesCanAddQueryKey(service_version_id, feature_version_id, key_id, params)
 
   const query = useQuery(
     {
@@ -134,6 +141,7 @@ export function useGetServicesServiceVersionIdFeaturesFeatureVersionIdKeysKeyIdV
         service_version_id,
         feature_version_id,
         key_id,
+        params,
         config,
       ) as unknown as QueryObserverOptions),
       queryKey,

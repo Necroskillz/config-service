@@ -1,21 +1,34 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-export function variationToParams(variation: Record<string | number, string>): Record<string, string[]> {
-  const params: Record<string, string[]> = {};
-  
+export function variationToQueryParams(variation: Record<string | number, string> | undefined): string[] | undefined {
+  if (!variation) {
+    return undefined;
+  }
+
+  const params: string[] = [];
+
   for (const [key, value] of Object.entries(variation)) {
     if (value && value !== 'any') {
-      if (!params.variation) {
-        params.variation = [];
-      }
-      params.variation.push(`${key}:${value}`);
+      params.push(`${key}:${value}`);
     }
   }
-  
+
+  return params.length > 0 ? params : undefined;
+}
+
+export function variationToRequestParams(variation: Record<string | number, string>): Record<string, string> {
+  const params: Record<string | number, string> = {};
+
+  for (const [key, value] of Object.entries(variation)) {
+    if (value && value !== 'any') {
+      params[key] = value;
+    }
+  }
+
   return params;
 }
