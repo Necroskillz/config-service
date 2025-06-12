@@ -3,8 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"sort"
-	"strings"
 
 	"github.com/necroskillz/config-service/auth"
 	"github.com/necroskillz/config-service/constants"
@@ -107,7 +105,7 @@ type ServiceVersionLinkDto struct {
 	Version int  `json:"version" validate:"required"`
 }
 
-func (s *Service) GetServiceVersionsForServiceVersion(ctx context.Context, serviceVersionID uint) ([]ServiceVersionLinkDto, error) {
+func (s *Service) GetServiceVersionsForService(ctx context.Context, serviceVersionID uint) ([]ServiceVersionLinkDto, error) {
 	serviceVersion, err := s.coreService.GetServiceVersion(ctx, serviceVersionID)
 	if err != nil {
 		return nil, err
@@ -115,10 +113,27 @@ func (s *Service) GetServiceVersionsForServiceVersion(ctx context.Context, servi
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	serviceVersions, err := s.queries.GetServiceVersionsForService(ctx, db.GetServiceVersionsForServiceParams{
+	serviceVersions, err := s.queries.GetVersionsOfService(ctx, db.GetVersionsOfServiceParams{
 		ServiceID:   serviceVersion.ServiceID,
 		ChangesetID: user.ChangesetID,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]ServiceVersionLinkDto, len(serviceVersions))
+	for i, serviceVersion := range serviceVersions {
+		result[i] = ServiceVersionLinkDto{
+			ID:      serviceVersion.ID,
+			Version: serviceVersion.Version,
+		}
+	}
+
+	return result, nil
+}
+
+func (s *Service) GetAppliedServiceVersionsForService(ctx context.Context, serviceID uint) ([]ServiceVersionLinkDto, error) {
+	serviceVersions, err := s.queries.GetAppliedVersionsOfService(ctx, serviceID)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +156,7 @@ type ServiceVersionInfoDto struct {
 }
 
 type ServiceDto struct {
+	ID          uint                    `json:"id" validate:"required"`
 	Name        string                  `json:"name" validate:"required"`
 	Description string                  `json:"description" validate:"required"`
 	Versions    []ServiceVersionInfoDto `json:"versions" validate:"required"`
@@ -168,10 +184,12 @@ func (s *Service) GetServices(ctx context.Context) ([]ServiceDto, error) {
 		})
 	}
 
-	services := make(map[uint]ServiceDto)
+	servicesIndexMap := make(map[uint]int)
+	services := []ServiceDto{}
 
 	for _, serviceVersion := range serviceVersions {
-		if service, ok := services[serviceVersion.ServiceID]; ok {
+		if index, ok := servicesIndexMap[serviceVersion.ServiceID]; ok {
+			service := &services[index]
 			// display the last published and draft ones after the last published
 			if serviceVersion.Published {
 				service.Versions = []ServiceVersionInfoDto{
@@ -188,13 +206,19 @@ func (s *Service) GetServices(ctx context.Context) ([]ServiceDto, error) {
 					Version:   serviceVersion.Version,
 				})
 			}
-
-			services[serviceVersion.ServiceID] = service
 		} else {
-			services[serviceVersion.ServiceID] = ServiceDto{
+			servicesIndexMap[serviceVersion.ServiceID] = len(services)
+
+			admins, ok := adminsMap[serviceVersion.ServiceID]
+			if !ok {
+				admins = []ServiceAdminDto{}
+			}
+
+			services = append(services, ServiceDto{
+				ID:          serviceVersion.ServiceID,
 				Name:        serviceVersion.ServiceName,
 				Description: serviceVersion.ServiceDescription,
-				Admins:      adminsMap[serviceVersion.ServiceID],
+				Admins:      admins,
 				Versions: []ServiceVersionInfoDto{
 					{
 						ID:        serviceVersion.ID,
@@ -202,18 +226,33 @@ func (s *Service) GetServices(ctx context.Context) ([]ServiceDto, error) {
 						Version:   serviceVersion.Version,
 					},
 				},
-			}
+			})
 		}
 	}
 
-	result := make([]ServiceDto, 0, len(services))
-	for _, service := range services {
-		result = append(result, service)
+	return services, nil
+}
+
+type AppliedServiceDto struct {
+	ID            uint   `json:"id" validate:"required"`
+	Name          string `json:"name" validate:"required"`
+	ServiceTypeID uint   `json:"serviceTypeId" validate:"required"`
+}
+
+func (s *Service) GetAppliedServices(ctx context.Context) ([]AppliedServiceDto, error) {
+	services, err := s.queries.GetAppliedServices(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	sort.Slice(result, func(i, j int) bool {
-		return strings.Compare(strings.ToLower(result[i].Name), strings.ToLower(result[j].Name)) < 0
-	})
+	result := make([]AppliedServiceDto, len(services))
+	for i, service := range services {
+		result[i] = AppliedServiceDto{
+			ID:            service.ID,
+			Name:          service.Name,
+			ServiceTypeID: service.ServiceTypeID,
+		}
+	}
 
 	return result, nil
 }

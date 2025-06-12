@@ -1,3 +1,42 @@
+-- name: GetFeature :one
+SELECT
+    *
+FROM
+    features
+WHERE
+    id = @feature_id
+LIMIT 1;
+
+-- name: GetAppliedFeatures :many
+SELECT
+    f.id,
+    f.name
+FROM
+    features f
+WHERE (sqlc.narg('service_id')::bigint IS NULL
+    OR (service_id = sqlc.arg('service_id')::bigint
+        AND EXISTS (
+            SELECT
+                1
+            FROM
+                feature_versions fv
+            WHERE
+                fv.feature_id = f.id
+                AND fv.valid_from IS NOT NULL)))
+AND (sqlc.narg('service_version_id')::bigint IS NULL
+    OR EXISTS (
+        SELECT
+            1
+        FROM
+            feature_version_service_versions fvsv
+            JOIN feature_versions fvv ON fvv.id = fvsv.feature_version_id
+        WHERE
+            fvv.feature_id = f.id
+            AND fvsv.service_version_id = sqlc.arg('service_version_id')::bigint
+            AND fvsv.valid_from IS NOT NULL))
+ORDER BY
+    LOWER(f.name) ASC;
+
 -- name: GetFeatureVersion :one
 WITH last_feature_versions AS (
     SELECT
@@ -68,7 +107,7 @@ WHERE
 ORDER BY
     f.name;
 
--- name: GetVersionsOfFeatureForServiceVersion :many
+-- name: GetVersionsOfFeature :many
 WITH latest_links AS (
     SELECT
         fvsv.feature_version_id,
@@ -91,6 +130,18 @@ WHERE
     fv.feature_id = @feature_id
 ORDER BY
     fv.version;
+
+-- name: GetAppliedVersionsOfFeature :many
+SELECT
+    fv.id,
+    fv.version
+FROM
+    feature_versions fv
+WHERE
+    fv.feature_id = @feature_id
+    AND fv.valid_from IS NOT NULL
+ORDER BY
+    fv.version ASC;
 
 -- name: GetFeatureVersionsLinkableToServiceVersion :many
 SELECT
@@ -259,7 +310,8 @@ SELECT
 FROM
     permissions p
     JOIN feature_versions fv ON fv.feature_id = p.feature_id
-    JOIN keys k ON k.id = p.key_id AND k.feature_version_id = fv.id
+    JOIN keys k ON k.id = p.key_id
+        AND k.feature_version_id = fv.id
     JOIN valid_keys_in_changeset(@changeset_id) vk ON vk.id = k.id
 WHERE
     fv.id = @feature_version_id;

@@ -1765,7 +1765,7 @@ ALTER TABLE ONLY public.keys
 --
 
 ALTER TABLE ONLY public.permissions
-    ADD CONSTRAINT permissions_feature_id_fkey FOREIGN KEY (feature_id) REFERENCES public.features(id);
+    ADD CONSTRAINT permissions_feature_id_fkey FOREIGN KEY (feature_id) REFERENCES public.features(id) ON DELETE CASCADE;
 
 
 --
@@ -1773,7 +1773,7 @@ ALTER TABLE ONLY public.permissions
 --
 
 ALTER TABLE ONLY public.permissions
-    ADD CONSTRAINT permissions_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id);
+    ADD CONSTRAINT permissions_key_id_fkey FOREIGN KEY (key_id) REFERENCES public.keys(id) ON DELETE CASCADE;
 
 
 --
@@ -1781,7 +1781,7 @@ ALTER TABLE ONLY public.permissions
 --
 
 ALTER TABLE ONLY public.permissions
-    ADD CONSTRAINT permissions_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.services(id);
+    ADD CONSTRAINT permissions_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.services(id) ON DELETE CASCADE;
 
 
 --
@@ -1805,7 +1805,7 @@ ALTER TABLE ONLY public.permissions
 --
 
 ALTER TABLE ONLY public.permissions
-    ADD CONSTRAINT permissions_variation_context_id_fkey FOREIGN KEY (variation_context_id) REFERENCES public.variation_contexts(id);
+    ADD CONSTRAINT permissions_variation_context_id_fkey FOREIGN KEY (variation_context_id) REFERENCES public.variation_contexts(id) ON DELETE CASCADE;
 
 
 --

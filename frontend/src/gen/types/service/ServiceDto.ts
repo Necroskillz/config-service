@@ -16,6 +16,10 @@ export type ServiceServiceDto = {
    */
   description: string
   /**
+   * @type integer
+   */
+  id: number
+  /**
    * @type string
    */
   name: string

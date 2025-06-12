@@ -109,9 +109,16 @@ type ValueConfigurationDto struct {
 	Rank      int               `json:"rank" validate:"required"`
 }
 
-func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers []core.ServiceVersionSpecifier, changesetID uint, mode string, variation map[string]string) (ConfigurationDto, error) {
+type GetConfigurationParams struct {
+	ServiceVersionSpecifiers []core.ServiceVersionSpecifier
+	ChangesetID              uint
+	Mode                     string
+	Variation                map[uint]string
+}
+
+func (s *Service) GetConfiguration(ctx context.Context, params GetConfigurationParams) (ConfigurationDto, error) {
 	var timestamp time.Time
-	isProduction := mode == "production"
+	isProduction := params.Mode == "production"
 	isChangesetApplied := false
 
 	variationHierarchy, err := s.variationHierarchyService.GetVariationHierarchy(ctx)
@@ -119,13 +126,8 @@ func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers
 		return ConfigurationDto{}, err
 	}
 
-	filterVariation, err := variationHierarchy.GetVariationIDMap(variation)
-	if err != nil {
-		return ConfigurationDto{}, err
-	}
-
-	if changesetID != 0 {
-		changeset, err := s.queries.GetChangeset(ctx, changesetID)
+	if params.ChangesetID != 0 {
+		changeset, err := s.queries.GetChangeset(ctx, params.ChangesetID)
 		if err != nil {
 			return ConfigurationDto{}, err
 		}
@@ -149,7 +151,7 @@ func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers
 		isChangesetApplied = true
 	}
 
-	serviceVersions, err := s.getServiceVersions(ctx, serviceVersionSpecifiers)
+	serviceVersions, err := s.getServiceVersions(ctx, params.ServiceVersionSpecifiers)
 	if err != nil {
 		return ConfigurationDto{}, err
 	}
@@ -198,7 +200,7 @@ func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers
 			return ConfigurationDto{}, err
 		}
 
-		match, unresolved, err := variationHierarchy.Filter(valueVariation, filterVariation)
+		match, unresolved, err := variationHierarchy.Filter(valueVariation, params.Variation)
 		if err != nil {
 			return ConfigurationDto{}, err
 		}
@@ -248,7 +250,7 @@ func (s *Service) GetConfiguration(ctx context.Context, serviceVersionSpecifiers
 	}
 
 	return ConfigurationDto{
-		ChangesetID: changesetID,
+		ChangesetID: params.ChangesetID,
 		Features:    features,
 	}, nil
 }

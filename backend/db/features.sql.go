@@ -137,6 +137,129 @@ func (q *Queries) EndFeatureVersionValidity(ctx context.Context, arg EndFeatureV
 	return err
 }
 
+const getAppliedFeatures = `-- name: GetAppliedFeatures :many
+SELECT
+    f.id,
+    f.name
+FROM
+    features f
+WHERE ($1::bigint IS NULL
+    OR (service_id = $1::bigint
+        AND EXISTS (
+            SELECT
+                1
+            FROM
+                feature_versions fv
+            WHERE
+                fv.feature_id = f.id
+                AND fv.valid_from IS NOT NULL)))
+AND ($2::bigint IS NULL
+    OR EXISTS (
+        SELECT
+            1
+        FROM
+            feature_version_service_versions fvsv
+            JOIN feature_versions fvv ON fvv.id = fvsv.feature_version_id
+        WHERE
+            fvv.feature_id = f.id
+            AND fvsv.service_version_id = $2::bigint
+            AND fvsv.valid_from IS NOT NULL))
+ORDER BY
+    LOWER(f.name) ASC
+`
+
+type GetAppliedFeaturesParams struct {
+	ServiceID        *uint
+	ServiceVersionID *uint
+}
+
+type GetAppliedFeaturesRow struct {
+	ID   uint
+	Name string
+}
+
+func (q *Queries) GetAppliedFeatures(ctx context.Context, arg GetAppliedFeaturesParams) ([]GetAppliedFeaturesRow, error) {
+	rows, err := q.db.Query(ctx, getAppliedFeatures, arg.ServiceID, arg.ServiceVersionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAppliedFeaturesRow
+	for rows.Next() {
+		var i GetAppliedFeaturesRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAppliedVersionsOfFeature = `-- name: GetAppliedVersionsOfFeature :many
+SELECT
+    fv.id,
+    fv.version
+FROM
+    feature_versions fv
+WHERE
+    fv.feature_id = $1
+    AND fv.valid_from IS NOT NULL
+ORDER BY
+    fv.version ASC
+`
+
+type GetAppliedVersionsOfFeatureRow struct {
+	ID      uint
+	Version int
+}
+
+func (q *Queries) GetAppliedVersionsOfFeature(ctx context.Context, featureID uint) ([]GetAppliedVersionsOfFeatureRow, error) {
+	rows, err := q.db.Query(ctx, getAppliedVersionsOfFeature, featureID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAppliedVersionsOfFeatureRow
+	for rows.Next() {
+		var i GetAppliedVersionsOfFeatureRow
+		if err := rows.Scan(&i.ID, &i.Version); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFeature = `-- name: GetFeature :one
+SELECT
+    id, created_at, updated_at, name, description, service_id
+FROM
+    features
+WHERE
+    id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetFeature(ctx context.Context, featureID uint) (Feature, error) {
+	row := q.db.QueryRow(ctx, getFeature, featureID)
+	var i Feature
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Description,
+		&i.ServiceID,
+	)
+	return i, err
+}
+
 const getFeatureIDByName = `-- name: GetFeatureIDByName :one
 SELECT
     id
@@ -249,7 +372,8 @@ SELECT
 FROM
     permissions p
     JOIN feature_versions fv ON fv.feature_id = p.feature_id
-    JOIN keys k ON k.id = p.key_id AND k.feature_version_id = fv.id
+    JOIN keys k ON k.id = p.key_id
+        AND k.feature_version_id = fv.id
     JOIN valid_keys_in_changeset($1) vk ON vk.id = k.id
 WHERE
     fv.id = $2
@@ -572,7 +696,7 @@ func (q *Queries) GetFeatureVersionsLinkableToServiceVersion(ctx context.Context
 	return items, nil
 }
 
-const getVersionsOfFeatureForServiceVersion = `-- name: GetVersionsOfFeatureForServiceVersion :many
+const getVersionsOfFeature = `-- name: GetVersionsOfFeature :many
 WITH latest_links AS (
     SELECT
         fvsv.feature_version_id,
@@ -597,26 +721,26 @@ ORDER BY
     fv.version
 `
 
-type GetVersionsOfFeatureForServiceVersionParams struct {
+type GetVersionsOfFeatureParams struct {
 	ChangesetID uint
 	FeatureID   uint
 }
 
-type GetVersionsOfFeatureForServiceVersionRow struct {
+type GetVersionsOfFeatureRow struct {
 	ID               uint
 	Version          int
 	ServiceVersionID uint
 }
 
-func (q *Queries) GetVersionsOfFeatureForServiceVersion(ctx context.Context, arg GetVersionsOfFeatureForServiceVersionParams) ([]GetVersionsOfFeatureForServiceVersionRow, error) {
-	rows, err := q.db.Query(ctx, getVersionsOfFeatureForServiceVersion, arg.ChangesetID, arg.FeatureID)
+func (q *Queries) GetVersionsOfFeature(ctx context.Context, arg GetVersionsOfFeatureParams) ([]GetVersionsOfFeatureRow, error) {
+	rows, err := q.db.Query(ctx, getVersionsOfFeature, arg.ChangesetID, arg.FeatureID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetVersionsOfFeatureForServiceVersionRow
+	var items []GetVersionsOfFeatureRow
 	for rows.Next() {
-		var i GetVersionsOfFeatureForServiceVersionRow
+		var i GetVersionsOfFeatureRow
 		if err := rows.Scan(&i.ID, &i.Version, &i.ServiceVersionID); err != nil {
 			return nil, err
 		}

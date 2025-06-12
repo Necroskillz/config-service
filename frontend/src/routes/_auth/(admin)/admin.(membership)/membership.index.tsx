@@ -92,7 +92,7 @@ function RouteComponent() {
         >
           {(data) => (
             <List>
-              {data.items.map((obj) => (
+              {data.map((obj) => (
                 <ListItem key={obj.id} variant="slim">
                   <div className="flex flex-row gap-2 justify-between items-center">
                     {obj.type === 'group' ? (

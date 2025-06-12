@@ -17,7 +17,7 @@ export type GetConfigurationQueryParams = {
    * @description Changeset ID
    * @type integer | undefined
    */
-  changeset_id?: number
+  changesetId?: number
   /**
    * @description Service versions in format service:version
    * @type array

@@ -91,7 +91,7 @@ function RouteComponent() {
         >
           {(data) => (
             <List>
-              {data.items.map((user) => (
+              {data.map((user) => (
                 <ListItem key={user.id} variant="slim">
                   <Link to="/users/$userId" params={{ userId: user.id }}>
                     {user.name}

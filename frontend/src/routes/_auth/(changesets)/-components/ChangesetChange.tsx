@@ -70,16 +70,16 @@ export function ChangesetChange({
   );
 }
 
-function ChangesetChangeDescription({ change }: { change: ChangesetChangesetChange }) {
-  if (change.newVariationValueId || change.oldVariationValueId) {
+export function ChangesetChangeDescription({ change }: { change: ChangesetChangesetChange }) {
+  if (change.kind === 'variation_value') {
     return <ValueChange change={change} />;
-  } else if (change.keyId) {
+  } else if (change.kind === 'key') {
     return <KeyChange change={change} />;
-  } else if (change.featureVersionServiceVersionId) {
+  } else if (change.kind === 'feature_version_service_version') {
     return <FeatureVersionServiceVersionChange change={change} />;
-  } else if (change.featureVersionId) {
+  } else if (change.kind === 'feature_version') {
     return <FeatureVersionChange change={change} />;
-  } else if (change.serviceVersionId) {
+  } else if (change.kind === 'service_version') {
     return <ServiceVersionChange change={change} />;
   }
 

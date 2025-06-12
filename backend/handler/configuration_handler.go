@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/necroskillz/config-service/services/configuration"
 	"github.com/necroskillz/config-service/services/core"
 )
 
@@ -57,7 +58,7 @@ func (h *Handler) GetNextChangesets(c echo.Context) error {
 // @Description Get configuration
 // @Accept json
 // @Produce json
-// @Param changeset_id query uint false "Changeset ID"
+// @Param changesetId query uint false "Changeset ID"
 // @Param services[] query []string true "Service versions in format service:version" example(TestService:1) collectionFormat(multi)
 // @Param mode query string false "Mode" Enums(production)
 // @Param variation[] query []string false "Variation" example(env:prod) collectionFormat(multi)
@@ -70,7 +71,7 @@ func (h *Handler) GetConfiguration(c echo.Context) error {
 	var changesetID uint
 	var serviceVersions []string
 	var mode string
-	err := echo.QueryParamsBinder(c).Uint("changeset_id", &changesetID).MustStrings("services[]", &serviceVersions).String("mode", &mode).BindError()
+	err := echo.QueryParamsBinder(c).Uint("changesetId", &changesetID).MustStrings("services[]", &serviceVersions).String("mode", &mode).BindError()
 	if err != nil {
 		return ToHTTPError(err)
 	}
@@ -85,7 +86,12 @@ func (h *Handler) GetConfiguration(c echo.Context) error {
 		return err
 	}
 
-	configuration, err := h.ConfigurationService.GetConfiguration(c.Request().Context(), serviceVersionSpecifiers, changesetID, mode, variation)
+	configuration, err := h.ConfigurationService.GetConfiguration(c.Request().Context(), configuration.GetConfigurationParams{
+		ServiceVersionSpecifiers: serviceVersionSpecifiers,
+		ChangesetID:              changesetID,
+		Mode:                     mode,
+		Variation:                variation,
+	})
 	if err != nil {
 		return ToHTTPError(err)
 	}

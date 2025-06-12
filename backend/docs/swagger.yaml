@@ -16,6 +16,78 @@ definitions:
     - isGlobalAdmin
     - username
     type: object
+  changeset.ChangeHistoryItemDto:
+    properties:
+      appliedAt:
+        type: string
+      changesetId:
+        type: integer
+      featureId:
+        type: integer
+      featureName:
+        type: string
+      featureVersion:
+        type: integer
+      featureVersionId:
+        type: integer
+      id:
+        type: integer
+      keyId:
+        type: integer
+      keyName:
+        type: string
+      kind:
+        $ref: '#/definitions/db.ChangesetChangeKind'
+      newVariationValueData:
+        type: string
+      newVariationValueId:
+        type: integer
+      oldVariationValueData:
+        type: string
+      oldVariationValueId:
+        type: integer
+      serviceId:
+        type: integer
+      serviceName:
+        type: string
+      serviceVersion:
+        type: integer
+      serviceVersionId:
+        type: integer
+      type:
+        $ref: '#/definitions/db.ChangesetChangeType'
+      userId:
+        type: integer
+      userName:
+        type: string
+      variation:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - appliedAt
+    - changesetId
+    - featureId
+    - featureName
+    - featureVersion
+    - featureVersionId
+    - id
+    - keyId
+    - keyName
+    - kind
+    - newVariationValueData
+    - newVariationValueId
+    - oldVariationValueData
+    - oldVariationValueId
+    - serviceId
+    - serviceName
+    - serviceVersion
+    - serviceVersionId
+    - type
+    - userId
+    - userName
+    - variation
+    type: object
   changeset.ChangesetAction:
     properties:
       comment:
@@ -247,6 +319,18 @@ definitions:
     - data
     - rank
     type: object
+  core.PaginatedResult-changeset_ChangeHistoryItemDto:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/changeset.ChangeHistoryItemDto'
+        type: array
+      totalCount:
+        type: integer
+    required:
+    - items
+    - totalCount
+    type: object
   core.PaginatedResult-changeset_ChangesetItemDto:
     properties:
       items:
@@ -407,12 +491,34 @@ definitions:
     properties:
       message: {}
     type: object
+  feature.AppliedFeatureVersionDto:
+    properties:
+      id:
+        type: integer
+      version:
+        type: integer
+    required:
+    - id
+    - version
+    type: object
+  feature.FeatureDto:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
   feature.FeatureVersionDto:
     properties:
       canEdit:
         type: boolean
       description:
         type: string
+      featureId:
+        type: integer
       id:
         type: integer
       isLastVersion:
@@ -424,6 +530,7 @@ definitions:
     required:
     - canEdit
     - description
+    - featureId
     - id
     - isLastVersion
     - name
@@ -716,6 +823,13 @@ definitions:
     - data
     - variation
     type: object
+  key.AppliedKeyDto:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   key.KeyDto:
     properties:
       canEdit:
@@ -895,6 +1009,19 @@ definitions:
     - id
     - name
     type: object
+  service.AppliedServiceDto:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      serviceTypeId:
+        type: integer
+    required:
+    - id
+    - name
+    - serviceTypeId
+    type: object
   service.ServiceAdminDto:
     properties:
       userId:
@@ -913,6 +1040,8 @@ definitions:
         type: array
       description:
         type: string
+      id:
+        type: integer
       name:
         type: string
       versions:
@@ -922,6 +1051,7 @@ definitions:
     required:
     - admins
     - description
+    - id
     - name
     - versions
     type: object
@@ -1329,6 +1459,267 @@ paths:
       security:
       - BearerAuth: []
       summary: Get current user
+  /change-history:
+    get:
+      description: Get change history for a service, feature, key, or variation
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      - description: Service ID
+        in: query
+        name: serviceId
+        type: integer
+      - description: Service version ID
+        in: query
+        name: serviceVersionId
+        type: integer
+      - description: Feature ID
+        in: query
+        name: featureId
+        type: integer
+      - description: Feature version ID
+        in: query
+        name: featureVersionId
+        type: integer
+      - description: Key name
+        in: query
+        name: keyName
+        type: string
+      - description: Apply variation
+        in: query
+        name: applyVariation
+        type: boolean
+      - collectionFormat: multi
+        description: Kinds
+        in: query
+        items:
+          type: string
+        name: kinds[]
+        type: array
+      - collectionFormat: multi
+        description: Variation
+        in: query
+        items:
+          type: string
+        name: variation[]
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.PaginatedResult-changeset_ChangeHistoryItemDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get change history
+  /change-history/features:
+    get:
+      description: Get features
+      parameters:
+      - description: Service ID
+        in: query
+        name: serviceId
+        type: integer
+      - description: Service version ID
+        in: query
+        name: serviceVersionId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/feature.FeatureDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get features
+  /change-history/features/{feature_id}/versions:
+    get:
+      description: Get applied feature versions
+      parameters:
+      - description: Feature ID
+        in: path
+        name: feature_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/feature.AppliedFeatureVersionDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get applied feature versions
+  /change-history/keys:
+    get:
+      description: Get applied keys
+      parameters:
+      - description: Feature ID
+        in: query
+        name: featureId
+        type: integer
+      - description: Feature version ID
+        in: query
+        name: featureVersionId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/key.AppliedKeyDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get applied keys
+  /change-history/services:
+    get:
+      description: Get applied services
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.AppliedServiceDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get applied services
+  /change-history/services/{service_id}/versions:
+    get:
+      description: Get applied service versions
+      parameters:
+      - description: Service ID
+        in: path
+        name: service_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.ServiceVersionLinkDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get applied service versions
   /changesets:
     get:
       consumes:
@@ -1938,7 +2329,7 @@ paths:
       parameters:
       - description: Changeset ID
         in: query
-        name: changeset_id
+        name: changesetId
         type: integer
       - collectionFormat: multi
         description: Service versions in format service:version

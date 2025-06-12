@@ -16,6 +16,7 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
 import { Route as UsersUserIdImport } from './routes/users.$userId'
 import { Route as GroupsGroupIdImport } from './routes/groups.$groupId'
+import { Route as AuthchangeHistoryChangeHistoryImport } from './routes/_auth/(change-history)/change-history'
 import { Route as AuthadminAdminImport } from './routes/_auth/(admin)/admin'
 import { Route as AuthservicesServicesIndexImport } from './routes/_auth/(services)/services.index'
 import { Route as AuthchangesetsChangesetsIndexImport } from './routes/_auth/(changesets)/changesets.index'
@@ -76,6 +77,13 @@ const GroupsGroupIdRoute = GroupsGroupIdImport.update({
   path: '/groups/$groupId',
   getParentRoute: () => rootRoute,
 } as any)
+
+const AuthchangeHistoryChangeHistoryRoute =
+  AuthchangeHistoryChangeHistoryImport.update({
+    id: '/(change-history)/change-history',
+    path: '/change-history',
+    getParentRoute: () => AuthRoute,
+  } as any)
 
 const AuthadminAdminRoute = AuthadminAdminImport.update({
   id: '/(admin)/admin',
@@ -339,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthadminAdminImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/(change-history)/change-history': {
+      id: '/_auth/(change-history)/change-history'
+      path: '/change-history'
+      fullPath: '/change-history'
+      preLoaderRoute: typeof AuthchangeHistoryChangeHistoryImport
       parentRoute: typeof AuthImport
     }
     '/_auth/(changesets)/changesets/$changesetId': {
@@ -611,6 +626,7 @@ const AuthadminAdminRouteWithChildren = AuthadminAdminRoute._addFileChildren(
 
 interface AuthRouteChildren {
   AuthadminAdminRoute: typeof AuthadminAdminRouteWithChildren
+  AuthchangeHistoryChangeHistoryRoute: typeof AuthchangeHistoryChangeHistoryRoute
   AuthchangesetsChangesetsChangesetIdRoute: typeof AuthchangesetsChangesetsChangesetIdRoute
   AuthchangesetsChangesetsEmptyRoute: typeof AuthchangesetsChangesetsEmptyRoute
   AuthservicesServicesCreateRoute: typeof AuthservicesServicesCreateRoute
@@ -632,6 +648,7 @@ interface AuthRouteChildren {
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthadminAdminRoute: AuthadminAdminRouteWithChildren,
+  AuthchangeHistoryChangeHistoryRoute: AuthchangeHistoryChangeHistoryRoute,
   AuthchangesetsChangesetsChangesetIdRoute:
     AuthchangesetsChangesetsChangesetIdRoute,
   AuthchangesetsChangesetsEmptyRoute: AuthchangesetsChangesetsEmptyRoute,
@@ -673,6 +690,7 @@ export interface FileRoutesByFullPath {
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/admin': typeof AuthadminAdminRouteWithChildren
+  '/change-history': typeof AuthchangeHistoryChangeHistoryRoute
   '/changesets/$changesetId': typeof AuthchangesetsChangesetsChangesetIdRoute
   '/changesets/empty': typeof AuthchangesetsChangesetsEmptyRoute
   '/services/create': typeof AuthservicesServicesCreateRoute
@@ -710,6 +728,7 @@ export interface FileRoutesByTo {
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/admin': typeof AuthadminAdminRouteWithChildren
+  '/change-history': typeof AuthchangeHistoryChangeHistoryRoute
   '/changesets/$changesetId': typeof AuthchangesetsChangesetsChangesetIdRoute
   '/changesets/empty': typeof AuthchangesetsChangesetsEmptyRoute
   '/services/create': typeof AuthservicesServicesCreateRoute
@@ -748,6 +767,7 @@ export interface FileRoutesById {
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/_auth/(admin)/admin': typeof AuthadminAdminRouteWithChildren
+  '/_auth/(change-history)/change-history': typeof AuthchangeHistoryChangeHistoryRoute
   '/_auth/(changesets)/changesets/$changesetId': typeof AuthchangesetsChangesetsChangesetIdRoute
   '/_auth/(changesets)/changesets/empty': typeof AuthchangesetsChangesetsEmptyRoute
   '/_auth/(services)/services/create': typeof AuthservicesServicesCreateRoute
@@ -787,6 +807,7 @@ export interface FileRouteTypes {
     | '/groups/$groupId'
     | '/users/$userId'
     | '/admin'
+    | '/change-history'
     | '/changesets/$changesetId'
     | '/changesets/empty'
     | '/services/create'
@@ -823,6 +844,7 @@ export interface FileRouteTypes {
     | '/groups/$groupId'
     | '/users/$userId'
     | '/admin'
+    | '/change-history'
     | '/changesets/$changesetId'
     | '/changesets/empty'
     | '/services/create'
@@ -859,6 +881,7 @@ export interface FileRouteTypes {
     | '/groups/$groupId'
     | '/users/$userId'
     | '/_auth/(admin)/admin'
+    | '/_auth/(change-history)/change-history'
     | '/_auth/(changesets)/changesets/$changesetId'
     | '/_auth/(changesets)/changesets/empty'
     | '/_auth/(services)/services/create'
@@ -930,6 +953,7 @@ export const routeTree = rootRoute
       "filePath": "_auth.tsx",
       "children": [
         "/_auth/(admin)/admin",
+        "/_auth/(change-history)/change-history",
         "/_auth/(changesets)/changesets/$changesetId",
         "/_auth/(changesets)/changesets/empty",
         "/_auth/(services)/services/create",
@@ -970,6 +994,10 @@ export const routeTree = rootRoute
         "/_auth/(admin)/admin/(membership)/membership/users/$userId",
         "/_auth/(admin)/admin/(membership)/membership/users/create"
       ]
+    },
+    "/_auth/(change-history)/change-history": {
+      "filePath": "_auth/(change-history)/change-history.tsx",
+      "parent": "/_auth"
     },
     "/_auth/(changesets)/changesets/$changesetId": {
       "filePath": "_auth/(changesets)/changesets.$changesetId.tsx",

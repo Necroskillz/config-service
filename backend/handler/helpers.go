@@ -12,11 +12,16 @@ import (
 	"github.com/necroskillz/config-service/util/validator"
 )
 
-func parseVariationParams[T comparable](c echo.Context, keyFunc func(string) (T, error), validator func(T, string) error) (map[T]string, error) {
-	variation := make(map[T]string)
+func (h *Handler) parseVariationParams(c echo.Context, keyFunc func(string) (uint, error)) (map[uint]string, error) {
+	variation := make(map[uint]string)
 	var variationParams []string
 
 	err := echo.QueryParamsBinder(c).Strings("variation[]", &variationParams).BindError()
+	if err != nil {
+		return nil, err
+	}
+
+	variationHierarchy, err := h.VariationHierarchyService.GetVariationHierarchy(c.Request().Context())
 	if err != nil {
 		return nil, err
 	}
@@ -33,70 +38,51 @@ func parseVariationParams[T comparable](c echo.Context, keyFunc func(string) (T,
 			return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Variation parameter key cannot be empty at index %d: '%s'", i, param))
 		}
 
-		processedKey, err := keyFunc(key)
+		propertyID, err := keyFunc(key)
 		if err != nil {
 			return nil, echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 		}
 
-		err = validator(processedKey, value)
+		_, err = variationHierarchy.GetPropertyValue(propertyID, value)
 		if err != nil {
 			return nil, echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 		}
 
 		// Check for duplicate keys
-		if _, exists := variation[processedKey]; exists {
+		if _, exists := variation[propertyID]; exists {
 			return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Duplicate variation parameter key: '%s'", key))
 		}
 
-		variation[processedKey] = value
+		variation[propertyID] = value
 	}
 
 	return variation, nil
 }
 
-func (h *Handler) GetVariationFromQuery(c echo.Context) (map[string]string, error) {
+func (h *Handler) GetVariationFromQuery(c echo.Context) (map[uint]string, error) {
 	variationHierarchy, err := h.VariationHierarchyService.GetVariationHierarchy(c.Request().Context())
 	if err != nil {
 		return nil, err
 	}
 
-	return parseVariationParams(c, func(name string) (string, error) {
-		return name, nil
-	}, func(propertyName string, value string) error {
-		propertyID, err := variationHierarchy.GetPropertyID(propertyName)
+	return h.parseVariationParams(c, func(name string) (uint, error) {
+		propertyID, err := variationHierarchy.GetPropertyID(name)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
-		_, err = variationHierarchy.GetPropertyValue(propertyID, value)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return propertyID, nil
 	})
 }
 
 func (h *Handler) GetVariationFromQueryIds(c echo.Context) (map[uint]string, error) {
-	variationHierarchy, err := h.VariationHierarchyService.GetVariationHierarchy(c.Request().Context())
-	if err != nil {
-		return nil, err
-	}
-
-	return parseVariationParams(c, func(id string) (uint, error) {
+	return h.parseVariationParams(c, func(id string) (uint, error) {
 		propertyID, err := strconv.ParseUint(id, 10, 32)
 		if err != nil {
 			return 0, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid property ID %s", id)).WithInternal(err)
 		}
 
 		return uint(propertyID), nil
-	}, func(propertyID uint, value string) error {
-		_, err = variationHierarchy.GetPropertyValue(propertyID, value)
-		if err != nil {
-			return err
-		}
-
-		return nil
 	})
 }
 

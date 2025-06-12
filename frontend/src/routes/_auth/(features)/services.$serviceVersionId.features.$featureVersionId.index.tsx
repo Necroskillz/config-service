@@ -113,6 +113,9 @@ function RouteComponent() {
               <Link to="/services/$serviceVersionId/features/$featureVersionId/permissions" params={{ serviceVersionId, featureVersionId }}>
                 <DropdownMenuItem>Permissions</DropdownMenuItem>
               </Link>
+              <Link to="/change-history" search={{ serviceId: serviceVersion.serviceId, serviceVersionId, featureId: featureVersion.featureId, featureVersionId }}>
+                <DropdownMenuItem>History</DropdownMenuItem>
+              </Link>
               {!serviceVersion.published && featureVersion.isLastVersion && (
                 <DropdownMenuItem
                   onClick={() =>

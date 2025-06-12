@@ -177,7 +177,7 @@ func (h *Handler) ServiceVersions(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	serviceVersions, err := h.ServiceService.GetServiceVersionsForServiceVersion(c.Request().Context(), serviceVersionID)
+	serviceVersions, err := h.ServiceService.GetServiceVersionsForService(c.Request().Context(), serviceVersionID)
 	if err != nil {
 		return ToHTTPError(err)
 	}

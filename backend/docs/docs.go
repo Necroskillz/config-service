@@ -153,6 +153,413 @@ const docTemplate = `{
                 }
             }
         },
+        "/change-history": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get change history for a service, feature, key, or variation",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get change history",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Service ID",
+                        "name": "serviceId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Service version ID",
+                        "name": "serviceVersionId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Feature ID",
+                        "name": "featureId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Feature version ID",
+                        "name": "featureVersionId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Key name",
+                        "name": "keyName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Apply variation",
+                        "name": "applyVariation",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Kinds",
+                        "name": "kinds[]",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Variation",
+                        "name": "variation[]",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.PaginatedResult-changeset_ChangeHistoryItemDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/change-history/features": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get features",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get features",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service ID",
+                        "name": "serviceId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Service version ID",
+                        "name": "serviceVersionId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/feature.FeatureDto"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/change-history/features/{feature_id}/versions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get applied feature versions",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get applied feature versions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Feature ID",
+                        "name": "feature_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/feature.AppliedFeatureVersionDto"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/change-history/keys": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get applied keys",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get applied keys",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Feature ID",
+                        "name": "featureId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Feature version ID",
+                        "name": "featureVersionId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/key.AppliedKeyDto"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/change-history/services": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get applied services",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get applied services",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/service.AppliedServiceDto"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/change-history/services/{service_id}/versions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get applied service versions",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get applied service versions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Service ID",
+                        "name": "service_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/service.ServiceVersionLinkDto"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/changesets": {
             "get": {
                 "security": [
@@ -1097,7 +1504,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Changeset ID",
-                        "name": "changeset_id",
+                        "name": "changesetId",
                         "in": "query"
                     },
                     {
@@ -5459,6 +5866,104 @@ const docTemplate = `{
                 }
             }
         },
+        "changeset.ChangeHistoryItemDto": {
+            "type": "object",
+            "required": [
+                "appliedAt",
+                "changesetId",
+                "featureId",
+                "featureName",
+                "featureVersion",
+                "featureVersionId",
+                "id",
+                "keyId",
+                "keyName",
+                "kind",
+                "newVariationValueData",
+                "newVariationValueId",
+                "oldVariationValueData",
+                "oldVariationValueId",
+                "serviceId",
+                "serviceName",
+                "serviceVersion",
+                "serviceVersionId",
+                "type",
+                "userId",
+                "userName",
+                "variation"
+            ],
+            "properties": {
+                "appliedAt": {
+                    "type": "string"
+                },
+                "changesetId": {
+                    "type": "integer"
+                },
+                "featureId": {
+                    "type": "integer"
+                },
+                "featureName": {
+                    "type": "string"
+                },
+                "featureVersion": {
+                    "type": "integer"
+                },
+                "featureVersionId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keyId": {
+                    "type": "integer"
+                },
+                "keyName": {
+                    "type": "string"
+                },
+                "kind": {
+                    "$ref": "#/definitions/db.ChangesetChangeKind"
+                },
+                "newVariationValueData": {
+                    "type": "string"
+                },
+                "newVariationValueId": {
+                    "type": "integer"
+                },
+                "oldVariationValueData": {
+                    "type": "string"
+                },
+                "oldVariationValueId": {
+                    "type": "integer"
+                },
+                "serviceId": {
+                    "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "serviceVersion": {
+                    "type": "integer"
+                },
+                "serviceVersionId": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.ChangesetChangeType"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
+                },
+                "variation": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "changeset.ChangesetAction": {
             "type": "object",
             "required": [
@@ -5784,6 +6289,24 @@ const docTemplate = `{
                 }
             }
         },
+        "core.PaginatedResult-changeset_ChangeHistoryItemDto": {
+            "type": "object",
+            "required": [
+                "items",
+                "totalCount"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/changeset.ChangeHistoryItemDto"
+                    }
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
+        },
         "core.PaginatedResult-changeset_ChangesetItemDto": {
             "type": "object",
             "required": [
@@ -5988,11 +6511,42 @@ const docTemplate = `{
                 "message": {}
             }
         },
+        "feature.AppliedFeatureVersionDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "version"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "feature.FeatureDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "feature.FeatureVersionDto": {
             "type": "object",
             "required": [
                 "canEdit",
                 "description",
+                "featureId",
                 "id",
                 "isLastVersion",
                 "name",
@@ -6004,6 +6558,9 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "featureId": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -6454,6 +7011,17 @@ const docTemplate = `{
                 }
             }
         },
+        "key.AppliedKeyDto": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "key.KeyDto": {
             "type": "object",
             "required": [
@@ -6713,6 +7281,25 @@ const docTemplate = `{
                 }
             }
         },
+        "service.AppliedServiceDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "serviceTypeId"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "serviceTypeId": {
+                    "type": "integer"
+                }
+            }
+        },
         "service.ServiceAdminDto": {
             "type": "object",
             "required": [
@@ -6733,6 +7320,7 @@ const docTemplate = `{
             "required": [
                 "admins",
                 "description",
+                "id",
                 "name",
                 "versions"
             ],
@@ -6745,6 +7333,9 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

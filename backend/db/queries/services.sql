@@ -1,3 +1,29 @@
+-- name: GetService :one
+SELECT
+    *
+FROM
+    services
+WHERE
+    id = @service_id
+LIMIT 1;
+
+-- name: GetAppliedServices :many
+SELECT
+    s.id,
+    s.name,
+    s.service_type_id
+FROM
+    services s
+    JOIN service_versions sv ON sv.service_id = s.id
+WHERE
+    sv.valid_from IS NOT NULL
+GROUP BY
+    s.id,
+    s.name,
+    s.service_type_id
+ORDER BY
+    LOWER(s.name) ASC;
+
 -- name: GetServiceVersions :many
 SELECT
     sv.*,
@@ -11,7 +37,7 @@ FROM
     JOIN service_types st ON st.id = s.service_type_id
     JOIN valid_service_versions_in_changeset(@changeset_id) vsv ON vsv.id = sv.id
 ORDER BY
-    s.name,
+    LOWER(s.name),
     sv.version ASC;
 
 -- name: GetServiceAdmins :many
@@ -31,7 +57,7 @@ WHERE (sqlc.narg('service_id')::bigint IS NULL
 AND (sqlc.narg('user_id')::bigint IS NULL
     OR u.id = sqlc.narg('user_id')::bigint);
 
--- name: GetServiceVersionsForService :many
+-- name: GetVersionsOfService :many
 SELECT
     sv.id,
     sv.version
@@ -40,6 +66,18 @@ FROM
     JOIN valid_service_versions_in_changeset(@changeset_id) vsv ON vsv.id = sv.id
 WHERE
     sv.service_id = @service_id
+ORDER BY
+    sv.version ASC;
+
+-- name: GetAppliedVersionsOfService :many
+SELECT
+    sv.id,
+    sv.version
+FROM
+    service_versions sv
+WHERE
+    sv.service_id = @service_id
+    AND sv.valid_from IS NOT NULL
 ORDER BY
     sv.version ASC;
 

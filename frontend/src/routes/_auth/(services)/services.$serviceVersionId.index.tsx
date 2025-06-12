@@ -112,6 +112,9 @@ function RouteComponent() {
               <Link to="/services/$serviceVersionId/link" params={{ serviceVersionId }}>
                 <DropdownMenuItem>Link/Unlink features</DropdownMenuItem>
               </Link>
+              <Link to="/change-history" search={{ serviceId: serviceVersion.serviceId, serviceVersionId }}>
+                <DropdownMenuItem>History</DropdownMenuItem>
+              </Link>
               {!serviceVersion.published && (
                 <DropdownMenuItem onClick={() => publishMutation.mutate({ service_version_id: serviceVersionId })}>
                   Publish
@@ -141,7 +144,7 @@ function RouteComponent() {
             <DropdownMenuContent>
               {allServiceVersions?.map((sv) =>
                 sv.id === serviceVersionId ? (
-                  <DropdownMenuItem>
+                  <DropdownMenuItem key={sv.id}>
                     <span className="text-accent-foreground font-bold">v{sv.version}</span>
                   </DropdownMenuItem>
                 ) : (

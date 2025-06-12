@@ -13,6 +13,18 @@ export type { DeleteVariationPropertiesPropertyIdMutationKey } from './hooks/use
 export type { DeleteVariationPropertiesPropertyIdValuesValueIdMutationKey } from './hooks/useDeleteVariationPropertiesPropertyIdValuesValueId.ts'
 export type { GetAuthUserQueryKey } from './hooks/useGetAuthUser.ts'
 export type { GetAuthUserSuspenseQueryKey } from './hooks/useGetAuthUserSuspense.ts'
+export type { GetChangeHistoryQueryKey } from './hooks/useGetChangeHistory.ts'
+export type { GetChangeHistoryFeaturesQueryKey } from './hooks/useGetChangeHistoryFeatures.ts'
+export type { GetChangeHistoryFeaturesFeatureIdVersionsQueryKey } from './hooks/useGetChangeHistoryFeaturesFeatureIdVersions.ts'
+export type { GetChangeHistoryFeaturesFeatureIdVersionsSuspenseQueryKey } from './hooks/useGetChangeHistoryFeaturesFeatureIdVersionsSuspense.ts'
+export type { GetChangeHistoryFeaturesSuspenseQueryKey } from './hooks/useGetChangeHistoryFeaturesSuspense.ts'
+export type { GetChangeHistoryKeysQueryKey } from './hooks/useGetChangeHistoryKeys.ts'
+export type { GetChangeHistoryKeysSuspenseQueryKey } from './hooks/useGetChangeHistoryKeysSuspense.ts'
+export type { GetChangeHistoryServicesQueryKey } from './hooks/useGetChangeHistoryServices.ts'
+export type { GetChangeHistoryServicesServiceIdVersionsQueryKey } from './hooks/useGetChangeHistoryServicesServiceIdVersions.ts'
+export type { GetChangeHistoryServicesServiceIdVersionsSuspenseQueryKey } from './hooks/useGetChangeHistoryServicesServiceIdVersionsSuspense.ts'
+export type { GetChangeHistoryServicesSuspenseQueryKey } from './hooks/useGetChangeHistoryServicesSuspense.ts'
+export type { GetChangeHistorySuspenseQueryKey } from './hooks/useGetChangeHistorySuspense.ts'
 export type { GetChangesetsQueryKey } from './hooks/useGetChangesets.ts'
 export type { GetChangesetsApprovableCountQueryKey } from './hooks/useGetChangesetsApprovableCount.ts'
 export type { GetChangesetsApprovableCountSuspenseQueryKey } from './hooks/useGetChangesetsApprovableCountSuspense.ts'
@@ -122,6 +134,7 @@ export type { PutVariationPropertiesPropertyIdValuesValueIdArchiveMutationKey } 
 export type { PutVariationPropertiesPropertyIdValuesValueIdOrderMutationKey } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdOrder.ts'
 export type { PutVariationPropertiesPropertyIdValuesValueIdUnarchiveMutationKey } from './hooks/usePutVariationPropertiesPropertyIdValuesValueIdUnarchive.ts'
 export type { AuthUser } from './types/auth/User.ts'
+export type { ChangesetChangeHistoryItemDto } from './types/changeset/ChangeHistoryItemDto.ts'
 export type { ChangesetChangesetAction } from './types/changeset/ChangesetAction.ts'
 export type { ChangesetChangesetChange } from './types/changeset/ChangesetChange.ts'
 export type { ChangesetChangesetDto } from './types/changeset/ChangesetDto.ts'
@@ -132,6 +145,7 @@ export type { ConfigurationConfigurationDto } from './types/configuration/Config
 export type { ConfigurationFeatureConfigurationDto } from './types/configuration/FeatureConfigurationDto.ts'
 export type { ConfigurationKeyConfigurationDto } from './types/configuration/KeyConfigurationDto.ts'
 export type { ConfigurationValueConfigurationDto } from './types/configuration/ValueConfigurationDto.ts'
+export type { CorePaginatedResultChangesetChangeHistoryItemDto } from './types/core/PaginatedResultChangesetChangeHistoryItemDto.ts'
 export type { CorePaginatedResultChangesetChangesetItemDto } from './types/core/PaginatedResultChangesetChangesetItemDto.ts'
 export type { CorePaginatedResultMembershipGroupUserDto } from './types/core/PaginatedResultMembershipGroupUserDto.ts'
 export type { CorePaginatedResultMembershipMembershipObjectDto } from './types/core/PaginatedResultMembershipMembershipObjectDto.ts'
@@ -287,10 +301,71 @@ export type {
   DeleteVariationPropertiesPropertyIdValuesValueIdMutation,
 } from './types/DeleteVariationPropertiesPropertyIdValuesValueId.ts'
 export type { EchoHTTPError } from './types/echo/HTTPError.ts'
+export type { FeatureAppliedFeatureVersionDto } from './types/feature/AppliedFeatureVersionDto.ts'
+export type { FeatureFeatureDto } from './types/feature/FeatureDto.ts'
 export type { FeatureFeatureVersionDto } from './types/feature/FeatureVersionDto.ts'
 export type { FeatureFeatureVersionItemDto } from './types/feature/FeatureVersionItemDto.ts'
 export type { FeatureFeatureVersionLinkDto } from './types/feature/FeatureVersionLinkDto.ts'
 export type { GetAuthUser200, GetAuthUser401, GetAuthUser500, GetAuthUserQueryResponse, GetAuthUserQuery } from './types/GetAuthUser.ts'
+export type {
+  GetChangeHistoryQueryParams,
+  GetChangeHistory200,
+  GetChangeHistory400,
+  GetChangeHistory401,
+  GetChangeHistory404,
+  GetChangeHistory500,
+  GetChangeHistoryQueryResponse,
+  GetChangeHistoryQuery,
+} from './types/GetChangeHistory.ts'
+export type {
+  GetChangeHistoryFeaturesQueryParams,
+  GetChangeHistoryFeatures200,
+  GetChangeHistoryFeatures400,
+  GetChangeHistoryFeatures401,
+  GetChangeHistoryFeatures404,
+  GetChangeHistoryFeatures500,
+  GetChangeHistoryFeaturesQueryResponse,
+  GetChangeHistoryFeaturesQuery,
+} from './types/GetChangeHistoryFeatures.ts'
+export type {
+  GetChangeHistoryFeaturesFeatureIdVersionsPathParams,
+  GetChangeHistoryFeaturesFeatureIdVersions200,
+  GetChangeHistoryFeaturesFeatureIdVersions400,
+  GetChangeHistoryFeaturesFeatureIdVersions401,
+  GetChangeHistoryFeaturesFeatureIdVersions404,
+  GetChangeHistoryFeaturesFeatureIdVersions500,
+  GetChangeHistoryFeaturesFeatureIdVersionsQueryResponse,
+  GetChangeHistoryFeaturesFeatureIdVersionsQuery,
+} from './types/GetChangeHistoryFeaturesFeatureIdVersions.ts'
+export type {
+  GetChangeHistoryKeysQueryParams,
+  GetChangeHistoryKeys200,
+  GetChangeHistoryKeys400,
+  GetChangeHistoryKeys401,
+  GetChangeHistoryKeys404,
+  GetChangeHistoryKeys500,
+  GetChangeHistoryKeysQueryResponse,
+  GetChangeHistoryKeysQuery,
+} from './types/GetChangeHistoryKeys.ts'
+export type {
+  GetChangeHistoryServices200,
+  GetChangeHistoryServices400,
+  GetChangeHistoryServices401,
+  GetChangeHistoryServices404,
+  GetChangeHistoryServices500,
+  GetChangeHistoryServicesQueryResponse,
+  GetChangeHistoryServicesQuery,
+} from './types/GetChangeHistoryServices.ts'
+export type {
+  GetChangeHistoryServicesServiceIdVersionsPathParams,
+  GetChangeHistoryServicesServiceIdVersions200,
+  GetChangeHistoryServicesServiceIdVersions400,
+  GetChangeHistoryServicesServiceIdVersions401,
+  GetChangeHistoryServicesServiceIdVersions404,
+  GetChangeHistoryServicesServiceIdVersions500,
+  GetChangeHistoryServicesServiceIdVersionsQueryResponse,
+  GetChangeHistoryServicesServiceIdVersionsQuery,
+} from './types/GetChangeHistoryServicesServiceIdVersions.ts'
 export type {
   GetChangesetsQueryParams,
   GetChangesets200,
@@ -631,6 +706,7 @@ export type { HandlerUpdateVariationPropertyRequest } from './types/handler/Upda
 export type { HandlerUpdateVariationPropertyValueOrderRequest } from './types/handler/UpdateVariationPropertyValueOrderRequest.ts'
 export type { HandlerValidatorRequest } from './types/handler/ValidatorRequest.ts'
 export type { HandlerValueRequest } from './types/handler/ValueRequest.ts'
+export type { KeyAppliedKeyDto } from './types/key/AppliedKeyDto.ts'
 export type { KeyKeyDto } from './types/key/KeyDto.ts'
 export type { KeyKeyItemDto } from './types/key/KeyItemDto.ts'
 export type { MembershipEntityPermissionDto } from './types/membership/EntityPermissionDto.ts'
@@ -1065,6 +1141,7 @@ export type {
   PutVariationPropertiesPropertyIdValuesValueIdUnarchiveMutationResponse,
   PutVariationPropertiesPropertyIdValuesValueIdUnarchiveMutation,
 } from './types/PutVariationPropertiesPropertyIdValuesValueIdUnarchive.ts'
+export type { ServiceAppliedServiceDto } from './types/service/AppliedServiceDto.ts'
 export type { ServiceServiceAdminDto } from './types/service/ServiceAdminDto.ts'
 export type { ServiceServiceDto } from './types/service/ServiceDto.ts'
 export type { ServiceServiceVersionDto } from './types/service/ServiceVersionDto.ts'
@@ -1143,6 +1220,73 @@ export {
 } from './hooks/useDeleteVariationPropertiesPropertyIdValuesValueId.ts'
 export { getAuthUserQueryKey, getAuthUser, getAuthUserQueryOptions, useGetAuthUser } from './hooks/useGetAuthUser.ts'
 export { getAuthUserSuspenseQueryKey, getAuthUserSuspense, getAuthUserSuspenseQueryOptions, useGetAuthUserSuspense } from './hooks/useGetAuthUserSuspense.ts'
+export { getChangeHistoryQueryKey, getChangeHistory, getChangeHistoryQueryOptions, useGetChangeHistory } from './hooks/useGetChangeHistory.ts'
+export {
+  getChangeHistoryFeaturesQueryKey,
+  getChangeHistoryFeatures,
+  getChangeHistoryFeaturesQueryOptions,
+  useGetChangeHistoryFeatures,
+} from './hooks/useGetChangeHistoryFeatures.ts'
+export {
+  getChangeHistoryFeaturesFeatureIdVersionsQueryKey,
+  getChangeHistoryFeaturesFeatureIdVersions,
+  getChangeHistoryFeaturesFeatureIdVersionsQueryOptions,
+  useGetChangeHistoryFeaturesFeatureIdVersions,
+} from './hooks/useGetChangeHistoryFeaturesFeatureIdVersions.ts'
+export {
+  getChangeHistoryFeaturesFeatureIdVersionsSuspenseQueryKey,
+  getChangeHistoryFeaturesFeatureIdVersionsSuspense,
+  getChangeHistoryFeaturesFeatureIdVersionsSuspenseQueryOptions,
+  useGetChangeHistoryFeaturesFeatureIdVersionsSuspense,
+} from './hooks/useGetChangeHistoryFeaturesFeatureIdVersionsSuspense.ts'
+export {
+  getChangeHistoryFeaturesSuspenseQueryKey,
+  getChangeHistoryFeaturesSuspense,
+  getChangeHistoryFeaturesSuspenseQueryOptions,
+  useGetChangeHistoryFeaturesSuspense,
+} from './hooks/useGetChangeHistoryFeaturesSuspense.ts'
+export {
+  getChangeHistoryKeysQueryKey,
+  getChangeHistoryKeys,
+  getChangeHistoryKeysQueryOptions,
+  useGetChangeHistoryKeys,
+} from './hooks/useGetChangeHistoryKeys.ts'
+export {
+  getChangeHistoryKeysSuspenseQueryKey,
+  getChangeHistoryKeysSuspense,
+  getChangeHistoryKeysSuspenseQueryOptions,
+  useGetChangeHistoryKeysSuspense,
+} from './hooks/useGetChangeHistoryKeysSuspense.ts'
+export {
+  getChangeHistoryServicesQueryKey,
+  getChangeHistoryServices,
+  getChangeHistoryServicesQueryOptions,
+  useGetChangeHistoryServices,
+} from './hooks/useGetChangeHistoryServices.ts'
+export {
+  getChangeHistoryServicesServiceIdVersionsQueryKey,
+  getChangeHistoryServicesServiceIdVersions,
+  getChangeHistoryServicesServiceIdVersionsQueryOptions,
+  useGetChangeHistoryServicesServiceIdVersions,
+} from './hooks/useGetChangeHistoryServicesServiceIdVersions.ts'
+export {
+  getChangeHistoryServicesServiceIdVersionsSuspenseQueryKey,
+  getChangeHistoryServicesServiceIdVersionsSuspense,
+  getChangeHistoryServicesServiceIdVersionsSuspenseQueryOptions,
+  useGetChangeHistoryServicesServiceIdVersionsSuspense,
+} from './hooks/useGetChangeHistoryServicesServiceIdVersionsSuspense.ts'
+export {
+  getChangeHistoryServicesSuspenseQueryKey,
+  getChangeHistoryServicesSuspense,
+  getChangeHistoryServicesSuspenseQueryOptions,
+  useGetChangeHistoryServicesSuspense,
+} from './hooks/useGetChangeHistoryServicesSuspense.ts'
+export {
+  getChangeHistorySuspenseQueryKey,
+  getChangeHistorySuspense,
+  getChangeHistorySuspenseQueryOptions,
+  useGetChangeHistorySuspense,
+} from './hooks/useGetChangeHistorySuspense.ts'
 export { getChangesetsQueryKey, getChangesets, getChangesetsQueryOptions, useGetChangesets } from './hooks/useGetChangesets.ts'
 export {
   getChangesetsApprovableCountQueryKey,

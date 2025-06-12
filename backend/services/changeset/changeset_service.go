@@ -696,3 +696,129 @@ func (s *Service) GetChangesetChangesCount(ctx context.Context) (int, error) {
 
 	return count, nil
 }
+
+type GetChangeHistoryFilter struct {
+	Page             int
+	PageSize         int
+	ServiceID        *uint
+	ServiceVersionID *uint
+	FeatureID        *uint
+	FeatureVersionID *uint
+	KeyName          *string
+	Variation        map[uint]string
+	Kinds            []string
+}
+
+type ChangeHistoryItemDto struct {
+	ID                    uint                   `json:"id" validate:"required"`
+	Type                  db.ChangesetChangeType `json:"type" validate:"required"`
+	Kind                  db.ChangesetChangeKind `json:"kind" validate:"required"`
+	ChangesetID           uint                   `json:"changesetId" validate:"required"`
+	AppliedAt             time.Time              `json:"appliedAt" validate:"required"`
+	UserName              string                 `json:"userName" validate:"required"`
+	UserID                uint                   `json:"userId" validate:"required"`
+	ServiceID             uint                   `json:"serviceId" validate:"required"`
+	ServiceName           string                 `json:"serviceName" validate:"required"`
+	ServiceVersion        int                    `json:"serviceVersion" validate:"required"`
+	ServiceVersionID      uint                   `json:"serviceVersionId" validate:"required"`
+	FeatureID             *uint                  `json:"featureId" validate:"required"`
+	FeatureName           *string                `json:"featureName" validate:"required"`
+	FeatureVersion        *int                   `json:"featureVersion" validate:"required"`
+	FeatureVersionID      *uint                  `json:"featureVersionId" validate:"required"`
+	KeyID                 *uint                  `json:"keyId" validate:"required"`
+	KeyName               *string                `json:"keyName" validate:"required"`
+	NewVariationValueID   *uint                  `json:"newVariationValueId" validate:"required"`
+	NewVariationValueData *string                `json:"newVariationValueData" validate:"required"`
+	OldVariationValueID   *uint                  `json:"oldVariationValueId" validate:"required"`
+	OldVariationValueData *string                `json:"oldVariationValueData" validate:"required"`
+	Variation             map[uint]string        `json:"variation" validate:"required"`
+}
+
+func (s *Service) GetChangeHistory(ctx context.Context, filter GetChangeHistoryFilter) (core.PaginatedResult[ChangeHistoryItemDto], error) {
+	if filter.Page < 1 {
+		return core.PaginatedResult[ChangeHistoryItemDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "Page must be 1 or greater")
+	}
+
+	if filter.PageSize < 1 || filter.PageSize > 100 {
+		return core.PaginatedResult[ChangeHistoryItemDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "Page size must be between 1 and 100")
+	}
+
+	// Validate kinds - convert to enum types to check validity
+	for _, kind := range filter.Kinds {
+		var dbKind db.ChangesetChangeKind
+		if err := dbKind.Scan(kind); err != nil {
+			return core.PaginatedResult[ChangeHistoryItemDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, fmt.Sprintf("Invalid kind: %s", kind))
+		}
+	}
+
+	var variationContextID *uint
+	if filter.Variation != nil {
+		vcID, err := s.variationContextService.GetVariationContextID(ctx, filter.Variation)
+		if err != nil {
+			return core.PaginatedResult[ChangeHistoryItemDto]{}, err
+		}
+
+		variationContextID = &vcID
+	}
+
+	changes, err := s.queries.GetChangeHistory(ctx, db.GetChangeHistoryParams{
+		ServiceID:          filter.ServiceID,
+		ServiceVersionID:   filter.ServiceVersionID,
+		FeatureID:          filter.FeatureID,
+		FeatureVersionID:   filter.FeatureVersionID,
+		KeyName:            filter.KeyName,
+		VariationContextID: variationContextID,
+		Kinds:              filter.Kinds,
+		Limit:              filter.PageSize,
+		Offset:             (filter.Page - 1) * filter.PageSize,
+	})
+	if err != nil {
+		return core.PaginatedResult[ChangeHistoryItemDto]{}, err
+	}
+
+	items := make([]ChangeHistoryItemDto, len(changes))
+	for i, change := range changes {
+		items[i] = ChangeHistoryItemDto{
+			ID:                    change.ID,
+			Type:                  change.Type,
+			Kind:                  change.Kind,
+			ChangesetID:           change.ChangesetID,
+			AppliedAt:             change.AppliedAt,
+			UserName:              change.UserName,
+			UserID:                change.UserID,
+			ServiceID:             change.ServiceID,
+			ServiceName:           change.ServiceName,
+			ServiceVersion:        change.ServiceVersion,
+			ServiceVersionID:      change.ServiceVersionID,
+			FeatureID:             change.FeatureID,
+			FeatureName:           change.FeatureName,
+			FeatureVersion:        change.FeatureVersion,
+			FeatureVersionID:      change.FeatureVersionID,
+			KeyID:                 change.KeyID,
+			KeyName:               change.KeyName,
+			NewVariationValueID:   change.NewVariationValueID,
+			NewVariationValueData: change.NewVariationValueData,
+			OldVariationValueID:   change.OldVariationValueID,
+			OldVariationValueData: change.OldVariationValueData,
+		}
+
+		if change.VariationContextID != nil {
+			variation, err := s.variationContextService.GetVariationContextValues(ctx, *change.VariationContextID)
+			if err != nil {
+				return core.PaginatedResult[ChangeHistoryItemDto]{}, err
+			}
+
+			items[i].Variation = variation
+		}
+	}
+
+	result := core.PaginatedResult[ChangeHistoryItemDto]{
+		Items: items,
+	}
+
+	if len(changes) > 0 {
+		result.TotalCount = changes[0].TotalCount
+	}
+
+	return result, nil
+}

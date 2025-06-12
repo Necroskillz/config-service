@@ -26,14 +26,14 @@ export function RenderPagedQuery<T>({
   query: UseQueryResult<PagedQueryData<T>, ResponseErrorConfig<EchoHTTPError>>;
   page: number;
   pageSize: number;
-  children: (data: PagedQueryData<T>) => React.ReactNode;
+  children: (data: T[]) => React.ReactNode;
   linkTo: LinkComponentProps<'a'>['to'];
   linkParams?: LinkComponentProps<'a'>['params'];
   linkSearch?: LinkComponentProps<'a'>['search'];
   emptyMessage: string;
   pageKey: string;
 }) {
-  const { status, error, data } = query;
+  const { status } = query;
 
   const search = linkSearch as Record<string, any>;
 
@@ -56,7 +56,7 @@ export function RenderPagedQuery<T>({
               <div className="text-muted-foreground">{emptyMessage}</div>
             ) : (
               <div className="flex flex-col gap-4">
-                {children(data)}
+                {children(data.items)}
                 <Pagination>
                   <PaginationContent>
                     {page > 1 && (

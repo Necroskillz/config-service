@@ -228,7 +228,7 @@ function RouteComponent() {
               <>
                 <MutationErrors mutations={[removeFromGroupMutation]} />
                 <List>
-                  {data.items.map((user) => (
+                  {data.map((user) => (
                     <ListItem key={user.id} variant="slim">
                       <div className="flex flex-row items-center gap-2 justify-between">
                         <Link to="/admin/membership/users/$userId" params={{ userId: user.id }}>

@@ -88,6 +88,112 @@ func (q *Queries) EndServiceVersionValidity(ctx context.Context, arg EndServiceV
 	return err
 }
 
+const getAppliedServices = `-- name: GetAppliedServices :many
+SELECT
+    s.id,
+    s.name,
+    s.service_type_id
+FROM
+    services s
+    JOIN service_versions sv ON sv.service_id = s.id
+WHERE
+    sv.valid_from IS NOT NULL
+GROUP BY
+    s.id,
+    s.name,
+    s.service_type_id
+ORDER BY
+    LOWER(s.name) ASC
+`
+
+type GetAppliedServicesRow struct {
+	ID            uint
+	Name          string
+	ServiceTypeID uint
+}
+
+func (q *Queries) GetAppliedServices(ctx context.Context) ([]GetAppliedServicesRow, error) {
+	rows, err := q.db.Query(ctx, getAppliedServices)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAppliedServicesRow
+	for rows.Next() {
+		var i GetAppliedServicesRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.ServiceTypeID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAppliedVersionsOfService = `-- name: GetAppliedVersionsOfService :many
+SELECT
+    sv.id,
+    sv.version
+FROM
+    service_versions sv
+WHERE
+    sv.service_id = $1
+    AND sv.valid_from IS NOT NULL
+ORDER BY
+    sv.version ASC
+`
+
+type GetAppliedVersionsOfServiceRow struct {
+	ID      uint
+	Version int
+}
+
+func (q *Queries) GetAppliedVersionsOfService(ctx context.Context, serviceID uint) ([]GetAppliedVersionsOfServiceRow, error) {
+	rows, err := q.db.Query(ctx, getAppliedVersionsOfService, serviceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAppliedVersionsOfServiceRow
+	for rows.Next() {
+		var i GetAppliedVersionsOfServiceRow
+		if err := rows.Scan(&i.ID, &i.Version); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getService = `-- name: GetService :one
+SELECT
+    id, created_at, updated_at, name, description, service_type_id
+FROM
+    services
+WHERE
+    id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetService(ctx context.Context, serviceID uint) (Service, error) {
+	row := q.db.QueryRow(ctx, getService, serviceID)
+	var i Service
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Description,
+		&i.ServiceTypeID,
+	)
+	return i, err
+}
+
 const getServiceAdmins = `-- name: GetServiceAdmins :many
 SELECT
     s.id AS service_id,
@@ -285,7 +391,7 @@ FROM
     JOIN service_types st ON st.id = s.service_type_id
     JOIN valid_service_versions_in_changeset($1) vsv ON vsv.id = sv.id
 ORDER BY
-    s.name,
+    LOWER(s.name),
     sv.version ASC
 `
 
@@ -337,7 +443,7 @@ func (q *Queries) GetServiceVersions(ctx context.Context, changesetID uint) ([]G
 	return items, nil
 }
 
-const getServiceVersionsForService = `-- name: GetServiceVersionsForService :many
+const getVersionsOfService = `-- name: GetVersionsOfService :many
 SELECT
     sv.id,
     sv.version
@@ -350,25 +456,25 @@ ORDER BY
     sv.version ASC
 `
 
-type GetServiceVersionsForServiceParams struct {
+type GetVersionsOfServiceParams struct {
 	ChangesetID uint
 	ServiceID   uint
 }
 
-type GetServiceVersionsForServiceRow struct {
+type GetVersionsOfServiceRow struct {
 	ID      uint
 	Version int
 }
 
-func (q *Queries) GetServiceVersionsForService(ctx context.Context, arg GetServiceVersionsForServiceParams) ([]GetServiceVersionsForServiceRow, error) {
-	rows, err := q.db.Query(ctx, getServiceVersionsForService, arg.ChangesetID, arg.ServiceID)
+func (q *Queries) GetVersionsOfService(ctx context.Context, arg GetVersionsOfServiceParams) ([]GetVersionsOfServiceRow, error) {
+	rows, err := q.db.Query(ctx, getVersionsOfService, arg.ChangesetID, arg.ServiceID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetServiceVersionsForServiceRow
+	var items []GetVersionsOfServiceRow
 	for rows.Next() {
-		var i GetServiceVersionsForServiceRow
+		var i GetVersionsOfServiceRow
 		if err := rows.Scan(&i.ID, &i.Version); err != nil {
 			return nil, err
 		}

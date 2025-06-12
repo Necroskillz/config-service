@@ -454,6 +454,156 @@ func (q *Queries) GetChangeForVariationValue(ctx context.Context, arg GetChangeF
 	return i, err
 }
 
+const getChangeHistory = `-- name: GetChangeHistory :many
+SELECT
+    csc.id,
+    csc.type,
+    csc.kind,
+    cs.applied_at::timestamptz AS applied_at,
+    u.name AS user_name,
+    u.id AS user_id,
+    cs.id AS changeset_id,
+    sv.id AS service_version_id,
+    csc.previous_service_version_id,
+    s.name AS service_name,
+    s.id AS service_id,
+    sv.version AS service_version,
+    fv.id AS feature_version_id,
+    csc.previous_feature_version_id,
+    f.name AS feature_name,
+    f.id AS feature_id,
+    fv.version AS feature_version,
+    k.id AS key_id,
+    k.name AS key_name,
+    nv.id AS new_variation_value_id,
+    nv.data AS new_variation_value_data,
+    ov.id AS old_variation_value_id,
+    ov.data AS old_variation_value_data,
+    vc.id AS variation_context_id,
+    COUNT(*) OVER ()::integer AS total_count
+FROM
+    changeset_changes csc
+    JOIN changesets cs ON cs.id = csc.changeset_id
+    JOIN service_versions sv ON sv.id = csc.service_version_id
+    JOIN services s ON s.id = sv.service_id
+    JOIN users u ON u.id = cs.user_id
+    LEFT JOIN feature_version_service_versions fvsv ON fvsv.id = csc.feature_version_service_version_id
+    LEFT JOIN feature_versions fv ON fv.id = csc.feature_version_id
+    LEFT JOIN features f ON f.id = fv.feature_id
+    LEFT JOIN keys k ON k.id = csc.key_id
+    LEFT JOIN variation_values nv ON nv.id = csc.new_variation_value_id
+    LEFT JOIN variation_values ov ON ov.id = csc.old_variation_value_id
+    LEFT JOIN variation_contexts vc ON vc.id = COALESCE(nv.variation_context_id, ov.variation_context_id)
+WHERE
+    cs.applied_at IS NOT NULL
+    AND ($1::bigint IS NULL OR s.id = $1::bigint)
+    AND ($2::bigint IS NULL OR sv.id = $2::bigint)
+    AND ($3::bigint IS NULL OR f.id = $3::bigint)
+    AND ($4::bigint IS NULL OR fv.id = $4::bigint)
+    AND ($5::text IS NULL OR k.name = $5::text)
+    AND ($6::bigint IS NULL OR vc.id = $6::bigint)
+    AND ($7::text[] IS NULL OR csc.kind = ANY($7::text[]::changeset_change_kind[]))
+ORDER BY
+    cs.applied_at DESC, csc.id DESC
+LIMIT $9::integer OFFSET $8::integer
+`
+
+type GetChangeHistoryParams struct {
+	ServiceID          *uint
+	ServiceVersionID   *uint
+	FeatureID          *uint
+	FeatureVersionID   *uint
+	KeyName            *string
+	VariationContextID *uint
+	Kinds              []string
+	Offset             int
+	Limit              int
+}
+
+type GetChangeHistoryRow struct {
+	ID                       uint
+	Type                     ChangesetChangeType
+	Kind                     ChangesetChangeKind
+	AppliedAt                time.Time
+	UserName                 string
+	UserID                   uint
+	ChangesetID              uint
+	ServiceVersionID         uint
+	PreviousServiceVersionID *uint
+	ServiceName              string
+	ServiceID                uint
+	ServiceVersion           int
+	FeatureVersionID         *uint
+	PreviousFeatureVersionID *uint
+	FeatureName              *string
+	FeatureID                *uint
+	FeatureVersion           *int
+	KeyID                    *uint
+	KeyName                  *string
+	NewVariationValueID      *uint
+	NewVariationValueData    *string
+	OldVariationValueID      *uint
+	OldVariationValueData    *string
+	VariationContextID       *uint
+	TotalCount               int
+}
+
+func (q *Queries) GetChangeHistory(ctx context.Context, arg GetChangeHistoryParams) ([]GetChangeHistoryRow, error) {
+	rows, err := q.db.Query(ctx, getChangeHistory,
+		arg.ServiceID,
+		arg.ServiceVersionID,
+		arg.FeatureID,
+		arg.FeatureVersionID,
+		arg.KeyName,
+		arg.VariationContextID,
+		arg.Kinds,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetChangeHistoryRow
+	for rows.Next() {
+		var i GetChangeHistoryRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.Kind,
+			&i.AppliedAt,
+			&i.UserName,
+			&i.UserID,
+			&i.ChangesetID,
+			&i.ServiceVersionID,
+			&i.PreviousServiceVersionID,
+			&i.ServiceName,
+			&i.ServiceID,
+			&i.ServiceVersion,
+			&i.FeatureVersionID,
+			&i.PreviousFeatureVersionID,
+			&i.FeatureName,
+			&i.FeatureID,
+			&i.FeatureVersion,
+			&i.KeyID,
+			&i.KeyName,
+			&i.NewVariationValueID,
+			&i.NewVariationValueData,
+			&i.OldVariationValueID,
+			&i.OldVariationValueData,
+			&i.VariationContextID,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getChangeset = `-- name: GetChangeset :one
 SELECT
     cs.id,

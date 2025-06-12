@@ -17,6 +17,24 @@ func NewService(queries *db.Queries, currentUserAccessor *auth.CurrentUserAccess
 	return &Service{queries: queries, currentUserAccessor: currentUserAccessor}
 }
 
+func (s *Service) GetService(ctx context.Context, serviceID uint) (db.Service, error) {
+	service, err := s.queries.GetService(ctx, serviceID)
+	if err != nil {
+		return service, NewDbError(err, "Service")
+	}
+
+	return service, nil
+}
+
+func (s *Service) GetFeature(ctx context.Context, featureID uint) (db.Feature, error) {
+	feature, err := s.queries.GetFeature(ctx, featureID)
+	if err != nil {
+		return feature, NewDbError(err, "Feature")
+	}
+
+	return feature, nil
+}
+
 func (s *Service) GetServiceVersion(ctx context.Context, serviceVersionID uint) (db.GetServiceVersionRow, error) {
 	user := s.currentUserAccessor.GetUser(ctx)
 
@@ -29,6 +47,19 @@ func (s *Service) GetServiceVersion(ctx context.Context, serviceVersionID uint) 
 	}
 
 	return serviceVersion, nil
+}
+
+func (s *Service) GetFeatureVersionWithoutLink(ctx context.Context, featureVersionID uint) (db.GetFeatureVersionRow, error) {
+	user := s.currentUserAccessor.GetUser(ctx)
+	featureVersion, err := s.queries.GetFeatureVersion(ctx, db.GetFeatureVersionParams{
+		FeatureVersionID: featureVersionID,
+		ChangesetID:      user.ChangesetID,
+	})
+	if err != nil {
+		return featureVersion, NewDbError(err, "FeatureVersion")
+	}
+
+	return featureVersion, nil
 }
 
 func (s *Service) GetFeatureVersionWithLink(ctx context.Context, serviceVersionID uint, featureVersionID uint) (db.GetServiceVersionRow, db.GetFeatureVersionRow, db.GetFeatureVersionServiceVersionLinkRow, error) {

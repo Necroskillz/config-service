@@ -29,6 +29,25 @@ WHERE
 ORDER BY
     k.name;
 
+-- name: GetAppliedKeys :many
+SELECT DISTINCT
+    k.name
+FROM
+    keys k
+WHERE
+    k.valid_from IS NOT NULL
+    AND (sqlc.narg('feature_version_id')::bigint IS NULL
+        OR k.feature_version_id = sqlc.arg('feature_version_id')::bigint)
+    AND (sqlc.narg('feature_id')::bigint IS NULL
+        OR EXISTS (
+            SELECT
+                1
+            FROM
+                feature_versions fv
+            WHERE
+                fv.feature_id = sqlc.arg('feature_id')::bigint
+                AND fv.id = k.feature_version_id));
+
 -- name: GetKeysForWipFeatureVersion :many
 SELECT
     *

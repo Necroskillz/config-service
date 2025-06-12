@@ -10,12 +10,14 @@ export function RenderQuery<T>({
   query,
   emptyMessage,
   children,
+  disabledMessage,
 }: {
   query: UseQueryResult<T, ResponseErrorConfig<EchoHTTPError>>;
   emptyMessage?: string;
+  disabledMessage?: string;
   children: (data: T) => React.ReactNode;
 }) {
-  const { status, error, data } = query;
+  const { status, error, data, fetchStatus } = query;
   const [showSpinner, setShowSpinner] = useState(false);
 
   const spinnerDebouncer = useDebouncer(setShowSpinner, { wait: 200 });
@@ -30,6 +32,10 @@ export function RenderQuery<T>({
   }, [status]);
 
   if (status === 'pending') {
+    if (fetchStatus === 'idle' && disabledMessage) {
+      return <div className="text-muted-foreground">{disabledMessage}</div>;
+    }
+
     if (showSpinner) {
       return <Spinner />;
     }

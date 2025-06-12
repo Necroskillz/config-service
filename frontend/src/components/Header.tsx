@@ -53,6 +53,7 @@ export function Header() {
             Changesets
             {approvableCount?.count && approvableCount.count > 0 ? <Badge variant="outline">{approvableCount.count}</Badge> : null}
           </Link>
+          <Link to="/change-history">History</Link>
           {user.isGlobalAdmin && <Link to="/admin">Admin</Link>}
         </>
       )}
@@ -66,7 +67,6 @@ function UserMenu() {
   const { refresh } = useChangeset();
   const { setTheme, theme } = useTheme();
   const navigate = useNavigate();
-
 
   async function handleLogout() {
     await logout();

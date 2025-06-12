@@ -161,6 +161,51 @@ func (q *Queries) EndKeyValidity(ctx context.Context, arg EndKeyValidityParams) 
 	return err
 }
 
+const getAppliedKeys = `-- name: GetAppliedKeys :many
+SELECT DISTINCT
+    k.name
+FROM
+    keys k
+WHERE
+    k.valid_from IS NOT NULL
+    AND ($1::bigint IS NULL
+        OR k.feature_version_id = $1::bigint)
+    AND ($2::bigint IS NULL
+        OR EXISTS (
+            SELECT
+                1
+            FROM
+                feature_versions fv
+            WHERE
+                fv.feature_id = $2::bigint
+                AND fv.id = k.feature_version_id))
+`
+
+type GetAppliedKeysParams struct {
+	FeatureVersionID *uint
+	FeatureID        *uint
+}
+
+func (q *Queries) GetAppliedKeys(ctx context.Context, arg GetAppliedKeysParams) ([]string, error) {
+	rows, err := q.db.Query(ctx, getAppliedKeys, arg.FeatureVersionID, arg.FeatureID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getKey = `-- name: GetKey :one
 SELECT
     k.id, k.created_at, k.updated_at, k.valid_from, k.valid_to, k.name, k.description, k.value_type_id, k.feature_version_id, k.validators_updated_at,

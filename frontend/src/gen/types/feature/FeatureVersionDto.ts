@@ -15,6 +15,10 @@ export type FeatureFeatureVersionDto = {
   /**
    * @type integer
    */
+  featureId: number
+  /**
+   * @type integer
+   */
   id: number
   /**
    * @type boolean

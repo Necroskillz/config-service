@@ -44,8 +44,74 @@ func NewService(
 	}
 }
 
+type FeatureDto struct {
+	ID   uint   `json:"id" validate:"required"`
+	Name string `json:"name" validate:"required"`
+}
+
+func (s *Service) GetAppliedFeatures(ctx context.Context, serviceID *uint, serviceVersionID *uint) ([]FeatureDto, error) {
+	if serviceID == nil && serviceVersionID == nil {
+		return nil, core.NewServiceError(core.ErrorCodeInvalidOperation, "Either service ID or service version ID must be provided")
+	}
+
+	if serviceID != nil {
+		_, err := s.coreService.GetService(ctx, *serviceID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if serviceVersionID != nil {
+		_, err := s.coreService.GetServiceVersion(ctx, *serviceVersionID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	features, err := s.queries.GetAppliedFeatures(ctx, db.GetAppliedFeaturesParams{
+		ServiceID:        serviceID,
+		ServiceVersionID: serviceVersionID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]FeatureDto, len(features))
+	for i, feature := range features {
+		result[i] = FeatureDto{
+			ID:   feature.ID,
+			Name: feature.Name,
+		}
+	}
+
+	return result, nil
+}
+
+type AppliedFeatureVersionDto struct {
+	ID      uint `json:"id" validate:"required"`
+	Version int  `json:"version" validate:"required"`
+}
+
+func (s *Service) GetAppliedFeatureVersionsForFeature(ctx context.Context, featureID uint) ([]AppliedFeatureVersionDto, error) {
+	featureVersions, err := s.queries.GetAppliedVersionsOfFeature(ctx, featureID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]AppliedFeatureVersionDto, len(featureVersions))
+	for i, featureVersion := range featureVersions {
+		result[i] = AppliedFeatureVersionDto{
+			ID:      featureVersion.ID,
+			Version: featureVersion.Version,
+		}
+	}
+
+	return result, nil
+}
+
 type FeatureVersionDto struct {
 	ID            uint   `json:"id" validate:"required"`
+	FeatureID     uint   `json:"featureId" validate:"required"`
 	Version       int    `json:"version" validate:"required"`
 	Description   string `json:"description" validate:"required"`
 	Name          string `json:"name" validate:"required"`
@@ -63,6 +129,7 @@ func (s *Service) GetFeatureVersion(ctx context.Context, serviceVersionID uint, 
 
 	return FeatureVersionDto{
 		ID:            featureVersion.ID,
+		FeatureID:     featureVersion.FeatureID,
 		Version:       featureVersion.Version,
 		Description:   featureVersion.FeatureDescription,
 		Name:          featureVersion.FeatureName,
@@ -122,7 +189,7 @@ func (s *Service) GetVersionsOfFeatureForServiceVersion(ctx context.Context, fea
 
 	user := s.currentUserAccessor.GetUser(ctx)
 
-	featureVersions, err := s.queries.GetVersionsOfFeatureForServiceVersion(ctx, db.GetVersionsOfFeatureForServiceVersionParams{
+	featureVersions, err := s.queries.GetVersionsOfFeature(ctx, db.GetVersionsOfFeatureParams{
 		FeatureID:   featureVersion.FeatureID,
 		ChangesetID: user.ChangesetID,
 	})

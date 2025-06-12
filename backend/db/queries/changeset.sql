@@ -476,3 +476,55 @@ ORDER BY
     applied_at DESC
 LIMIT 1;
 
+-- name: GetChangeHistory :many
+SELECT
+    csc.id,
+    csc.type,
+    csc.kind,
+    cs.applied_at::timestamptz AS applied_at,
+    u.name AS user_name,
+    u.id AS user_id,
+    cs.id AS changeset_id,
+    sv.id AS service_version_id,
+    csc.previous_service_version_id,
+    s.name AS service_name,
+    s.id AS service_id,
+    sv.version AS service_version,
+    fv.id AS feature_version_id,
+    csc.previous_feature_version_id,
+    f.name AS feature_name,
+    f.id AS feature_id,
+    fv.version AS feature_version,
+    k.id AS key_id,
+    k.name AS key_name,
+    nv.id AS new_variation_value_id,
+    nv.data AS new_variation_value_data,
+    ov.id AS old_variation_value_id,
+    ov.data AS old_variation_value_data,
+    vc.id AS variation_context_id,
+    COUNT(*) OVER ()::integer AS total_count
+FROM
+    changeset_changes csc
+    JOIN changesets cs ON cs.id = csc.changeset_id
+    JOIN service_versions sv ON sv.id = csc.service_version_id
+    JOIN services s ON s.id = sv.service_id
+    JOIN users u ON u.id = cs.user_id
+    LEFT JOIN feature_version_service_versions fvsv ON fvsv.id = csc.feature_version_service_version_id
+    LEFT JOIN feature_versions fv ON fv.id = csc.feature_version_id
+    LEFT JOIN features f ON f.id = fv.feature_id
+    LEFT JOIN keys k ON k.id = csc.key_id
+    LEFT JOIN variation_values nv ON nv.id = csc.new_variation_value_id
+    LEFT JOIN variation_values ov ON ov.id = csc.old_variation_value_id
+    LEFT JOIN variation_contexts vc ON vc.id = COALESCE(nv.variation_context_id, ov.variation_context_id)
+WHERE
+    cs.applied_at IS NOT NULL
+    AND (sqlc.narg('service_id')::bigint IS NULL OR s.id = sqlc.narg('service_id')::bigint)
+    AND (sqlc.narg('service_version_id')::bigint IS NULL OR sv.id = sqlc.narg('service_version_id')::bigint)
+    AND (sqlc.narg('feature_id')::bigint IS NULL OR f.id = sqlc.narg('feature_id')::bigint)
+    AND (sqlc.narg('feature_version_id')::bigint IS NULL OR fv.id = sqlc.narg('feature_version_id')::bigint)
+    AND (sqlc.narg('key_name')::text IS NULL OR k.name = sqlc.narg('key_name')::text)
+    AND (sqlc.narg('variation_context_id')::bigint IS NULL OR vc.id = sqlc.narg('variation_context_id')::bigint)
+    AND (sqlc.narg('kinds')::text[] IS NULL OR csc.kind = ANY(sqlc.narg('kinds')::text[]::changeset_change_kind[]))
+ORDER BY
+    cs.applied_at DESC, csc.id DESC
+LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;

@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function variationToQueryParams(variation: Record<string | number, string> | undefined): string[] | undefined {
-  if (!variation) {
+  if (!variation || Object.keys(variation).length === 0) {
     return undefined;
   }
 
@@ -31,4 +31,15 @@ export function variationToRequestParams(variation: Record<string | number, stri
   }
 
   return params;
+}
+
+export function queryParamsToVariation(queryParams: string[]): Record<string, string> {
+  const variation: Record<string, string> = {};
+
+  for (const param of queryParams) {
+    const [key, value] = param.split(':');
+    variation[key] = value;
+  }
+
+  return variation;
 }

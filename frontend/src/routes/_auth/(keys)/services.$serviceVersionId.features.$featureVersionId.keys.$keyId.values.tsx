@@ -120,6 +120,18 @@ function RouteComponent() {
     },
   });
 
+  function convertVariation(variation: Record<number, string>): string[] | undefined {
+    const converted: Record<string, string> = {};
+    for (const [propertyId, value] of Object.entries(variation)) {
+      const property = properties.find((p) => p.id === parseInt(propertyId));
+      if (property) {
+        converted[property.name] = value;
+      }
+    }
+
+    return variationToQueryParams(converted);
+  }
+
   const [data, setData] = useState<ValueVariationValueDto[]>(values);
 
   useEffect(() => {
@@ -544,6 +556,22 @@ function RouteComponent() {
                           Delete
                         </Button>
                       )}
+                      <DotDotDot>
+                        <Link
+                          to="/change-history"
+                          search={{
+                            serviceId: serviceVersion.serviceId,
+                            serviceVersionId,
+                            featureId: featureVersion.featureId,
+                            featureVersionId,
+                            keyName: key.name,
+                            applyVariation: true,
+                            'variation[]': convertVariation(info.row.original.variation),
+                          }}
+                        >
+                          <DropdownMenuItem>History</DropdownMenuItem>
+                        </Link>
+                      </DotDotDot>
                     </>
                   )}
                 </>
@@ -606,6 +634,18 @@ function RouteComponent() {
                 params={{ serviceVersionId, featureVersionId, keyId }}
               >
                 <DropdownMenuItem>Permissions</DropdownMenuItem>
+              </Link>
+              <Link
+                to="/change-history"
+                search={{
+                  serviceId: serviceVersion.serviceId,
+                  serviceVersionId,
+                  featureId: featureVersion.featureId,
+                  featureVersionId,
+                  keyName: key.name,
+                }}
+              >
+                <DropdownMenuItem>History</DropdownMenuItem>
               </Link>
               <DropdownMenuItem
                 variant="destructive"

@@ -133,6 +133,47 @@ func (s *Service) GetFeatureKeys(ctx context.Context, serviceVersionID uint, fea
 	return result, nil
 }
 
+type AppliedKeyDto struct {
+	Name string `json:"name" validate:"required"`
+}
+
+func (s *Service) GetAppliedKeys(ctx context.Context, featureVersionID *uint, featureID *uint) ([]AppliedKeyDto, error) {
+	if featureVersionID == nil && featureID == nil {
+		return nil, core.NewServiceError(core.ErrorCodeInvalidOperation, "Either feature version ID or feature ID must be provided")
+	}
+
+	if featureID != nil {
+		_, err := s.coreService.GetFeature(ctx, *featureID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if featureVersionID != nil {
+		_, err := s.coreService.GetFeatureVersionWithoutLink(ctx, *featureVersionID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	keys, err := s.queries.GetAppliedKeys(ctx, db.GetAppliedKeysParams{
+		FeatureVersionID: featureVersionID,
+		FeatureID:        featureID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]AppliedKeyDto, len(keys))
+	for i, key := range keys {
+		result[i] = AppliedKeyDto{
+			Name: key,
+		}
+	}
+
+	return result, nil
+}
+
 type CreateKeyParams struct {
 	ServiceVersionID uint
 	FeatureVersionID uint
