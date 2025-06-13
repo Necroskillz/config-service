@@ -2,12 +2,15 @@ package configuration
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"slices"
 	"time"
 
 	"github.com/necroskillz/config-service/db"
 	"github.com/necroskillz/config-service/services/core"
 	"github.com/necroskillz/config-service/services/variation"
+	"github.com/necroskillz/config-service/util/jsonmerge"
 )
 
 type Service struct {
@@ -43,13 +46,13 @@ func NewService(queries *db.Queries, variationContextService *variation.ContextS
 func (s *Service) getServiceVersions(ctx context.Context, serviceVersionSpecifiers []core.ServiceVersionSpecifier) (ServiceVersions, error) {
 	result := make(ServiceVersions, len(serviceVersionSpecifiers))
 
-	for i, serviceVersion := range serviceVersionSpecifiers {
+	for i, svs := range serviceVersionSpecifiers {
 		serviceVersion, err := s.queries.GetServiceVersionByNameAndVersion(ctx, db.GetServiceVersionByNameAndVersionParams{
-			Name:    serviceVersion.Name,
-			Version: serviceVersion.Version,
+			Name:    svs.Name,
+			Version: svs.Version,
 		})
 		if err != nil {
-			return nil, err
+			return nil, core.NewDbError(err, fmt.Sprintf("ServiceVersion %s v%d", svs.Name, svs.Version))
 		}
 		result[i] = serviceVersion
 	}
@@ -235,12 +238,43 @@ func (s *Service) GetConfiguration(ctx context.Context, params GetConfigurationP
 			})
 
 			values := make([]ValueConfigurationDto, 1, len(key.Values))
-			for _, value := range key.Values {
-				if len(value.Variation) == 0 {
-					// TODO: merge json
-					values[0] = value
-				} else {
-					values = append(values, value)
+
+			if key.DataType == "json" {
+				var defaultValue any
+
+				for _, value := range key.Values {
+					if len(value.Variation) == 0 {
+						var jsonData any
+						err := json.Unmarshal([]byte(value.Data), &jsonData)
+						if err != nil {
+							return ConfigurationDto{}, err
+						}
+
+						if defaultValue == nil {
+							defaultValue = jsonData
+						} else {
+							defaultValue = jsonmerge.Merge(defaultValue, jsonData)
+						}
+					} else {
+						values = append(values, value)
+					}
+				}
+
+				jsonString, err := json.Marshal(defaultValue)
+				if err != nil {
+					return ConfigurationDto{}, err
+				}
+
+				values[0] = ValueConfigurationDto{
+					Data: string(jsonString),
+				}
+			} else {
+				for _, value := range key.Values {
+					if len(value.Variation) == 0 {
+						values[0] = value
+					} else {
+						values = append(values, value)
+					}
 				}
 			}
 
