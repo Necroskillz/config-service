@@ -705,6 +705,8 @@ type GetChangeHistoryFilter struct {
 	FeatureID        *uint
 	FeatureVersionID *uint
 	KeyName          *string
+	From             *time.Time
+	To               *time.Time
 	Variation        map[uint]string
 	Kinds            []string
 }
@@ -751,6 +753,10 @@ func (s *Service) GetChangeHistory(ctx context.Context, filter GetChangeHistoryF
 		}
 	}
 
+	if filter.From != nil && filter.To != nil && filter.From.After(*filter.To) {
+		return core.PaginatedResult[ChangeHistoryItemDto]{}, core.NewServiceError(core.ErrorCodeInvalidOperation, "From time cannot be after To time")
+	}
+
 	var variationContextID *uint
 	if filter.Variation != nil {
 		vcID, err := s.variationContextService.GetVariationContextID(ctx, filter.Variation)
@@ -767,6 +773,8 @@ func (s *Service) GetChangeHistory(ctx context.Context, filter GetChangeHistoryF
 		FeatureID:          filter.FeatureID,
 		FeatureVersionID:   filter.FeatureVersionID,
 		KeyName:            filter.KeyName,
+		From:               filter.From,
+		To:                 filter.To,
 		VariationContextID: variationContextID,
 		Kinds:              filter.Kinds,
 		Limit:              filter.PageSize,

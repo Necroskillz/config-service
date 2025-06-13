@@ -503,9 +503,11 @@ WHERE
     AND ($5::text IS NULL OR k.name = $5::text)
     AND ($6::bigint IS NULL OR vc.id = $6::bigint)
     AND ($7::text[] IS NULL OR csc.kind = ANY($7::text[]::changeset_change_kind[]))
+    AND ($8::timestamptz IS NULL OR cs.applied_at >= $8::timestamptz)
+    AND ($9::timestamptz IS NULL OR cs.applied_at <= $9::timestamptz)
 ORDER BY
     cs.applied_at DESC, csc.id DESC
-LIMIT $9::integer OFFSET $8::integer
+LIMIT $11::integer OFFSET $10::integer
 `
 
 type GetChangeHistoryParams struct {
@@ -516,6 +518,8 @@ type GetChangeHistoryParams struct {
 	KeyName            *string
 	VariationContextID *uint
 	Kinds              []string
+	From               *time.Time
+	To                 *time.Time
 	Offset             int
 	Limit              int
 }
@@ -557,6 +561,8 @@ func (q *Queries) GetChangeHistory(ctx context.Context, arg GetChangeHistoryPara
 		arg.KeyName,
 		arg.VariationContextID,
 		arg.Kinds,
+		arg.From,
+		arg.To,
 		arg.Offset,
 		arg.Limit,
 	)

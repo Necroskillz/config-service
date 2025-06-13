@@ -525,6 +525,8 @@ WHERE
     AND (sqlc.narg('key_name')::text IS NULL OR k.name = sqlc.narg('key_name')::text)
     AND (sqlc.narg('variation_context_id')::bigint IS NULL OR vc.id = sqlc.narg('variation_context_id')::bigint)
     AND (sqlc.narg('kinds')::text[] IS NULL OR csc.kind = ANY(sqlc.narg('kinds')::text[]::changeset_change_kind[]))
+    AND (sqlc.narg('from')::timestamptz IS NULL OR cs.applied_at >= sqlc.narg('from')::timestamptz)
+    AND (sqlc.narg('to')::timestamptz IS NULL OR cs.applied_at <= sqlc.narg('to')::timestamptz)
 ORDER BY
     cs.applied_at DESC, csc.id DESC
 LIMIT sqlc.arg('limit')::integer OFFSET sqlc.arg('offset')::integer;

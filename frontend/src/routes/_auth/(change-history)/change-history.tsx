@@ -24,10 +24,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '~/components/ui/select';
 import { queryParamsToVariation, variationToQueryParams } from '~/lib/utils';
 import { RenderQuery } from '~/components/RenderQuery';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import { Checkbox } from '~/components/ui/checkbox';
 import { PageTitle } from '~/components/PageTitle';
 import { Button } from '~/components/ui/button';
+import { DateTimePicker } from '~/components/DateTimePicker';
+import { SlimPage } from '~/components/SlimPage';
+import { Badge } from '~/components/ui/badge';
 
 const PAGE_SIZE = 20;
 
@@ -77,6 +80,8 @@ const kindLabels: Record<DbChangesetChangeKind, string> = {
   variation_value: 'Value',
 } as const;
 
+const DAY_MS = 1000 * 60 * 60 * 24;
+
 export const Route = createFileRoute('/_auth/(change-history)/change-history')({
   component: RouteComponent,
   validateSearch: zodValidator(
@@ -88,6 +93,8 @@ export const Route = createFileRoute('/_auth/(change-history)/change-history')({
       featureVersionId: z.number().optional(),
       keyName: z.string().optional(),
       applyVariation: z.boolean().optional(),
+      from: z.coerce.date().optional(),
+      to: z.coerce.date().optional(),
       'variation[]': z.array(z.string()).optional(),
       'kinds[]': z.array(z.nativeEnum(dbChangesetChangeKind)).optional(),
     })
@@ -127,39 +134,68 @@ function RouteComponent() {
     return newKinds;
   }
 
-  const [selectedServiceId, setSelectedServiceId] = useState(search.serviceId);
-  const [selectedServiceVersionId, setSelectedServiceVersionId] = useState(search.serviceVersionId);
-  const [selectedFeatureId, setSelectedFeatureId] = useState(search.featureId);
-  const [selectedFeatureVersionId, setSelectedFeatureVersionId] = useState(search.featureVersionId);
-  const [selectedKeyName, setSelectedKeyName] = useState(search.keyName);
-  const [selectedApplyVariation, setSelectedApplyVariation] = useState(search.applyVariation);
-  const [selectedVariation, setSelectedVariation] = useState(queryParamsToVariation(search['variation[]'] ?? []));
-  const [selectedKinds, setSelectedKinds] = useState(parseKinds(search['kinds[]'] ?? []));
-  const [selectedServiceType, setSelectedServiceType] = useState<number | undefined>(undefined);
+  const { data: services } = useGetChangeHistoryServicesSuspense();
+
+  function getServiceType(serviceId: number | undefined) {
+    return serviceId ? services.find((v) => v.id === serviceId)?.serviceTypeId : undefined;
+  }
+
+  function searchToState() {
+    return {
+      selectedServiceId: search.serviceId,
+      selectedServiceVersionId: search.serviceVersionId,
+      selectedFeatureId: search.featureId,
+      selectedFeatureVersionId: search.featureVersionId,
+      selectedKeyName: search.keyName,
+      selectedApplyVariation: search.applyVariation,
+      selectedVariation: queryParamsToVariation(search['variation[]'] ?? []),
+      selectedKinds: parseKinds(search['kinds[]'] ?? []),
+      selectedFrom: search.from,
+      selectedTo: search.to,
+      selectedServiceType: getServiceType(search.serviceId),
+    };
+  }
+
+  const [state, setState] = useReducer(
+    (prev: ReturnType<typeof searchToState>, next: Partial<ReturnType<typeof searchToState>>) => ({ ...prev, ...next }),
+    searchToState()
+  );
 
   useEffect(() => {
-    setSelectedServiceId(search.serviceId);
-    setSelectedServiceVersionId(search.serviceVersionId);
-    setSelectedFeatureId(search.featureId);
-    setSelectedFeatureVersionId(search.featureVersionId);
-    setSelectedKeyName(search.keyName);
-    setSelectedApplyVariation(search.applyVariation);
-    setSelectedVariation(queryParamsToVariation(search['variation[]'] ?? []));
-    setSelectedKinds(parseKinds(search['kinds[]'] ?? []));
+    setState(searchToState());
   }, [search]);
 
   useEffect(() => {
-    if (selectedServiceId) {
-      const serviceType = services.find((v) => v.id === selectedServiceId)?.serviceTypeId;
-      if (serviceType) {
-        setSelectedServiceType(serviceType);
+    if (state.selectedServiceId) {
+      setState({ selectedServiceType: getServiceType(state.selectedServiceId) });
+    }
+  }, [state.selectedServiceId]);
+
+  useEffect(() => {
+    if (state.selectedFrom && state.selectedTo) {
+      const from = state.selectedFrom.getTime();
+      const to = state.selectedTo.getTime();
+
+      if (from > to) {
+        setState({ selectedTo: new Date(from + DAY_MS) });
       }
     }
-  }, [selectedServiceId]);
+  }, [state.selectedFrom]);
+
+  useEffect(() => {
+    if (state.selectedFrom && state.selectedTo) {
+      const from = state.selectedFrom.getTime();
+      const to = state.selectedTo.getTime();
+
+      if (to < from) {
+        setState({ selectedFrom: new Date(to - DAY_MS) });
+      }
+    }
+  }, [state.selectedTo]);
 
   function filter() {
     const kindsArray: DbChangesetChangeKind[] = [];
-    for (const [kind, selected] of Object.entries(selectedKinds)) {
+    for (const [kind, selected] of Object.entries(state.selectedKinds)) {
       if (selected) {
         kindsArray.push(kind as DbChangesetChangeKind);
       }
@@ -168,98 +204,96 @@ function RouteComponent() {
     navigate({
       to: '/change-history',
       search: {
-        serviceId: selectedServiceId,
-        serviceVersionId: selectedServiceVersionId,
-        featureId: selectedFeatureId,
-        featureVersionId: selectedFeatureVersionId,
-        keyName: selectedKeyName,
-        applyVariation: selectedApplyVariation,
-        'variation[]': selectedApplyVariation ? variationToQueryParams(selectedVariation) : undefined,
+        serviceId: state.selectedServiceId,
+        serviceVersionId: state.selectedServiceVersionId,
+        featureId: state.selectedFeatureId,
+        featureVersionId: state.selectedFeatureVersionId,
+        keyName: state.selectedKeyName,
+        applyVariation: state.selectedApplyVariation,
+        from: state.selectedFrom?.toISOString(),
+        to: state.selectedTo?.toISOString(),
+        'variation[]': state.selectedApplyVariation ? variationToQueryParams(state.selectedVariation) : undefined,
         'kinds[]': kindsArray.length > 0 ? kindsArray : undefined,
       },
     });
   }
 
-  const { data: services } = useGetChangeHistoryServicesSuspense();
-  const serviceVersionsQuery = useGetChangeHistoryServicesServiceIdVersions(selectedServiceId!, {
+  const serviceVersionsQuery = useGetChangeHistoryServicesServiceIdVersions(state.selectedServiceId!, {
     query: {
-      enabled: !!selectedServiceId,
+      enabled: !!state.selectedServiceId,
     },
   });
 
   const featuresQuery = useGetChangeHistoryFeatures(
     {
-      serviceId: selectedServiceVersionId ? undefined : selectedServiceId,
-      serviceVersionId: selectedServiceVersionId,
+      serviceId: state.selectedServiceVersionId ? undefined : state.selectedServiceId,
+      serviceVersionId: state.selectedServiceVersionId,
     },
     {
       query: {
-        enabled: !!selectedServiceId || !!selectedServiceVersionId,
+        enabled: !!state.selectedServiceId || !!state.selectedServiceVersionId,
       },
     }
   );
 
-  const featureVersionsQuery = useGetChangeHistoryFeaturesFeatureIdVersions(selectedFeatureId!, {
+  const featureVersionsQuery = useGetChangeHistoryFeaturesFeatureIdVersions(state.selectedFeatureId!, {
     query: {
-      enabled: !!selectedFeatureId,
+      enabled: !!state.selectedFeatureId,
     },
   });
 
   const keysQuery = useGetChangeHistoryKeys(
     {
-      featureId: selectedFeatureId,
-      featureVersionId: selectedFeatureVersionId,
+      featureId: state.selectedFeatureId,
+      featureVersionId: state.selectedFeatureVersionId,
     },
     {
       query: {
-        enabled: !!selectedFeatureId || !!selectedFeatureVersionId,
+        enabled: !!state.selectedFeatureId || !!state.selectedFeatureVersionId,
       },
     }
   );
 
-  const variationPropertiesQuery = useGetServiceTypesServiceTypeIdVariationProperties(selectedServiceType!, {
+  const variationPropertiesQuery = useGetServiceTypesServiceTypeIdVariationProperties(state.selectedServiceType!, {
     query: {
-      enabled: !!selectedServiceType,
+      enabled: !!state.selectedServiceType,
     },
   });
 
   useEffect(() => {
-    if (serviceVersionsQuery.data && !serviceVersionsQuery.data.some((v) => v.id === selectedServiceVersionId)) {
-      setSelectedServiceVersionId(undefined);
+    if (serviceVersionsQuery.data && !serviceVersionsQuery.data.some((v) => v.id === state.selectedServiceVersionId)) {
+      setState({ selectedServiceVersionId: undefined });
     }
   }, [serviceVersionsQuery.data]);
 
   useEffect(() => {
-    if (featuresQuery.data && !featuresQuery.data.some((v) => v.id === selectedFeatureId)) {
-      setSelectedFeatureId(undefined);
-      setSelectedFeatureVersionId(undefined);
-      setSelectedKeyName(undefined);
+    if (featuresQuery.data && !featuresQuery.data.some((v) => v.id === state.selectedFeatureId)) {
+      setState({ selectedFeatureId: undefined, selectedFeatureVersionId: undefined, selectedKeyName: undefined });
     }
   }, [featuresQuery.data]);
 
   useEffect(() => {
-    if (featureVersionsQuery.data && !featureVersionsQuery.data.some((v) => v.id === selectedFeatureVersionId)) {
-      setSelectedFeatureVersionId(undefined);
+    if (featureVersionsQuery.data && !featureVersionsQuery.data.some((v) => v.id === state.selectedFeatureVersionId)) {
+      setState({ selectedFeatureVersionId: undefined });
     }
   }, [featureVersionsQuery.data]);
 
   useEffect(() => {
-    if (keysQuery.data && !keysQuery.data.some((v) => v.name === selectedKeyName)) {
-      setSelectedKeyName(undefined);
+    if (keysQuery.data && !keysQuery.data.some((v) => v.name === state.selectedKeyName)) {
+      setState({ selectedKeyName: undefined });
     }
   }, [keysQuery.data]);
 
   useEffect(() => {
     if (variationPropertiesQuery.data) {
-      setSelectedVariation((prev) => {
-        const newVariation: Record<string, string> = {};
-        for (const variationProperty of variationPropertiesQuery.data) {
-          if (prev[variationProperty.name]) {
-            newVariation[variationProperty.name] = prev[variationProperty.name];
-          }
+      const newVariation: Record<string, string> = {};
+      for (const variationProperty of variationPropertiesQuery.data) {
+        if (state.selectedVariation[variationProperty.name]) {
+          newVariation[variationProperty.name] = state.selectedVariation[variationProperty.name];
         }
-        return newVariation;
-      });
+      }
+
+      setState({ selectedVariation: newVariation });
     }
   }, [variationPropertiesQuery.data]);
 
@@ -275,18 +309,31 @@ function RouteComponent() {
   });
 
   return (
-    <div className="p-4">
+    <SlimPage size="lg">
       <PageTitle>Change history</PageTitle>
       <div className="flex flex-col gap-4">
         <div className="flex flex-row gap-24">
           <div className="flex flex-col gap-4">
             <div className="flex flex-row gap-2">
               <div className="flex flex-col gap-1">
-                <label>Service</label>
+                <WithClearButton
+                  onClear={() =>
+                    setState({
+                      selectedServiceId: undefined,
+                      selectedServiceVersionId: undefined,
+                      selectedFeatureId: undefined,
+                      selectedFeatureVersionId: undefined,
+                      selectedKeyName: undefined,
+                      selectedServiceType: undefined,
+                    })
+                  }
+                >
+                  <label>Service</label>
+                </WithClearButton>
                 <div className="flex flex-col gap-1">
                   <Select
-                    value={selectedServiceId?.toString() ?? ''}
-                    onValueChange={(v) => setSelectedServiceId(v === '' ? undefined : parseInt(v))}
+                    value={state.selectedServiceId?.toString() ?? ''}
+                    onValueChange={(v) => setState({ selectedServiceId: v === '' ? undefined : parseInt(v) })}
                   >
                     <SelectTrigger className="w-[400px]">
                       <SelectValue placeholder="Select a service" />
@@ -304,9 +351,9 @@ function RouteComponent() {
               <div className="flex flex-col gap-1">
                 <label>Version</label>
                 <Select
-                  value={selectedServiceVersionId?.toString() ?? 'all'}
-                  onValueChange={(v) => setSelectedServiceVersionId(v === 'all' || !v ? undefined : parseInt(v))}
-                  disabled={!selectedServiceId}
+                  value={state.selectedServiceVersionId?.toString() ?? 'all'}
+                  onValueChange={(v) => setState({ selectedServiceVersionId: v === 'all' || !v ? undefined : parseInt(v) })}
+                  disabled={!state.selectedServiceId}
                 >
                   <SelectTrigger className="w-[120px]">
                     <SelectValue />
@@ -330,12 +377,18 @@ function RouteComponent() {
             </div>
             <div className="flex flex-row gap-2">
               <div className="flex flex-col gap-1">
-                <label>Feature</label>
+                <WithClearButton
+                  onClear={() =>
+                    setState({ selectedFeatureId: undefined, selectedFeatureVersionId: undefined, selectedKeyName: undefined })
+                  }
+                >
+                  <label>Feature</label>
+                </WithClearButton>
                 <div className="flex flex-col gap-1">
                   <Select
-                    value={selectedFeatureId?.toString() ?? ''}
-                    onValueChange={(v) => setSelectedFeatureId(parseInt(v))}
-                    disabled={!selectedServiceId && !selectedServiceVersionId}
+                    value={state.selectedFeatureId?.toString() ?? ''}
+                    onValueChange={(v) => setState({ selectedFeatureId: parseInt(v) })}
+                    disabled={!state.selectedServiceId && !state.selectedServiceVersionId}
                   >
                     <SelectTrigger className="w-[400px]">
                       <SelectValue placeholder="Select a feature" />
@@ -358,9 +411,9 @@ function RouteComponent() {
                 <label>Version</label>
                 <div className="flex flex-col gap-1">
                   <Select
-                    value={selectedFeatureVersionId?.toString() ?? 'all'}
-                    onValueChange={(v) => setSelectedFeatureVersionId(v === 'all' || !v ? undefined : parseInt(v))}
-                    disabled={!selectedFeatureId}
+                    value={state.selectedFeatureVersionId?.toString() ?? 'all'}
+                    onValueChange={(v) => setState({ selectedFeatureVersionId: v === 'all' || !v ? undefined : parseInt(v) })}
+                    disabled={!state.selectedFeatureId}
                   >
                     <SelectTrigger className="w-[120px]">
                       <SelectValue />
@@ -385,12 +438,14 @@ function RouteComponent() {
             </div>
             <div className="flex flex-row gap-2">
               <div className="flex flex-col gap-1">
-                <label>Key</label>
+                <WithClearButton onClear={() => setState({ selectedKeyName: undefined })}>
+                  <label>Key</label>
+                </WithClearButton>
                 <div className="flex flex-col gap-1">
                   <Select
-                    value={selectedKeyName ?? ''}
-                    onValueChange={(v) => setSelectedKeyName(v)}
-                    disabled={!selectedFeatureId && !selectedFeatureVersionId}
+                    value={state.selectedKeyName ?? ''}
+                    onValueChange={(v) => setState({ selectedKeyName: v })}
+                    disabled={!state.selectedFeatureId && !state.selectedFeatureVersionId}
                   >
                     <SelectTrigger className="w-[528px]">
                       <SelectValue placeholder="Select a key" />
@@ -420,13 +475,25 @@ function RouteComponent() {
                 <div className="flex flex-row gap-2 items-center">
                   <Checkbox
                     id={kind}
-                    checked={selectedKinds[kind]}
-                    onCheckedChange={(v) => setSelectedKinds((prev) => ({ ...prev, [kind]: v === true }))}
+                    checked={state.selectedKinds[kind]}
+                    onCheckedChange={(v) => setState({ selectedKinds: { ...state.selectedKinds, [kind]: v === true } })}
                   />
-                  <label htmlFor={kind}>{kindLabels[kind]}</label>
+                  <label className="whitespace-nowrap" htmlFor={kind}>
+                    {kindLabels[kind]}
+                  </label>
                 </div>
               </div>
             ))}
+          </div>
+          <div className="flex flex-col gap-2">
+            <WithClearButton onClear={() => setState({ selectedFrom: undefined })}>
+              <label>From</label>
+            </WithClearButton>
+            <DateTimePicker id="from" value={state.selectedFrom} onChange={(v) => setState({ selectedFrom: v })} className="w-[350px]" />
+            <WithClearButton onClear={() => setState({ selectedTo: undefined })}>
+              <label>To</label>
+            </WithClearButton>
+            <DateTimePicker id="to" value={state.selectedTo} onChange={(v) => setState({ selectedTo: v })} className="w-[350px]" />
           </div>
         </div>
         <div className="flex flex-row gap-2">
@@ -440,8 +507,8 @@ function RouteComponent() {
                 <div className="flex flex-row gap-2 items-center pb-2">
                   <Checkbox
                     id="applyVariation"
-                    checked={selectedApplyVariation}
-                    onCheckedChange={(v) => setSelectedApplyVariation(v === true)}
+                    checked={state.selectedApplyVariation}
+                    onCheckedChange={(v) => setState({ selectedApplyVariation: v === true })}
                   />
                   <label htmlFor="applyVariation">Filter variation</label>
                 </div>
@@ -450,8 +517,8 @@ function RouteComponent() {
                     <div className="flex flex-col gap-1">
                       <label>{variationProperty.name}</label>
                       <Select
-                        value={selectedVariation[variationProperty.name] ?? 'any'}
-                        onValueChange={(v) => setSelectedVariation((prev) => ({ ...prev, [variationProperty.name]: v }))}
+                        value={state.selectedVariation[variationProperty.name] ?? 'any'}
+                        onValueChange={(v) => setState({ selectedVariation: { ...state.selectedVariation, [variationProperty.name]: v } })}
                       >
                         <SelectTrigger className="w-[150px]">
                           <SelectValue />
@@ -515,6 +582,17 @@ function RouteComponent() {
           )}
         </RenderPagedQuery>
       </div>
+    </SlimPage>
+  );
+}
+
+function WithClearButton({ children, onClear }: { children: React.ReactNode; onClear: () => void }) {
+  return (
+    <div className="flex flex-row gap-2 items-center justify-between">
+      {children}
+      <Badge variant="outline" className="cursor-pointer" onClick={onClear}>
+        Clear
+      </Badge>
     </div>
   );
 }

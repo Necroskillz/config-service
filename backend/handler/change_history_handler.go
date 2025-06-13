@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/services/changeset"
@@ -40,6 +41,8 @@ func (h *Handler) GetChangeHistory(c echo.Context) error {
 	var applyVariation bool
 	var variation map[uint]string
 	var kinds []string
+	var from time.Time
+	var to time.Time
 
 	err := echo.QueryParamsBinder(c).
 		Int("page", &page).
@@ -51,6 +54,8 @@ func (h *Handler) GetChangeHistory(c echo.Context) error {
 		String("keyName", &keyName).
 		Bool("applyVariation", &applyVariation).
 		Strings("kinds[]", &kinds).
+		Time("from", &from, time.RFC3339).
+		Time("to", &to, time.RFC3339).
 		BindError()
 	if err != nil {
 		return ToHTTPError(err)
@@ -69,6 +74,8 @@ func (h *Handler) GetChangeHistory(c echo.Context) error {
 		FeatureID:        ptr.To(featureID, ptr.NilIfZero()),
 		FeatureVersionID: ptr.To(featureVersionID, ptr.NilIfZero()),
 		KeyName:          ptr.To(keyName, ptr.NilIfZero()),
+		From:             ptr.To(from, ptr.NilIfZero()),
+		To:               ptr.To(to, ptr.NilIfZero()),
 		Variation:        variation,
 		Kinds:            kinds,
 		Page:             page,
