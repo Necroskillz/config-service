@@ -28,15 +28,14 @@ func TestJsonMerge(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-
 			merged := Merge(a, b)
 
-			jsonString, err := json.Marshal(merged)
-			if err != nil {
+			var expect any
+			if err := json.Unmarshal([]byte(tc.expect), &expect); err != nil {
 				t.Fatal(err)
 			}
 
-			assert.Equal(t, tc.expect, string(jsonString))
+			assert.DeepEqual(t, expect, merged)
 		}
 
 		testCases := map[string]testCase{
