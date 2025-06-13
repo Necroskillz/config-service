@@ -88,31 +88,37 @@ func (h *Handler) GetVariationFromQueryIds(c echo.Context) (map[uint]string, err
 
 func ToHTTPError(err error) *echo.HTTPError {
 	if errors.Is(err, core.ErrPermissionDenied) {
-		return echo.NewHTTPError(http.StatusForbidden, err.Error())
+		return echo.NewHTTPError(http.StatusForbidden, err.Error()).WithInternal(err)
 	}
 
 	if errors.Is(err, core.ErrRecordNotFound) {
-		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		return echo.NewHTTPError(http.StatusNotFound, err.Error()).WithInternal(err)
 	}
 
 	if errors.Is(err, core.ErrInvalidOperation) {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error()).WithInternal(err)
 	}
 
-	if errors.Is(err, core.ErrInvalidInput) || errors.Is(err, &validator.ValidationError{}) {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
+	var validationError *validator.ValidationError
+	if errors.As(err, &validationError) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, validationError.Error()).WithInternal(err)
+	}
+
+	if errors.Is(err, core.ErrInvalidInput) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error()).WithInternal(err)
 	}
 
 	if errors.Is(err, core.ErrDuplicateVariation) {
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
+		return echo.NewHTTPError(http.StatusConflict, err.Error()).WithInternal(err)
 	}
 
 	if errors.Is(err, core.ErrUnexpectedError) {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error()).WithInternal(err)
 	}
 
-	if errors.Is(err, &echo.BindingError{}) {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	var bindingError *echo.BindingError
+	if errors.As(err, &bindingError) {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Parameter %s is invalid: %s", bindingError.Field, bindingError.Message)).WithInternal(err)
 	}
 
 	return echo.NewHTTPError(http.StatusInternalServerError, err.Error()).WithInternal(err)

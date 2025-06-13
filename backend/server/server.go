@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -20,6 +21,7 @@ import (
 	"github.com/necroskillz/config-service/handler"
 	"github.com/necroskillz/config-service/middleware"
 	"github.com/necroskillz/config-service/services"
+	slogecho "github.com/samber/slog-echo"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -68,7 +70,10 @@ func (s *Server) Start() error {
 
 	svc := services.InitializeServices(dbpool, cache)
 
-	e.Use(echoMiddleware.Logger())
+	e.Use(slogecho.NewWithFilters(slog.Default(),
+		slogecho.IgnoreStatus(http.StatusUnauthorized, http.StatusConflict),
+	))
+	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
 		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
 		AllowMethods:     []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
@@ -105,25 +110,6 @@ func (s *Server) Start() error {
 	e.Use(middleware.AuthMiddleware(svc.AuthService, svc.VariationHierarchyService, svc.ChangesetService))
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-
-	e.HTTPErrorHandler = func(err error, c echo.Context) {
-		code := http.StatusInternalServerError
-		if he, ok := err.(*echo.HTTPError); ok {
-			code = he.Code
-
-			if he.Internal != nil {
-				c.Logger().Error(he.Internal)
-			} else if code == http.StatusInternalServerError {
-				c.Logger().Error(err)
-			}
-
-			c.JSON(code, err)
-		} else {
-			// should not happen
-			c.Logger().Error(err)
-			c.JSON(code, err)
-		}
-	}
 
 	handler := handler.NewHandler(
 		svc.ServiceService,

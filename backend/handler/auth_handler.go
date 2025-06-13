@@ -55,7 +55,7 @@ func (h *Handler) Login(c echo.Context) error {
 	userId, err := h.AuthService.Authenticate(c.Request().Context(), data.Username, data.Password)
 	if err != nil {
 		if errors.Is(err, core.ErrInvalidPassword) || errors.Is(err, core.ErrRecordNotFound) {
-			return echo.NewHTTPError(http.StatusUnprocessableEntity, "Invalid username or password")
+			return echo.NewHTTPError(http.StatusUnprocessableEntity, "Invalid username or password").WithInternal(err)
 		}
 
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to authenticate user").WithInternal(err)

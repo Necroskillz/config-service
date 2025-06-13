@@ -20,7 +20,7 @@ func Migrate(connectionString string) error {
 	db := dbmate.New(u)
 	db.FS = fs
 	db.MigrationsDir = []string{"migrations"}
-	db.AutoDumpSchema = true // TODO: Change for production
+	db.AutoDumpSchema = false
 
 	return db.CreateAndMigrate()
 }
