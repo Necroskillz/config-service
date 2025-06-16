@@ -9,6 +9,7 @@ import (
 	"github.com/necroskillz/config-service/services/core"
 	"github.com/necroskillz/config-service/services/variation"
 	"github.com/necroskillz/config-service/util/ptr"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type ConfigurationServer struct {
@@ -141,6 +142,10 @@ func (s *ConfigurationServer) GetConfiguration(ctx context.Context, req *pb.GetC
 	response := &pb.GetConfigurationResponse{
 		ChangesetId: uint32(configuration.ChangesetID),
 		Features:    features,
+	}
+
+	if configuration.AppliedAt != nil {
+		response.AppliedAt = timestamppb.New(*configuration.AppliedAt)
 	}
 
 	return response, nil

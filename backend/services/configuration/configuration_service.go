@@ -171,6 +171,7 @@ func (s *Service) GetVariationHierarchy(ctx context.Context, serviceVersionSpeci
 type ConfigurationDto struct {
 	ChangesetID uint                      `json:"changesetId" validate:"required"`
 	Features    []FeatureConfigurationDto `json:"features" validate:"required"`
+	AppliedAt   *time.Time                `json:"appliedAt,omitempty"`
 }
 
 type FeatureConfigurationDto struct {
@@ -368,5 +369,6 @@ func (s *Service) GetConfiguration(ctx context.Context, params GetConfigurationP
 	return ConfigurationDto{
 		ChangesetID: changesetID,
 		Features:    features,
+		AppliedAt:   &timestamp,
 	}, nil
 }

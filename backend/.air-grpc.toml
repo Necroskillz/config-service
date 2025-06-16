@@ -2,8 +2,8 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-  bin = "./tmp/grpc-server"
-  cmd = "go build -o ./tmp/grpc-server ./cmd/grpc-server"
+  bin = "./tmp/grpc-server.exe"
+  cmd = "go build -o ./tmp/grpc-server.exe ./cmd/grpc-server"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []

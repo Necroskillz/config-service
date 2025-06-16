@@ -1,0 +1,6 @@
+dir: '{{.InterfaceDir}}'
+filename: "mocks_test.go"
+pkgname: '{{.SrcPackageName}}'
+all: true
+packages:
+    github.com/necroskillz/config-service/go-client/internal:

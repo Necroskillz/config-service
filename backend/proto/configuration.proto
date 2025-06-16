@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/necroskillz/config-service/grpcgen";
 package grpcgen;
 
@@ -31,6 +33,7 @@ message GetConfigurationRequest {
 message GetConfigurationResponse {
   uint32 changeset_id = 1;
   repeated Feature features = 2;
+  optional google.protobuf.Timestamp applied_at = 3;
 }
 
 message Feature {

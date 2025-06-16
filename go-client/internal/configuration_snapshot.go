@@ -80,7 +80,7 @@ func (k *KeySnapshot) getValues(variationWithParents map[string][]string) []*Val
 type ConfigurationSnapshot struct {
 	ChangesetId uint32                             `json:"changesetId"`
 	Features    map[string]map[string]*KeySnapshot `json:"features"`
-	LastUsed    time.Time                          `json:"-"`
+	AppliedAt   *time.Time                         `json:"appliedAt"`
 	Errors      []string                           `json:"-"`
 	Warnings    []string                           `json:"-"`
 }
@@ -95,13 +95,19 @@ func NewConfigurationSnapshot(response *grpcgen.GetConfigurationResponse) *Confi
 		}
 	}
 
-	return &ConfigurationSnapshot{
+	snapshot := &ConfigurationSnapshot{
 		ChangesetId: response.ChangesetId,
 		Features:    features,
-		LastUsed:    time.Now(),
 		Errors:      []string{},
 		Warnings:    []string{},
 	}
+
+	if response.AppliedAt != nil {
+		appliedAt := response.AppliedAt.AsTime()
+		snapshot.AppliedAt = &appliedAt
+	}
+
+	return snapshot
 }
 
 type FeatureField struct {
@@ -160,13 +166,13 @@ func (c *ConfigurationSnapshot) Validate(features []Feature) {
 	for _, feature := range features {
 		featureName := feature.FeatureName()
 
+		visitedFeatures[featureName] = true
+
 		fields, err := getFeatureFields(feature)
 		if err != nil {
 			c.Errors = append(c.Errors, err.Error())
 			continue
 		}
-
-		visitedFeatures[featureName] = true
 
 		configFeature, ok := c.Features[featureName]
 		if !ok {
@@ -189,6 +195,8 @@ func (c *ConfigurationSnapshot) Validate(features []Feature) {
 				c.Errors = append(c.Errors, err.Error())
 				continue
 			}
+
+			// TODO: Validate values
 		}
 
 		if len(visitedKeys) != len(configFeature) {
@@ -236,10 +244,6 @@ func (c *ConfigurationSnapshot) BindFeature(feature Feature, variationWithParent
 				return fmt.Errorf("key %s not found in configuration", fieldName)
 			}
 
-			if len(key.Values) == 0 {
-				return fmt.Errorf("key %s has no values", fieldName)
-			}
-
 			values := key.getValues(variationWithParents)
 			if len(values) == 0 {
 				return fmt.Errorf("no value found for key %s", fieldName)
@@ -276,8 +280,6 @@ func (c *ConfigurationSnapshot) BindFeature(feature Feature, variationWithParent
 			}
 		}
 	}
-
-	c.LastUsed = time.Now()
 
 	return nil
 }

@@ -11,5 +11,14 @@
   "files.associations": {
     "*.css": "tailwindcss",
   },
-  "makefile.configureOnOpen": false
+  "makefile.configureOnOpen": false,
+  "go.toolsEnvVars": {
+    "GOEXPERIMENT": "synctest"
+  },
+  "gopls": {
+    "env": {
+      "GOEXPERIMENT": "synctest"
+    },
+    "buildFlags": []
+  }
 }

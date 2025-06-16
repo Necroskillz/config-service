@@ -7,19 +7,27 @@ import (
 	grpcgen "github.com/necroskillz/config-service/go-client/grpc/gen"
 )
 
-type ConfigurationDataLoader struct {
+var _ ConfigurationDataLoader = (*ConfigurationDataLoaderImpl)(nil)
+
+type ConfigurationDataLoader interface {
+	GetConfiguration(ctx context.Context, changesetID *uint32) (*ConfigurationSnapshot, error)
+	GetVariationHierarchy(ctx context.Context) (*VariationHierarchy, error)
+	GetNextChangesets(ctx context.Context, afterChangesetID uint32) ([]uint32, error)
+}
+
+type ConfigurationDataLoaderImpl struct {
 	configClient grpcgen.ConfigServiceClient
 	config       *Config
 }
 
-func NewConfigurationDataLoader(configClient grpcgen.ConfigServiceClient, config *Config) *ConfigurationDataLoader {
-	return &ConfigurationDataLoader{
+func NewConfigurationDataLoader(configClient grpcgen.ConfigServiceClient, config *Config) ConfigurationDataLoader {
+	return &ConfigurationDataLoaderImpl{
 		configClient: configClient,
 		config:       config,
 	}
 }
 
-func (c *ConfigurationDataLoader) GetConfiguration(ctx context.Context, changesetID *uint32) (*ConfigurationSnapshot, error) {
+func (c *ConfigurationDataLoaderImpl) GetConfiguration(ctx context.Context, changesetID *uint32) (*ConfigurationSnapshot, error) {
 	mode := ""
 	if c.config.ProductionMode {
 		mode = "production"
@@ -44,7 +52,7 @@ func (c *ConfigurationDataLoader) GetConfiguration(ctx context.Context, changese
 	return snapshot, nil
 }
 
-func (c *ConfigurationDataLoader) GetVariationHierarchy(ctx context.Context) (*VariationHierarchy, error) {
+func (c *ConfigurationDataLoaderImpl) GetVariationHierarchy(ctx context.Context) (*VariationHierarchy, error) {
 	req := &grpcgen.GetVariationHierarchyRequest{
 		Services: c.config.Services,
 	}
@@ -63,9 +71,9 @@ func (c *ConfigurationDataLoader) GetVariationHierarchy(ctx context.Context) (*V
 	return variationHierarchy, nil
 }
 
-func (c *ConfigurationDataLoader) GetNextChangesets(ctx context.Context, services []string, afterChangesetID uint32) ([]uint32, error) {
+func (c *ConfigurationDataLoaderImpl) GetNextChangesets(ctx context.Context, afterChangesetID uint32) ([]uint32, error) {
 	req := &grpcgen.GetNextChangesetsRequest{
-		Services:         services,
+		Services:         c.config.Services,
 		AfterChangesetId: afterChangesetID,
 	}
 

@@ -109,7 +109,7 @@ func WithOverride(feature string, key string, value any) Option {
 type ConfigClient struct {
 	config                  *internal.Config
 	registeredFeatureTypes  map[reflect.Type]bool
-	snapshotStore           *internal.ConfigurationSnapshotStore
+	snapshotManager         *internal.ConfigurationSnapshotManager
 	variationHierarchyStore *internal.VariationHierarchyStore
 	grpcConn                *grpc.ClientConn
 }
@@ -183,6 +183,10 @@ func (c *ConfigClient) Start(ctx context.Context) error {
 		return fmt.Errorf("config service url is not set")
 	}
 
+	if c.config.ProductionMode && c.config.ChangesetOverrider != nil {
+		return fmt.Errorf("ChangesetOverrider is not supported in production mode")
+	}
+
 	if c.grpcConn != nil {
 		return fmt.Errorf("config client already started")
 	}
@@ -205,19 +209,19 @@ func (c *ConfigClient) Start(ctx context.Context) error {
 	configClient := grpcgen.NewConfigServiceClient(conn)
 	dataLoader := internal.NewConfigurationDataLoader(configClient, c.config)
 	variationHierarchyStore := internal.NewVariationHierarchyStore(dataLoader, c.config)
-	snapshotStore := internal.NewConfigurationSnapshotStore(dataLoader, c.config, variationHierarchyStore)
+	pollJob := internal.NewConfigurationPollJob(c.config, variationHierarchyStore, dataLoader)
+	snapshotManager := internal.NewConfigurationSnapshotManager(dataLoader, c.config, pollJob)
 
 	c.variationHierarchyStore = variationHierarchyStore
-	c.snapshotStore = snapshotStore
+	c.snapshotManager = snapshotManager
 
 	// TODO: start this asynchronously to reduce startup time, and wait in BindFeature
-	_, err = variationHierarchyStore.GetVariationHierarchy(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to get variation hierarchy: %w", err)
+	if err := variationHierarchyStore.Init(ctx); err != nil {
+		return fmt.Errorf("failed to initialize variation hierarchy: %w", err)
 	}
 
-	if err := snapshotStore.Init(ctx); err != nil {
-		return fmt.Errorf("failed to initialize snapshot store: %w", err)
+	if err := snapshotManager.Init(ctx); err != nil {
+		return fmt.Errorf("failed to initialize configuration: %w", err)
 	}
 
 	return nil
@@ -225,7 +229,10 @@ func (c *ConfigClient) Start(ctx context.Context) error {
 
 // Stop gracefully shuts down the client
 func (c *ConfigClient) Stop(ctx context.Context) error {
-	c.snapshotStore.Shutdown()
+	err := c.snapshotManager.Shutdown(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to shutdown client: %w", err)
+	}
 
 	if c.grpcConn != nil {
 		return c.grpcConn.Close()
@@ -236,7 +243,7 @@ func (c *ConfigClient) Stop(ctx context.Context) error {
 
 // BindFeature binds configuration values to a feature struct
 func (c *ConfigClient) BindFeature(ctx context.Context, out Feature) error {
-	snapshot, err := c.snapshotStore.GetSnapshot(ctx)
+	snapshot, err := c.snapshotManager.GetSnapshot(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get configuration: %w", err)
 	}

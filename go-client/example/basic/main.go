@@ -32,7 +32,7 @@ func (c *CantoneseWagonsFeature) FeatureName() string {
 func main() {
 	ctx := context.Background()
 
-	slog.SetLogLoggerLevel(slog.LevelError)
+	slog.SetLogLoggerLevel(slog.LevelDebug)
 
 	client := configserviceclient.New(configserviceclient.Config{
 		Url: "localhost:50051",
@@ -41,18 +41,21 @@ func main() {
 		},
 		PollingInterval:          15 * time.Second,
 		SnapshotCleanupInterval:  1 * time.Minute,
-		UnusedSnapshotExpiration: 1 * time.Minute,
+		UnusedSnapshotExpiration: 10 * time.Minute,
 	},
 		configserviceclient.WithFeatures(
 			&CantoneseWagonsFeature{},
 		),
-		configserviceclient.WithStaticVariation("env", "dev"),
+		//configserviceclient.WithStaticVariation("env", "qa1"),
 		configserviceclient.WithStaticVariation("domain", "necroskillz.io"),
 		configserviceclient.WithStaticVariation("product", "shop"),
+		configserviceclient.WithDynamicVariationResolver("env", func(ctx context.Context) (string, error) {
+			return "qa1", nil
+		}),
 		configserviceclient.WithChangesetOverrider(func(ctx context.Context) *uint32 {
-			changesetId := uint32(1011)
+			//changesetId := uint32(1011)
 
-			return &changesetId
+			return nil
 		}),
 		configserviceclient.WithLogging(func(ctx context.Context, level slog.Level, msg string, fields ...any) {
 			slog.Log(ctx, level, msg, fields...)
@@ -72,7 +75,11 @@ func main() {
 
 	go func() {
 		<-sigChan
-		err = client.Stop(ctx)
+
+		stopCtx, stopCtxCancel := context.WithTimeout(ctx, 10*time.Second)
+		defer stopCtxCancel()
+
+		err = client.Stop(stopCtx)
 		if err != nil {
 			log.Fatalf("Failed to stop client: %v", err)
 		}

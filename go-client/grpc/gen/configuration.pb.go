@@ -9,6 +9,7 @@ package grpcgen
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -97,6 +98,7 @@ type GetConfigurationResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ChangesetId   uint32                 `protobuf:"varint,1,opt,name=changeset_id,json=changesetId,proto3" json:"changeset_id,omitempty"`
 	Features      []*Feature             `protobuf:"bytes,2,rep,name=features,proto3" json:"features,omitempty"`
+	AppliedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=applied_at,json=appliedAt,proto3,oneof" json:"applied_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -141,6 +143,13 @@ func (x *GetConfigurationResponse) GetChangesetId() uint32 {
 func (x *GetConfigurationResponse) GetFeatures() []*Feature {
 	if x != nil {
 		return x.Features
+	}
+	return nil
+}
+
+func (x *GetConfigurationResponse) GetAppliedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AppliedAt
 	}
 	return nil
 }
@@ -609,7 +618,7 @@ var File_configuration_proto protoreflect.FileDescriptor
 
 const file_configuration_proto_rawDesc = "" +
 	"\n" +
-	"\x13configuration.proto\x12\agrpcgen\"\x9d\x02\n" +
+	"\x13configuration.proto\x12\agrpcgen\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9d\x02\n" +
 	"\x17GetConfigurationRequest\x12\x1a\n" +
 	"\bservices\x18\x01 \x03(\tR\bservices\x12&\n" +
 	"\fchangeset_id\x18\x02 \x01(\rH\x00R\vchangesetId\x88\x01\x01\x12\x17\n" +
@@ -619,10 +628,13 @@ const file_configuration_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0f\n" +
 	"\r_changeset_idB\a\n" +
-	"\x05_mode\"k\n" +
+	"\x05_mode\"\xba\x01\n" +
 	"\x18GetConfigurationResponse\x12!\n" +
 	"\fchangeset_id\x18\x01 \x01(\rR\vchangesetId\x12,\n" +
-	"\bfeatures\x18\x02 \x03(\v2\x10.grpcgen.FeatureR\bfeatures\"E\n" +
+	"\bfeatures\x18\x02 \x03(\v2\x10.grpcgen.FeatureR\bfeatures\x12>\n" +
+	"\n" +
+	"applied_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tappliedAt\x88\x01\x01B\r\n" +
+	"\v_applied_at\"E\n" +
 	"\aFeature\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12&\n" +
 	"\x04keys\x18\x02 \x03(\v2\x12.grpcgen.ConfigKeyR\x04keys\"j\n" +
@@ -686,27 +698,29 @@ var file_configuration_proto_goTypes = []any{
 	(*GetVariationHierarchyResponse)(nil),   // 10: grpcgen.GetVariationHierarchyResponse
 	nil,                                     // 11: grpcgen.GetConfigurationRequest.VariationEntry
 	nil,                                     // 12: grpcgen.ConfigValue.VariationEntry
+	(*timestamppb.Timestamp)(nil),           // 13: google.protobuf.Timestamp
 }
 var file_configuration_proto_depIdxs = []int32{
 	11, // 0: grpcgen.GetConfigurationRequest.variation:type_name -> grpcgen.GetConfigurationRequest.VariationEntry
 	2,  // 1: grpcgen.GetConfigurationResponse.features:type_name -> grpcgen.Feature
-	3,  // 2: grpcgen.Feature.keys:type_name -> grpcgen.ConfigKey
-	4,  // 3: grpcgen.ConfigKey.values:type_name -> grpcgen.ConfigValue
-	12, // 4: grpcgen.ConfigValue.variation:type_name -> grpcgen.ConfigValue.VariationEntry
-	8,  // 5: grpcgen.VariationHierarchyProperty.values:type_name -> grpcgen.VariationHierarchyPropertyValue
-	8,  // 6: grpcgen.VariationHierarchyPropertyValue.children:type_name -> grpcgen.VariationHierarchyPropertyValue
-	7,  // 7: grpcgen.GetVariationHierarchyResponse.properties:type_name -> grpcgen.VariationHierarchyProperty
-	0,  // 8: grpcgen.ConfigService.GetConfiguration:input_type -> grpcgen.GetConfigurationRequest
-	5,  // 9: grpcgen.ConfigService.GetNextChangesets:input_type -> grpcgen.GetNextChangesetsRequest
-	9,  // 10: grpcgen.ConfigService.GetVariationHierarchy:input_type -> grpcgen.GetVariationHierarchyRequest
-	1,  // 11: grpcgen.ConfigService.GetConfiguration:output_type -> grpcgen.GetConfigurationResponse
-	6,  // 12: grpcgen.ConfigService.GetNextChangesets:output_type -> grpcgen.GetNextChangesetsResponse
-	10, // 13: grpcgen.ConfigService.GetVariationHierarchy:output_type -> grpcgen.GetVariationHierarchyResponse
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	13, // 2: grpcgen.GetConfigurationResponse.applied_at:type_name -> google.protobuf.Timestamp
+	3,  // 3: grpcgen.Feature.keys:type_name -> grpcgen.ConfigKey
+	4,  // 4: grpcgen.ConfigKey.values:type_name -> grpcgen.ConfigValue
+	12, // 5: grpcgen.ConfigValue.variation:type_name -> grpcgen.ConfigValue.VariationEntry
+	8,  // 6: grpcgen.VariationHierarchyProperty.values:type_name -> grpcgen.VariationHierarchyPropertyValue
+	8,  // 7: grpcgen.VariationHierarchyPropertyValue.children:type_name -> grpcgen.VariationHierarchyPropertyValue
+	7,  // 8: grpcgen.GetVariationHierarchyResponse.properties:type_name -> grpcgen.VariationHierarchyProperty
+	0,  // 9: grpcgen.ConfigService.GetConfiguration:input_type -> grpcgen.GetConfigurationRequest
+	5,  // 10: grpcgen.ConfigService.GetNextChangesets:input_type -> grpcgen.GetNextChangesetsRequest
+	9,  // 11: grpcgen.ConfigService.GetVariationHierarchy:input_type -> grpcgen.GetVariationHierarchyRequest
+	1,  // 12: grpcgen.ConfigService.GetConfiguration:output_type -> grpcgen.GetConfigurationResponse
+	6,  // 13: grpcgen.ConfigService.GetNextChangesets:output_type -> grpcgen.GetNextChangesetsResponse
+	10, // 14: grpcgen.ConfigService.GetVariationHierarchy:output_type -> grpcgen.GetVariationHierarchyResponse
+	12, // [12:15] is the sub-list for method output_type
+	9,  // [9:12] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_configuration_proto_init() }
@@ -715,6 +729,7 @@ func file_configuration_proto_init() {
 		return
 	}
 	file_configuration_proto_msgTypes[0].OneofWrappers = []any{}
+	file_configuration_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
