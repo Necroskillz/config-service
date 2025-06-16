@@ -568,9 +568,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get changesets",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1493,9 +1490,6 @@ const docTemplate = `{
         "/configuration": {
             "get": {
                 "description": "Get configuration",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1571,9 +1565,6 @@ const docTemplate = `{
         "/configuration/changesets": {
             "get": {
                 "description": "Get next changesets",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1609,6 +1600,55 @@ const docTemplate = `{
                                     "type": "integer"
                                 }
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/configuration/variation-hierarchy": {
+            "get": {
+                "description": "Get variation hierarchy",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get variation hierarchy",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "example": "TestService:1",
+                        "description": "Service versions",
+                        "name": "services[]",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/configuration.VariationHierarchyDto"
                         }
                     },
                     "400": {
@@ -2859,9 +2899,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Unlink a variation property from a service type",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -6286,6 +6323,55 @@ const docTemplate = `{
                     "additionalProperties": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "configuration.VariationHierarchyDto": {
+            "type": "object",
+            "required": [
+                "properties"
+            ],
+            "properties": {
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/configuration.VariationHierarchyPropertyDto"
+                    }
+                }
+            }
+        },
+        "configuration.VariationHierarchyPropertyDto": {
+            "type": "object",
+            "required": [
+                "name",
+                "values"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/configuration.VariationHierarchyPropertyValueDto"
+                    }
+                }
+            }
+        },
+        "configuration.VariationHierarchyPropertyValueDto": {
+            "type": "object",
+            "required": [
+                "value"
+            ],
+            "properties": {
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/configuration.VariationHierarchyPropertyValueDto"
+                    }
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },

@@ -174,7 +174,6 @@ func (h *Handler) LinkVariationPropertyToServiceType(c echo.Context) error {
 
 // @Summary Unlink variation property from service type
 // @Description Unlink a variation property from a service type
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param service_type_id path uint true "Service type ID"

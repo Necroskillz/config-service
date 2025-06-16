@@ -1,0 +1,1 @@
+{"properties":{"children":{"items":{"$ref":"#/components/schemas/configuration.VariationHierarchyPropertyValueDto"},"type":"array"},"value":{"type":"string"}},"required":["value"],"type":"object","x-readme-ref-name":"configuration.VariationHierarchyPropertyValueDto"}

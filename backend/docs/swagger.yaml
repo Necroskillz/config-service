@@ -319,6 +319,38 @@ definitions:
     - data
     - rank
     type: object
+  configuration.VariationHierarchyDto:
+    properties:
+      properties:
+        items:
+          $ref: '#/definitions/configuration.VariationHierarchyPropertyDto'
+        type: array
+    required:
+    - properties
+    type: object
+  configuration.VariationHierarchyPropertyDto:
+    properties:
+      name:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/configuration.VariationHierarchyPropertyValueDto'
+        type: array
+    required:
+    - name
+    - values
+    type: object
+  configuration.VariationHierarchyPropertyValueDto:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/configuration.VariationHierarchyPropertyValueDto'
+        type: array
+      value:
+        type: string
+    required:
+    - value
+    type: object
   core.PaginatedResult-changeset_ChangeHistoryItemDto:
     properties:
       items:
@@ -1722,8 +1754,6 @@ paths:
       summary: Get applied service versions
   /changesets:
     get:
-      consumes:
-      - application/json
       description: Get changesets
       parameters:
       - default: 1
@@ -2323,8 +2353,6 @@ paths:
       summary: Get the current changeset info
   /configuration:
     get:
-      consumes:
-      - application/json
       description: Get configuration
       parameters:
       - description: Changeset ID
@@ -2376,8 +2404,6 @@ paths:
       summary: Get configuration
   /configuration/changesets:
     get:
-      consumes:
-      - application/json
       description: Get next changesets
       parameters:
       - description: After changeset ID
@@ -2417,6 +2443,39 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Get next changesets
+  /configuration/variation-hierarchy:
+    get:
+      description: Get variation hierarchy
+      parameters:
+      - collectionFormat: multi
+        description: Service versions
+        example: TestService:1
+        in: query
+        items:
+          type: string
+        name: services[]
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/configuration.VariationHierarchyDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get variation hierarchy
   /membership:
     get:
       description: Get list of users and groups
@@ -3202,8 +3261,6 @@ paths:
       summary: Link variation property to service type
   /service-types/{service_type_id}/variation-properties/{variation_property_id}:
     delete:
-      consumes:
-      - application/json
       description: Unlink a variation property from a service type
       parameters:
       - description: Service type ID

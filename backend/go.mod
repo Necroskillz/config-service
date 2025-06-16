@@ -6,6 +6,7 @@ require (
 	github.com/amacneil/dbmate/v2 v2.27.0
 	github.com/dgraph-io/ristretto/v2 v2.1.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/hashicorp/go-metrics v0.5.4
 	github.com/jackc/pgx/v5 v5.7.3
 	github.com/joho/godotenv v1.5.1
@@ -18,6 +19,8 @@ require (
 	github.com/swaggo/swag v1.16.4
 	golang.org/x/crypto v0.37.0
 	golang.org/x/text v0.24.0
+	google.golang.org/grpc v1.72.0
+	google.golang.org/protobuf v1.36.6
 	gotest.tools/v3 v3.5.2
 )
 
@@ -58,6 +61,7 @@ require (
 	golang.org/x/term v0.31.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
 	golang.org/x/tools v0.32.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250428153025-10db94c68c34 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -178,10 +178,12 @@ WHERE id = @service_id;
 
 -- name: GetServiceVersionByNameAndVersion :one
 SELECT
-    sv.*
+    sv.*,
+    st.id AS service_type_id
 FROM
     service_versions sv
     JOIN services s ON s.id = sv.service_id
+    JOIN service_types st ON st.id = s.service_type_id
 WHERE
     s.name = @name
     AND sv.version = @version

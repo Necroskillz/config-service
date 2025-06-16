@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -11,6 +11,7 @@ import (
 	"github.com/dgraph-io/ristretto/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/tracelog"
 	"github.com/joho/godotenv"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
@@ -21,6 +22,7 @@ import (
 	"github.com/necroskillz/config-service/handler"
 	"github.com/necroskillz/config-service/middleware"
 	"github.com/necroskillz/config-service/services"
+	"github.com/necroskillz/config-service/util/logging"
 	slogecho "github.com/samber/slog-echo"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
@@ -29,6 +31,13 @@ type Server struct {
 	echo   *echo.Echo
 	dbpool *pgxpool.Pool
 	cache  *ristretto.Cache[string, any]
+}
+
+type PgxTraceLogger struct {
+}
+
+func (t *PgxTraceLogger) Log(ctx context.Context, level tracelog.LogLevel, msg string, data map[string]any) {
+	fmt.Println("pgx", msg, data)
 }
 
 func NewServer() *Server {
@@ -59,7 +68,21 @@ func (s *Server) Start() error {
 		return fmt.Errorf("failed to migrate database: %w", err)
 	}
 
-	dbpool, err := pgxpool.New(ctx, connectionString)
+	config, err := pgxpool.ParseConfig(connectionString)
+	if err != nil {
+		return fmt.Errorf("failed to parse connection string: %w", err)
+	}
+
+	logger := logging.ConfigureSlog("Config Service HTTP/server")
+
+	if os.Getenv("PGX_TRACE") != "" {
+		config.ConnConfig.Tracer = &tracelog.TraceLog{
+			LogLevel: tracelog.LogLevelTrace,
+			Logger:   &PgxTraceLogger{},
+		}
+	}
+
+	dbpool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -70,7 +93,7 @@ func (s *Server) Start() error {
 
 	svc := services.InitializeServices(dbpool, cache)
 
-	e.Use(slogecho.NewWithFilters(slog.Default(),
+	e.Use(slogecho.NewWithFilters(logger,
 		slogecho.IgnoreStatus(http.StatusUnauthorized, http.StatusConflict),
 	))
 	e.Use(echoMiddleware.Recover())
@@ -87,15 +110,20 @@ func (s *Server) Start() error {
 		},
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
 		Skipper: func(c echo.Context) bool {
+			url := c.Request().URL.Path
+
+			if !strings.HasPrefix(url, "/api/") {
+				return true
+			}
+
 			skippedPaths := []string{
 				"/api/auth/login",
 				"/api/auth/refresh_token",
 				"/api/configuration",
-				"/swagger",
 			}
 
 			for _, path := range skippedPaths {
-				if strings.HasPrefix(c.Request().URL.Path, path) {
+				if strings.HasPrefix(url, path) {
 					return true
 				}
 			}
@@ -133,16 +161,20 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
+	if s.echo != nil {
+		if err := s.echo.Shutdown(ctx); err != nil {
+			if !errors.Is(err, http.ErrServerClosed) {
+				return fmt.Errorf("failed to shutdown server: %w", err)
+			}
+		}
+	}
+
 	if s.dbpool != nil {
 		s.dbpool.Close()
 	}
 
 	if s.cache != nil {
 		s.cache.Close()
-	}
-
-	if err := s.echo.Shutdown(ctx); err != nil {
-		return fmt.Errorf("failed to shutdown server: %w", err)
 	}
 
 	return nil

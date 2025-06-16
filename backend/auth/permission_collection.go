@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"log/slog"
+
 	"github.com/necroskillz/config-service/constants"
 )
 
@@ -67,7 +69,7 @@ func (p *PermissionCollection) GetPermissionLevelFor(serviceId uint, featureId *
 		for propertyId, propertyValue := range variationPropertyValues {
 			parents, err := p.parentsProvider.GetParents(propertyId, propertyValue)
 			if err != nil {
-				// TODO: log error
+				slog.Error("failed to get parents for property", "propertyId", propertyId, "propertyValue", propertyValue, "error", err)
 				return constants.PermissionViewer
 			}
 

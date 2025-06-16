@@ -37,6 +37,8 @@ export type { GetConfigurationQueryKey } from './hooks/useGetConfiguration.ts'
 export type { GetConfigurationChangesetsQueryKey } from './hooks/useGetConfigurationChangesets.ts'
 export type { GetConfigurationChangesetsSuspenseQueryKey } from './hooks/useGetConfigurationChangesetsSuspense.ts'
 export type { GetConfigurationSuspenseQueryKey } from './hooks/useGetConfigurationSuspense.ts'
+export type { GetConfigurationVariationHierarchyQueryKey } from './hooks/useGetConfigurationVariationHierarchy.ts'
+export type { GetConfigurationVariationHierarchySuspenseQueryKey } from './hooks/useGetConfigurationVariationHierarchySuspense.ts'
 export type { GetMembershipQueryKey } from './hooks/useGetMembership.ts'
 export type { GetMembershipGroupsGroupIdQueryKey } from './hooks/useGetMembershipGroupsGroupId.ts'
 export type { GetMembershipGroupsGroupIdSuspenseQueryKey } from './hooks/useGetMembershipGroupsGroupIdSuspense.ts'
@@ -145,6 +147,9 @@ export type { ConfigurationConfigurationDto } from './types/configuration/Config
 export type { ConfigurationFeatureConfigurationDto } from './types/configuration/FeatureConfigurationDto.ts'
 export type { ConfigurationKeyConfigurationDto } from './types/configuration/KeyConfigurationDto.ts'
 export type { ConfigurationValueConfigurationDto } from './types/configuration/ValueConfigurationDto.ts'
+export type { ConfigurationVariationHierarchyDto } from './types/configuration/VariationHierarchyDto.ts'
+export type { ConfigurationVariationHierarchyPropertyDto } from './types/configuration/VariationHierarchyPropertyDto.ts'
+export type { ConfigurationVariationHierarchyPropertyValueDto } from './types/configuration/VariationHierarchyPropertyValueDto.ts'
 export type { CorePaginatedResultChangesetChangeHistoryItemDto } from './types/core/PaginatedResultChangesetChangeHistoryItemDto.ts'
 export type { CorePaginatedResultChangesetChangesetItemDto } from './types/core/PaginatedResultChangesetChangesetItemDto.ts'
 export type { CorePaginatedResultMembershipGroupUserDto } from './types/core/PaginatedResultMembershipGroupUserDto.ts'
@@ -420,6 +425,15 @@ export type {
   GetConfigurationChangesetsQueryResponse,
   GetConfigurationChangesetsQuery,
 } from './types/GetConfigurationChangesets.ts'
+export type {
+  GetConfigurationVariationHierarchyQueryParams,
+  GetConfigurationVariationHierarchy200,
+  GetConfigurationVariationHierarchy400,
+  GetConfigurationVariationHierarchy404,
+  GetConfigurationVariationHierarchy500,
+  GetConfigurationVariationHierarchyQueryResponse,
+  GetConfigurationVariationHierarchyQuery,
+} from './types/GetConfigurationVariationHierarchy.ts'
 export type {
   GetMembershipQueryParams,
   GetMembership200,
@@ -1349,6 +1363,18 @@ export {
   getConfigurationSuspenseQueryOptions,
   useGetConfigurationSuspense,
 } from './hooks/useGetConfigurationSuspense.ts'
+export {
+  getConfigurationVariationHierarchyQueryKey,
+  getConfigurationVariationHierarchy,
+  getConfigurationVariationHierarchyQueryOptions,
+  useGetConfigurationVariationHierarchy,
+} from './hooks/useGetConfigurationVariationHierarchy.ts'
+export {
+  getConfigurationVariationHierarchySuspenseQueryKey,
+  getConfigurationVariationHierarchySuspense,
+  getConfigurationVariationHierarchySuspenseQueryOptions,
+  useGetConfigurationVariationHierarchySuspense,
+} from './hooks/useGetConfigurationVariationHierarchySuspense.ts'
 export { getMembershipQueryKey, getMembership, getMembershipQueryOptions, useGetMembership } from './hooks/useGetMembership.ts'
 export {
   getMembershipGroupsGroupIdQueryKey,

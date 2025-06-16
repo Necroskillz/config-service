@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/auth"
@@ -17,10 +16,6 @@ import (
 func AuthMiddleware(authService *membership.AuthService, variationHierarchyService *variation.HierarchyService, changesetService *changeset.Service) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			if strings.HasPrefix(c.Request().URL.Path, "/assets/") {
-				return next(c)
-			}
-
 			claims, err := auth.GetClaims(c)
 			if err != nil {
 				if errors.Is(err, auth.ErrUserNotAuthenticated) {

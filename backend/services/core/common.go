@@ -105,3 +105,17 @@ func ParseServiceVersionSpecifier(s string) (ServiceVersionSpecifier, error) {
 func (s *ServiceVersionSpecifier) String() string {
 	return fmt.Sprintf("%s:%d", s.Name, s.Version)
 }
+
+func ParseServiceVersionSpecifiers(serviceVersions []string) ([]ServiceVersionSpecifier, error) {
+	serviceVersionSpecifiers := make([]ServiceVersionSpecifier, len(serviceVersions))
+	for i, serviceVersion := range serviceVersions {
+		specifier, err := ParseServiceVersionSpecifier(serviceVersion)
+		if err != nil {
+			return nil, NewServiceError(ErrorCodeInvalidInput, err.Error())
+		}
+
+		serviceVersionSpecifiers[i] = specifier
+	}
+
+	return serviceVersionSpecifiers, nil
+}

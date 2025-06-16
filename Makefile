@@ -1,5 +1,8 @@
-dev-backend:
-	cd backend && make dev
+dev-backend-rest:
+	cd backend && make dev-rest
+
+dev-backend-grpc:
+	cd backend && make dev-grpc
 
 dev-frontend:
 	cd frontend && pnpm dev
@@ -10,6 +13,10 @@ swag:
 
 sqlc:
 	cd backend && make sqlc
+
+proto:
+	cd backend && make proto
+	cd go-client && make proto
 
 test:
 	cd backend && make test

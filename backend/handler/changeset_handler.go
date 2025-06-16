@@ -11,7 +11,6 @@ import (
 
 // @Summary Get changesets
 // @Description Get changesets
-// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param page query int false "Page" default(1)

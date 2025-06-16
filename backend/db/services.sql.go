@@ -345,10 +345,12 @@ func (q *Queries) GetServiceVersion(ctx context.Context, arg GetServiceVersionPa
 
 const getServiceVersionByNameAndVersion = `-- name: GetServiceVersionByNameAndVersion :one
 SELECT
-    sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published
+    sv.id, sv.created_at, sv.updated_at, sv.valid_from, sv.valid_to, sv.service_id, sv.version, sv.published,
+    st.id AS service_type_id
 FROM
     service_versions sv
     JOIN services s ON s.id = sv.service_id
+    JOIN service_types st ON st.id = s.service_type_id
 WHERE
     s.name = $1
     AND sv.version = $2
@@ -362,9 +364,21 @@ type GetServiceVersionByNameAndVersionParams struct {
 	Version int
 }
 
-func (q *Queries) GetServiceVersionByNameAndVersion(ctx context.Context, arg GetServiceVersionByNameAndVersionParams) (ServiceVersion, error) {
+type GetServiceVersionByNameAndVersionRow struct {
+	ID            uint
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ValidFrom     *time.Time
+	ValidTo       *time.Time
+	ServiceID     uint
+	Version       int
+	Published     bool
+	ServiceTypeID uint
+}
+
+func (q *Queries) GetServiceVersionByNameAndVersion(ctx context.Context, arg GetServiceVersionByNameAndVersionParams) (GetServiceVersionByNameAndVersionRow, error) {
 	row := q.db.QueryRow(ctx, getServiceVersionByNameAndVersion, arg.Name, arg.Version)
-	var i ServiceVersion
+	var i GetServiceVersionByNameAndVersionRow
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
@@ -374,6 +388,7 @@ func (q *Queries) GetServiceVersionByNameAndVersion(ctx context.Context, arg Get
 		&i.ServiceID,
 		&i.Version,
 		&i.Published,
+		&i.ServiceTypeID,
 	)
 	return i, err
 }

@@ -147,6 +147,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	configurationGroup := apiGroup.Group("/configuration")
 	configurationGroup.GET("", h.GetConfiguration)
 	configurationGroup.GET("/changesets", h.GetNextChangesets)
+	configurationGroup.GET("/variation-hierarchy", h.GetVariationHierarchy)
 
 	changeHistoryGroup := apiGroup.Group("/change-history")
 	changeHistoryGroup.GET("", h.GetChangeHistory)

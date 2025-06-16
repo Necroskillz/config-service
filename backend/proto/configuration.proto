@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+option go_package = "github.com/necroskillz/config-service/grpcgen";
+package grpcgen;
+
+service ConfigService {
+  // Get configuration for specified services and variation
+  rpc GetConfiguration(GetConfigurationRequest) returns (GetConfigurationResponse);
+  
+  // Get changesets that happened after a specific changeset ID
+  rpc GetNextChangesets(GetNextChangesetsRequest) returns (GetNextChangesetsResponse);
+
+  // Get variation hierarchy
+  rpc GetVariationHierarchy(GetVariationHierarchyRequest) returns (GetVariationHierarchyResponse);
+}
+
+message GetConfigurationRequest {
+  // Service versions in format "service:version"
+  repeated string services = 1;
+  
+  // Optional changeset ID to get configuration from
+  optional uint32 changeset_id = 2;
+  
+  // Optional mode (e.g., "production")
+  optional string mode = 3;
+  
+  // Variation context as key-value pairs
+  map<string, string> variation = 4;
+}
+
+message GetConfigurationResponse {
+  uint32 changeset_id = 1;
+  repeated Feature features = 2;
+}
+
+message Feature {
+  string name = 1;
+  repeated ConfigKey keys = 2;
+}
+
+message ConfigKey {
+  string name = 1;
+  string data_type = 2;
+  repeated ConfigValue values = 3;
+}
+
+message ConfigValue {
+  string data = 1;
+  int32 rank = 2;
+  map<string, string> variation = 3;
+}
+
+message GetNextChangesetsRequest {
+  uint32 after_changeset_id = 1;
+  repeated string services = 2;
+}
+
+message GetNextChangesetsResponse {
+  repeated uint32 changeset_ids = 1;
+}
+
+message VariationHierarchyProperty {
+  string name = 1;
+  repeated VariationHierarchyPropertyValue values = 2;
+}
+
+message VariationHierarchyPropertyValue {
+  string value = 1;
+  repeated VariationHierarchyPropertyValue children = 2;
+}
+
+message GetVariationHierarchyRequest {
+  repeated string services = 1;
+}
+
+message GetVariationHierarchyResponse {
+  repeated VariationHierarchyProperty properties = 1;
+}

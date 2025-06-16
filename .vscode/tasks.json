@@ -2,9 +2,16 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "dev-backend",
+      "label": "dev-backend-rest",
       "type": "shell",
-      "command": "make dev-backend",
+      "command": "make dev-backend-rest",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "dev-backend-grpc",
+      "type": "shell",
+      "command": "make dev-backend-grpc",
       "group": "build",
       "problemMatcher": []
     },
@@ -43,7 +50,7 @@
     },
     {
       "label": "dev (all)",
-      "dependsOn": ["dev-backend", "dev-frontend"],
+      "dependsOn": ["dev-backend-rest", "dev-backend-grpc", "dev-frontend"],
       "dependsOrder": "parallel",
       "problemMatcher": []
     }

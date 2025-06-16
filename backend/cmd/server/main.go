@@ -34,7 +34,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := server.Stop(ctx); err != nil && err != http.ErrServerClosed {
+	if err := server.Stop(ctx); err != nil {
 		log.Fatalf("failed to gracefully stop server: %v", err)
 	}
 }

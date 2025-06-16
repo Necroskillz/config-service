@@ -1,6 +1,5 @@
 bin/
 tmp/
-views/**/*.txt
 
 .env
 .sql

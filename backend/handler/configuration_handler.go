@@ -6,25 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/necroskillz/config-service/services/configuration"
 	"github.com/necroskillz/config-service/services/core"
+	"github.com/necroskillz/config-service/util/ptr"
 )
-
-func parseServiceVersionSpecifiers(serviceVersions []string) ([]core.ServiceVersionSpecifier, error) {
-	serviceVersionSpecifiers := make([]core.ServiceVersionSpecifier, len(serviceVersions))
-	for i, serviceVersion := range serviceVersions {
-		specifier, err := core.ParseServiceVersionSpecifier(serviceVersion)
-		if err != nil {
-			return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
-		serviceVersionSpecifiers[i] = specifier
-	}
-
-	return serviceVersionSpecifiers, nil
-}
 
 // @Summary Get next changesets
 // @Description Get next changesets
-// @Accept json
 // @Produce json
 // @Param after query uint true "After changeset ID"
 // @Param services[] query []string true "Service versions"
@@ -41,7 +27,7 @@ func (h *Handler) GetNextChangesets(c echo.Context) error {
 		return ToHTTPError(err)
 	}
 
-	serviceVersionSpecifiers, err := parseServiceVersionSpecifiers(serviceVersions)
+	serviceVersionSpecifiers, err := core.ParseServiceVersionSpecifiers(serviceVersions)
 	if err != nil {
 		return err
 	}
@@ -54,9 +40,37 @@ func (h *Handler) GetNextChangesets(c echo.Context) error {
 	return c.JSON(http.StatusOK, changesets)
 }
 
+// @Summary Get variation hierarchy
+// @Description Get variation hierarchy
+// @Produce json
+// @Param services[] query []string true "Service versions" example(TestService:1) collectionFormat(multi)
+// @Success 200 {object} configuration.VariationHierarchyDto
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /configuration/variation-hierarchy [get]
+func (h *Handler) GetVariationHierarchy(c echo.Context) error {
+	var serviceVersions []string
+	err := echo.QueryParamsBinder(c).MustStrings("services[]", &serviceVersions).BindError()
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	serviceVersionSpecifiers, err := core.ParseServiceVersionSpecifiers(serviceVersions)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	variationHierarchy, err := h.ConfigurationService.GetVariationHierarchy(c.Request().Context(), serviceVersionSpecifiers)
+	if err != nil {
+		return ToHTTPError(err)
+	}
+
+	return c.JSON(http.StatusOK, variationHierarchy)
+}
+
 // @Summary Get configuration
 // @Description Get configuration
-// @Accept json
 // @Produce json
 // @Param changesetId query uint false "Changeset ID"
 // @Param services[] query []string true "Service versions in format service:version" example(TestService:1) collectionFormat(multi)
@@ -81,14 +95,14 @@ func (h *Handler) GetConfiguration(c echo.Context) error {
 		return err
 	}
 
-	serviceVersionSpecifiers, err := parseServiceVersionSpecifiers(serviceVersions)
+	serviceVersionSpecifiers, err := core.ParseServiceVersionSpecifiers(serviceVersions)
 	if err != nil {
 		return err
 	}
 
 	configuration, err := h.ConfigurationService.GetConfiguration(c.Request().Context(), configuration.GetConfigurationParams{
 		ServiceVersionSpecifiers: serviceVersionSpecifiers,
-		ChangesetID:              changesetID,
+		ChangesetID:              ptr.To(changesetID, ptr.NilIfZero()),
 		Mode:                     mode,
 		Variation:                variation,
 	})

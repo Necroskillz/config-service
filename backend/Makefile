@@ -1,18 +1,15 @@
-.PHONY: dev build test clean install-deps seed sqlc swag testdata
+.PHONY: dev-rest dev-grpc build test clean testdata sqlc swag proto
 
-# Default target
 all: build
-
-# Install dependencies
-install-deps:
-	go mod tidy
-	go install github.com/cosmtrek/air@latest
 
 sqlc:
 	sqlc generate
 
-dev:
+dev-rest:
 	air
+
+dev-grpc:
+	air -c .air-grpc.toml
 
 testdata:
 	go run cmd/datagenerator/main.go $(if $(SEED),--seed=$(SEED)) $(if $(ITERATIONS),--iterations=$(ITERATIONS))
@@ -20,16 +17,23 @@ testdata:
 swag:
 	swag init -g ./routes.go -d ./handler --parseDependency
 
-# Build the application
+proto:
+	protoc --go_out=./grpc/gen --go_opt=paths=source_relative \
+		--go-grpc_out=./grpc/gen --go-grpc_opt=paths=source_relative \
+		--proto_path=./proto \
+		configuration.proto
+
 build:
 	make swag
 	go build -o bin/server.exe ./cmd/server
 
-# Run tests
 test:
-	go test -v ./...
+	go test ./...
 
-# Clean build artifacts
+cover:
+	go test -coverprofile=tmp/coverage.out ./...
+	go tool cover -html=tmp/coverage.out
+
 clean:
 	rm -rf bin/
 	go clean
